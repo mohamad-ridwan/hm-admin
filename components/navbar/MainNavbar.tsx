@@ -12,8 +12,12 @@ export default function MainNavbar({
 }: Props){
     const {isNavigation} = navigationStore()
 
+    if(isNavigation === false){
+        return <></>
+    }
+
     return (
-        <main className={isNavigation === false ? 'hidden' : 'flex justify-between items-center p-4 bg-white fixed left-0 right-0 border-b-[1px] border-b-bdr-bottom'}>
+        <main className='flex justify-between items-center p-4 bg-white fixed left-0 right-0 border-b-[1px] border-b-bdr-bottom'>
             {children}
         </main>
     )

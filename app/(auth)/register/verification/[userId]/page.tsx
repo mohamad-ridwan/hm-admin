@@ -53,10 +53,6 @@ export default async function VerificationPage({
         resAdmin?.isVerification === false
     )
 
-    // if (typeof findAdmin === 'undefined') {
-    //     throw new AuthRequiredError('expired token or account not found')
-    // }
-
     return (
         <Template
             key={2}

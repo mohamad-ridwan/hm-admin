@@ -33,11 +33,11 @@ export default function Template({
                 description: description as string
             })
         }
-        if(typeof isNavigateOff === 'boolean' && isNavigateOff){
+        if(isNavigateOff){
             setTimeout(() => {
                 setNavigate(false)
-            }, 100);
-        }else if(typeof isNavigateOff !== 'boolean') {
+            }, 50)
+        }else if(typeof isNavigateOff === 'undefined') {
             setNavigate(true)
         }
     }, [])

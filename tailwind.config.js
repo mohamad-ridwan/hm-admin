@@ -15,7 +15,8 @@ module.exports = {
         'bgp-default': '#f8f8f8',
         'pink-old': '#ff296d',
         'overlay': 'rgba(0,0,0,0.4)',
-        'key-color': 'rgba(63, 173, 228, 0.1450980392)'
+        'key-color': 'rgba(63, 173, 228, 0.1450980392)',
+        'color-default': '#3face4'
       },
       borderWidth:{
         'bdr-one': '1px'

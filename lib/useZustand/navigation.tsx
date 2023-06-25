@@ -15,7 +15,7 @@ type NotFoundProps = NavigationProps & {
 type DefaultProps = NotFoundProps
 
 export const navigationStore = create<DefaultProps>()((set)=>({
-    isNavigation: true,
+    isNavigation: false,
     setNavigate: (param)=>set((state)=>({isNavigation: param})),
     isNotFound: false,
     setIsNotFound: (param)=>set((state)=>({isNotFound: param}))

@@ -3,6 +3,7 @@
 import { CSSProperties, ReactElement, ReactNode } from "react"
 
 type ButtonProps = {
+    colorBtnTxt?: string
     classBtn?: string
     clickBtn?: ()=>void
     styleBtn?: CSSProperties
@@ -26,6 +27,7 @@ type LoadingProps = IconButton & {
 type Props = LoadingProps
 
 export default function Button({
+    colorBtnTxt,
     classBtn,
     clickBtn,
     disabled,
@@ -36,7 +38,7 @@ export default function Button({
     classLoading,
     styleLoading,
 }: Props){
-    return <button className={`flex text-center justify-center items-center py-[0.7rem] px-2 border-bdr-one border-color-default bg-color-default text-white 
+    return <button className={`flex text-center ${typeof colorBtnTxt === 'undefined' ? 'text-white' : colorBtnTxt} justify-center items-center py-[0.7rem] px-2 border-bdr-one border-color-default bg-color-default 
     text-[0.85rem] font-semibold hover:text-color-default hover:border-color-default transition ${classBtn}`} disabled={disabled} onClick={clickBtn} style={styleBtn}>
         {nameBtn}
         {children}

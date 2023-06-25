@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import Template from "./template"
 import Link from "next/link"
+import Button from "components/Button"
 
 type Props = {
     error: Error
@@ -21,6 +22,8 @@ export default function Error({
     return (
         <Template
             isNavigateOff={true}
+            title="Something went wrong"
+            description="terjadi kesalahan sesuatu pada admin hospice medical"
             className="flex justify-center"
         >
             <div className="container flex items-center min-h-screen px-6 py-12 mx-auto">
@@ -35,18 +38,22 @@ export default function Error({
                     <br />
 
                     <div className="flex flex-wrap justify-center items-center w-full mt-6 gap-x-3 shrink-0 sm:w-auto">
-                        <button className="flex mt-2 items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 transition-colors duration-200 bg-white border rounded-lg gap-x-2 sm:w-auto dark:hover:bg-gray-800 dark:bg-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-700"
-                        onClick={()=>{
-                            reset()
-                            window.location.reload()
-                        }}
-                        >
-                            <span>Try again</span>
-                        </button>
-                        <Link
-                            href="/"
-                            className="w-1/2 mt-2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-blue-500 rounded-lg shrink-0 sm:w-auto hover:bg-blue-600 dark:hover:bg-blue-500 dark:bg-blue-600">
-                            Back to Home
+                        <Button
+                            nameBtn="Try again"
+                            classLoading="hidden"
+                            colorBtnTxt="text-color-default"
+                            classBtn="px-8 bg-white hover:bg-color-default hover:text-white"
+                            clickBtn={()=>{
+                                reset()
+                                window.location.reload()
+                            }}
+                        />
+                        <Link href="/">
+                            <Button
+                                nameBtn="Back to Home"
+                                classLoading="hidden"
+                                classBtn="hover:bg-white px-8"
+                            />
                         </Link>
                     </div>
                 </div>

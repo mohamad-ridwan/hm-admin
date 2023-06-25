@@ -5,9 +5,9 @@ const nextConfig = {
         unoptimized: true
     },
     // output: "export",
-    experimental: {
-        serverActions: true
-    },
+    // experimental: {
+    //     serverActions: true
+    // },
 }
 
 module.exports = nextConfig

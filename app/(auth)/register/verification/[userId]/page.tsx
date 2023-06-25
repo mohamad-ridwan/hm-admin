@@ -4,7 +4,7 @@ import Template from "app/template";
 import ProtectContainer from "components/protect/ProtectContainer";
 import { AuthRequiredError } from "lib/errorHandling/exceptions";
 import { AdminT } from "lib/types/AdminT.types"
-import { Verification } from "components/protect/Verification";
+import { Verification } from "components/protect/register/Verification";
 import { faKey } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 

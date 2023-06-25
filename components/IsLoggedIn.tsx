@@ -8,7 +8,6 @@ import { authStore, userIdAuthStore } from "lib/useZustand/auth"
 type IsLoggedInProps = {
     children: ReactNode
 }
-
 type ObjString = { [key: string]: any }
 
 export function IsLoggedIn({

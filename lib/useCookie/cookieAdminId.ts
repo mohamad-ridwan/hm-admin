@@ -1,0 +1,1 @@
+export const cookieAdminId: string = process.env.NEXT_PUBLIC_ADMIN_ID as string

@@ -1,0 +1,1 @@
+export const spaceString: RegExp = /\s/g

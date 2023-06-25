@@ -1,0 +1,1 @@
+export const specialCharacter: RegExp = /[-’/`~!#*$@_%+=.,^&(){}[\]|;:”<>?\\]/g

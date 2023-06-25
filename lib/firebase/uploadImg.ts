@@ -1,5 +1,3 @@
-'use client'
-
 import { UploadResult, ref, uploadBytes } from "firebase/storage"
 import { storage } from "./firebase"
 

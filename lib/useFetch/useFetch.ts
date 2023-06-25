@@ -1,5 +1,3 @@
-'use client'
-
 import { backendUrl } from "lib/api/backendUrl"
 
 export async function useFetch<Type = {[key: string]: any}>(

@@ -17,7 +17,7 @@ export default function MainNavbar({
     }
 
     return (
-        <main className='flex justify-between items-center p-4 bg-white fixed left-0 right-0 border-b-[1px] border-b-bdr-bottom'>
+        <main className='flex justify-between items-center py-4 px-6 bg-white fixed left-[250px] right-0 border-b-[1px] border-b-bdr-bottom z-10'>
             {children}
         </main>
     )

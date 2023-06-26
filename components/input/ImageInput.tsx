@@ -23,8 +23,8 @@ type InputProps = ButtonProps & {
 type Props = InputProps
 
 export default function ImageInput({
-    height = 80,
-    width = 80,
+    height = 100,
+    width = 100,
     src,
     clickImg,
     changeInput,
@@ -36,7 +36,7 @@ export default function ImageInput({
         className="flex justify-center mb-2"
         >
             <div
-            className="flex justify-center overflow-hidden relative h-20 w-20"
+            className="flex justify-center overflow-hidden relative h-24 w-24"
             >
                 <Image
                 src={src}
@@ -47,9 +47,9 @@ export default function ImageInput({
                 />
                 <button
                 onClick={()=>clickImg()}
-                className="flex justify-center items-center rounded-full h-8 w-8 shadow-sm absolute bottom-0 right-0 bg-color-default text-white z-10"
+                className="flex justify-center items-center rounded-full h-9 w-9 shadow-sm absolute bottom-0 right-0 bg-color-default text-white z-10"
                 >
-                    <FontAwesomeIcon icon={faImage}/>
+                    <FontAwesomeIcon icon={faImage} className="text-lg"/>
                 </button>
                 <Input
                 id="inputImg"

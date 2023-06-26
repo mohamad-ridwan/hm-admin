@@ -497,7 +497,7 @@ export function Register() {
                     <Button
                         nameBtn="DELETE"
                         clickBtn={deleteImg}
-                        classBtn="text-[0.6rem] rounded-sm hover:bg-pink-old hover:text-white hover:border-pink-old"
+                        classBtn="text-[0.55rem] rounded-sm hover:bg-pink-old hover:text-white hover:border-pink-old"
                         classLoading="hidden"
                         styleBtn={{
                             padding: '0.4rem',

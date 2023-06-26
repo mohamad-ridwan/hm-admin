@@ -10,11 +10,19 @@ type NotFoundProps = NavigationProps & {
     setIsNotFound: (param: boolean)=>void
 }
 
-type DefaultProps = NotFoundProps
+type NavLeftProps = {
+    onNavLeft: boolean,
+    setOnNavLeft: (p: boolean)=>void
+}
+
+type DefaultProps = NotFoundProps & NavLeftProps
 
 export const navigationStore = create<DefaultProps>()((set)=>({
     isNavigation: false,
     setNavigate: (param)=>set((state)=>({isNavigation: param})),
     isNotFound: false,
-    setIsNotFound: (param)=>set((state)=>({isNotFound: param}))
+    setIsNotFound: (param)=>set((state)=>({isNotFound: param})),
+    // default (true)
+    onNavLeft: false,
+    setOnNavLeft: (p: boolean)=>set((state)=>({onNavLeft: p}))
 }))

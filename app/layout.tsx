@@ -7,6 +7,7 @@ import { IsLoggedIn } from 'components/IsLoggedIn'
 import { Navbar } from 'components/navbar/Navbar'
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
+import { NavLeft } from 'components/navLeft/NavLeft'
 
 config.autoAddCss = false
 
@@ -49,6 +50,7 @@ export default function RootLayout({
         <IsLoggedIn>
           <AuthWrapper>
             <Navbar />
+            <NavLeft />
             {children}
           </AuthWrapper>
         </IsLoggedIn>

@@ -21,6 +21,9 @@ const APIPutAdmin = <T>(adminId?: T, data?: T) => useFetch(endpoint.putAdmin(adm
 const APIPutAdminVerification = <T>(adminId?: T, data?: T)=>useFetch(endpoint.putAdminVerification(adminId as string), 'PUT', data)
 const APIPostAdmin = <T>(data?: T) => useFetch(endpoint.postAdmin(), 'POST', data)
 
+// blacklist token JWT
+const APIPostBlackListJWT = <T>(data?: T)=>useFetch(endpoint.postBlackListJWT(), 'POST', data)
+
 export function API<T>(): PropsAPIType<T> {
     return {
         APIGetVerification,
@@ -32,6 +35,7 @@ export function API<T>(): PropsAPIType<T> {
         APIPutAdminVerification,
         APIPostAdmin,
         APIPostCreateJwtToken,
-        APIGetJwtTokenVerif
+        APIGetJwtTokenVerif,
+        APIPostBlackListJWT
     }
 }

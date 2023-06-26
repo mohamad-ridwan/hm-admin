@@ -2,6 +2,7 @@ import { ReactElement, ReactNode } from 'react'
 
 type Props = {
     icon?: ReactElement
+    classIcon?: string
     title: string
     children: ReactNode
     desc?: string
@@ -10,6 +11,7 @@ type Props = {
 
 export default function ProtectContainer({
     icon,
+    classIcon,
     title,
     children,
     desc,
@@ -20,7 +22,7 @@ export default function ProtectContainer({
             <div className="w-96 bg-white mx-auto p-8 relative">
                 {typeof icon !== 'undefined' && (
                     <div className='flex justify-center mb-4'>
-                        <div className={`h-9 w-9 rounded-full border-[6px] flex justify-center items-center bg-key-color border-color-grey-white text-color-default`}>
+                        <div className={`h-9 w-9 ${classIcon} rounded-full border-[6px] flex justify-center items-center bg-key-color border-color-grey-white text-color-default`}>
                             {icon}
                         </div>
                     </div>

@@ -16,7 +16,8 @@ module.exports = {
         'pink-old': '#ff296d',
         'overlay': 'rgba(0,0,0,0.4)',
         'key-color': 'rgba(63, 173, 228, 0.1450980392)',
-        'color-default': '#3face4'
+        'color-default': '#3face4',
+        'green-success-young': '#2cc20e30',
       },
       borderWidth:{
         'bdr-one': '1px'
@@ -29,7 +30,9 @@ module.exports = {
         'red-default': '#ff0000',
         'bdr-bottom': 'rgba(0,0,0,0.1)',
         'pink-old': '#ff296d',
-        'color-grey-white': '#f7f5f5'
+        'color-grey-white': '#f7f5f5',
+        'green-success': '#47d400',
+        'border-success': '#7ec86f27'
       },
       boxShadow:{
         'shadow-menu': '0 2px 3px -1px rgba(0, 0, 0, 0.3)'

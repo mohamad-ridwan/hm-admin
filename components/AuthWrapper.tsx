@@ -22,7 +22,7 @@ export function AuthWrapper({
     const pathname = usePathname()
 
     function redirectPage(): void {
-        if (isNotFound === false) {
+        if (isNotFound === false && user) {
             if (user.user === null &&
                 loadingAuth === false &&
                 !pathname.includes('forgot-password') &&
@@ -45,7 +45,7 @@ export function AuthWrapper({
 
     useEffect(() => {
         redirectPage()
-    }, [isNotFound, user, loadingAuth])
+    }, [user, isNotFound, loadingAuth])
 
     return children
 }

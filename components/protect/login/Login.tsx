@@ -78,13 +78,8 @@ export function Login() {
 
                     if (typeof findAdmin === 'object') {
                         setUserId(findAdmin.id as string)
-                        setTimeout(() => {
-                            router.push('/')
-
-                            setTimeout(() => {
-                                setLoadingSubmit(false)
-                            }, 500)
-                        }, 0);
+                        router.push('/')
+                        setLoadingSubmit(false)
                     } else {
                         setErrMsg({ password: 'Unregistered account!' })
                         setLoadingSubmit(false)

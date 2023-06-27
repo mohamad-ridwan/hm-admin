@@ -18,7 +18,7 @@ export function IsLoggedIn({
     const { userId } = userIdAuthStore()
     const { setUser, setLoadingAuth } = authStore()
 
-    function findAdmin() {
+    function findAdmin(): void {
         if (
             typeof isLoading === 'boolean' &&
             !isLoading &&

@@ -14,7 +14,7 @@ export function ButtonProfile() {
 
     // zustand store
     // auth / user (admin)
-    const {setUser} = authStore()
+    const {user, setUser} = authStore()
     // userId auth
     const {setUserId} = userIdAuthStore()
 
@@ -37,10 +37,15 @@ export function ButtonProfile() {
         router.push(path)
     }
 
+    const adminName: string = user.user?.name?.length as number < 15 ? user.user?.name as string : `${user.user?.name?.substr(0, 15)}...`
+
     return (
-        <button className='flex ml-3 items-center' onClick={clickBtnProfile}>
+        <button 
+        className='hidden tablet:flex ml-3 items-center' 
+        onClick={clickBtnProfile}
+        >
             <span className='text-font-color-3 font-bold text-[0.95rem]'>
-                M.Ridwan
+                {adminName}
             </span>
             <FontAwesomeIcon
                 className='mt-[-0.45rem] ml-2'

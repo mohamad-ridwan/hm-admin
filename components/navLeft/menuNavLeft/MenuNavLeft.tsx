@@ -43,27 +43,30 @@ export function MenuNavLeft({
         <>
             {dataChild ? (
                 <li
-                    className={`flex flex-col py-3 text-font-color-2 pr-4 cursor-pointer border-l-[5px] border-transparent hover:border-color-default hover:text-color-default ${classWrappMenuChild} overflow-hidden transition duration-[500] ease-out`}
+                    className={`flex flex-col py-3 text-font-color-2 cursor-pointer border-l-[5px] border-transparent hover:border-color-default hover:text-color-default overflow-hidden transition duration-[500] ease-out`}
                     onClick={click}
+                    style={{
+                        height: classWrappMenuChild
+                    }}
                 >
                     <div
                         className="flex w-full items-center justify-between"
                     >
                         <div className="flex">
-                            <div className="px-7">
+                            <div className="px-6">
                                 <FontAwesomeIcon
                                     icon={icon}
                                     className="text-sm"
                                 />
                             </div>
                             <span
-                                className=""
+                                className="text-[0.9rem]"
                             >{name}</span>
                         </div>
                         {dropIconActive && (
                             <FontAwesomeIcon
                                 icon={iconDrop}
-                                className="text-sm"
+                                className="text-sm mr-4"
                             />
                         )}
                     </div>
@@ -72,20 +75,18 @@ export function MenuNavLeft({
             ) : (
                 <Link
                     href={childPath}
-                    className="flex flex-col py-3 text-font-color-2 pr-4 cursor-pointer transition ease-out border-l-[5px] border-transparent hover:border-color-default hover:text-color-default"
+                    className="flex flex-col py-3 text-font-color-2 cursor-pointer transition ease-out border-l-[5px] border-transparent hover:border-color-default hover:text-color-default"
                 >
                     <div
                         className="flex w-full items-center"
                     >
-                        <div className="px-7">
+                        <div className="px-6">
                             <FontAwesomeIcon
                                 icon={icon}
                                 className="text-sm"
                             />
                         </div>
-                        <span
-                            className=""
-                        >{name}</span>
+                        <span className="text-[0.9rem]">{name}</span>
                     </div>
                 </Link>
             )}

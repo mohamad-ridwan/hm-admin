@@ -8,6 +8,7 @@ import { Navbar } from 'components/navbar/Navbar'
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { NavLeft } from 'components/navLeft/NavLeft'
+import { NavLeftMobile } from 'components/navLeft/NavLeftMobile'
 
 config.autoAddCss = false
 
@@ -51,6 +52,7 @@ export default function RootLayout({
           <AuthWrapper>
             <Navbar />
             <NavLeft />
+            <NavLeftMobile/>
             {children}
           </AuthWrapper>
         </IsLoggedIn>

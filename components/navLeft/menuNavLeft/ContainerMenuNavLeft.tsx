@@ -18,7 +18,9 @@ type StateMenu = {
     }[]
 }[]
 
-export function ContainerMenuNavLeft() {
+export function ContainerMenuNavLeft({
+    idChildMenu
+}: {idChildMenu: string}) {
     const [menu, setMenu] = useState<StateMenu>([
         {
             name: 'Dashboard',
@@ -92,15 +94,15 @@ export function ContainerMenuNavLeft() {
         handleOnListMenu()
     }, [onNavLeft])
 
-    function clickChildMenu(index: number): void{
-        const wrappMenuChild: HTMLElement | null = document.getElementById(`menuNavChild${index}`)
+    function clickChildMenu(index: number): void {
+        const wrappMenuChild: HTMLElement | null = document.getElementById(`${idChildMenu}${index}`)
         const getHightEl: number | undefined = wrappMenuChild?.getBoundingClientRect()?.height
-        if(idxActiveDropMenu === index){
+        if (idxActiveDropMenu === index) {
             setIdxActiveDropMenu(null)
             setHeightMenuChild(`48px`)
-        }else{
+        } else {
             setIdxActiveDropMenu(index)
-            setHeightMenuChild(`${getHightEl}px`)
+            setHeightMenuChild(`${getHightEl as number + 58}px`)
         }
     }
 
@@ -114,15 +116,15 @@ export function ContainerMenuNavLeft() {
                         dataChild={item?.children ? true : false}
                         childPath={item.path as string}
                         icon={item.icon}
-                        name={item.name}
+                        name={onNavLeft ? '' : item.name}
                         iconDrop={idxActiveDropMenu === index ? faAngleUp : faAngleDown}
-                        classWrappMenuChild={`h-[${heightMenuChild}]`}
-                        click={()=>clickChildMenu(index)}
+                        classWrappMenuChild={heightMenuChild}
+                        click={() => clickChildMenu(index)}
                     >
                         {item?.children && (
                             <div
-                                className='flex flex-col pl-7 mt-4'
-                                id={`menuNavChild${index}`}
+                                className='flex flex-col pl-7 w-[16rem] mt-4'
+                                id={`${idChildMenu}${index}`}
                             >
                                 {item?.children?.map((childItem, childIdx) => {
                                     return (

@@ -1,14 +1,14 @@
-import Link from "next/link";
-import { MainNavLeft } from "./MainNavLeft";
 import Image from "next/image";
 import logo from 'images/logo.png'
+import { MainNavLeftMobile } from "./MainNavLeftMobile";
+import Link from "next/link";
 import { ContainerMenuNavLeft } from "./menuNavLeft/ContainerMenuNavLeft";
-import { BtnOnNavLeft } from "./BtnOnNavLeft";
 import { CopyRight } from "./CopyRight";
+import { BtnOnNavLeft } from "./BtnOnNavLeft";
 
-export function NavLeft() {
+export function NavLeftMobile() {
     return (
-        <MainNavLeft>
+        <MainNavLeftMobile>
             <div
                 className="border-b-bdr-one border-bdr-bottom py-[0.98rem] px-4"
             >
@@ -29,16 +29,16 @@ export function NavLeft() {
                 {/* scroll */}
                 <ul className="flex flex-col list-none">
                     <ContainerMenuNavLeft
-                    idChildMenu="menuNavChildMobile"
+                    idChildMenu="menuNavChildDesktop"
                     />
                 </ul>
             </div>
 
             {/* created by */}
-            <CopyRight/>
+            <CopyRight />
 
             {/* btn on navleft */}
-            <BtnOnNavLeft/>
-        </MainNavLeft>
+            <BtnOnNavLeft />
+        </MainNavLeftMobile>
     )
 }

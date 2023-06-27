@@ -36,6 +36,10 @@ module.exports = {
       },
       boxShadow:{
         'shadow-menu': '0 2px 3px -1px rgba(0, 0, 0, 0.3)'
+      },
+      screens: {
+        'mobile': '0px',
+        'tablet': '918px',
       }
     },
   },

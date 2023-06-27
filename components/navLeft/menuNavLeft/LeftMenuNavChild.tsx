@@ -27,7 +27,7 @@ export function LeftMenuNavChild({
                         className="text-sm"
                     />
                 </div>
-                <span className="text-sm">{name}</span>
+                <span className="text-[0.8rem]">{name}</span>
             </div>
         </Link>
     )

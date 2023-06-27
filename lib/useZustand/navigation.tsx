@@ -23,6 +23,6 @@ export const navigationStore = create<DefaultProps>()((set)=>({
     isNotFound: false,
     setIsNotFound: (param)=>set((state)=>({isNotFound: param})),
     // default (true)
-    onNavLeft: false,
+    onNavLeft: true,
     setOnNavLeft: (p: boolean)=>set((state)=>({onNavLeft: p}))
 }))

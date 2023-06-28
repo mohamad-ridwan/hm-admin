@@ -10,9 +10,12 @@ export function NavLeft() {
     return (
         <MainNavLeft>
             <div
-                className="border-b-bdr-one border-bdr-bottom py-[0.98rem] px-4"
+                className="border-b-bdr-one border-bdr-bottom px-4"
             >
-                <Link href='/'>
+                <Link 
+                href='/'
+                className="flex items-center h-[4.5rem]"
+                >
                     <Image
                         src={logo}
                         height={40}

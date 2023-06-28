@@ -43,7 +43,7 @@ export function MenuNavLeft({
         <>
             {dataChild ? (
                 <li
-                    className={`flex flex-col py-3 text-font-color-2 cursor-pointer border-l-[5px] border-transparent hover:border-color-default hover:text-color-default overflow-hidden transition duration-[500] ease-out`}
+                    className={`flex flex-col py-3 text-font-color-2 cursor-pointer border-l-[5px] border-transparent hover:border-color-default hover:text-color-default overflow-hidden transition-all`}
                     onClick={click}
                     style={{
                         height: classWrappMenuChild
@@ -75,7 +75,7 @@ export function MenuNavLeft({
             ) : (
                 <Link
                     href={childPath}
-                    className="flex flex-col py-3 text-font-color-2 cursor-pointer transition ease-out border-l-[5px] border-transparent hover:border-color-default hover:text-color-default"
+                    className="flex flex-col py-3 text-font-color-2 cursor-pointer transition-all border-l-[5px] border-transparent hover:border-color-default hover:text-color-default"
                 >
                     <div
                         className="flex w-full items-center"

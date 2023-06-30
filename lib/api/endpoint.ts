@@ -1,9 +1,11 @@
 type EndpointType = {
-    [key: string]: (params?: string) => string
+    [key: string]: (params?: string, params2?: string) => string
 }
 
 // servicing hours
 const getServicingHours = () => 'v8/servicing-hours/get'
+// delete patient data
+const deletePatientData = (roleId?: string, id?: string)=>`v8/servicing-hours/delete/role/${roleId}/data/${id}`
 
 // verification
 const getVerification = () => 'v13/verification/get'
@@ -26,6 +28,7 @@ const postBlackListJWT = () => 'v15/black-list-jwt/post'
 
 export const endpoint: EndpointType = {
     getServicingHours,
+    deletePatientData,
     getVerification,
     putVerification,
     postVerification,

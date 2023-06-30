@@ -6,6 +6,9 @@ type PropsAPIType<T> = {
     [key: string]: (p1?: T, p2?: T) => any
 }
 
+// servicing hours
+const APIDeletePatientData = <T>(roleId?: T, id?: T)=>useFetch(endpoint.deletePatientData(roleId as string, id as string), 'DELETE')
+
 // verification
 const APIGetVerification = ()=>useFetch(endpoint.getVerification(), 'GET')
 const APIPutVerification = <T>(userId: T, data: T)=>useFetch(endpoint.putVerification(userId as string), 'PUT', data)
@@ -26,6 +29,7 @@ const APIPostBlackListJWT = <T>(data?: T)=>useFetch(endpoint.postBlackListJWT(),
 
 export function API<T>(): PropsAPIType<T> {
     return {
+        APIDeletePatientData,
         APIGetVerification,
         APIPutVerification,
         APIPostVerification,

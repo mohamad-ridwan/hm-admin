@@ -32,11 +32,7 @@ export default async function PatientRegistrationPage() {
                     className="text-3xl font-semibold text-font-color-3"
                 >List of Patient Registration</h1>
 
-                <TableContainer
-                    style={{
-                        marginTop: '3rem'
-                    }}
-                >
+                <TableContainer>
                     <PatientRegistration />
                 </TableContainer>
             </Container>

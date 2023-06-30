@@ -17,7 +17,11 @@ module.exports = {
         'overlay': 'rgba(0,0,0,0.4)',
         'key-color': 'rgba(63, 173, 228, 0.1450980392)',
         'color-default': '#3face4',
+        'color-default-old': '#288bbc', 
         'green-success-young': '#2cc20e30',
+        'cyan-table': '#f0ffff',
+        'table-hover': '#d9f9f9',
+        'pink': '#f85084'
       },
       borderWidth:{
         'bdr-one': '1px'
@@ -32,7 +36,8 @@ module.exports = {
         'pink-old': '#ff296d',
         'color-grey-white': '#f7f5f5',
         'green-success': '#47d400',
-        'border-success': '#7ec86f27'
+        'border-success': '#7ec86f27',
+        'pink': '#f85084'
       },
       boxShadow:{
         'shadow-menu': '0 2px 3px -1px rgba(0, 0, 0, 0.3)'

@@ -3,10 +3,13 @@ import { endpoint } from "./endpoint";
 import { fetchJwtToken } from "lib/useFetch/fetchJwtToken";
 
 type PropsAPIType<T> = {
-    [key: string]: (p1?: T, p2?: T) => any
+    [key: string]: (p1?: T, p2?: T, p3?: T) => any
 }
 
 // servicing hours
+// update patient data
+const APIPutPatientData = <T>(roleId?: T, id?: T, data?: T)=>useFetch(endpoint.putPatientData(roleId as string, id as string), 'PUT', data)
+// delete patient data
 const APIDeletePatientData = <T>(roleId?: T, id?: T)=>useFetch(endpoint.deletePatientData(roleId as string, id as string), 'DELETE')
 
 // verification
@@ -29,6 +32,7 @@ const APIPostBlackListJWT = <T>(data?: T)=>useFetch(endpoint.postBlackListJWT(),
 
 export function API<T>(): PropsAPIType<T> {
     return {
+        APIPutPatientData,
         APIDeletePatientData,
         APIGetVerification,
         APIPutVerification,

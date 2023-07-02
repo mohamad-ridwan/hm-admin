@@ -23,6 +23,7 @@ type LoadingProps = IconButton & {
     classLoading?: string
     styleLoading?: CSSProperties
     heightWidthLoading?: string
+    styleCircleLoading?: CSSProperties
 }
 
 type Props = LoadingProps
@@ -38,6 +39,7 @@ export default function Button({
     icon,
     classLoading,
     styleLoading,
+    styleCircleLoading,
     heightWidthLoading = 'h-5 w-5'
 }: Props){
     return <button className={`flex text-center ${typeof colorBtnTxt === 'undefined' ? 'text-white' : colorBtnTxt} justify-center items-center py-[0.7rem] px-2 border-bdr-one border-color-default bg-color-default 
@@ -50,7 +52,7 @@ export default function Button({
         )}
 
         <div className={`${classLoading} flex justify-center items-center`} style={styleLoading}>
-            <div className={`${heightWidthLoading} animate-spin ml-2 rounded-full border-t-color-default border-[2.5px] border-white`}></div>
+            <div className={`${heightWidthLoading} animate-spin ml-2 rounded-full border-t-color-default border-[2.5px] border-white`} style={styleCircleLoading}></div>
         </div>
     </button>
 }

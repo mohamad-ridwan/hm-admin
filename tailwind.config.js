@@ -13,8 +13,10 @@ module.exports = {
       },
       backgroundColor: {
         'bgp-default': '#f8f8f8',
+        'gray-search': '#f9f9f9', 
         'pink-old': '#ff296d',
         'overlay': 'rgba(0,0,0,0.4)',
+        'pop-up': 'rgba(0,0,0,0.6)',
         'key-color': 'rgba(63, 173, 228, 0.1450980392)',
         'color-default': '#3face4',
         'color-default-old': '#288bbc', 

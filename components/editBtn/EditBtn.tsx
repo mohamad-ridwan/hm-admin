@@ -29,7 +29,11 @@ export function EditBtn({
                 undefined
             }
             classLoading={classLoading}
-            heightWidthLoading="h-3 w-3 ml-[0px] border-t-[transparent]"
+            heightWidthLoading="h-3 w-3"
+            styleCircleLoading={{
+                marginLeft: '0',
+                borderTopColor: 'transparent'
+            }}
             classBtn={`${classBtn} rounded-sm`}
             styleBtn={{
                 padding: padding

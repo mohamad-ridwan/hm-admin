@@ -26,13 +26,13 @@ export function InputSelect({
             name=""
             id={id}
             onChange={handleSelect}
-            className={`bg-gray-search text-sm p-2 cursor-pointer outline-none ${classWrapp}`}
+            className={`bg-gray-search text-sm p-2 cursor-pointer outline-none w-auto ${classWrapp}`}
         >
             {data?.map((item, index) => (
                 <option
                     key={index}
                     value={item?.id}
-                    className="text-sm"
+                    className="text-sm w-full"
                 >
                     {item?.title}
                 </option>

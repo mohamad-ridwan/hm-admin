@@ -18,7 +18,7 @@ export function Container({
 
     return (
         <div
-            className={`flex justify-center w-full pt-[120px] pr-[20px] pb-[40px] ${onNavLeft ? 'pl-[90px]' : 'pl-[270px]'} transition-all`}
+            className={`flex justify-center w-full pt-[120px] pr-[20px] pb-[40px] mobile:max-tablet:px-[0.65rem] ${onNavLeft ? 'tablet:pl-[90px]' : 'tablet:pl-[270px]'} transition-all`}
         >
             <div
             className={`flex flex-col ${maxWidth} ${overflow}`}

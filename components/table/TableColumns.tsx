@@ -5,8 +5,12 @@ import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { EditBtn } from "components/editBtn/EditBtn"
 
 type ButtonEditProps = {
-    indexActiveEdit?: number | undefined
-    indexActiveDelete?: number | undefined
+    indexActiveEdit?: string | undefined
+    indexActiveDelete?: string | undefined
+    idLoadingEdit?: string
+    idLoadingDelete?: string
+    idIconEdit?: string
+    idIconDelete?: string
 }
 
 type ActionButtonEdit = {
@@ -26,6 +30,10 @@ export function TableColumns({
     clickBtn,
     indexActiveEdit,
     indexActiveDelete,
+    idLoadingEdit,
+    idLoadingDelete,
+    idIconEdit,
+    idIconDelete,
     clickEdit,
     clickDelete
 }: Props) {
@@ -41,6 +49,8 @@ export function TableColumns({
                     className="flex items-center justify-between pr-2"
                 >
                     <EditBtn
+                        idIcon={idIconEdit}
+                        idLoading={idLoadingEdit}
                         icon={indexActiveEdit !== undefined ? undefined : faPencil}
                         classBtn="hover:text-white hover:bg-color-default-old mr-1"
                         classLoading={indexActiveEdit !== undefined ? 'flex' : 'hidden'}
@@ -48,6 +58,8 @@ export function TableColumns({
                         clickBtn={clickEdit}
                     />
                     <EditBtn
+                        idIcon={idIconDelete}
+                        idLoading={idLoadingDelete}
                         icon={indexActiveDelete !== undefined ? undefined : faTrash}
                         classBtn="bg-pink border-pink hover:text-white hover:border-pink hover:bg-pink-old"
                         classLoading={indexActiveDelete !== undefined ? 'flex' : 'hidden'}

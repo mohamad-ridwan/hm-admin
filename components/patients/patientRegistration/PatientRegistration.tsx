@@ -63,19 +63,21 @@ export function PatientRegistration() {
     const [dataColumns, setDataColumns] = useState<DataTableContentT[]>([])
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [chooseFilterByDate, setChooseFilterByDate] = useState({
-        id: 'Off Date',
-        title: 'Off Date'
+        id: 'Filter By',
+        title: 'Filter By'
     })
     const [selectDate, setSelectDate] = useState<Date | undefined>()
-    const [onSortDate, setOnSortDate] = useState<boolean>(false)
     const [searchText, setSearchText] = useState<string>('')
-    const [indexActiveEdit, setIndexActiveEdit] = useState<number | null>(null)
-    const [indexActiveDelete, setIndexActiveDelete] = useState<number | null>(null)
+    const [indexActiveEdit, setIndexActiveEdit] = useState<string | null>(null)
+    const [indexActiveDelete, setIndexActiveDelete] = useState<string | null>(null)
+    const [patientsIdToDelete, setPatientsIdToDelete] = useState<string[]>([])
+    const [patientsIdToDeleteSuccess, setPatientsIdToDeleteSuccess] = useState<string[]>([])
+    const [patientsIdToDeleteFailed, setPatientsIdToDeleteFailed] = useState<string[]>([])
     const [displayOnCalendar, setDisplayOnCalendar] = useState<boolean>(false)
     const [onPopupEdit, setOnPopupEdit] = useState<boolean>(false)
     const [patientName, setPatientName] = useState<string | null>(null)
     const [loadingSubmitEdit, setLoadingSubmitEdit] = useState<boolean>(false)
-    const [waitIndexActiveEdit, setWaitIndexActiveEdit] = useState<number | null>(null)
+    const [waitIndexActiveEdit, setWaitIndexActiveEdit] = useState<string | null>(null)
     const [valueInputEdit, setValueInputEdit] = useState<PatientRegistrationT>({
         id: '',
         patientName: '',
@@ -97,13 +99,13 @@ export function PatientRegistration() {
         id: string
         title: string
     }>({
-        id: 'Off Sort Date',
-        title: 'Off Sort Date'
+        id: 'Sort By',
+        title: 'Sort By'
     })
     const [filterBy] = useState<DataOptionT>([
         {
-            id: 'Off Date',
-            title: 'Off Date',
+            id: 'Filter By',
+            title: 'Filter By',
         },
         {
             id: 'Appointment Date',
@@ -120,12 +122,16 @@ export function PatientRegistration() {
     ])
     const [dataSortDate] = useState<DataOptionT>([
         {
-            id: 'Off Sort Date',
-            title: 'Off Sort Date'
+            id: 'Sort By',
+            title: 'Sort By'
         },
         {
-            id: 'On Sort Date',
-            title: 'On Sort Date'
+            id: 'Sort By Up',
+            title: 'Sort By Up'
+        },
+        {
+            id: 'Sort By Down',
+            title: 'Sort By Down'
         },
     ])
 
@@ -232,7 +238,11 @@ export function PatientRegistration() {
                 if (newData.length === findRegistration.length) {
                     setDataColumns(newData)
                 }
+            } else {
+                setDataColumns([])
             }
+        } else if (Array.isArray(dataPatientRegis) && dataPatientRegis.length === 0) {
+            setDataColumns([])
         }
     }
 
@@ -258,11 +268,13 @@ export function PatientRegistration() {
         const getFinishTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientFinishTreatmentT) => item?.id === 'finished-treatment')
         const dataFinishTreatment: PatientFinishTreatmentT[] | undefined = getFinishTreatment?.data
 
-        findDataRegistration(
-            dataPatientRegis,
-            dataConfirmationPatients,
-            dataFinishTreatment
-        )
+        setTimeout(() => {
+            findDataRegistration(
+                dataPatientRegis,
+                dataConfirmationPatients,
+                dataFinishTreatment
+            )
+        }, 500)
     }
 
     // useEffect(() => {
@@ -278,7 +290,7 @@ export function PatientRegistration() {
     //             console.log(err)
     //             console.log('error preload data service')
     //         })
-    // }, [])
+    // }, [patientsIdToDeleteSuccess])
 
     // filter table
     const makeFormatDate = (): string => {
@@ -300,7 +312,7 @@ export function PatientRegistration() {
                     data.filterBy?.toLowerCase() === chooseFilterByDate.id.toLowerCase() &&
                     data.name === makeFormatDate())
                 return findDate
-            } else if (chooseFilterByDate.id !== 'Off Date') {
+            } else if (chooseFilterByDate.id !== 'Filter By') {
                 const findDate = patient.data.filter(data =>
                     data.filterBy?.toLowerCase() === chooseFilterByDate.id.toLowerCase())
                 return findDate
@@ -318,19 +330,43 @@ export function PatientRegistration() {
     }) : []
 
     const checkFilterByDate = (): DataTableContentT[] => {
-        if (chooseFilterByDate.id !== 'Off Date') {
+        if (chooseFilterByDate.id !== 'Filter By') {
             return filterByDate
         }
 
         return dataColumns
     }
 
-    // sort after filter by date
-    const sortDate = onSortDate && filterByDate?.length > 0 ? filterByDate.sort((p1, p2) => {
-        const getSort: number = (new Date(getSortDateAfterFilterByDate(p1, p2, chooseFilterByDate.id.toLowerCase(), true).dateOne)).valueOf() - (new Date(getSortDateAfterFilterByDate(p1, p2, chooseFilterByDate.id.toLowerCase(), true).dateTwo)).valueOf()
+    // sort by up
+    const sortByUp = (
+        onClock: boolean,
+    ) => {
+        const sort = filterByDate.sort((p1, p2) => {
+            const getSort: number = (new Date(getSortDateAfterFilterByDate(p1, p2, chooseFilterByDate.id.toLowerCase(), onClock).dateTwo)).valueOf() - (new Date(getSortDateAfterFilterByDate(p1, p2, chooseFilterByDate.id.toLowerCase(), onClock).dateOne)).valueOf()
 
-        return getSort
-    }) : []
+            return getSort
+        })
+        return sort
+    }
+
+    // sort by down
+    const sortByDown = (
+        onClock: boolean,
+    ) => {
+        const sort = filterByDate.sort((p1, p2) => {
+            const getSort: number = (new Date(getSortDateAfterFilterByDate(p1, p2, chooseFilterByDate.id.toLowerCase(), onClock).dateOne)).valueOf() - (new Date(getSortDateAfterFilterByDate(p1, p2, chooseFilterByDate.id.toLowerCase(), onClock).dateTwo)).valueOf()
+
+            return getSort
+        })
+        return sort
+    }
+
+    // sort after filter by date
+    const sortDate = chooseOnSortDate.id === 'Sort By Up' && filterByDate?.length > 0 ? sortByUp(
+        chooseFilterByDate.id !== 'Filter by' && chooseFilterByDate.id !== 'Submission Date' ? false : true
+    ) : chooseOnSortDate.id === 'Sort By Down' && filterByDate?.length > 0 ? sortByDown(
+        chooseFilterByDate.id !== 'Filter by' && chooseFilterByDate.id !== 'Submission Date' ? false : true
+    ) : []
 
     function getSortDateAfterFilterByDate(
         p1: DataTableContentT,
@@ -362,7 +398,7 @@ export function PatientRegistration() {
     }
 
     const checkSortSubmissionDate = (): DataTableContentT[] => {
-        if (onSortDate) {
+        if (chooseOnSortDate.id !== 'Sort By') {
             return sortDate
         }
         // else if(onSortDate && chooseFilterByDate.id === 'Appointment Date'){
@@ -444,22 +480,22 @@ export function PatientRegistration() {
         router.push(path)
     }
 
+    // edit action
     // waiting index active loading edit
     useEffect(() => {
         if (loadingSubmitEdit === false && indexActiveEdit !== null && waitIndexActiveEdit !== null) {
-            setIndexActiveEdit(waitIndexActiveEdit as number)
+            setIndexActiveEdit(waitIndexActiveEdit)
         }
     }, [loadingSubmitEdit, waitIndexActiveEdit])
 
     function clickEdit(
         id: string,
         name: string,
-        index: number
     ): void {
         const findPatient = dataPatientRegis?.find(patient => patient.id === id)
-        setWaitIndexActiveEdit(index)
-        if(loadingSubmitEdit === false){
-            setIndexActiveEdit(index)
+        setWaitIndexActiveEdit(id)
+        if (loadingSubmitEdit === false) {
+            setIndexActiveEdit(id)
         }
         if (findPatient) {
             setValueInputEdit(findPatient as PatientRegistrationT)
@@ -470,17 +506,65 @@ export function PatientRegistration() {
         }
     }
 
+    // delete action
+    function loadingDelete() {
+        if (dataColumns.length > 0) {
+            patientsIdToDelete.forEach(id => {
+                const iconDeleteElement = document.getElementById(`iconDelete${id}`) as HTMLElement
+                const loadingDeleteElement = document.getElementById(`loadDelete${id}`) as HTMLElement
+                if (iconDeleteElement && loadingDeleteElement) {
+                    iconDeleteElement.style.display = 'none'
+                    loadingDeleteElement.style.display = 'flex'
+                }
+            })
+        }
+    }
+
+    useEffect(() => {
+        if (patientsIdToDelete.length > 0) {
+            loadingDelete()
+        }
+    }, [patientsIdToDelete, dataColumns])
+
+    function loadIconDeleteSuccess(): void {
+        if (dataColumns.length > 0) {
+            let count: number = 0
+            dataColumns.forEach(patient => {
+                count = count + 1
+                const iconDeleteElement = document.getElementById(`iconDelete${patient.id}`) as HTMLElement
+                const loadingDeleteElement = document.getElementById(`loadDelete${patient.id}`) as HTMLElement
+
+                if (iconDeleteElement && loadingDeleteElement) {
+                    iconDeleteElement.style.display = 'flex'
+                    loadingDeleteElement.style.display = 'none'
+                }
+            })
+
+            if (count === dataColumns.length) {
+                setTimeout(() => {
+                    loadingDelete()
+                }, 500);
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (patientsIdToDeleteSuccess.length > 0) {
+            loadIconDeleteSuccess()
+        }
+    }, [patientsIdToDeleteSuccess, dataColumns])
+
     function clickDelete(
         id: string,
         name: string,
-        index: number
     ): void {
+        const findId = patientsIdToDelete.find(patientId => patientId === id)
         if (
-            indexActiveEdit !== index &&
-            indexActiveDelete === null &&
+            !findId &&
             window.confirm(`Delete patient of "${name}"`)
         ) {
-            setIndexActiveDelete(index)
+            setPatientsIdToDelete((current) => [...current, id])
+            // setIndexActiveDelete(id)
             deleteDataPersonalPatient(id, name)
         }
     }
@@ -491,12 +575,27 @@ export function PatientRegistration() {
             id
         )
             .then((res: any) => {
-                setIndexActiveDelete(null)
-                alert(`Successfully deleted data from "${name}" patient`)
+                preloadFetch(endpoint.getServicingHours())
+                    .then((res) => {
+                        if (res?.data) {
+                            setPatientsIdToDeleteSuccess((current) => [...current, id])
+                            preloadDataRegistration(res)
+                            alert(`Successfully deleted data from "${name}" patient`)
+                        } else {
+                            console.log('error preload data service. no property "data" found')
+                            setPatientsIdToDeleteSuccess((current) => [...current, id])
+                            alert(`Successfully deleted data from "${name}" patient`)
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        console.log('error preload data service')
+                        alert(`Successfully deleted data from "${name}" patient`)
+                    })
             })
             .catch((err: any) => {
                 alert('a server error has occurred.\nPlease try again later')
-                setIndexActiveDelete(null)
+                console.log(err)
             })
     }
 
@@ -513,14 +612,18 @@ export function PatientRegistration() {
         const selectEl = document.getElementById('filterDateTable') as HTMLSelectElement
         const id = selectEl?.options[selectEl.selectedIndex].value
         if (id) {
-            if (id !== 'Off Date') {
+            if (id !== 'Filter By') {
                 setDisplayOnCalendar(true)
             } else {
                 setDisplayOnCalendar(false)
                 setSelectDate(undefined)
             }
-            if (id === 'Off Date' || id === 'Date of Birth') {
-                setOnSortDate(false)
+
+            if (id === 'Filter By') {
+                setChooseOnSortDate({
+                    id: 'Sort By',
+                    title: 'Sort By'
+                })
             }
 
             setChooseFilterByDate({
@@ -534,12 +637,6 @@ export function PatientRegistration() {
         const selectEl = document.getElementById('sortDateTable') as HTMLSelectElement
         const id = selectEl.options[selectEl.selectedIndex].value
         if (id) {
-            if (id !== 'Off Sort Date') {
-                setOnSortDate(true)
-            } else {
-                setOnSortDate(false)
-            }
-
             setChooseOnSortDate({
                 id: id,
                 title: id
@@ -660,7 +757,7 @@ export function PatientRegistration() {
     }
 
     // push to update patient data
-    function pushToUpdatePatient(): void{
+    function pushToUpdatePatient(): void {
         const {
             patientName,
             phone,
@@ -689,14 +786,14 @@ export function PatientRegistration() {
             valueInputEdit.id,
             data
         )
-        .then((res: any)=>{
-            alert(`Patient data from "${patientName}" updated successfully`)
-            setLoadingSubmitEdit(false)
-        })
-        .catch((err: any)=>{
-            alert('a server error occurred. please try again later')
-            setLoadingSubmitEdit(false)
-        })
+            .then((res: any) => {
+                alert(`Patient data from "${patientName}" updated successfully`)
+                setLoadingSubmitEdit(false)
+            })
+            .catch((err: any) => {
+                alert('a server error occurred. please try again later')
+                setLoadingSubmitEdit(false)
+            })
     }
 
     const styleError: { style: CSSProperties } = {
@@ -921,8 +1018,7 @@ export function PatientRegistration() {
                             handleSelect={handleFilterDate}
                         />
                         {
-                            chooseFilterByDate.id !== 'Off Date' &&
-                            chooseFilterByDate.id !== 'Date of Birth' &&
+                            chooseFilterByDate.id !== 'Filter By' &&
                             currentTableData.length > 0 &&
                             (
                                 <InputSelect
@@ -950,15 +1046,16 @@ export function PatientRegistration() {
                         return (
                             <TableColumns
                                 key={index}
+                                idLoadingDelete={`loadDelete${patient.id}`}
+                                idIconDelete={`iconDelete${patient.id}`}
                                 clickBtn={() => toPage(pathUrlToDataDetail)}
-                                indexActiveEdit={loadingSubmitEdit && index === indexActiveEdit ? indexActiveEdit : undefined}
-                                indexActiveDelete={index === indexActiveDelete ? indexActiveDelete : undefined}
+                                indexActiveEdit={loadingSubmitEdit && patient.id === indexActiveEdit ? indexActiveEdit : undefined}
                                 clickEdit={(e) => {
-                                    clickEdit(patient.id, patient.data[0]?.name, index)
+                                    clickEdit(patient.id, patient.data[0]?.name)
                                     e?.stopPropagation()
                                 }}
                                 clickDelete={(e) => {
-                                    clickDelete(patient.id, patient.data[0]?.name, index)
+                                    clickDelete(patient.id, patient.data[0]?.name)
                                     e?.stopPropagation()
                                 }}
                             >

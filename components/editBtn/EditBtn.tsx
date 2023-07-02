@@ -6,14 +6,18 @@ import Button from "components/Button"
 
 type Props = {
     icon: IconDefinition | undefined
+    idIcon?: string
+    idLoading?: string
     classLoading?: string
     classBtn?: string
     padding?: string
-    clickBtn?: (e?: MouseEvent)=>void
+    clickBtn?: (e?: MouseEvent) => void
 }
 
 export function EditBtn({
     icon,
+    idIcon,
+    idLoading,
     classBtn,
     classLoading = 'hidden',
     padding = '0.45rem 0.6rem',
@@ -21,12 +25,14 @@ export function EditBtn({
 }: Props) {
     return (
         <Button
+            idLoading={idLoading}
             icon={
                 typeof icon !== 'undefined' ? <FontAwesomeIcon
-                icon={icon as IconDefinition}
-                className="text-[0.7rem]"
+                    id={idIcon}
+                    icon={icon as IconDefinition}
+                    className="text-[0.7rem]"
                 /> :
-                undefined
+                    undefined
             }
             classLoading={classLoading}
             heightWidthLoading="h-3 w-3"

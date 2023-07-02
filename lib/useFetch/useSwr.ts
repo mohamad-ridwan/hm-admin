@@ -10,19 +10,20 @@ type APIData<T> = {
 }
 
 export function useSwr<T>(
-    path: string
-): APIData<T>{
-    const getFetch = (url: string): Promise<T>=>fetch(url, {
+        path: string,
+        options?: { refreshInterval: number } | { [key:string]: T }
+    ): APIData<T> {
+    const getFetch = (url: string): Promise<T> => fetch(url, {
         method: 'GET',
-    }).then((res)=>{
+    }).then((res) => {
         return res.json() as Promise<T>
     })
 
-    const fetcher: Fetcher<T, string> = (url)=>getFetch(url)
+    const fetcher: Fetcher<T, string> = (url) => getFetch(url)
 
-    const {data, error, isLoading} = useSWR(`${backendUrl}/${path}`, fetcher)
+    const { data, error, isLoading } = useSWR(`${backendUrl}/${path}`, fetcher, options)
 
-    return{
+    return {
         data,
         error,
         isLoading,

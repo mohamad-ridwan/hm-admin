@@ -138,7 +138,7 @@ export function PatientRegistration() {
     const router = useRouter()
 
     // swr fetching data
-    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours())
+    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), {refreshInterval: 4000})
     const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
     const getPatientRegistration: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'patient-registration')
     const dataPatientRegis: PatientRegistrationT[] | undefined = getPatientRegistration?.data
@@ -156,7 +156,11 @@ export function PatientRegistration() {
         dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
         dataFinishTreatment: PatientFinishTreatmentT[] | undefined
     ): void {
-        if (Array.isArray(dataPatientRegis) && dataPatientRegis.length > 0) {
+        if (
+            !loadDataService &&
+            Array.isArray(dataPatientRegis) &&
+            dataPatientRegis.length > 0
+        ) {
             const findRegistration = dataPatientRegis.filter((patient => {
                 // patient already on confirm
                 const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
@@ -241,7 +245,11 @@ export function PatientRegistration() {
             } else {
                 setDataColumns([])
             }
-        } else if (Array.isArray(dataPatientRegis) && dataPatientRegis.length === 0) {
+        } else if (
+            !loadDataService &&
+            Array.isArray(dataPatientRegis) &&
+            dataPatientRegis.length === 0
+        ) {
             setDataColumns([])
         }
     }

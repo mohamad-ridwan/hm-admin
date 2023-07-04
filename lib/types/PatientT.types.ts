@@ -21,13 +21,13 @@ export type PatientRegistrationT = {
 }
 
 // confirmation patients
-type DateConfirmInfo = {
+export type DateConfirmInfo = {
     dateConfirm: string,
     confirmHour: string,
     treatmentHours: string
 }
 
-type RoomInfo = {
+export type RoomInfo = {
     roomId: string,
     queueNumber: string,
     presence: string
@@ -53,4 +53,10 @@ export type PatientFinishTreatmentT = {
     patientId: string
     confirmedTime: ConfirmedTime
     adminInfo: { adminId: string }
+}
+
+// room
+export type RoomTreatmentT = {
+    id: string
+    room: string
 }

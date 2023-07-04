@@ -35,6 +35,7 @@ import { renderCustomHeader } from "lib/datePicker/renderCustomHeader"
 import { mailRegex } from 'lib/regex/mailRegex'
 import Button from 'components/Button'
 import { createDateFormat } from 'lib/datePicker/createDateFormat'
+import { InputEditPatientRegistrationT } from 'lib/types/InputT.type'
 
 export function PatientRegistration() {
     const [head] = useState<HeadDataTableT>([
@@ -62,14 +63,16 @@ export function PatientRegistration() {
     ])
     const [dataColumns, setDataColumns] = useState<DataTableContentT[]>([])
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [chooseFilterByDate, setChooseFilterByDate] = useState({
+    const [chooseFilterByDate, setChooseFilterByDate] = useState<{
+        id: string
+        title: string
+    }>({
         id: 'Filter By',
         title: 'Filter By'
     })
     const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [searchText, setSearchText] = useState<string>('')
     const [indexActiveEdit, setIndexActiveEdit] = useState<string | null>(null)
-    const [indexActiveDelete, setIndexActiveDelete] = useState<string | null>(null)
     const [patientsIdToDelete, setPatientsIdToDelete] = useState<string[]>([])
     const [patientsIdToDeleteSuccess, setPatientsIdToDeleteSuccess] = useState<string[]>([])
     const [patientsIdToDeleteFailed, setPatientsIdToDeleteFailed] = useState<string[]>([])
@@ -78,23 +81,19 @@ export function PatientRegistration() {
     const [patientName, setPatientName] = useState<string | null>(null)
     const [loadingSubmitEdit, setLoadingSubmitEdit] = useState<boolean>(false)
     const [waitIndexActiveEdit, setWaitIndexActiveEdit] = useState<string | null>(null)
-    const [valueInputEdit, setValueInputEdit] = useState<PatientRegistrationT>({
-        id: '',
+    const [idPatientToEdit, setIdPatientToEdit] = useState<string | null>(null)
+    const [valueInputEditDetailPatient, setValueInputEditDetailPatient] = useState<InputEditPatientRegistrationT>({
         patientName: '',
         phone: '',
         emailAddress: '',
         dateOfBirth: '',
         appointmentDate: '',
-        patientMessage: {
-            message: '',
-            patientComplaints: ''
-        },
-        submissionDate: {
-            submissionDate: '',
-            clock: ''
-        }
+        message: '',
+        patientComplaints: '',
+        submissionDate: '',
+        clock: ''
     })
-    const [errEditInput, setErrEditInput] = useState<PatientRegistrationT>({} as PatientRegistrationT)
+    const [errEditInputDetailPatient, setErrEditInputDetailPatient] = useState<InputEditPatientRegistrationT>({} as InputEditPatientRegistrationT)
     const [chooseOnSortDate, setChooseOnSortDate] = useState<{
         id: string
         title: string
@@ -138,7 +137,7 @@ export function PatientRegistration() {
     const router = useRouter()
 
     // swr fetching data
-    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), {refreshInterval: 4000})
+    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), { refreshInterval: 4000 })
     const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
     const getPatientRegistration: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'patient-registration')
     const dataPatientRegis: PatientRegistrationT[] | undefined = getPatientRegistration?.data
@@ -285,21 +284,6 @@ export function PatientRegistration() {
         }, 500)
     }
 
-    // useEffect(() => {
-    //     preloadFetch(endpoint.getServicingHours())
-    //         .then((res) => {
-    //             if (res?.data) {
-    //                 preloadDataRegistration(res)
-    //             } else {
-    //                 console.log('error preload data service. no property "data" found')
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.log(err)
-    //             console.log('error preload data service')
-    //         })
-    // }, [patientsIdToDeleteSuccess])
-
     // filter table
     const makeFormatDate = (): string => {
         const getCurrentDate = `${selectDate}`.split(' ')
@@ -326,11 +310,6 @@ export function PatientRegistration() {
                 return findDate
             }
         }
-
-        // const findDate = selectDate ? patient.data.filter(data =>
-        //     data.filterBy?.toLowerCase() === chooseFilterByDate.id.toLowerCase() &&
-        //     data.name === makeFormatDate())
-        //     : []
 
         const findDate = onFilterDate()
 
@@ -409,9 +388,6 @@ export function PatientRegistration() {
         if (chooseOnSortDate.id !== 'Sort By') {
             return sortDate
         }
-        // else if(onSortDate && chooseFilterByDate.id === 'Appointment Date'){
-        //     return specificSortAppointmentDate
-        // }
 
         return checkFilterByDate()
     }
@@ -434,6 +410,12 @@ export function PatientRegistration() {
         const lastPageIndex = firstPageIndex + pageSize
         return filterText.slice(firstPageIndex, lastPageIndex)
     }, [filterText, currentPage])
+
+    useEffect(() => {
+        if (currentTableData.length === 0 && currentPage > 1) {
+            setCurrentPage((current) => current - 1)
+        }
+    }, [patientsIdToDeleteSuccess, currentTableData])
 
     const changeTableStyle = (dataColumnsBody: DataTableContentT[]) => {
         if (dataColumnsBody?.length > 0) {
@@ -506,7 +488,28 @@ export function PatientRegistration() {
             setIndexActiveEdit(id)
         }
         if (findPatient) {
-            setValueInputEdit(findPatient as PatientRegistrationT)
+            const {
+                patientName,
+                phone,
+                emailAddress,
+                dateOfBirth,
+                appointmentDate,
+                patientMessage,
+                submissionDate
+            } = findPatient
+
+            setIdPatientToEdit(findPatient?.id)
+            setValueInputEditDetailPatient({
+                patientName,
+                phone,
+                emailAddress,
+                dateOfBirth,
+                appointmentDate,
+                message: patientMessage.message,
+                patientComplaints: patientMessage.patientComplaints,
+                submissionDate: submissionDate.submissionDate,
+                clock: submissionDate.clock
+            })
             setPatientName(name)
             setOnPopupEdit(true)
         } else {
@@ -515,52 +518,70 @@ export function PatientRegistration() {
     }
 
     // delete action
-    function loadingDelete() {
-        if (dataColumns.length > 0) {
-            patientsIdToDelete.forEach(id => {
-                const iconDeleteElement = document.getElementById(`iconDelete${id}`) as HTMLElement
-                const loadingDeleteElement = document.getElementById(`loadDelete${id}`) as HTMLElement
-                if (iconDeleteElement && loadingDeleteElement) {
-                    iconDeleteElement.style.display = 'none'
-                    loadingDeleteElement.style.display = 'flex'
-                }
-            })
-        }
+    function loadingDelete(): void {
+        patientsIdToDelete.forEach(id => {
+            const iconDeleteElement = document.getElementById(`iconDelete${id}`) as HTMLElement
+            const loadingDeleteElement = document.getElementById(`loadDelete${id}`) as HTMLElement
+
+            if (iconDeleteElement && loadingDeleteElement) {
+                iconDeleteElement.style.display = 'none'
+                loadingDeleteElement.style.display = 'flex'
+            }
+        })
     }
 
     useEffect(() => {
-        if (patientsIdToDelete.length > 0) {
+        if (patientsIdToDelete.length > 0 && dataColumns.length > 0) {
             loadingDelete()
         }
     }, [patientsIdToDelete, dataColumns])
 
+    // when delete is successful
     function loadIconDeleteSuccess(): void {
-        if (dataColumns.length > 0) {
-            let count: number = 0
-            dataColumns.forEach(patient => {
-                count = count + 1
-                const iconDeleteElement = document.getElementById(`iconDelete${patient.id}`) as HTMLElement
-                const loadingDeleteElement = document.getElementById(`loadDelete${patient.id}`) as HTMLElement
+        let count: number = 0
+        dataColumns.forEach(patient => {
+            count = count + 1
 
-                if (iconDeleteElement && loadingDeleteElement) {
-                    iconDeleteElement.style.display = 'flex'
-                    loadingDeleteElement.style.display = 'none'
-                }
-            })
+            const iconDeleteElement = document.getElementById(`iconDelete${patient.id}`) as HTMLElement
+            const loadingDeleteElement = document.getElementById(`loadDelete${patient.id}`) as HTMLElement
 
-            if (count === dataColumns.length) {
-                setTimeout(() => {
-                    loadingDelete()
-                }, 500);
+            if (iconDeleteElement && loadingDeleteElement) {
+                iconDeleteElement.style.display = 'flex'
+                loadingDeleteElement.style.display = 'none'
             }
+        })
+
+        if (count === dataColumns.length) {
+            setTimeout(() => {
+                loadingDelete()
+            }, 500);
         }
     }
 
     useEffect(() => {
-        if (patientsIdToDeleteSuccess.length > 0) {
+        if (patientsIdToDeleteSuccess.length > 0 && dataColumns.length > 0) {
             loadIconDeleteSuccess()
         }
     }, [patientsIdToDeleteSuccess, dataColumns])
+
+    // when delete is failed
+    function loadDeleteFailed(): void {
+        patientsIdToDeleteFailed.forEach(id => {
+            const iconDeleteElement = document.getElementById(`iconDelete${id}`) as HTMLElement
+            const loadingDeleteElement = document.getElementById(`loadDelete${id}`) as HTMLElement
+
+            if (iconDeleteElement && loadingDeleteElement) {
+                iconDeleteElement.style.display = 'flex'
+                loadingDeleteElement.style.display = 'none'
+            }
+        })
+    }
+
+    useEffect(() => {
+        if (patientsIdToDeleteSuccess.length > 0 && dataColumns.length > 0) {
+            loadDeleteFailed()
+        }
+    }, [patientsIdToDeleteFailed, dataColumns])
 
     function clickDelete(
         id: string,
@@ -572,7 +593,6 @@ export function PatientRegistration() {
             window.confirm(`Delete patient of "${name}"`)
         ) {
             setPatientsIdToDelete((current) => [...current, id])
-            // setIndexActiveDelete(id)
             deleteDataPersonalPatient(id, name)
         }
     }
@@ -604,6 +624,7 @@ export function PatientRegistration() {
             .catch((err: any) => {
                 alert('a server error has occurred.\nPlease try again later')
                 console.log(err)
+                setPatientsIdToDeleteFailed((current) => [...current, id])
             })
     }
 
@@ -652,62 +673,27 @@ export function PatientRegistration() {
         }
     }
 
-    function handleChangeUpdate(
-        e: ChangeEvent<HTMLInputElement>
-    ): void {
-        setValueInputEdit({
-            ...valueInputEdit,
+    function changeEditDetailPatient(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
+        setValueInputEditDetailPatient({
+            ...valueInputEditDetailPatient,
             [e.target.name]: e.target.value
         })
-    }
 
-    function handleInputPatientMessage(
-        e: ChangeEvent<HTMLTextAreaElement>,
-        nameInput?: 'message' | 'patientComplaints'
-    ): void {
-        let patientMessage = {
-            message: valueInputEdit.patientMessage.message,
-            patientComplaints: valueInputEdit.patientMessage.patientComplaints
-        }
-        patientMessage[
-            nameInput as 'message' ||
-            nameInput as 'patientComplaints'
-        ] = e.target.value
-
-        setValueInputEdit({
-            ...valueInputEdit,
-            patientMessage,
+        setErrEditInputDetailPatient({
+            ...errEditInputDetailPatient,
+            [e.target.name]: ''
         })
     }
 
-    function handleSubmissionDate(
-        event: ChangeEvent<HTMLInputElement>,
-        dateValue: Date | undefined,
-        nameInput: 'submissionDate' | 'clock'
-    ): void {
-        let submissionDate = {
-            submissionDate: valueInputEdit.submissionDate.submissionDate,
-            clock: valueInputEdit.submissionDate.clock
-        }
-        submissionDate[
-            nameInput as 'submissionDate' ||
-            nameInput as 'clock'
-        ] = nameInput === 'submissionDate' ? `${dateValue}` : event.target.value
-
-
-        setValueInputEdit({
-            ...valueInputEdit,
-            submissionDate,
+    function changeDateEditDetailPatient(e: ChangeEvent<HTMLInputElement> | Date | undefined, inputName: string): void {
+        setValueInputEditDetailPatient({
+            ...valueInputEditDetailPatient,
+            [inputName]: !e ? '' : `${e as Date}`
         })
-    }
 
-    function handleChangeEditDate(
-        e: ChangeEvent<HTMLInputElement> | Date,
-        nameInput: 'dateOfBirth' | 'appointmentDate'
-    ) {
-        setValueInputEdit({
-            ...valueInputEdit,
-            [nameInput]: `${e as Date}`
+        setErrEditInputDetailPatient({
+            ...errEditInputDetailPatient,
+            [inputName]: ''
         })
     }
 
@@ -718,7 +704,7 @@ export function PatientRegistration() {
                 .then(res => {
                     if (window.confirm(`update patient data from "${patientName}"?`)) {
                         setLoadingSubmitEdit(true)
-                        setErrEditInput({} as PatientRegistrationT)
+                        setErrEditInputDetailPatient({} as InputEditPatientRegistrationT)
                         pushToUpdatePatient()
                     }
                 })
@@ -726,40 +712,40 @@ export function PatientRegistration() {
     }
 
     async function validateSubmitUpdate(): Promise<{ message: string }> {
-        let err = {} as PatientRegistrationT
+        let err = {} as InputEditPatientRegistrationT
 
-        if (!valueInputEdit.patientName.trim()) {
+        if (!valueInputEditDetailPatient.patientName.trim()) {
             err.patientName = 'Must be required'
         }
-        if (!valueInputEdit.phone.trim()) {
+        if (!valueInputEditDetailPatient.phone.trim()) {
             err.patientName = 'Must be required'
         }
-        if (!valueInputEdit.emailAddress.trim()) {
+        if (!valueInputEditDetailPatient.emailAddress.trim()) {
             err.emailAddress = 'Must be required'
-        } else if (!mailRegex.test(valueInputEdit.emailAddress)) {
+        } else if (!mailRegex.test(valueInputEditDetailPatient.emailAddress)) {
             err.emailAddress = 'Invalid e-mail address'
         }
-        if (!valueInputEdit.dateOfBirth.trim()) {
+        if (!valueInputEditDetailPatient.dateOfBirth.trim()) {
             err.dateOfBirth = 'Must be required'
         }
-        if (!valueInputEdit.appointmentDate.trim()) {
+        if (!valueInputEditDetailPatient.appointmentDate.trim()) {
             err.appointmentDate = 'Must be required'
         }
-        if (!valueInputEdit.patientMessage.message.trim()) {
-            err.patientMessage.message = 'Must be required'
+        if (!valueInputEditDetailPatient.message.trim()) {
+            err.message = 'Must be required'
         }
-        if (!valueInputEdit.patientMessage.patientComplaints.trim()) {
-            err.patientMessage.patientComplaints = 'Must be required'
+        if (!valueInputEditDetailPatient.patientComplaints.trim()) {
+            err.patientComplaints = 'Must be required'
         }
-        if (!valueInputEdit.submissionDate.submissionDate.trim()) {
-            err.submissionDate.clock = 'Must be required'
+        if (!valueInputEditDetailPatient.submissionDate.trim()) {
+            err.clock = 'Must be required'
         }
 
         return await new Promise((resolve, reject) => {
             if (Object.keys(err).length === 0) {
                 resolve({ message: 'success' })
             } else {
-                setErrEditInput(err)
+                setErrEditInputDetailPatient(err)
             }
         })
     }
@@ -772,9 +758,11 @@ export function PatientRegistration() {
             emailAddress,
             dateOfBirth,
             appointmentDate,
-            patientMessage,
-            submissionDate
-        } = valueInputEdit
+            message,
+            patientComplaints,
+            submissionDate,
+            clock
+        } = valueInputEditDetailPatient
 
         const data = {
             patientName,
@@ -782,16 +770,19 @@ export function PatientRegistration() {
             emailAddress,
             dateOfBirth: createDateFormat(dateOfBirth),
             appointmentDate: createDateFormat(appointmentDate),
-            patientMessage,
+            patientMessage: {
+                message,
+                patientComplaints
+            },
             submissionDate: {
-                submissionDate: createDateFormat(submissionDate.submissionDate),
-                clock: submissionDate.clock
+                submissionDate: createDateFormat(submissionDate),
+                clock
             }
         }
 
         API().APIPutPatientData(
             'patient-registration',
-            valueInputEdit.id,
+            idPatientToEdit,
             data
         )
             .then((res: any) => {
@@ -812,22 +803,18 @@ export function PatientRegistration() {
 
     function clickClosePopupEdit(): void {
         setOnPopupEdit(false)
-        setValueInputEdit({
-            id: '',
+        setValueInputEditDetailPatient({
             patientName: '',
             phone: '',
             emailAddress: '',
             dateOfBirth: '',
             appointmentDate: '',
-            patientMessage: {
-                message: '',
-                patientComplaints: ''
-            },
-            submissionDate: {
-                submissionDate: '',
-                clock: ''
-            }
+            message: '',
+            patientComplaints: '',
+            submissionDate: '',
+            clock: ''
         })
+        setIdPatientToEdit(null)
     }
 
     return (
@@ -847,129 +834,115 @@ export function PatientRegistration() {
                         <Input
                             type='text'
                             nameInput='patientName'
-                            changeInput={handleChangeUpdate}
-                            valueInput={valueInputEdit?.patientName}
+                            changeInput={changeEditDetailPatient}
+                            valueInput={valueInputEditDetailPatient?.patientName}
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.patientName}
+                            error={errEditInputDetailPatient?.patientName}
                         />
 
                         <TitleInput title='Phone' />
                         <Input
                             type='number'
                             nameInput='phone'
-                            changeInput={handleChangeUpdate}
-                            valueInput={valueInputEdit?.phone}
+                            changeInput={changeEditDetailPatient}
+                            valueInput={valueInputEditDetailPatient?.phone}
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.phone}
+                            error={errEditInputDetailPatient?.phone}
                         />
 
                         <TitleInput title='Email' />
                         <Input
                             type='email'
                             nameInput='emailAddress'
-                            changeInput={handleChangeUpdate}
-                            valueInput={valueInputEdit?.emailAddress}
+                            changeInput={changeEditDetailPatient}
+                            valueInput={valueInputEditDetailPatient?.emailAddress}
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.emailAddress}
+                            error={errEditInputDetailPatient?.emailAddress}
                         />
 
                         <TitleInput title='Date of Birth' />
                         <InputSearch
                             icon={faCalendarDays}
-                            selected={valueInputEdit?.dateOfBirth ? new Date(valueInputEdit?.dateOfBirth) : undefined}
+                            selected={!valueInputEditDetailPatient?.dateOfBirth ? undefined : new Date(valueInputEditDetailPatient?.dateOfBirth)}
                             onCalendar={true}
                             renderCustomHeader={renderCustomHeader}
-                            changeInput={(e) => handleChangeEditDate(
-                                e as ChangeEvent<HTMLInputElement>,
-                                'dateOfBirth'
-                            )}
+                            changeInput={(e) => changeDateEditDetailPatient(e, 'dateOfBirth')}
                             classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
                             classDate='text-[#000] text-sm'
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.dateOfBirth}
+                            error={errEditInputDetailPatient?.dateOfBirth}
                         />
 
                         <TitleInput title='Appointment Date' />
                         <InputSearch
                             icon={faCalendarDays}
-                            selected={valueInputEdit?.appointmentDate ? new Date(valueInputEdit?.appointmentDate) : undefined}
+                            selected={!valueInputEditDetailPatient?.appointmentDate ? undefined : new Date(valueInputEditDetailPatient?.appointmentDate)}
                             renderCustomHeader={renderCustomHeader}
                             onCalendar={true}
-                            changeInput={(e) => handleChangeEditDate(
-                                e as ChangeEvent<HTMLInputElement>,
-                                'appointmentDate'
-                            )}
+                            changeInput={(e) => changeDateEditDetailPatient(e, 'appointmentDate')}
                             classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
                             classDate='text-[#000] text-sm'
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.appointmentDate}
+                            error={errEditInputDetailPatient?.appointmentDate}
                         />
 
                         <TitleInput title='Message' />
                         <InputArea
                             nameInput='message'
-                            changeInput={(e) => handleInputPatientMessage(e, 'message')}
-                            valueInput={valueInputEdit?.patientMessage?.message}
+                            changeInput={changeEditDetailPatient}
+                            valueInput={valueInputEditDetailPatient?.message}
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.patientMessage?.message}
+                            error={errEditInputDetailPatient?.message}
                         />
 
                         <TitleInput title='Patient Complaints' />
                         <InputArea
                             nameInput='patientComplaints'
-                            changeInput={(e) => handleInputPatientMessage(e, 'patientComplaints')}
-                            valueInput={valueInputEdit?.patientMessage?.patientComplaints}
+                            changeInput={changeEditDetailPatient}
+                            valueInput={valueInputEditDetailPatient?.patientComplaints}
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.patientMessage?.patientComplaints}
+                            error={errEditInputDetailPatient?.patientComplaints}
                         />
 
                         <TitleInput title='Submission Date' />
                         <InputSearch
                             icon={faCalendarDays}
-                            selected={valueInputEdit?.submissionDate?.submissionDate ? new Date(valueInputEdit?.submissionDate?.submissionDate) : undefined}
+                            selected={!valueInputEditDetailPatient?.submissionDate ? undefined : new Date(valueInputEditDetailPatient?.submissionDate)}
                             renderCustomHeader={renderCustomHeader}
-                            changeInput={(e) => handleSubmissionDate(
-                                e as ChangeEvent<HTMLInputElement>,
-                                e as Date | undefined,
-                                'submissionDate'
-                            )}
+                            changeInput={(e) => changeDateEditDetailPatient(e, 'submissionDate')}
                             onCalendar={true}
                             classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
                             classDate='text-[#000] text-sm'
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.submissionDate?.submissionDate}
+                            error={errEditInputDetailPatient?.submissionDate}
                         />
 
                         <TitleInput title='Clock' />
                         <Input
                             type='text'
                             nameInput='clock'
-                            changeInput={(e) => handleSubmissionDate(
-                                e as ChangeEvent<HTMLInputElement>,
-                                undefined,
-                                'clock'
-                            )}
-                            valueInput={valueInputEdit?.submissionDate?.clock}
+                            changeInput={changeEditDetailPatient}
+                            valueInput={valueInputEditDetailPatient?.clock}
                         />
                         <ErrorInput
                             {...styleError}
-                            error={errEditInput?.submissionDate?.clock}
+                            error={errEditInputDetailPatient?.clock}
                         />
 
                         <Button

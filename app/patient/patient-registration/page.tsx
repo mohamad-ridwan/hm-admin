@@ -2,7 +2,7 @@ import { backendUrl } from "lib/api/backendUrl";
 import { endpoint } from "lib/api/endpoint";
 import Template from "app/template";
 import { Container } from "components/Container";
-import { PatientRegistration } from "components/patients/patientRegistration/PatientRegistration";
+import { PatientRegistration } from "components/patients/PatientRegistration";
 import { TableContainer } from "components/table/TableContainer";
 import { AuthRequiredError } from "lib/errorHandling/exceptions";
 

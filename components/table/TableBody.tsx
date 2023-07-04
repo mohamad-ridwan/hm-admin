@@ -9,7 +9,7 @@ type Props = {
 export function TableBody({
     children,
     style,
-    width = 'w-[1300px]'
+    width
 }: Props){
     return(
         <div

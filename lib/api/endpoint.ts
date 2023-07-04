@@ -9,6 +9,9 @@ const putPatientData = (roleId?: string, id?: string)=> `v8/servicing-hours/put/
 // delete patient data
 const deletePatientData = (roleId?: string, id?: string)=>`v8/servicing-hours/delete/role/${roleId}/data/${id}`
 
+// doctors
+const getDoctors = ()=>'v10/doctors/get'
+
 // verification
 const getVerification = () => 'v13/verification/get'
 const putVerification = (userId?: string) => `v13/verification/put/${userId}`
@@ -32,6 +35,7 @@ export const endpoint: EndpointType = {
     getServicingHours,
     putPatientData,
     deletePatientData,
+    getDoctors,
     getVerification,
     putVerification,
     postVerification,

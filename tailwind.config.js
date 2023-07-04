@@ -23,7 +23,8 @@ module.exports = {
         'green-success-young': '#2cc20e30',
         'cyan-table': '#f0ffff',
         'table-hover': '#d9f9f9',
-        'pink': '#f85084'
+        'pink': '#f85084',
+        'orange': '#FFA500'
       },
       borderWidth:{
         'bdr-one': '1px'
@@ -39,7 +40,8 @@ module.exports = {
         'color-grey-white': '#f7f5f5',
         'green-success': '#47d400',
         'border-success': '#7ec86f27',
-        'pink': '#f85084'
+        'pink': '#f85084',
+        'orange': '#FFA500'
       },
       boxShadow:{
         'shadow-menu': '0 2px 3px -1px rgba(0, 0, 0, 0.3)'

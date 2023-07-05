@@ -39,6 +39,7 @@ import { createDateFormat } from 'lib/datePicker/createDateFormat'
 import { AdminT } from 'lib/types/AdminT.types'
 import { ProfileDoctorT } from 'lib/types/DoctorsT.types'
 import { Toggle } from 'components/toggle/Toggle'
+import { AuthRequiredError } from 'lib/errorHandling/exceptions'
 
 export function ConfirmationPatient() {
     const [head] = useState<HeadDataTableT>([
@@ -142,6 +143,7 @@ export function ConfirmationPatient() {
     const [idWaitToSubmitConfirmPatient, setIdWaitToSubmitConfirmPatient] = useState<string[]>([])
     const [idSubmitEditConfirmPatient, setIdSubmitEditConfirmPatient] = useState<string[]>([])
     const [errEditInputConfirmPatient, setErrEditInputConfirmPatient] = useState<InputEditConfirmPatientT>({} as InputEditConfirmPatientT)
+    const [triggedErrSubmitEditConfirmPatient, setTriggedErrSubmitEditConfirmPatient] = useState<boolean>(false)
     // end action edit confirmation patient
     // action edit detail patient
     const [onPopupEditPatientDetail, setOnPopupEditPatientDetail] = useState<boolean>(false)
@@ -161,6 +163,7 @@ export function ConfirmationPatient() {
         clock: ''
     })
     const [errEditInputDetailPatient, setErrEditInputDetailPatient] = useState<InputEditPatientRegistrationT>({} as InputEditPatientRegistrationT)
+    const [triggedErrSubmitEditPatientRegis, setTriggedErrSubmitEditPatientRegis] = useState<boolean>(false)
     // end action edit detail patient
     const [chooseFilterByRoom, setChooseFilterByRoom] = useState<{
         id: string
@@ -248,6 +251,46 @@ export function ConfirmationPatient() {
     const getDoctorDocument: { [key: string]: any } | undefined = newDataDoctor?.data?.find((data: { [key: string]: any }) => data?.id === 'doctor')
     const doctors: ProfileDoctorT[] | undefined = getDoctorDocument?.data
 
+    // trigged error boundary
+    // error fetch swr
+    // err servicing hours
+    if (!loadDataService && errDataService) {
+        throw new AuthRequiredError('a server error occurred while retrieving patient data. Please try again')
+    }
+    if (!loadDataService && typeof dataPatientRegis === 'undefined') {
+        throw new AuthRequiredError(`A server error occurred while retrieving patient registration data. no property "data" found`)
+    }
+    if (!loadDataService && typeof dataConfirmationPatients === 'undefined') {
+        throw new AuthRequiredError(`A server error occurred while fetching confirmation patient data. no property "data" found`)
+    }
+    if (!loadDataService && typeof dataFinishTreatment === 'undefined') {
+        throw new AuthRequiredError(`a server error occurred while fetching treatment data was completed. no property "data" found`)
+    }
+    if (!loadDataService && typeof dataRooms === 'undefined') {
+        throw new AuthRequiredError(`a server error occurred while retrieving medical room data. no property "data" found`)
+    }
+    // err admin data
+    if (!loadGetDataAdmin && errGetDataAdmin) {
+        throw new AuthRequiredError('a server error occurred while fetching admin data. Please try again')
+    }
+    if (!loadGetDataAdmin && typeof dataAdmin === 'undefined') {
+        throw new AuthRequiredError(`a server error occurred while fetching admin data. no property "data" found`)
+    }
+    // err doctor data
+    if (!loadDataDoctors && errGetDataDoctors) {
+        throw new AuthRequiredError(`a server error occurred while retrieving the doctor's data. Please try again`)
+    }
+    if (!loadDataDoctors && typeof doctors === 'undefined') {
+        throw new AuthRequiredError(`a server error occurred while retrieving the doctor's data. no property "data" found`)
+    }
+    // trigged error when submit form
+    if (triggedErrSubmitEditPatientRegis) {
+        throw new AuthRequiredError('a server error occurred while updating patient detail data. please try again later')
+    }
+    if (triggedErrSubmitEditConfirmPatient) {
+        throw new AuthRequiredError('A server error occurred while updating patient confirmation data. please try again later')
+    }
+
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,
         dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
@@ -259,116 +302,160 @@ export function ConfirmationPatient() {
             Array.isArray(dataPatientRegis) &&
             dataPatientRegis.length > 0
         ) {
-            const findRegistration = dataPatientRegis.filter((patient => {
-                // patient already on confirm
-                const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
+            const findConfirmPatient = dataConfirmationPatients?.filter(patient => {
+                // patient registration
+                const findPatientRegistration = dataPatientRegis?.find(patientRegis =>
+                    patientRegis.id === patient.patientId && patient.roomInfo.presence === 'tidak hadir'
+                )
                 // patient at finish treatment
-                const findPatientFT = dataFinishTreatment?.find((patientFT) => patientFT.patientId === patient.id)
+                const findPatientFT = dataFinishTreatment?.find((patientFT) => patientFT.patientId === patient.patientId)
 
-                return findPatientOnConfirm && !findPatientFT
-            }))
+                return findPatientRegistration && !findPatientFT
+            })
 
-            if (findRegistration.length > 0) {
-                const newData: DataTableContentT[] = []
-                const getDataColumns = (): void => {
-                    findRegistration.forEach(patient => {
-                        // make a normal date
-                        const makeNormalDate = ((date: string, dateOfBirth?: boolean): string => {
-                            const getDate = `${new Date(date)}`
-                            const findIdxDayNameOfAD = dayNamesEng.findIndex(day => day === getDate.split(' ')[0]?.toLowerCase())
-                            const getNameOfAD = `${dayNamesInd[findIdxDayNameOfAD]?.substr(0, 1)?.toUpperCase()}${dayNamesInd[findIdxDayNameOfAD]?.substr(1, dayNamesInd[findIdxDayNameOfAD]?.length - 1)}`
-                            const findIdxMonthOfAD = monthNames.findIndex(month => month.toLowerCase() === getDate.split(' ')[1]?.toLowerCase())
-                            const getMonthOfAD = monthNamesInd[findIdxMonthOfAD]
-                            const getDateOfAD = date?.split('/')[1]
-                            const getYearOfAD = date?.split('/')[2]
-
-                            return !dateOfBirth ? `${getMonthOfAD} ${getDateOfAD} ${getYearOfAD}, ${getNameOfAD}` : `${getMonthOfAD} ${getDateOfAD} ${getYearOfAD}`
-                        })
-
-                        // patient already on confirm
-                        const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
-
-                        // get room treatment of patient
-                        const findRoomOfPatient = room?.find(roomData => roomData.id === findPatientOnConfirm?.roomInfo?.roomId)
-
-                        const dataRegis: DataTableContentT = {
-                            id: patient.id,
-                            data: [
-                                {
-                                    name: patient.patientName
-                                },
-                                {
-                                    name: findRoomOfPatient?.room as string,
-                                    colorName: '#ff296d',
-                                    fontWeightName: 'bold',
-                                    filterRoom: true
-                                },
-                                {
-                                    name: findPatientOnConfirm?.roomInfo?.queueNumber as string,
-                                    colorName: '#288bbc',
-                                    fontWeightName: 'bold'
-                                },
-                                {
-                                    firstDesc: makeNormalDate(patient.appointmentDate),
-                                    color: '#ff296d',
-                                    colorName: '#777',
-                                    marginBottom: '4.5px',
-                                    fontSize: '12px',
-                                    filterBy: 'Appointment Date',
-                                    queueNumber: findPatientOnConfirm?.roomInfo?.queueNumber,
-                                    treatmentHours: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours,
-                                    name: patient.appointmentDate,
-                                },
-                                {
-                                    name: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours as string
-                                },
-                                {
-                                    firstDesc: makeNormalDate(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
-                                    color: '#006400',
-                                    colorName: '#777',
-                                    marginBottom: '4.5px',
-                                    fontSize: '12px',
-                                    filterBy: 'Confirmation Date',
-                                    confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
-                                    name: findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string,
-                                },
-                                {
-                                    name: findPatientOnConfirm?.dateConfirmInfo?.confirmHour as string
-                                },
-                                {
-                                    name: patient.emailAddress
-                                },
-                                {
-                                    firstDesc: makeNormalDate(patient.dateOfBirth),
-                                    color: '#187bcd',
-                                    colorName: '#777',
-                                    marginBottom: '4.5px',
-                                    fontSize: '12px',
-                                    filterBy: 'Date of Birth',
-                                    name: patient.dateOfBirth,
-                                },
-                                {
-                                    name: patient.phone
-                                },
-                            ]
+            const setPatientRegistration = async (): Promise<PatientRegistrationT[]> => {
+                const newPatientRegistration: PatientRegistrationT[] = []
+                let count: number = 0
+                if (Array.isArray(findConfirmPatient) && findConfirmPatient.length > 0) {
+                    findConfirmPatient.forEach(patientConf => {
+                        count = count + 1
+                        const findPatient = dataPatientRegis.find(patientRegis => patientRegis.id === patientConf.patientId)
+                        if (findPatient) {
+                            newPatientRegistration.push(findPatient as PatientRegistrationT)
                         }
-
-                        newData.push(dataRegis)
                     })
                 }
 
-                getDataColumns()
-                if (newData.length === findRegistration.length) {
-                    setDataColumns(newData)
-                }
-            } else {
-                setDataColumns([])
+                return await new Promise((resolve, reject) => {
+                    if (
+                        Array.isArray(findConfirmPatient) &&
+                        count === findConfirmPatient.length
+                    ) {
+                        resolve(newPatientRegistration)
+                    } else if (
+                        Array.isArray(findConfirmPatient) &&
+                        count === findConfirmPatient.length &&
+                        newPatientRegistration.length === 0
+                    ) {
+                        reject([])
+                    }
+                })
             }
+
+            setPatientRegistration()
+                .then(res => {
+                    generateDataTable(res, room)
+                })
+                .catch(noData => {
+                    setDataColumns([])
+                })
         } else if (
             !loadDataService &&
             Array.isArray(dataPatientRegis) &&
             dataPatientRegis.length === 0
         ) {
+            setDataColumns([])
+        }
+    }
+
+    function generateDataTable(
+        res: PatientRegistrationT[],
+        room?: RoomTreatmentT[] | undefined
+    ): void {
+        if (res.length > 0) {
+            const newData: DataTableContentT[] = []
+            const getDataColumns = (): void => {
+                res.forEach(patient => {
+                    // make a normal date
+                    const makeNormalDate = ((date: string, dateOfBirth?: boolean): string => {
+                        const getDate = `${new Date(date)}`
+                        const findIdxDayNameOfAD = dayNamesEng.findIndex(day => day === getDate.split(' ')[0]?.toLowerCase())
+                        const getNameOfAD = `${dayNamesInd[findIdxDayNameOfAD]?.substr(0, 1)?.toUpperCase()}${dayNamesInd[findIdxDayNameOfAD]?.substr(1, dayNamesInd[findIdxDayNameOfAD]?.length - 1)}`
+                        const findIdxMonthOfAD = monthNames.findIndex(month => month.toLowerCase() === getDate.split(' ')[1]?.toLowerCase())
+                        const getMonthOfAD = monthNamesInd[findIdxMonthOfAD]
+                        const getDateOfAD = date?.split('/')[1]
+                        const getYearOfAD = date?.split('/')[2]
+
+                        return !dateOfBirth ? `${getMonthOfAD} ${getDateOfAD} ${getYearOfAD}, ${getNameOfAD}` : `${getMonthOfAD} ${getDateOfAD} ${getYearOfAD}`
+                    })
+
+                    // patient already on confirm
+                    const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
+
+                    // get room treatment of patient
+                    const findRoomOfPatient = room?.find(roomData => roomData.id === findPatientOnConfirm?.roomInfo?.roomId)
+
+                    const dataRegis: DataTableContentT = {
+                        id: patient.id,
+                        data: [
+                            {
+                                name: patient.patientName
+                            },
+                            {
+                                name: findRoomOfPatient?.room as string,
+                                colorName: '#ff296d',
+                                fontWeightName: 'bold',
+                                filterRoom: true
+                            },
+                            {
+                                name: findPatientOnConfirm?.roomInfo?.queueNumber as string,
+                                colorName: '#288bbc',
+                                fontWeightName: 'bold'
+                            },
+                            {
+                                firstDesc: makeNormalDate(patient.appointmentDate),
+                                color: '#ff296d',
+                                colorName: '#777',
+                                marginBottom: '4.5px',
+                                fontSize: '12px',
+                                filterBy: 'Appointment Date',
+                                queueNumber: findPatientOnConfirm?.roomInfo?.queueNumber,
+                                treatmentHours: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours,
+                                name: patient.appointmentDate,
+                            },
+                            {
+                                name: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours as string
+                            },
+                            {
+                                firstDesc: makeNormalDate(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
+                                color: '#006400',
+                                colorName: '#777',
+                                marginBottom: '4.5px',
+                                fontSize: '12px',
+                                filterBy: 'Confirmation Date',
+                                confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
+                                name: findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string,
+                            },
+                            {
+                                name: findPatientOnConfirm?.dateConfirmInfo?.confirmHour as string
+                            },
+                            {
+                                name: patient.emailAddress
+                            },
+                            {
+                                firstDesc: makeNormalDate(patient.dateOfBirth),
+                                color: '#187bcd',
+                                colorName: '#777',
+                                marginBottom: '4.5px',
+                                fontSize: '12px',
+                                filterBy: 'Date of Birth',
+                                name: patient.dateOfBirth,
+                            },
+                            {
+                                name: patient.phone
+                            },
+                        ]
+                    }
+
+                    newData.push(dataRegis)
+                })
+            }
+
+            getDataColumns()
+            if (newData.length === res.length) {
+                setDataColumns(newData)
+            }
+        } else {
             setDataColumns([])
         }
     }
@@ -948,11 +1035,15 @@ export function ConfirmationPatient() {
                 setIdWaitToSubmitEditDetailPatient(findIdWaitSubmitDetailPatient)
             })
             .catch((err: any) => {
-                alert('a server error occurred. please try again later')
+                const findIdWaitSubmitDetailPatient = idWaitToSubmitEditDetailPatient.filter(id => {
+                    const findIdSubmit = idSubmitEditDetailPatient.find(idWait => idWait === id)
 
-                const findIdWaitSubmitDetailPatient = idWaitToSubmitEditDetailPatient.filter(id => id !== idPatientToEditDetailPatient)
+                    return !findIdSubmit
+                })
 
                 setIdWaitToSubmitEditDetailPatient(findIdWaitSubmitDetailPatient)
+                console.log(err)
+                setTriggedErrSubmitEditPatientRegis(true)
             })
     }
     // end action edit detail patient
@@ -1235,6 +1326,12 @@ export function ConfirmationPatient() {
         setEditActiveAutoQueue(false)
 
         changeActiveToggle('setAutoNumber', false)
+
+        const findPatient = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToEditConfirmPatient)
+        setValueInputEditConfirmPatient({
+            ...valueInputEditConfirmPatient,
+            queueNumber: findPatient?.roomInfo?.queueNumber as string
+        })
     }
 
     function toggleSetAutoQueue(): void {
@@ -1242,6 +1339,12 @@ export function ConfirmationPatient() {
         setEditActiveAutoQueue(!editActiveAutoQueue)
 
         changeActiveToggle('toggle', false)
+
+        const findPatient = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToEditConfirmPatient)
+        setValueInputEditConfirmPatient({
+            ...valueInputEditConfirmPatient,
+            queueNumber: findPatient?.roomInfo?.queueNumber as string
+        })
     }
 
     function changeActiveToggle(idElement: string, checked: boolean): void {
@@ -1353,6 +1456,32 @@ export function ConfirmationPatient() {
         // room
         const findRoom: RoomTreatmentT | null | undefined = dataRooms?.find(room => room?.room === roomName)
 
+        // find queue number if set auto number is active
+        const findRegistration = dataPatientRegis?.filter((patient => {
+            // patient already on confirm
+            const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) =>
+                patientConfirm.patientId === patient.id && patientConfirm.patientId !== patientId
+            )
+            // get patient in this room
+            const findPatientInRoom = dataRooms?.find(room => room?.id === findRoom?.id)
+
+            return findPatientOnConfirm && findPatientInRoom
+        }))
+        // find patient this data
+        const findPatientThisData = dataPatientRegis?.find(patient => patient.id === patientId)
+        // find patient registration to treatment in this date
+        const findPatientRegisToTreatmentCurrentDate = Array.isArray(findRegistration) && findRegistration.length > 0 ? findRegistration.filter(patient => patient.appointmentDate === findPatientThisData?.appointmentDate) : []
+        // find patient in confirmation
+        const findPatientInConfirmation = dataConfirmationPatients?.filter(patient => {
+            const checkPatientId = findPatientRegisToTreatmentCurrentDate.find(patientReg => patientReg.id === patient.patientId)
+
+            return checkPatientId
+        })
+        // sort queue number patient treatment in current date of current room
+        const sortQueueNumber = Array.isArray(findPatientInConfirmation) && findPatientInConfirmation.length > 0 ? findPatientInConfirmation.sort((a, b) => Number(b.roomInfo.queueNumber) - Number(a.roomInfo.queueNumber)) : undefined
+
+        const specifyQueue = editActiveAutoQueue ? Array.isArray(sortQueueNumber) && sortQueueNumber.length > 0 ? `${Number(sortQueueNumber[0].roomInfo?.queueNumber) + 1}` : '1' : queueNumber
+
         const data: SubmitEditConfirmPatientT = {
             patientId,
             adminInfo: { adminId: findAdmin?.id as string },
@@ -1364,7 +1493,7 @@ export function ConfirmationPatient() {
             doctorInfo: { doctorId: findDoctor?.id as string },
             roomInfo: {
                 roomId: findRoom?.id as string,
-                queueNumber,
+                queueNumber: specifyQueue,
                 presence
             }
         }
@@ -1389,7 +1518,11 @@ export function ConfirmationPatient() {
                 alert('a server error occurred while updating the data.\nplease try again')
                 console.log(err)
 
-                const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.filter(id => id !== idPatientToEditConfirmPatient)
+                const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.filter(id => {
+                    const findIdSubmit = idSubmitEditConfirmPatient.find(idWait => idWait === id)
+
+                    return !findIdSubmit
+                })
 
                 setIdWaitToSubmitConfirmPatient(findIdWaitSubmitConfirmPatient)
             })
@@ -1566,7 +1699,7 @@ export function ConfirmationPatient() {
                         <TitleInput title='Email Admin' />
                         <InputSelect
                             id='selectAdmin'
-                            classWrapp='mt-2 border-bdr-one border-color-young-gray'
+                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
                             data={selectEmailAdmin}
                             handleSelect={() => handleInputSelectConfirmPatient('selectAdmin', 'emailAdmin')}
                         />
@@ -1605,7 +1738,7 @@ export function ConfirmationPatient() {
                         <TitleInput title='Select Specialist' />
                         <InputSelect
                             id='selectSpecialist'
-                            classWrapp='mt-2 border-bdr-one border-color-young-gray'
+                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
                             data={selectDoctorSpecialist}
                             handleSelect={() => handleInputSelectConfirmPatient('selectSpecialist', 'doctorSpecialist', (id, p2) => loadDataDoctor(id, p2), (p1) => loadDataRoom(p1))}
                         />
@@ -1617,7 +1750,7 @@ export function ConfirmationPatient() {
                         <TitleInput title='Select Doctor' />
                         <InputSelect
                             id='selectDoctor'
-                            classWrapp='mt-2 border-bdr-one border-color-young-gray'
+                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
                             data={selectDoctor}
                             handleSelect={() => handleInputSelectConfirmPatient('selectDoctor', 'nameDoctor')}
                         />
@@ -1629,7 +1762,7 @@ export function ConfirmationPatient() {
                         <TitleInput title='Select Room' />
                         <InputSelect
                             id='selectRoom'
-                            classWrapp='mt-2 border-bdr-one border-color-young-gray'
+                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
                             data={selectRoom}
                             handleSelect={() => handleInputSelectConfirmPatient('selectRoom', 'roomName')}
                         />
@@ -1681,7 +1814,7 @@ export function ConfirmationPatient() {
                         <TitleInput title='Presence' />
                         <InputSelect
                             id='selectPresence'
-                            classWrapp='mt-2 border-bdr-one border-color-young-gray'
+                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
                             data={selectPresence}
                             handleSelect={() => handleInputSelectConfirmPatient('selectPresence', 'presence')}
                         />

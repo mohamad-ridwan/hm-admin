@@ -36,6 +36,7 @@ import { mailRegex } from 'lib/regex/mailRegex'
 import Button from 'components/Button'
 import { createDateFormat } from 'lib/datePicker/createDateFormat'
 import { InputEditPatientRegistrationT } from 'lib/types/InputT.type'
+import { AuthRequiredError } from 'lib/errorHandling/exceptions'
 
 export function PatientRegistration() {
     const [head] = useState<HeadDataTableT>([
@@ -149,6 +150,22 @@ export function PatientRegistration() {
     // finished treatment data
     const getFinishTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientFinishTreatmentT) => item?.id === 'finished-treatment')
     const dataFinishTreatment: PatientFinishTreatmentT[] | undefined = getFinishTreatment?.data
+
+    // trigged error boundary
+    // error fetch swr
+    // err servicing hours
+    if(!loadDataService && errDataService){
+        throw new AuthRequiredError('a server error occurred while retrieving patient data. Please try again')
+    }
+    if(!loadDataService && typeof dataPatientRegis === 'undefined'){
+        throw new AuthRequiredError(`A server error occurred while retrieving patient registration data. no property "data" found`)
+    }
+    if(!loadDataService && typeof dataConfirmationPatients === 'undefined'){
+        throw new AuthRequiredError(`A server error occurred while fetching confirmation patient data. no property "data" found`)
+    }
+    if(!loadDataService && typeof dataFinishTreatment === 'undefined'){
+        throw new AuthRequiredError(`a server error occurred while fetching treatment data was completed. no property "data" found`)
+    }
 
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,

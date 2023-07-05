@@ -1,23 +1,9 @@
-import { backendUrl } from "lib/api/backendUrl";
-import { endpoint } from "lib/api/endpoint";
 import Template from "app/template";
 import { Container } from "components/Container";
 import { PatientRegistration } from "components/patients/PatientRegistration";
 import { TableContainer } from "components/table/TableContainer";
-import { AuthRequiredError } from "lib/errorHandling/exceptions";
 
 export default async function PatientRegistrationPage() {
-    const dataService = await fetch(`${backendUrl}/${endpoint.getServicingHours()}`)
-    const result = await dataService.json()
-    const getPatientRegistration: {[key: string]: any} | undefined = await result?.data?.find((item: {[key: string]: any})=>item?.id === 'patient-registration')
-
-    if(!result?.data){
-        throw new AuthRequiredError('There was an error in the patient registration data')
-    }
-    if(!getPatientRegistration){
-        throw new AuthRequiredError(`There was an error in the patient registration data. it might be because it can't find the "data" property in the database`)
-    }
-
     return (
         <Template
             key={8}

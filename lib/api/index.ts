@@ -2,35 +2,43 @@ import { useFetch } from "lib/useFetch/useFetch";
 import { endpoint } from "./endpoint";
 import { fetchJwtToken } from "lib/useFetch/fetchJwtToken";
 
-type PropsAPIType<T> = {
-    [key: string]: (p1?: T, p2?: T, p3?: T) => any
+type ParamT = string | number | boolean
+
+export type DataRequest = {
+    [key: string]: ParamT |
+    { [key: string]: ParamT } |
+    { [key: string]: ParamT }[]
+}
+
+type PropsAPIType<T extends DataRequest | ParamT> = {
+    [key: string]: (p1?: T, p2?: T, p3?: T) => Promise<DataRequest | ParamT>
 }
 
 // servicing hours
 // update patient data
-const APIPutPatientData = <T>(roleId?: T, id?: T, data?: T)=>useFetch(endpoint.putPatientData(roleId as string, id as string), 'PUT', data)
+const APIPutPatientData = <T>(roleId?: T, id?: T, data?: T) => useFetch(endpoint.putPatientData(roleId as string, id as string), 'PUT', data as DataRequest)
 // delete patient data
-const APIDeletePatientData = <T>(roleId?: T, id?: T)=>useFetch(endpoint.deletePatientData(roleId as string, id as string), 'DELETE')
+const APIDeletePatientData = <T>(roleId?: T, id?: T) => useFetch(endpoint.deletePatientData(roleId as string, id as string), 'DELETE')
 
 // verification
-const APIGetVerification = ()=>useFetch(endpoint.getVerification(), 'GET')
-const APIPutVerification = <T>(userId: T, data: T)=>useFetch(endpoint.putVerification(userId as string), 'PUT', data)
-const APIPostVerification = <T>(data: T)=>useFetch(endpoint.postVerification(), 'POST', data)
-const APIDeleteVerification = <T>(id: T)=>useFetch(endpoint.deleteVerification(id as string), 'DELETE')
+const APIGetVerification = () => useFetch(endpoint.getVerification(), 'GET')
+const APIPutVerification = <T>(userId: T, data: T) => useFetch(endpoint.putVerification(userId as string), 'PUT', data as DataRequest)
+const APIPostVerification = <T>(data: T) => useFetch(endpoint.postVerification(), 'POST', data as DataRequest)
+const APIDeleteVerification = <T>(id: T) => useFetch(endpoint.deleteVerification(id as string), 'DELETE')
 // verification create new password and create jwt-token
-const APIPostCreateJwtToken = <T>(userId?: T)=>useFetch(endpoint.postCreateJwtToken(userId as string), 'POST')
-const APIGetJwtTokenVerif = <T>(token?: T)=>fetchJwtToken(endpoint.getTokenJwt(), 'GET', token as string)
+const APIPostCreateJwtToken = <T>(userId?: T) => useFetch(endpoint.postCreateJwtToken(userId as string), 'POST')
+const APIGetJwtTokenVerif = <T>(token?: T) => fetchJwtToken(endpoint.getTokenJwt(), 'GET', token as string)
 
 // admin
 const APIGetAdmin = () => useFetch(endpoint.getAdmin(), 'GET')
-const APIPutAdmin = <T>(adminId?: T, data?: T) => useFetch(endpoint.putAdmin(adminId as string), 'PUT', data)
-const APIPutAdminVerification = <T>(adminId?: T, data?: T)=>useFetch(endpoint.putAdminVerification(adminId as string), 'PUT', data)
-const APIPostAdmin = <T>(data?: T) => useFetch(endpoint.postAdmin(), 'POST', data)
+const APIPutAdmin = <T>(adminId?: T, data?: T) => useFetch(endpoint.putAdmin(adminId as string), 'PUT', data as DataRequest)
+const APIPutAdminVerification = <T>(adminId?: T, data?: T) => useFetch(endpoint.putAdminVerification(adminId as string), 'PUT', data as DataRequest)
+const APIPostAdmin = <T>(data?: T) => useFetch(endpoint.postAdmin(), 'POST', data as DataRequest)
 
 // blacklist token JWT
-const APIPostBlackListJWT = <T>(data?: T)=>useFetch(endpoint.postBlackListJWT(), 'POST', data)
+const APIPostBlackListJWT = <T>(data?: T) => useFetch(endpoint.postBlackListJWT(), 'POST', data as DataRequest)
 
-export function API<T>(): PropsAPIType<T> {
+export function API<T extends DataRequest | ParamT>(): PropsAPIType<T> {
     return {
         APIPutPatientData,
         APIDeletePatientData,
@@ -44,6 +52,6 @@ export function API<T>(): PropsAPIType<T> {
         APIPostAdmin,
         APIPostCreateJwtToken,
         APIGetJwtTokenVerif,
-        APIPostBlackListJWT
+        APIPostBlackListJWT,
     }
 }

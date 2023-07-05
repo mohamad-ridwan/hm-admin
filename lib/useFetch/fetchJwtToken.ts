@@ -1,9 +1,9 @@
 import { backendUrl } from "lib/api/backendUrl"
 
-export async function fetchJwtToken<T>(
-    path: string,
-    method: string,
-    token: string
+export async function fetchJwtToken<T extends string>(
+    path: T,
+    method: T,
+    token: T,
 ):Promise<T>{
     return await new Promise((resolve, reject)=>{
         fetch(`${backendUrl}/${path}`, {

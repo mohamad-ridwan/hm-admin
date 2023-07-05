@@ -799,7 +799,7 @@ export function PatientRegistration() {
 
         API().APIPutPatientData(
             'patient-registration',
-            idPatientToEdit,
+            idPatientToEdit as string,
             data
         )
             .then((res: any) => {

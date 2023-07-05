@@ -24,7 +24,9 @@ module.exports = {
         'cyan-table': '#f0ffff',
         'table-hover': '#d9f9f9',
         'pink': '#f85084',
-        'orange': '#FFA500'
+        'pink-old': '#ff296d',
+        'orange': '#FFA500',
+        'red': '#ff0000'
       },
       borderWidth:{
         'bdr-one': '1px'

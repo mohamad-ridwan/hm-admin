@@ -1,11 +1,21 @@
 import { backendUrl } from "lib/api/backendUrl"
 
-export async function useFetch<Type = {[key: string]: any}>(
+type ParamT = string | number | boolean
+
+export async function useFetch<Type extends
+    {
+        [key: string]: ParamT |
+        { [key: string]: ParamT } |
+        { [key: string]: ParamT }[]
+    }
+    |
+    ParamT
+>(
     path: string,
     method: string,
     data?: Type
-): Promise<Type>{
-    return await new Promise<Type>((resolve, reject)=>{
+): Promise<Type> {
+    return await new Promise<Type>((resolve, reject) => {
         fetch(`${backendUrl}/${path}`, {
             method: method,
             mode: 'cors',
@@ -14,8 +24,8 @@ export async function useFetch<Type = {[key: string]: any}>(
             },
             body: JSON.stringify(data)
         })
-        .then(res=>res.json())
-        .then(res=>resolve(res))
-        .catch(err=>reject(err))
+            .then(res => res.json())
+            .then((res: Type) => resolve(res))
+            .catch(err => reject(err))
     })
 }

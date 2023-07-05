@@ -9,7 +9,7 @@ import { TableHead } from "components/table/TableHead"
 import { HeadDataTableT } from 'lib/types/TableT.type'
 import { TableFilter } from 'components/table/TableFilter'
 import { InputSearch } from 'components/input/InputSearch'
-import { faCalendarDays, faGear, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faBan, faCalendarDays, faGear, faMagnifyingGlass, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { InputSelect } from 'components/input/InputSelect'
 import { DataOnDataTableContentT, DataOptionT, DataTableContentT } from 'lib/types/FilterT'
 import { specialCharacter } from 'lib/regex/specialCharacter'
@@ -165,6 +165,11 @@ export function ConfirmationPatient() {
     const [errEditInputDetailPatient, setErrEditInputDetailPatient] = useState<InputEditPatientRegistrationT>({} as InputEditPatientRegistrationT)
     const [triggedErrSubmitEditPatientRegis, setTriggedErrSubmitEditPatientRegis] = useState<boolean>(false)
     // end action edit detail patient
+    // action delete
+    const [onPopupChooseDelete, setOnPopupChooseDelete] = useState<boolean>(false)
+    const [idPatientToDelete, setIdPatientToDelete] = useState<string>('')
+    const [namePatientToDelete, setNamePatientToDelete] = useState<string | null>(null)
+    // end action delete
     const [chooseFilterByRoom, setChooseFilterByRoom] = useState<{
         id: string
         title: string
@@ -1399,19 +1404,19 @@ export function ConfirmationPatient() {
         if (!treatmentHours.trim()) {
             err.treatmentHours = 'Must be required'
         }
-        if (!nameDoctor.trim()) {
+        if (nameDoctor === 'Select Doctor') {
             err.nameDoctor = 'Please select doctor'
         }
-        if (!doctorSpecialist.trim()) {
+        if (doctorSpecialist === 'Select Specialist') {
             err.doctorSpecialist = 'Please select specialist doctor'
         }
-        if (!roomName.trim()) {
+        if (roomName === 'Select Room') {
             err.roomName = 'Please select room'
         }
         if (!queueNumber.trim()) {
             err.queueNumber = 'Please select attendance'
         }
-        if (!presence.trim()) {
+        if (presence === 'Select Presence') {
             err.presence = 'Please select attendance'
         }
 
@@ -1503,7 +1508,7 @@ export function ConfirmationPatient() {
             findId?.id,
             data
         )
-            .then((res: any) => {
+            .then((res) => {
                 alert('patient confirmation data successfully updated')
 
                 const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.filter(id => {
@@ -1515,7 +1520,6 @@ export function ConfirmationPatient() {
                 setIdWaitToSubmitConfirmPatient(findIdWaitSubmitConfirmPatient)
             })
             .catch((err: any) => {
-                alert('a server error occurred while updating the data.\nplease try again')
                 console.log(err)
 
                 const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.filter(id => {
@@ -1525,6 +1529,7 @@ export function ConfirmationPatient() {
                 })
 
                 setIdWaitToSubmitConfirmPatient(findIdWaitSubmitConfirmPatient)
+                setTriggedErrSubmitEditConfirmPatient(true)
             })
     }
 
@@ -1533,6 +1538,26 @@ export function ConfirmationPatient() {
 
     // on loading edit confirmation patient
     const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
+
+    // action delete
+    function closePopupChooseDelete() {
+        setOnPopupChooseDelete(false)
+    }
+
+    function clickDeleteIcon(
+        patientId: string,
+        patientName: string
+        ):void{
+        setNamePatientToDelete(patientName)
+        setIdPatientToDelete(patientId)
+    }
+
+    // click delete detail and confirm data
+    function clickDeleteDetailAndConfirmData():void{
+        if(window.confirm(`Delete details and confirmation data from patient "${namePatientToDelete}"?`)){
+            // API().API
+        }
+    }
 
     return (
         <>
@@ -1779,9 +1804,12 @@ export function ConfirmationPatient() {
                             valueInput={valueInputEditConfirmPatient?.queueNumber}
                             readonly={editActiveManualQueue}
                         />
+                        <ErrorInput
+                            error={errEditInputConfirmPatient?.queueNumber}
+                        />
                         {/* options */}
                         <div
-                            className='flex flex-wrap justify-end items-center'
+                            className='flex flex-wrap justify-end items-center mb-4'
                         >
                             <Toggle
                                 labelText='Change manually'
@@ -1794,10 +1822,6 @@ export function ConfirmationPatient() {
                                 clickToggle={toggleSetAutoQueue}
                             />
                         </div>
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.queueNumber}
-                        />
 
                         <TitleInput title='Treatment Hours (08:00 - 12:00)' />
                         <Input
@@ -1837,11 +1861,13 @@ export function ConfirmationPatient() {
             {/* popup choose update */}
             {onPopupSettings && (
                 <ContainerPopup
-                    className='flex justify-center overflow-y-auto'
+                    className='flex justify-center items-center overflow-y-auto'
                 >
                     <SettingPopup
                         clickClose={closePopupSetting}
                         title='What do you want to edit?'
+                        classIcon='text-color-default'
+                        iconPopup={faPenToSquare}
                     >
                         <Button
                             nameBtn="Edit patient detail"
@@ -1861,6 +1887,55 @@ export function ConfirmationPatient() {
                             clickBtn={clickOnEditConfirmPatient}
                             styleBtn={{
                                 padding: '0.5rem',
+                                marginTop: '0.5rem'
+                            }}
+                        />
+                    </SettingPopup>
+                </ContainerPopup>
+            )}
+
+            {/* popup choose delete */}
+            {onPopupChooseDelete && (
+                <ContainerPopup
+                    className='flex justify-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        title='What do you want to delete?'
+                        classIcon='text-red-default'
+                        desc={`${namePatientToDelete} - patient`}
+                        clickClose={closePopupChooseDelete}
+                        iconPopup={faBan}
+                    >
+                        <Button
+                            nameBtn="Details and data Confirmation"
+                            classBtn='bg-orange hover:bg-white border-orange hover:border-orange hover:text-orange'
+                            classLoading='hidden'
+                            clickBtn={clickDeleteDetailAndConfirmData}
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginRight: '0.5rem',
+                                marginTop: '0.5rem'
+                            }}
+                        />
+                        <Button
+                            nameBtn="Confirmation data"
+                            classBtn='bg-pink-old hover:bg-white border-pink-old hover:border-pink-old hover:text-pink-old'
+                            classLoading='hidden'
+                            // clickBtn={clickOnEditDetailPatient}
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginRight: '0.5rem',
+                                marginTop: '0.5rem'
+                            }}
+                        />
+                        <Button
+                            nameBtn="Cancel Treatment"
+                            classBtn='bg-red hover:bg-white border-red-default hover:border-red-default hover:text-red-default'
+                            classLoading='hidden'
+                            // clickBtn={clickOnEditDetailPatient}
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginRight: '0.5rem',
                                 marginTop: '0.5rem'
                             }}
                         />
@@ -1962,7 +2037,8 @@ export function ConfirmationPatient() {
                                     e?.stopPropagation()
                                 }}
                                 clickDelete={(e) => {
-                                    // clickDelete(patient.id, patient.data[0]?.name)
+                                    clickDeleteIcon(patient.id, patient.data[0]?.name)
+                                    setOnPopupChooseDelete(true)
                                     e?.stopPropagation()
                                 }}
                             >

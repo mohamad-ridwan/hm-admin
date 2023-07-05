@@ -3,7 +3,7 @@
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { mailRegex } from 'lib/regex/mailRegex'
-import { API } from 'lib/api'
+import { API, DataRequest } from 'lib/api'
 import { userIdAuthStore } from 'lib/useZustand/auth'
 import InputContainer from 'components/input/InputContainer'
 import Input from 'components/input/Input'
@@ -67,27 +67,29 @@ export function Login() {
         setLoadingSubmit(true)
 
         API().APIGetAdmin()
-            .then((result: { [key: string]: any }) => {
-                const getData = result?.data
-                if (Array.isArray(getData) && getData.length > 0) {
-                    const findAdmin = getData.find(user =>
-                        user.email === input.email &&
-                        user.password === input.password &&
-                        user.isVerification === true
-                    )
-
-                    if (typeof findAdmin === 'object') {
-                        setUserId(findAdmin.id as string)
-                        router.push('/')
-                        setLoadingSubmit(false)
+            .then((result) => {
+                if(typeof result === 'object'){
+                    const getData = result?.data
+                    if (Array.isArray(getData) && getData.length > 0) {
+                        const findAdmin = getData.find(user =>
+                            user.email === input.email &&
+                            user.password === input.password &&
+                            user.isVerification === true
+                        )
+    
+                        if (typeof findAdmin === 'object') {
+                            setUserId(findAdmin.id as string)
+                            router.push('/')
+                            setLoadingSubmit(false)
+                        } else {
+                            setErrMsg({ password: 'Unregistered account!' })
+                            setLoadingSubmit(false)
+                        }
                     } else {
-                        setErrMsg({ password: 'Unregistered account!' })
+                        alert('no admin data found!')
+                        console.log(new Error('Error data Admin'))
                         setLoadingSubmit(false)
                     }
-                } else {
-                    alert('no admin data found!')
-                    console.log(new Error('Error data Admin'))
-                    setLoadingSubmit(false)
                 }
             })
             .catch((err: any) => {

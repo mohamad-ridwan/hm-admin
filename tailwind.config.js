@@ -24,7 +24,6 @@ module.exports = {
         'cyan-table': '#f0ffff',
         'table-hover': '#d9f9f9',
         'pink': '#f85084',
-        'pink-old': '#ff296d',
         'orange': '#FFA500',
         'red': '#ff0000'
       },
@@ -34,12 +33,15 @@ module.exports = {
       colors: {
         'font-color-2': '#495057',
         'font-color-3': '#444',
+        'font-color-4': '#111',
         'color-young-gray': '#eee',
         'color-default': '#3face4',
+        'color-default-old': '#288bbc',
         'red-default': '#ff0000',
         'bdr-bottom': 'rgba(0,0,0,0.1)',
         'pink-old': '#ff296d',
         'color-grey-white': '#f7f5f5',
+        'green': '#0ab110',
         'green-success': '#47d400',
         'border-success': '#7ec86f27',
         'pink': '#f85084',

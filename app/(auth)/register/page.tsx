@@ -1,6 +1,6 @@
 import Template from "app/template";
-import ProtectContainer from "components/protect/ProtectContainer";
-import { Register } from "components/protect/register/Register";
+import ProtectContainer from "components/views/auth/ProtectContainer";
+import { Register } from "components/views/auth/register/Register";
 
 export default function RegisterPage(){
     return(

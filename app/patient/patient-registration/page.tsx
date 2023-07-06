@@ -1,6 +1,6 @@
 import Template from "app/template";
 import { Container } from "components/Container";
-import { PatientRegistration } from "components/patients/PatientRegistration";
+import { PatientRegistration } from "components/views/patients/PatientRegistration";
 import { TableContainer } from "components/table/TableContainer";
 
 export default async function PatientRegistrationPage() {
@@ -13,11 +13,8 @@ export default async function PatientRegistrationPage() {
         >
             <Container
             overflow="overflow-x-auto"
+            title="List of Patient Registration"
             >
-                <h1
-                    className="text-3xl font-semibold text-font-color-3"
-                >List of Patient Registration</h1>
-
                 <TableContainer>
                     <PatientRegistration />
                 </TableContainer>

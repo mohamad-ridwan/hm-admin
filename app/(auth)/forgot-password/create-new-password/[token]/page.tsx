@@ -7,7 +7,7 @@ import { API } from "lib/api"
 import { faKey } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Template from "app/template"
-import ProtectContainer from "components/protect/ProtectContainer"
+import ProtectContainer from "components/views/auth/ProtectContainer"
 import { AdminT } from "lib/types/AdminT.types"
 import { endpoint } from "lib/api/endpoint"
 import LoadingSpinner from "components/LoadingSpinner"
@@ -15,7 +15,7 @@ import InputContainer from "components/input/InputContainer"
 import Input from "components/input/Input"
 import ErrorInput from "components/input/ErrorInput"
 import Button from "components/Button"
-import { BackToLogin } from "components/protect/BackToLogin"
+import { BackToLogin } from "components/views/auth/BackToLogin"
 
 type InputPasswordT = {
     password: string

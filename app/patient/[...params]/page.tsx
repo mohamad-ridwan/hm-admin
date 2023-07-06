@@ -1,4 +1,6 @@
 import Template from "app/template";
+import { Container } from "components/Container";
+import { RegistrationData } from "components/views/personalData/RegistrationData";
 
 export default function PersonalDataRegistration() {
     return (
@@ -7,7 +9,11 @@ export default function PersonalDataRegistration() {
             title="Ridwan | Patient Data"
             description="detail data pasien hospice medical"
         >
-            <h1>DETAIL DATA PASIEN</h1>
+            <Container
+                overflow="overflow-x-auto"
+            >
+                <RegistrationData/>
+            </Container>
         </Template>
     )
 }

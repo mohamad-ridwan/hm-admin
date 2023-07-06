@@ -1019,7 +1019,10 @@ export function PatientRegistration() {
 
                     {/* load data */}
                     {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
-                        const pathUrlToDataDetail: string = `/patient/patient-registration/personal-data/not-yet-confirmed/${patient.data[0]?.name}/${patient.id}`
+                        const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
+                        const namePatient = cleanName.replace(spaceString, '')
+
+                        const pathUrlToDataDetail: string = `/patient/patient-registration/personal-data/not-yet-confirmed/${namePatient}/${patient.id}`
                         return (
                             <TableColumns
                                 key={index}

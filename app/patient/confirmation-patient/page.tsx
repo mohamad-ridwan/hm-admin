@@ -1,7 +1,7 @@
 import Template from "app/template";
 import { Container } from "components/Container";
 import { TableContainer } from "components/table/TableContainer";
-import { ConfirmationPatient } from "components/patients/ConfirmationPatient";
+import { ConfirmationPatient } from "components/views/patients/ConfirmationPatient";
 
 export default async function ConfirmationPatientPage() {
     return (
@@ -13,11 +13,8 @@ export default async function ConfirmationPatientPage() {
         >
             <Container
                 overflow="overflow-x-auto"
+                title="List of Confirmed Patients"
             >
-                <h1
-                    className="text-3xl font-semibold text-font-color-3"
-                >List of Confirmed Patients</h1>
-
                 <TableContainer>
                     <ConfirmationPatient />
                 </TableContainer>

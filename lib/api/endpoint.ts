@@ -1,38 +1,37 @@
-type EndpointType = {
-    [key: string]: (params?: string, params2?: string) => string
-}
-
 // servicing hours
-const getServicingHours = () => 'v8/servicing-hours/get'
+const getServicingHours = (): string => 'v8/servicing-hours/get'
+// post patient data
+const postPatientData = (roleId: string):string=>`v8/servicing-hours/post/role/${roleId}/data`
 // update patient data
-const putPatientData = (roleId?: string, id?: string)=> `v8/servicing-hours/put/role/${roleId}/data/${id}`
+const putPatientData = (roleId: string, id: string): string=> `v8/servicing-hours/put/role/${roleId}/data/${id}`
 // delete patient data
-const deletePatientData = (roleId?: string, id?: string)=>`v8/servicing-hours/delete/role/${roleId}/data/${id}`
+const deletePatientData = (roleId: string, id: string): string=>`v8/servicing-hours/delete/role/${roleId}/data/${id}`
 
 // doctors
-const getDoctors = ()=>'v10/doctors/get'
+const getDoctors = (): string=>'v10/doctors/get'
 
 // verification
-const getVerification = () => 'v13/verification/get'
-const putVerification = (userId?: string) => `v13/verification/put/${userId}`
-const postVerification = () => 'v13/verification/post'
-const deleteVerification = (id?: string) => `v13/verification/delete/${id}`
+const getVerification = (): string => 'v13/verification/get'
+const putVerification = (userId: string): string => `v13/verification/put/${userId}`
+const postVerification = (): string => 'v13/verification/post'
+const deleteVerification = (id: string): string => `v13/verification/delete/${id}`
 // verification create new password and create jwt-token
-const postCreateJwtToken = (userId?: string) => `v13/verification/post/forgot-password/create-new-password/${userId}/admin`
-const getTokenJwt = () => 'v13/verification/get/forgot-password/create-new-password'
+const postCreateJwtToken = (userId?: string): string => `v13/verification/post/forgot-password/create-new-password/${userId}/admin`
+const getTokenJwt = (): string => 'v13/verification/get/forgot-password/create-new-password'
 
 // admin
-const getAdmin = () => 'v14/admin/get'
-const putAdmin = (adminId?: string) => `v14/admin/put/admin/${adminId}`
-const putAdminVerification = (adminId?: string) => `v14/admin/put/${adminId}`
-const postAdmin = () => 'v14/admin/post'
+const getAdmin = (): string => 'v14/admin/get'
+const putAdmin = (adminId: string): string => `v14/admin/put/admin/${adminId}`
+const putAdminVerification = (adminId: string): string => `v14/admin/put/${adminId}`
+const postAdmin = (): string => 'v14/admin/post'
 
 // black list jwt
-const getBlackListJWT = () => 'v15/black-list-jwt/get'
-const postBlackListJWT = () => 'v15/black-list-jwt/post'
+const getBlackListJWT = (): string => 'v15/black-list-jwt/get'
+const postBlackListJWT = (): string => 'v15/black-list-jwt/post'
 
-export const endpoint: EndpointType = {
+export const endpoint= {
     getServicingHours,
+    postPatientData,
     putPatientData,
     deletePatientData,
     getDoctors,

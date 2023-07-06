@@ -9,16 +9,14 @@ import { TableHead } from "components/table/TableHead"
 import { HeadDataTableT } from 'lib/types/TableT.type'
 import { TableFilter } from 'components/table/TableFilter'
 import { InputSearch } from 'components/input/InputSearch'
-import { faBan, faCalendarDays, faGear, faMagnifyingGlass, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faBan, faCalendarDays, faMagnifyingGlass, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { InputSelect } from 'components/input/InputSelect'
-import { DataOnDataTableContentT, DataOptionT, DataTableContentT } from 'lib/types/FilterT'
+import { DataOptionT, DataTableContentT } from 'lib/types/FilterT'
 import { specialCharacter } from 'lib/regex/specialCharacter'
 import { spaceString } from 'lib/regex/spaceString'
 import { monthNames } from 'lib/namesOfCalendar/monthNames'
 import { renderCustomHeader } from 'lib/datePicker/renderCustomHeader'
 import Pagination from 'components/pagination/Pagination'
-import { useSwr } from 'lib/useFetch/useSwr'
-import { endpoint } from 'lib/api/endpoint'
 import { dayNamesEng } from 'lib/namesOfCalendar/dayNamesEng'
 import { dayNamesInd } from 'lib/namesOfCalendar/dayNamesInd'
 import { monthNamesInd } from 'lib/namesOfCalendar/monthNamesInd'
@@ -39,7 +37,9 @@ import { createDateFormat } from 'lib/datePicker/createDateFormat'
 import { AdminT } from 'lib/types/AdminT.types'
 import { ProfileDoctorT } from 'lib/types/DoctorsT.types'
 import { Toggle } from 'components/toggle/Toggle'
-import { AuthRequiredError } from 'lib/errorHandling/exceptions'
+import ServicingHours from 'lib/actions/ServicingHours'
+import { createHourFormat } from 'lib/datePicker/createHourFormat'
+import { authStore } from 'lib/useZustand/auth'
 
 export function ConfirmationPatient() {
     const [head] = useState<HeadDataTableT>([
@@ -143,7 +143,6 @@ export function ConfirmationPatient() {
     const [idWaitToSubmitConfirmPatient, setIdWaitToSubmitConfirmPatient] = useState<string[]>([])
     const [idSubmitEditConfirmPatient, setIdSubmitEditConfirmPatient] = useState<string[]>([])
     const [errEditInputConfirmPatient, setErrEditInputConfirmPatient] = useState<InputEditConfirmPatientT>({} as InputEditConfirmPatientT)
-    const [triggedErrSubmitEditConfirmPatient, setTriggedErrSubmitEditConfirmPatient] = useState<boolean>(false)
     // end action edit confirmation patient
     // action edit detail patient
     const [onPopupEditPatientDetail, setOnPopupEditPatientDetail] = useState<boolean>(false)
@@ -163,11 +162,12 @@ export function ConfirmationPatient() {
         clock: ''
     })
     const [errEditInputDetailPatient, setErrEditInputDetailPatient] = useState<InputEditPatientRegistrationT>({} as InputEditPatientRegistrationT)
-    const [triggedErrSubmitEditPatientRegis, setTriggedErrSubmitEditPatientRegis] = useState<boolean>(false)
     // end action edit detail patient
     // action delete
     const [onPopupChooseDelete, setOnPopupChooseDelete] = useState<boolean>(false)
     const [idPatientToDelete, setIdPatientToDelete] = useState<string>('')
+    const [loadingIdPatientsDelete, setLoadingIdPatientsDelete] = useState<string[]>([])
+    const [idSuccessPatientsDelete, setIdSuccessPatientsDelete] = useState<string[]>([])
     const [namePatientToDelete, setNamePatientToDelete] = useState<string | null>(null)
     // end action delete
     const [chooseFilterByRoom, setChooseFilterByRoom] = useState<{
@@ -223,78 +223,24 @@ export function ConfirmationPatient() {
             title: 'Date of Birth',
         },
     ])
-
-    const router = useRouter()
-
     // swr fetching data
     // servicing hours
-    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), { refreshInterval: 4000 })
-    const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
-    const getPatientRegistration: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'patient-registration')
-    const dataPatientRegis: PatientRegistrationT[] | undefined = getPatientRegistration?.data
+    const {
+        pushTriggedErr,
+        dataService,
+        dataPatientRegis,
+        dataConfirmationPatients,
+        dataFinishTreatment,
+        dataAdmin,
+        dataRooms,
+        loadDataService,
+        doctors,
+    } = ServicingHours()
 
-    // confirmation patients
-    const getConfirmationPatients: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: ConfirmationPatientsT) => item?.id === 'confirmation-patients')
-    const dataConfirmationPatients: ConfirmationPatientsT[] | undefined = getConfirmationPatients?.data
+    // zustand store
+    const {user} = authStore()
 
-    // finished treatment data
-    const getFinishTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientFinishTreatmentT) => item?.id === 'finished-treatment')
-    const dataFinishTreatment: PatientFinishTreatmentT[] | undefined = getFinishTreatment?.data
-
-    // room
-    const getRoomsTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: RoomTreatmentT) => item?.id === 'room')
-    const dataRooms: RoomTreatmentT[] | undefined = getRoomsTreatment?.data
-
-    // admin
-    const { data: getDataAdmin, error: errGetDataAdmin, isLoading: loadGetDataAdmin } = useSwr(endpoint.getAdmin())
-    const findDataAdmin: { [key: string]: any } | undefined = getDataAdmin as {}
-    const dataAdmin: AdminT[] | undefined = findDataAdmin?.data
-
-    // doctors
-    const { data: getDataDoctors, error: errGetDataDoctors, isLoading: loadDataDoctors } = useSwr(endpoint.getDoctors())
-    const newDataDoctor: { [key: string]: any } | undefined = getDataDoctors as {}
-    const getDoctorDocument: { [key: string]: any } | undefined = newDataDoctor?.data?.find((data: { [key: string]: any }) => data?.id === 'doctor')
-    const doctors: ProfileDoctorT[] | undefined = getDoctorDocument?.data
-
-    // trigged error boundary
-    // error fetch swr
-    // err servicing hours
-    if (!loadDataService && errDataService) {
-        throw new AuthRequiredError('a server error occurred while retrieving patient data. Please try again')
-    }
-    if (!loadDataService && typeof dataPatientRegis === 'undefined') {
-        throw new AuthRequiredError(`A server error occurred while retrieving patient registration data. no property "data" found`)
-    }
-    if (!loadDataService && typeof dataConfirmationPatients === 'undefined') {
-        throw new AuthRequiredError(`A server error occurred while fetching confirmation patient data. no property "data" found`)
-    }
-    if (!loadDataService && typeof dataFinishTreatment === 'undefined') {
-        throw new AuthRequiredError(`a server error occurred while fetching treatment data was completed. no property "data" found`)
-    }
-    if (!loadDataService && typeof dataRooms === 'undefined') {
-        throw new AuthRequiredError(`a server error occurred while retrieving medical room data. no property "data" found`)
-    }
-    // err admin data
-    if (!loadGetDataAdmin && errGetDataAdmin) {
-        throw new AuthRequiredError('a server error occurred while fetching admin data. Please try again')
-    }
-    if (!loadGetDataAdmin && typeof dataAdmin === 'undefined') {
-        throw new AuthRequiredError(`a server error occurred while fetching admin data. no property "data" found`)
-    }
-    // err doctor data
-    if (!loadDataDoctors && errGetDataDoctors) {
-        throw new AuthRequiredError(`a server error occurred while retrieving the doctor's data. Please try again`)
-    }
-    if (!loadDataDoctors && typeof doctors === 'undefined') {
-        throw new AuthRequiredError(`a server error occurred while retrieving the doctor's data. no property "data" found`)
-    }
-    // trigged error when submit form
-    if (triggedErrSubmitEditPatientRegis) {
-        throw new AuthRequiredError('a server error occurred while updating patient detail data. please try again later')
-    }
-    if (triggedErrSubmitEditConfirmPatient) {
-        throw new AuthRequiredError('A server error occurred while updating patient confirmation data. please try again later')
-    }
+    const router = useRouter()
 
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,
@@ -1048,7 +994,7 @@ export function ConfirmationPatient() {
 
                 setIdWaitToSubmitEditDetailPatient(findIdWaitSubmitDetailPatient)
                 console.log(err)
-                setTriggedErrSubmitEditPatientRegis(true)
+                pushTriggedErr('a server error occurred while updating patient detail data. please try again later')
             })
     }
     // end action edit detail patient
@@ -1505,7 +1451,7 @@ export function ConfirmationPatient() {
 
         API().APIPutPatientData(
             'confirmation-patients',
-            findId?.id,
+            findId?.id as string,
             data
         )
             .then((res) => {
@@ -1529,7 +1475,7 @@ export function ConfirmationPatient() {
                 })
 
                 setIdWaitToSubmitConfirmPatient(findIdWaitSubmitConfirmPatient)
-                setTriggedErrSubmitEditConfirmPatient(true)
+                pushTriggedErr('a server error occurred while updating confirmation data')
             })
     }
 
@@ -1540,6 +1486,45 @@ export function ConfirmationPatient() {
     const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
 
     // action delete
+    function loadingDeleteIcon(): void {
+        loadingIdPatientsDelete.forEach(id => {
+            const loadingElement = document.getElementById(`loadDelete${id}`) as HTMLElement
+            const iconDelete = document.getElementById(`iconDelete${id}`) as HTMLElement
+
+            if (loadingElement && iconDelete) {
+                loadingElement.style.display = 'flex'
+                iconDelete.style.display = 'none'
+            }
+        })
+    }
+
+    useEffect(() => {
+        if (loadingIdPatientsDelete.length > 0 && dataColumns.length > 0) {
+            loadingDeleteIcon()
+        }
+    }, [loadingIdPatientsDelete, dataColumns])
+
+    useEffect(() => {
+        if (idSuccessPatientsDelete.length > 0 && dataColumns.length > 0) {
+            let count: number = 0
+            dataColumns.forEach(data => {
+                const loadingElement = document.getElementById(`loadDelete${data.id}`) as HTMLElement
+                const iconDelete = document.getElementById(`iconDelete${data.id}`) as HTMLElement
+
+                if (loadingElement && iconDelete) {
+                    loadingElement.style.display = 'none'
+                    iconDelete.style.display = 'flex'
+                }
+            })
+
+            if (count === dataColumns.length) {
+                setTimeout(() => {
+                    loadingDeleteIcon()
+                }, 500);
+            }
+        }
+    }, [idSuccessPatientsDelete, dataColumns])
+
     function closePopupChooseDelete() {
         setOnPopupChooseDelete(false)
     }
@@ -1547,15 +1532,104 @@ export function ConfirmationPatient() {
     function clickDeleteIcon(
         patientId: string,
         patientName: string
-        ):void{
-        setNamePatientToDelete(patientName)
-        setIdPatientToDelete(patientId)
+    ): void {
+        const findId = loadingIdPatientsDelete.find(id => id === patientId)
+        if (!findId) {
+            setNamePatientToDelete(patientName)
+            setIdPatientToDelete(patientId)
+            setOnPopupChooseDelete(true)
+        }
     }
 
     // click delete detail and confirm data
-    function clickDeleteDetailAndConfirmData():void{
-        if(window.confirm(`Delete details and confirmation data from patient "${namePatientToDelete}"?`)){
-            // API().API
+    function clickDeleteDetailAndConfirmData(): void {
+        if (window.confirm(`Delete details and confirmation data from patient "${namePatientToDelete}"?`)) {
+            setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
+            setOnPopupChooseDelete(false)
+
+            const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
+            API().APIDeletePatientData(
+                'confirmation-patients',
+                findIdConfirmData?.id as string
+            )
+                .then(res => {
+                    API().APIDeletePatientData(
+                        'patient-registration',
+                        idPatientToDelete
+                    )
+                        .then(result => {
+                            setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
+                            alert('delete successfully')
+                        })
+                        .catch(err => {
+                            setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
+                            pushTriggedErr('There was an error deleting patient data details and confirmation')
+                        })
+                })
+                .catch(err => {
+                    pushTriggedErr('There was an error deleting patient data details and confirmation')
+                })
+        }
+    }
+
+    // delete confirmation data only
+    function clickDeleteConfirmationData(): void {
+        if (window.confirm(`Delete confirmation data from "${namePatientToDelete}" patient`)) {
+            setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
+            setOnPopupChooseDelete(false)
+
+            const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
+
+            API().APIDeletePatientData(
+                'confirmation-patients',
+                findIdConfirmData?.id as string
+            )
+                .then(res => {
+                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
+                    alert('delete successfully')
+                })
+                .catch(err => {
+                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
+                    pushTriggedErr('There was an error deleting patient confirmation data')
+                })
+        }
+    }
+
+    // cancel treatment
+    function clickCancelTreatment():void{
+        if(window.confirm(`cancel the registration of patient ${namePatientToDelete}?`)){
+            setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
+            setOnPopupChooseDelete(false)
+
+            const dataFinishTreatment = {
+                patientId: idPatientToDelete,
+                confirmedTime: {
+                    dateConfirm: createDateFormat(new Date()),
+                    confirmHour: createHourFormat(new Date())
+                },
+                adminInfo: {adminId: user.user?.id as string}
+            }
+            API().APIPostPatientData(
+                'finished-treatment',
+                dataFinishTreatment
+            )
+            .then(res=>{
+                API().APIDeletePatientData(
+                    'confirmation-patients',
+                    idPatientToDelete
+                )
+                .then(res=>{
+                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
+                    alert('Successfully cancel patient registration')
+                })
+                .catch(err=>{
+                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
+                    pushTriggedErr('There was an error deleting patient confirmation data')
+                })
+            })
+            .catch(err=>{
+                pushTriggedErr('a server error occurred while adding data to the treatment is complete. please try again')
+            })
         }
     }
 
@@ -1907,7 +1981,7 @@ export function ConfirmationPatient() {
                         iconPopup={faBan}
                     >
                         <Button
-                            nameBtn="Details and data Confirmation"
+                            nameBtn="All data"
                             classBtn='bg-orange hover:bg-white border-orange hover:border-orange hover:text-orange'
                             classLoading='hidden'
                             clickBtn={clickDeleteDetailAndConfirmData}
@@ -1921,7 +1995,7 @@ export function ConfirmationPatient() {
                             nameBtn="Confirmation data"
                             classBtn='bg-pink-old hover:bg-white border-pink-old hover:border-pink-old hover:text-pink-old'
                             classLoading='hidden'
-                            // clickBtn={clickOnEditDetailPatient}
+                            clickBtn={clickDeleteConfirmationData}
                             styleBtn={{
                                 padding: '0.5rem',
                                 marginRight: '0.5rem',
@@ -1932,7 +2006,7 @@ export function ConfirmationPatient() {
                             nameBtn="Cancel Treatment"
                             classBtn='bg-red hover:bg-white border-red-default hover:border-red-default hover:text-red-default'
                             classLoading='hidden'
-                            // clickBtn={clickOnEditDetailPatient}
+                            clickBtn={clickCancelTreatment}
                             styleBtn={{
                                 padding: '0.5rem',
                                 marginRight: '0.5rem',
@@ -2029,7 +2103,6 @@ export function ConfirmationPatient() {
                                 idLoadingDelete={`loadDelete${patient.id}`}
                                 idIconDelete={`iconDelete${patient.id}`}
                                 clickBtn={() => toPage(pathUrlToDataDetail)}
-                                // indexActiveEdit={loadingSubmitEditDetailPatient && patient.id === indexActiveEdit ? indexActiveEdit : undefined}
                                 clickEdit={(e) => {
                                     clickEditToDetailPatient(patient.id, patient.data[0]?.name)
                                     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
@@ -2038,7 +2111,6 @@ export function ConfirmationPatient() {
                                 }}
                                 clickDelete={(e) => {
                                     clickDeleteIcon(patient.id, patient.data[0]?.name)
-                                    setOnPopupChooseDelete(true)
                                     e?.stopPropagation()
                                 }}
                             >

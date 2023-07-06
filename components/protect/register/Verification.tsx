@@ -83,7 +83,7 @@ export function Verification({
     }, [tokenInput])
 
     function updateAdminIsVerification(): void {
-        API().APIPutAdminVerification(adminData?.id, { isVerification: true })
+        API().APIPutAdminVerification(adminData?.id as string, { isVerification: true })
             .then((res: any) => {
                 if (res?.data) {
                     return res
@@ -104,7 +104,7 @@ export function Verification({
     }
 
     function deleteExpiredVerification(): void {
-        API().APIDeleteVerification(adminData?.id)
+        API().APIDeleteVerification(adminData?.id as string)
             .then((res: any) => {
                 if (res?.data) {
                     setLoading(false)

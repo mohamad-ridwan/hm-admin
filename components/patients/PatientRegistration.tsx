@@ -4,7 +4,6 @@ import { CSSProperties, ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { HeadDataTableT } from 'lib/types/TableT.type'
-import { useSwr } from 'lib/useFetch/useSwr'
 import { endpoint } from 'lib/api/endpoint'
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
@@ -36,7 +35,7 @@ import { mailRegex } from 'lib/regex/mailRegex'
 import Button from 'components/Button'
 import { createDateFormat } from 'lib/datePicker/createDateFormat'
 import { InputEditPatientRegistrationT } from 'lib/types/InputT.type'
-import { AuthRequiredError } from 'lib/errorHandling/exceptions'
+import ServicingHours from 'lib/actions/ServicingHours'
 
 export function PatientRegistration() {
     const [head] = useState<HeadDataTableT>([
@@ -138,34 +137,14 @@ export function PatientRegistration() {
     const router = useRouter()
 
     // swr fetching data
-    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), { refreshInterval: 4000 })
-    const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
-    const getPatientRegistration: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'patient-registration')
-    const dataPatientRegis: PatientRegistrationT[] | undefined = getPatientRegistration?.data
-
-    // confirmation patients
-    const getConfirmationPatients: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: ConfirmationPatientsT) => item?.id === 'confirmation-patients')
-    const dataConfirmationPatients: ConfirmationPatientsT[] | undefined = getConfirmationPatients?.data
-
-    // finished treatment data
-    const getFinishTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientFinishTreatmentT) => item?.id === 'finished-treatment')
-    const dataFinishTreatment: PatientFinishTreatmentT[] | undefined = getFinishTreatment?.data
-
-    // trigged error boundary
-    // error fetch swr
-    // err servicing hours
-    if(!loadDataService && errDataService){
-        throw new AuthRequiredError('a server error occurred while retrieving patient data. Please try again')
-    }
-    if(!loadDataService && typeof dataPatientRegis === 'undefined'){
-        throw new AuthRequiredError(`A server error occurred while retrieving patient registration data. no property "data" found`)
-    }
-    if(!loadDataService && typeof dataConfirmationPatients === 'undefined'){
-        throw new AuthRequiredError(`A server error occurred while fetching confirmation patient data. no property "data" found`)
-    }
-    if(!loadDataService && typeof dataFinishTreatment === 'undefined'){
-        throw new AuthRequiredError(`a server error occurred while fetching treatment data was completed. no property "data" found`)
-    }
+    // servicing hours
+    const {
+        dataService,
+        dataPatientRegis,
+        dataConfirmationPatients,
+        dataFinishTreatment,
+        loadDataService,
+    } = ServicingHours()
 
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,

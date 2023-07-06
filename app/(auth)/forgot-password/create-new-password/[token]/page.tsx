@@ -176,7 +176,7 @@ export default function CreateNewPasswordPage() {
             password: inputPassword.password
         }
 
-        API().APIPutAdmin(admin?.id, data)
+        API().APIPutAdmin(admin?.id as string, data)
             .then((res: any) => {
                 if (res?.data) {
                     createTokenBlackList()

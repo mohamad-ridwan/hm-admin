@@ -40,6 +40,10 @@ import { Toggle } from 'components/toggle/Toggle'
 import ServicingHours from 'lib/actions/ServicingHours'
 import { createHourFormat } from 'lib/datePicker/createHourFormat'
 import { authStore } from 'lib/useZustand/auth'
+import EditPatientRegistration from 'lib/actions/editPatient/editPatientRegistration/EditPatientRegistration'
+import EditPatientConfirmation from 'lib/actions/editPatient/editPatientConfirmation/EditPatientConfirmation'
+import FormPatientRegistration from 'lib/actions/editPatient/editPatientRegistration/FormPatientRegistration'
+import FormPatientConfirmation from 'lib/actions/editPatient/editPatientConfirmation/FormPatientConfirmation'
 
 export function ConfirmationPatient() {
     const [head] = useState<HeadDataTableT>([
@@ -83,86 +87,6 @@ export function ConfirmationPatient() {
     const [displayOnCalendar, setDisplayOnCalendar] = useState<boolean>(false)
     const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [dataFilterRoom, setDataFilterRoom] = useState<DataOptionT>([])
-    const [onPopupSettings, setOnPopupSettings] = useState<boolean>(false)
-    // action edit confirmation patient
-    const [onPopupEditConfirmPatient, setOnPopupEditConfirmPatient] = useState<boolean>(false)
-    const [nameEditConfirmPatient, setNameEditConfirmPatient] = useState<string>('')
-    const [valueInputEditConfirmPatient, setValueInputEditConfirmPatient] = useState<InputEditConfirmPatientT>({
-        patientId: '',
-        emailAdmin: '',
-        dateConfirm: '',
-        confirmHour: '',
-        treatmentHours: '',
-        nameDoctor: '',
-        doctorSpecialist: '',
-        roomName: '',
-        queueNumber: '',
-        presence: ''
-    })
-    const [selectEmailAdmin, setSelectEmailAdmin] = useState<DataOptionT>([
-        {
-            id: 'Select Admin',
-            title: 'Select Admin'
-        }
-    ])
-    const [selectDoctorSpecialist, setSelectDoctorSpecialist] = useState<DataOptionT>([
-        {
-            id: 'Select Specialist',
-            title: 'Select Specialist'
-        }
-    ])
-    const [selectDoctor, setSelectDoctor] = useState<DataOptionT>([
-        {
-            id: 'Select Doctor',
-            title: 'Select Doctor'
-        }
-    ])
-    const [selectRoom, setSelectRoom] = useState<DataOptionT>([
-        {
-            id: 'Select Room',
-            title: 'Select Room'
-        }
-    ])
-    const [selectPresence, setSelectPresence] = useState<DataOptionT>([
-        {
-            id: 'Select Presence',
-            title: 'Select Presence'
-        },
-        {
-            id: 'tidak hadir',
-            title: 'tidak hadir'
-        },
-        {
-            id: 'hadir',
-            title: 'hadir'
-        }
-    ])
-    const [editActiveManualQueue, setEditActiveManualQueue] = useState<boolean>(true)
-    const [editActiveAutoQueue, setEditActiveAutoQueue] = useState<boolean>(false)
-    const [idPatientToEditConfirmPatient, setIdPatientToEditConfirmPatient] = useState<string | null>(null)
-    const [idWaitToSubmitConfirmPatient, setIdWaitToSubmitConfirmPatient] = useState<string[]>([])
-    const [idSubmitEditConfirmPatient, setIdSubmitEditConfirmPatient] = useState<string[]>([])
-    const [errEditInputConfirmPatient, setErrEditInputConfirmPatient] = useState<InputEditConfirmPatientT>({} as InputEditConfirmPatientT)
-    // end action edit confirmation patient
-    // action edit detail patient
-    const [onPopupEditPatientDetail, setOnPopupEditPatientDetail] = useState<boolean>(false)
-    const [nameEditDetailPatient, setNameEditDetailPatient] = useState<string>('')
-    const [idPatientToEditDetailPatient, setIdPatientToEditDetailPatient] = useState<string | null>(null)
-    const [idSubmitEditDetailPatient, setIdSubmitEditDetailPatient] = useState<string[]>([])
-    const [idWaitToSubmitEditDetailPatient, setIdWaitToSubmitEditDetailPatient] = useState<string[]>([])
-    const [valueInputEditDetailPatient, setValueInputEditDetailPatient] = useState<InputEditPatientRegistrationT>({
-        patientName: '',
-        phone: '',
-        emailAddress: '',
-        dateOfBirth: '',
-        appointmentDate: '',
-        message: '',
-        patientComplaints: '',
-        submissionDate: '',
-        clock: ''
-    })
-    const [errEditInputDetailPatient, setErrEditInputDetailPatient] = useState<InputEditPatientRegistrationT>({} as InputEditPatientRegistrationT)
-    // end action edit detail patient
     // action delete
     const [onPopupChooseDelete, setOnPopupChooseDelete] = useState<boolean>(false)
     const [idPatientToDelete, setIdPatientToDelete] = useState<string>('')
@@ -236,6 +160,52 @@ export function ConfirmationPatient() {
         loadDataService,
         doctors,
     } = ServicingHours()
+
+    // Form edit patient registration
+    const {
+        clickEdit,
+        onPopupEdit,
+        loadingSubmitEdit,
+        valueInputEditDetailPatient,
+        clickClosePopupEdit,
+        patientName,
+        errEditInputDetailPatient,
+        changeEditDetailPatient,
+        changeDateEditDetailPatient,
+        handleSubmitUpdate,
+        setOnPopupEdit,
+        idPatientToEdit,
+        idLoadingEdit,
+    } = FormPatientRegistration()
+
+    // form edit confirm patient
+    const {
+        onPopupEditConfirmPatient,
+        clickEditToConfirmPatient,
+        valueInputEditConfirmPatient,
+        nameEditConfirmPatient,
+        errEditInputConfirmPatient,
+        closePopupEditConfirmPatient,
+        onPopupSettings,
+        setOnPopupSettings,
+        changeEditConfirmPatient,
+        selectEmailAdmin,
+        handleInputSelectConfirmPatient,
+        changeDateConfirm,
+        selectDoctorSpecialist,
+        loadDataDoctor,
+        loadDataRoom,
+        selectDoctor,
+        selectRoom,
+        editActiveManualQueue,
+        toggleChangeManualQueue,
+        toggleSetAutoQueue,
+        selectPresence,
+        idWaitToSubmitConfirmPatient,
+        idPatientToEditConfirmPatient,
+        submitEditConfirmPatient,
+        clickOnEditConfirmPatient
+    } = FormPatientConfirmation()
 
     // zustand store
     const {user} = authStore()
@@ -806,684 +776,14 @@ export function ConfirmationPatient() {
         router.push(path)
     }
 
-    // action edit / delete
-    const styleError: { style: CSSProperties } = {
-        style: {
-            marginBottom: '1rem'
-        }
-    }
-
-    // action edit detail patient
-    function clickEditToDetailPatient(
-        id: string,
-        name: string,
-    ): void {
-        const findPatient = dataPatientRegis?.find(patient => patient.id === id)
-        if (findPatient) {
-            const {
-                patientName,
-                phone,
-                emailAddress,
-                dateOfBirth,
-                appointmentDate,
-                patientMessage,
-                submissionDate
-            } = findPatient
-
-            setIdPatientToEditDetailPatient(findPatient?.id)
-            setValueInputEditDetailPatient({
-                patientName,
-                phone,
-                emailAddress,
-                dateOfBirth,
-                appointmentDate,
-                message: patientMessage.message,
-                patientComplaints: patientMessage.patientComplaints,
-                submissionDate: submissionDate.submissionDate,
-                clock: submissionDate.clock
-            })
-            setNameEditDetailPatient(name)
-        } else {
-            alert('an error occurred, please try again or reload the page')
-        }
-    }
-
-    function closePopupEditPatientDetail(): void {
-        setOnPopupEditPatientDetail(false)
-    }
-
     function closePopupSetting(): void {
         setOnPopupSettings(false)
     }
 
-    function changeEditDetailPatient(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
-        setValueInputEditDetailPatient({
-            ...valueInputEditDetailPatient,
-            [e.target.name]: e.target.value
-        })
-
-        setErrEditInputDetailPatient({
-            ...errEditInputDetailPatient,
-            [e.target.name]: ''
-        })
-    }
-
-    function changeDateEditDetailPatient(e: ChangeEvent<HTMLInputElement> | Date | undefined, inputName: string): void {
-        setValueInputEditDetailPatient({
-            ...valueInputEditDetailPatient,
-            [inputName]: !e ? '' : `${e as Date}`
-        })
-
-        setErrEditInputDetailPatient({
-            ...errEditInputDetailPatient,
-            [inputName]: ''
-        })
-    }
-
-    // submit update patient detail
-    function submitEditDetailPatient(): void {
-        const findIdWaitSubmitEditDetailPatient = idWaitToSubmitEditDetailPatient.find(id => id === idPatientToEditDetailPatient)
-
-        if (!findIdWaitSubmitEditDetailPatient) {
-            validateSubmitUpdate()
-                .then(res => {
-                    if (window.confirm(`update patient data from "${nameEditDetailPatient}"?`)) {
-                        setErrEditInputDetailPatient({} as InputEditPatientRegistrationT)
-                        pushToUpdateDetailPatient()
-                    }
-                })
-        }
-    }
-
-    async function validateSubmitUpdate(): Promise<{ message: string }> {
-        let err = {} as InputEditPatientRegistrationT
-
-        if (!valueInputEditDetailPatient.patientName.trim()) {
-            err.patientName = 'Must be required'
-        }
-        if (!valueInputEditDetailPatient.phone.trim()) {
-            err.patientName = 'Must be required'
-        }
-        if (!valueInputEditDetailPatient.emailAddress.trim()) {
-            err.emailAddress = 'Must be required'
-        } else if (!mailRegex.test(valueInputEditDetailPatient.emailAddress)) {
-            err.emailAddress = 'Invalid e-mail address'
-        }
-        if (!valueInputEditDetailPatient.dateOfBirth.trim()) {
-            err.dateOfBirth = 'Must be required'
-        }
-        if (!valueInputEditDetailPatient.appointmentDate.trim()) {
-            err.appointmentDate = 'Must be required'
-        }
-        if (!valueInputEditDetailPatient.message.trim()) {
-            err.message = 'Must be required'
-        }
-        if (!valueInputEditDetailPatient.patientComplaints.trim()) {
-            err.patientComplaints = 'Must be required'
-        }
-        if (!valueInputEditDetailPatient.submissionDate.trim()) {
-            err.clock = 'Must be required'
-        }
-
-        return await new Promise((resolve, reject) => {
-            if (Object.keys(err).length === 0) {
-                resolve({ message: 'success' })
-            } else {
-                setErrEditInputDetailPatient(err)
-            }
-        })
-    }
-
-    // push to update patient data
-    function pushToUpdateDetailPatient(): void {
-        setIdWaitToSubmitEditDetailPatient((current) => [...current, idPatientToEditDetailPatient as string])
-        const findIdSubmitEdit = idSubmitEditDetailPatient.find(id => id === idPatientToEditDetailPatient)
-        if (!findIdSubmitEdit) {
-            setIdSubmitEditDetailPatient((current) => [...current, idPatientToEditDetailPatient as string])
-        }
-
-        const {
-            patientName,
-            phone,
-            emailAddress,
-            dateOfBirth,
-            appointmentDate,
-            message,
-            patientComplaints,
-            submissionDate,
-            clock
-        } = valueInputEditDetailPatient
-
-        const data = {
-            patientName,
-            phone,
-            emailAddress,
-            dateOfBirth: createDateFormat(dateOfBirth),
-            appointmentDate: createDateFormat(appointmentDate),
-            patientMessage: {
-                message,
-                patientComplaints
-            },
-            submissionDate: {
-                submissionDate: createDateFormat(submissionDate),
-                clock
-            }
-        }
-
-        API().APIPutPatientData(
-            'patient-registration',
-            idPatientToEditDetailPatient as string,
-            data
-        )
-            .then((res: any) => {
-                alert(`Patient data from "${patientName}" updated successfully`)
-                const findIdWaitSubmitDetailPatient = idWaitToSubmitEditDetailPatient.filter(id => {
-                    const findIdSubmit = idSubmitEditDetailPatient.find(idWait => idWait === id)
-
-                    return !findIdSubmit
-                })
-
-                setIdWaitToSubmitEditDetailPatient(findIdWaitSubmitDetailPatient)
-            })
-            .catch((err: any) => {
-                const findIdWaitSubmitDetailPatient = idWaitToSubmitEditDetailPatient.filter(id => {
-                    const findIdSubmit = idSubmitEditDetailPatient.find(idWait => idWait === id)
-
-                    return !findIdSubmit
-                })
-
-                setIdWaitToSubmitEditDetailPatient(findIdWaitSubmitDetailPatient)
-                console.log(err)
-                pushTriggedErr('a server error occurred while updating patient detail data. please try again later')
-            })
-    }
-    // end action edit detail patient
-
-    // action edit confirmation patient
-    function loadDataAdmin(): void {
-        if (Array.isArray(dataAdmin) && dataAdmin?.length > 0) {
-            const newSelectAdmin = dataAdmin.map(admin => ({
-                id: admin.email,
-                title: admin.email
-            }))
-
-            setSelectEmailAdmin([
-                {
-                    id: 'Select Admin',
-                    title: 'Select Admin'
-                },
-                ...newSelectAdmin
-            ])
-        } else {
-            alert('no admin data found. please try again')
-        }
-    }
-
-    function loadDataSpecialist(): void {
-        if (Array.isArray(doctors) && doctors.length > 0) {
-            let newDataSpecialist: { id: string, title: string }[] = []
-            let count: number = 0
-            doctors.forEach(data => {
-                count = count + 1
-                const checkSpecialist = newDataSpecialist.find(specialist => specialist.id === data.deskripsi)
-                if (!checkSpecialist) {
-                    newDataSpecialist.push({ id: data.deskripsi, title: data.deskripsi })
-                }
-            })
-
-            if (count === doctors.length) {
-                setSelectDoctorSpecialist([
-                    {
-                        id: 'Select Specialist',
-                        title: 'Select Specialist'
-                    },
-                    ...newDataSpecialist
-                ])
-            }
-        } else {
-            alert(`no doctor's data found. please try again`)
-        }
-    }
-
-    function loadDataDoctor(specialist: string, isActiveDoctor?: boolean): void {
-        if (Array.isArray(doctors) && doctors.length > 0 && specialist) {
-            const findDoctorSpecialist = doctors.filter(data => data.deskripsi === specialist)
-            const getDoctors = findDoctorSpecialist.map(data => ({
-                id: data.name,
-                title: data.name
-            }))
-
-            setSelectDoctor([
-                {
-                    id: 'Select Doctor',
-                    title: 'Select Doctor'
-                },
-                ...getDoctors
-            ])
-
-            if (isActiveDoctor) {
-                const doctor = document.getElementById('selectDoctor') as HTMLSelectElement
-                if (doctor) {
-                    doctor.selectedIndex = 0
-                }
-                setValueInputEditConfirmPatient(current => ({
-                    ...current,
-                    nameDoctor: 'Select Doctor'
-                }))
-            }
-        } else {
-            alert(`no doctor's data found. please try again`)
-        }
-    }
-
-    function loadDataRoom(isActiveRoom?: boolean): void {
-        if (Array.isArray(dataRooms) && dataRooms.length > 0) {
-            const findRoom: DataOptionT = dataRooms?.map(room => ({
-                id: room.room,
-                title: room.room
-            }))
-
-            setSelectRoom([
-                {
-                    id: 'Select Room',
-                    title: 'Select Room'
-                },
-                ...findRoom
-            ])
-
-            if (isActiveRoom) {
-                const room = document.getElementById('selectRoom') as HTMLSelectElement
-                if (room) {
-                    room.selectedIndex = 0
-                }
-                setValueInputEditConfirmPatient(current => ({
-                    ...current,
-                    roomName: 'Select Room'
-                }))
-            }
-        } else {
-            alert('medical room data not found. please try again')
-        }
-    }
-
-    function clickEditToConfirmPatient(
-        id: string,
-        name: string
-    ): void {
-        const findPatient = dataConfirmationPatients?.find(patient => patient.patientId === id)
-        if (findPatient) {
-            const {
-                patientId,
-                adminInfo,
-                dateConfirmInfo,
-                doctorInfo,
-                roomInfo
-            } = findPatient
-            setNameEditConfirmPatient(name)
-            setIdPatientToEditConfirmPatient(findPatient?.patientId)
-
-            // admin
-            const findAdmin: AdminT | null | undefined = dataAdmin?.find(admin => admin?.id === adminInfo.adminId)
-            // doctor
-            const findDoctor: ProfileDoctorT | null | undefined = doctors?.find(doctor => doctor?.id === doctorInfo.doctorId)
-            // room
-            const findRoom: RoomTreatmentT | null | undefined = dataRooms?.find(room => room?.id === roomInfo.roomId)
-
-            setValueInputEditConfirmPatient({
-                patientId,
-                emailAdmin: findAdmin?.email as string,
-                dateConfirm: dateConfirmInfo.dateConfirm,
-                confirmHour: dateConfirmInfo.confirmHour,
-                treatmentHours: dateConfirmInfo.treatmentHours,
-                nameDoctor: findDoctor?.name as string,
-                doctorSpecialist: findDoctor?.deskripsi as string,
-                roomName: findRoom?.room as string,
-                queueNumber: roomInfo?.queueNumber,
-                presence: roomInfo?.presence
-            })
-
-            setTimeout(() => {
-                loadDataAdmin()
-                loadDataSpecialist()
-                loadDataDoctor(findDoctor?.deskripsi as string)
-                loadDataRoom()
-            }, 0)
-        } else {
-            alert('an error occurred, please try again or reload the page')
-        }
-    }
-
-    function changeEditConfirmPatient(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
-        setValueInputEditConfirmPatient({
-            ...valueInputEditConfirmPatient,
-            [e.target.name]: e.target.value
-        })
-
-        setErrEditInputConfirmPatient({
-            ...errEditInputConfirmPatient,
-            [e.target.name]: ''
-        })
-    }
-
-    function handleInputSelectConfirmPatient(
-        idElement: string,
-        nameInput: 'emailAdmin' | 'doctorSpecialist' | 'nameDoctor' | 'roomName' | 'presence',
-        cb?: (id: string, p2?: boolean) => void,
-        cb2?: (p1?: boolean) => void
-    ): void {
-        const selectEl = document.getElementById(idElement) as HTMLSelectElement
-        const id = selectEl?.options[selectEl.selectedIndex].value
-        if (id) {
-            setValueInputEditConfirmPatient({
-                ...valueInputEditConfirmPatient,
-                [nameInput]: id
-            })
-
-            if (typeof cb === 'function') {
-                cb(id, true)
-            }
-            if (typeof cb2 === 'function') {
-                cb2(true)
-            }
-        }
-    }
-
-    function changeDateConfirm(e: ChangeEvent<HTMLInputElement> | Date | undefined, inputName: string): void {
-        setValueInputEditConfirmPatient({
-            ...valueInputEditConfirmPatient,
-            [inputName]: !e ? '' : `${e as Date}`
-        })
-
-        setErrEditInputConfirmPatient({
-            ...errEditInputConfirmPatient,
-            [inputName]: ''
-        })
-    }
-
-    function closePopupEditConfirmPatient(): void {
-        setOnPopupEditConfirmPatient(false)
-    }
-
     function clickOnEditDetailPatient(): void {
-        setOnPopupEditPatientDetail(true)
+        setOnPopupEdit(true)
         setOnPopupSettings(false)
     }
-
-    function activeSelectEditConfirmPatient(
-        idElement: string,
-        indexActive: number
-    ): void {
-        const element = document.getElementById(idElement) as HTMLSelectElement
-        if (element && indexActive !== -1) {
-            element.selectedIndex = indexActive
-        }
-    }
-
-    function activeSelectEmailAdmin(): void {
-        if (selectEmailAdmin.length > 0) {
-            const findIndexAdmin: number = selectEmailAdmin.findIndex(admin => admin.id === valueInputEditConfirmPatient?.emailAdmin)
-
-            activeSelectEditConfirmPatient('selectAdmin', findIndexAdmin)
-        }
-    }
-
-    function activeSelectSpecialist(): void {
-        if (selectDoctorSpecialist.length > 0) {
-            const findIndexSpecialist: number = selectDoctorSpecialist.findIndex(specialist => specialist.id === valueInputEditConfirmPatient?.doctorSpecialist)
-
-            activeSelectEditConfirmPatient('selectSpecialist', findIndexSpecialist)
-        }
-    }
-
-    function activeSelectDoctor(): void {
-        if (selectDoctor.length > 0) {
-            const findIndexDoctor: number = selectDoctor.findIndex(doctor => doctor.id === valueInputEditConfirmPatient?.nameDoctor)
-
-            activeSelectEditConfirmPatient('selectDoctor', findIndexDoctor)
-        }
-    }
-
-    function activeSelectRoom(): void {
-        if (selectRoom.length > 0) {
-            const findIndexRoom: number = selectRoom.findIndex(doctor => doctor.id === valueInputEditConfirmPatient?.roomName)
-
-            activeSelectEditConfirmPatient('selectRoom', findIndexRoom)
-        }
-    }
-
-    function activeSelectPresence(): void {
-        const findIndexPresence: number = selectPresence.findIndex(presence => presence.id === valueInputEditConfirmPatient?.presence)
-
-        activeSelectEditConfirmPatient('selectPresence', findIndexPresence)
-    }
-
-    function clickOnEditConfirmPatient(): void {
-        setOnPopupEditConfirmPatient(true)
-        setOnPopupSettings(false)
-        setEditActiveManualQueue(true)
-        setEditActiveAutoQueue(false)
-
-        setTimeout(() => {
-            activeSelectEmailAdmin()
-            activeSelectSpecialist()
-            activeSelectDoctor()
-            activeSelectRoom()
-            activeSelectPresence()
-        }, 500);
-    }
-
-    function toggleChangeManualQueue(): void {
-        setEditActiveManualQueue(!editActiveManualQueue)
-        setEditActiveAutoQueue(false)
-
-        changeActiveToggle('setAutoNumber', false)
-
-        const findPatient = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToEditConfirmPatient)
-        setValueInputEditConfirmPatient({
-            ...valueInputEditConfirmPatient,
-            queueNumber: findPatient?.roomInfo?.queueNumber as string
-        })
-    }
-
-    function toggleSetAutoQueue(): void {
-        setEditActiveManualQueue(true)
-        setEditActiveAutoQueue(!editActiveAutoQueue)
-
-        changeActiveToggle('toggle', false)
-
-        const findPatient = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToEditConfirmPatient)
-        setValueInputEditConfirmPatient({
-            ...valueInputEditConfirmPatient,
-            queueNumber: findPatient?.roomInfo?.queueNumber as string
-        })
-    }
-
-    function changeActiveToggle(idElement: string, checked: boolean): void {
-        const toggleManual = document.getElementById(idElement) as HTMLInputElement
-        if (toggleManual) {
-            toggleManual.checked = checked
-        }
-    }
-
-    function submitEditConfirmPatient(): void {
-        const findIdWaitSubmitEditConfirmPatient = idWaitToSubmitConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
-
-        if (!findIdWaitSubmitEditConfirmPatient) {
-            validateEditConfirmPatient()
-                .then(res => {
-                    if (window.confirm(`Update confirmation data from patient "${nameEditConfirmPatient}"?`)) {
-                        setErrEditInputConfirmPatient({} as InputEditConfirmPatientT)
-                        pushToUpdateConfirmPatient()
-                    }
-                })
-        }
-    }
-
-    async function validateEditConfirmPatient(): Promise<{ message: string }> {
-        let err: InputEditConfirmPatientT = {} as InputEditConfirmPatientT
-
-        const {
-            patientId,
-            emailAdmin,
-            dateConfirm,
-            confirmHour,
-            treatmentHours,
-            nameDoctor,
-            doctorSpecialist,
-            roomName,
-            queueNumber,
-            presence
-        } = valueInputEditConfirmPatient
-
-        if (!patientId.trim()) {
-            err.patientId = 'Must be required'
-        }
-        if (emailAdmin === 'Select Admin') {
-            err.emailAdmin = 'Please select admin'
-        }
-        if (!dateConfirm.trim()) {
-            err.dateConfirm = 'Must be required'
-        }
-        if (!confirmHour.trim()) {
-            err.confirmHour = 'Must be required'
-        }
-        if (!treatmentHours.trim()) {
-            err.treatmentHours = 'Must be required'
-        }
-        if (nameDoctor === 'Select Doctor') {
-            err.nameDoctor = 'Please select doctor'
-        }
-        if (doctorSpecialist === 'Select Specialist') {
-            err.doctorSpecialist = 'Please select specialist doctor'
-        }
-        if (roomName === 'Select Room') {
-            err.roomName = 'Please select room'
-        }
-        if (!queueNumber.trim()) {
-            err.queueNumber = 'Please select attendance'
-        }
-        if (presence === 'Select Presence') {
-            err.presence = 'Please select attendance'
-        }
-
-        return await new Promise((resolve, reject) => {
-            if (Object.keys(err).length === 0) {
-                resolve({ message: 'success' })
-            } else {
-                reject({ message: `an error occurred while submitting input` })
-                setErrEditInputConfirmPatient(err)
-            }
-        })
-    }
-
-    function pushToUpdateConfirmPatient(): void {
-        setIdWaitToSubmitConfirmPatient((current) => [...current, idPatientToEditConfirmPatient as string])
-        const findIdSubmitEdit = idSubmitEditConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
-        if (!findIdSubmitEdit) {
-            setIdSubmitEditConfirmPatient((current) => [...current, idPatientToEditConfirmPatient as string])
-        }
-
-        const findId = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToEditConfirmPatient)
-
-        const {
-            patientId,
-            emailAdmin,
-            dateConfirm,
-            confirmHour,
-            treatmentHours,
-            nameDoctor,
-            doctorSpecialist,
-            roomName,
-            queueNumber,
-            presence
-        } = valueInputEditConfirmPatient
-
-        // admin
-        const findAdmin: AdminT | null | undefined = dataAdmin?.find(admin => admin?.email === emailAdmin)
-        // doctor
-        const findDoctor: ProfileDoctorT | null | undefined = doctors?.find(doctor =>
-            doctor?.name === nameDoctor && doctor?.deskripsi === doctorSpecialist
-        )
-        // room
-        const findRoom: RoomTreatmentT | null | undefined = dataRooms?.find(room => room?.room === roomName)
-
-        // find queue number if set auto number is active
-        const findRegistration = dataPatientRegis?.filter((patient => {
-            // patient already on confirm
-            const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) =>
-                patientConfirm.patientId === patient.id && patientConfirm.patientId !== patientId
-            )
-            // get patient in this room
-            const findPatientInRoom = dataRooms?.find(room => room?.id === findRoom?.id)
-
-            return findPatientOnConfirm && findPatientInRoom
-        }))
-        // find patient this data
-        const findPatientThisData = dataPatientRegis?.find(patient => patient.id === patientId)
-        // find patient registration to treatment in this date
-        const findPatientRegisToTreatmentCurrentDate = Array.isArray(findRegistration) && findRegistration.length > 0 ? findRegistration.filter(patient => patient.appointmentDate === findPatientThisData?.appointmentDate) : []
-        // find patient in confirmation
-        const findPatientInConfirmation = dataConfirmationPatients?.filter(patient => {
-            const checkPatientId = findPatientRegisToTreatmentCurrentDate.find(patientReg => patientReg.id === patient.patientId)
-
-            return checkPatientId
-        })
-        // sort queue number patient treatment in current date of current room
-        const sortQueueNumber = Array.isArray(findPatientInConfirmation) && findPatientInConfirmation.length > 0 ? findPatientInConfirmation.sort((a, b) => Number(b.roomInfo.queueNumber) - Number(a.roomInfo.queueNumber)) : undefined
-
-        const specifyQueue = editActiveAutoQueue ? Array.isArray(sortQueueNumber) && sortQueueNumber.length > 0 ? `${Number(sortQueueNumber[0].roomInfo?.queueNumber) + 1}` : '1' : queueNumber
-
-        const data: SubmitEditConfirmPatientT = {
-            patientId,
-            adminInfo: { adminId: findAdmin?.id as string },
-            dateConfirmInfo: {
-                dateConfirm,
-                confirmHour,
-                treatmentHours
-            },
-            doctorInfo: { doctorId: findDoctor?.id as string },
-            roomInfo: {
-                roomId: findRoom?.id as string,
-                queueNumber: specifyQueue,
-                presence
-            }
-        }
-
-        API().APIPutPatientData(
-            'confirmation-patients',
-            findId?.id as string,
-            data
-        )
-            .then((res) => {
-                alert('patient confirmation data successfully updated')
-
-                const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.filter(id => {
-                    const findIdSubmit = idSubmitEditConfirmPatient.find(idWait => idWait === id)
-
-                    return !findIdSubmit
-                })
-
-                setIdWaitToSubmitConfirmPatient(findIdWaitSubmitConfirmPatient)
-            })
-            .catch((err: any) => {
-                console.log(err)
-
-                const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.filter(id => {
-                    const findIdSubmit = idSubmitEditConfirmPatient.find(idWait => idWait === id)
-
-                    return !findIdSubmit
-                })
-
-                setIdWaitToSubmitConfirmPatient(findIdWaitSubmitConfirmPatient)
-                pushTriggedErr('a server error occurred while updating confirmation data')
-            })
-    }
-
-    // on loading edit detail patient
-    const findIdWaitSubmitEditDetailPatient = idWaitToSubmitEditDetailPatient.find(id => id === idPatientToEditDetailPatient)
-
-    // on loading edit confirmation patient
-    const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
 
     // action delete
     function loadingDeleteIcon(): void {
@@ -1636,299 +936,46 @@ export function ConfirmationPatient() {
     return (
         <>
             {/* popup edit patient detail / profile patient */}
-            {onPopupEditPatientDetail && (
-                <ContainerPopup
-                    className='flex justify-center overflow-y-auto'
-                >
-                    <FormPopup
-                        tag="div"
-                        title='Patient of'
-                        namePatient={nameEditDetailPatient}
-                        clickClose={closePopupEditPatientDetail}
-                    >
-                        <TitleInput title='Patient Name' />
-                        <Input
-                            type='text'
-                            nameInput='patientName'
-                            changeInput={changeEditDetailPatient}
-                            valueInput={valueInputEditDetailPatient?.patientName}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.patientName}
-                        />
-
-                        <TitleInput title='Phone' />
-                        <Input
-                            type='number'
-                            nameInput='phone'
-                            changeInput={changeEditDetailPatient}
-                            valueInput={valueInputEditDetailPatient?.phone}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.phone}
-                        />
-
-                        <TitleInput title='Email' />
-                        <Input
-                            type='email'
-                            nameInput='emailAddress'
-                            changeInput={changeEditDetailPatient}
-                            valueInput={valueInputEditDetailPatient?.emailAddress}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.emailAddress}
-                        />
-
-                        <TitleInput title='Date of Birth' />
-                        <InputSearch
-                            icon={faCalendarDays}
-                            selected={!valueInputEditDetailPatient?.dateOfBirth ? undefined : new Date(valueInputEditDetailPatient?.dateOfBirth)}
-                            onCalendar={true}
-                            renderCustomHeader={renderCustomHeader}
-                            changeInput={(e) => changeDateEditDetailPatient(e, 'dateOfBirth')}
-                            classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
-                            classDate='text-[#000] text-sm'
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.dateOfBirth}
-                        />
-
-                        <TitleInput title='Appointment Date' />
-                        <InputSearch
-                            icon={faCalendarDays}
-                            selected={!valueInputEditDetailPatient?.appointmentDate ? undefined : new Date(valueInputEditDetailPatient?.appointmentDate)}
-                            renderCustomHeader={renderCustomHeader}
-                            onCalendar={true}
-                            changeInput={(e) => changeDateEditDetailPatient(e, 'appointmentDate')}
-                            classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
-                            classDate='text-[#000] text-sm'
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.appointmentDate}
-                        />
-
-                        <TitleInput title='Message' />
-                        <InputArea
-                            nameInput='message'
-                            changeInput={changeEditDetailPatient}
-                            valueInput={valueInputEditDetailPatient?.message}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.message}
-                        />
-
-                        <TitleInput title='Patient Complaints' />
-                        <InputArea
-                            nameInput='patientComplaints'
-                            changeInput={changeEditDetailPatient}
-                            valueInput={valueInputEditDetailPatient?.patientComplaints}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.patientComplaints}
-                        />
-
-                        <TitleInput title='Submission Date' />
-                        <InputSearch
-                            icon={faCalendarDays}
-                            selected={!valueInputEditDetailPatient?.submissionDate ? undefined : new Date(valueInputEditDetailPatient?.submissionDate)}
-                            renderCustomHeader={renderCustomHeader}
-                            changeInput={(e) => changeDateEditDetailPatient(e, 'submissionDate')}
-                            onCalendar={true}
-                            classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
-                            classDate='text-[#000] text-sm'
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.submissionDate}
-                        />
-
-                        <TitleInput title='Clock' />
-                        <Input
-                            type='text'
-                            nameInput='clock'
-                            changeInput={changeEditDetailPatient}
-                            valueInput={valueInputEditDetailPatient?.clock}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputDetailPatient?.clock}
-                        />
-
-                        <Button
-                            nameBtn="UPDATE"
-                            classLoading={findIdWaitSubmitEditDetailPatient ? 'flex' : 'hidden'}
-                            classBtn={findIdWaitSubmitEditDetailPatient ? 'hover:bg-color-default hover:text-white cursor-not-allowed' : 'hover:bg-white'}
-                            clickBtn={submitEditDetailPatient}
-                        />
-                    </FormPopup>
-                </ContainerPopup>
+            {onPopupEdit && (
+                <EditPatientRegistration
+                loadingSubmitEdit={loadingSubmitEdit}
+                valueInputEditDetailPatient={valueInputEditDetailPatient}
+                patientName={patientName}
+                errEditInputDetailPatient={errEditInputDetailPatient}
+                clickClosePopupEdit={clickClosePopupEdit}
+                changeDateEditDetailPatient={changeDateEditDetailPatient}
+                changeEditDetailPatient={changeEditDetailPatient}
+                handleSubmitUpdate={handleSubmitUpdate}
+                idPatientToEdit={idPatientToEdit}
+                idLoadingEdit={idLoadingEdit}
+                />
             )}
             {/* end popup edit detail patient */}
 
             {/* popup edit confirmation data */}
             {onPopupEditConfirmPatient && (
-                <ContainerPopup
-                    className='flex justify-center overflow-y-auto'
-                >
-                    <FormPopup
-                        tag="div"
-                        title='Patient of'
-                        namePatient={nameEditConfirmPatient}
-                        clickClose={closePopupEditConfirmPatient}
-                    >
-                        <TitleInput title='Patient Id' />
-                        <Input
-                            type='number'
-                            nameInput='patientId'
-                            changeInput={changeEditConfirmPatient}
-                            valueInput={valueInputEditConfirmPatient?.patientId}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.patientId}
-                        />
-
-                        <TitleInput title='Email Admin' />
-                        <InputSelect
-                            id='selectAdmin'
-                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
-                            data={selectEmailAdmin}
-                            handleSelect={() => handleInputSelectConfirmPatient('selectAdmin', 'emailAdmin')}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.emailAdmin}
-                        />
-
-                        <TitleInput title='Confirmation Date' />
-                        <InputSearch
-                            icon={faCalendarDays}
-                            selected={!valueInputEditConfirmPatient?.dateConfirm ? undefined : new Date(valueInputEditConfirmPatient?.dateConfirm)}
-                            renderCustomHeader={renderCustomHeader}
-                            changeInput={(e) => changeDateConfirm(e, 'dateConfirm')}
-                            onCalendar={true}
-                            classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
-                            classDate='text-[#000] text-sm'
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.dateConfirm}
-                        />
-
-                        <TitleInput title='Confirmation Hour' />
-                        <Input
-                            type='text'
-                            nameInput='confirmHour'
-                            changeInput={changeEditConfirmPatient}
-                            valueInput={valueInputEditConfirmPatient?.confirmHour}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.confirmHour}
-                        />
-
-                        <TitleInput title='Select Specialist' />
-                        <InputSelect
-                            id='selectSpecialist'
-                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
-                            data={selectDoctorSpecialist}
-                            handleSelect={() => handleInputSelectConfirmPatient('selectSpecialist', 'doctorSpecialist', (id, p2) => loadDataDoctor(id, p2), (p1) => loadDataRoom(p1))}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.doctorSpecialist}
-                        />
-
-                        <TitleInput title='Select Doctor' />
-                        <InputSelect
-                            id='selectDoctor'
-                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
-                            data={selectDoctor}
-                            handleSelect={() => handleInputSelectConfirmPatient('selectDoctor', 'nameDoctor')}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.nameDoctor}
-                        />
-
-                        <TitleInput title='Select Room' />
-                        <InputSelect
-                            id='selectRoom'
-                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
-                            data={selectRoom}
-                            handleSelect={() => handleInputSelectConfirmPatient('selectRoom', 'roomName')}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.roomName}
-                        />
-
-                        <TitleInput title='Queue Number' />
-                        <Input
-                            type='number'
-                            nameInput='queueNumber'
-                            changeInput={changeEditConfirmPatient}
-                            valueInput={valueInputEditConfirmPatient?.queueNumber}
-                            readonly={editActiveManualQueue}
-                        />
-                        <ErrorInput
-                            error={errEditInputConfirmPatient?.queueNumber}
-                        />
-                        {/* options */}
-                        <div
-                            className='flex flex-wrap justify-end items-center mb-4'
-                        >
-                            <Toggle
-                                labelText='Change manually'
-                                clickToggle={toggleChangeManualQueue}
-                            />
-                            <Toggle
-                                labelText='Set auto number'
-                                classWrapp='ml-2'
-                                idToggle='setAutoNumber'
-                                clickToggle={toggleSetAutoQueue}
-                            />
-                        </div>
-
-                        <TitleInput title='Treatment Hours (08:00 - 12:00)' />
-                        <Input
-                            type='text'
-                            nameInput='treatmentHours'
-                            changeInput={changeEditConfirmPatient}
-                            valueInput={valueInputEditConfirmPatient?.treatmentHours}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.treatmentHours}
-                        />
-
-                        <TitleInput title='Presence' />
-                        <InputSelect
-                            id='selectPresence'
-                            classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
-                            data={selectPresence}
-                            handleSelect={() => handleInputSelectConfirmPatient('selectPresence', 'presence')}
-                        />
-                        <ErrorInput
-                            {...styleError}
-                            error={errEditInputConfirmPatient?.presence}
-                        />
-
-                        <Button
-                            nameBtn="UPDATE"
-                            classLoading={findIdWaitSubmitConfirmPatient ? 'flex' : 'hidden'}
-                            classBtn={findIdWaitSubmitConfirmPatient ? 'hover:bg-color-default hover:text-white cursor-not-allowed' : 'hover:bg-white'}
-                            clickBtn={submitEditConfirmPatient}
-                        />
-                    </FormPopup>
-                </ContainerPopup>
+                <EditPatientConfirmation
+                valueInputEditConfirmPatient={valueInputEditConfirmPatient}
+                nameEditConfirmPatient={nameEditConfirmPatient}
+                errEditInputConfirmPatient={errEditInputConfirmPatient}
+                closePopupEditConfirmPatient={closePopupEditConfirmPatient}
+                changeEditConfirmPatient={changeEditConfirmPatient}
+                selectEmailAdmin={selectEmailAdmin}
+                handleInputSelectConfirmPatient={handleInputSelectConfirmPatient}
+                changeDateConfirm={changeDateConfirm}
+                selectDoctorSpecialist={selectDoctorSpecialist}
+                loadDataDoctor={loadDataDoctor}
+                loadDataRoom={loadDataRoom}
+                selectDoctor={selectDoctor}
+                selectRoom={selectRoom}
+                editActiveManualQueue={editActiveManualQueue}
+                toggleChangeManualQueue={toggleChangeManualQueue}
+                toggleSetAutoQueue={toggleSetAutoQueue}
+                selectPresence={selectPresence}
+                idWaitToSubmitConfirmPatient={idWaitToSubmitConfirmPatient}
+                idPatientToEditConfirmPatient={idPatientToEditConfirmPatient}
+                submitEditConfirmPatient={submitEditConfirmPatient}
+                />
             )}
             {/* end popup edit confirmation patient */}
 
@@ -2104,7 +1151,7 @@ export function ConfirmationPatient() {
                                 idIconDelete={`iconDelete${patient.id}`}
                                 clickBtn={() => toPage(pathUrlToDataDetail)}
                                 clickEdit={(e) => {
-                                    clickEditToDetailPatient(patient.id, patient.data[0]?.name)
+                                    clickEdit(patient.id, patient.data[0]?.name)
                                     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
                                     setOnPopupSettings(true)
                                     e?.stopPropagation()

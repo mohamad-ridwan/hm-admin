@@ -10,7 +10,7 @@ export default function PersonalDataRegistration({
     return (
         <Template
             key={7}
-            title={`${params.params[3]} | Personal data`}
+            title={`${params.params[3]} | Personal data | Hospice Medical Admin`}
             description="detail data pasien hospice medical"
         >
             <Container

@@ -1,9 +1,9 @@
-import { IconDefinition, faCircleCheck, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { IconDefinition, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { EditBtn } from "components/editBtn/EditBtn"
-import { ReactNode } from "react"
 
 type TitleProps = {
+    classTitle?: string
     title: string
     titleInfo: string
     icon?: IconDefinition
@@ -12,6 +12,8 @@ type TitleProps = {
 type Props = TitleProps
 
 export function HeadInfo({
+    classTitle,
+    icon,
     title,
     titleInfo,
 }: Props) {
@@ -20,14 +22,14 @@ export function HeadInfo({
             className="flex flex-col"
         >
             <div
-                className="flex flex-wrap py-4 border-b-bdr-one border-bdr-bottom items-center"
+                className={`flex flex-wrap py-4 border-b-bdr-one border-bdr-bottom items-center text-color-default-old ${classTitle}`}
             >
                 <FontAwesomeIcon
-                    icon={faCircleCheck}
-                    className="text-2xl text-color-default-old mr-2"
+                    icon={icon as IconDefinition}
+                    className="text-2xl mr-2"
                 />
                 <h1
-                    className={`text-2xl text-start font-bold text-color-default-old`}
+                    className={`text-2xl text-start font-bold`}
                 >
                     {title}
                 </h1>
@@ -50,7 +52,7 @@ export function HeadInfo({
                     />
                     <EditBtn
                         icon={faTrash}
-                        classBtn="bg-pink border-pink-old hover:border-pink-old hover:bg-pink-old hover:text-white"
+                        classBtn="bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white"
                     />
                 </div>
             </div>

@@ -1,26 +1,30 @@
 'use client'
 
-import ServicingHours from "lib/actions/ServicingHours"
+import { UsePatientData } from "components/dataInformation/UsePatientData"
 import { RegistrationData } from "./RegistrationData"
 
-export function PersonalData() {
+type Props = {
+    params: string
+}
+
+export function PersonalData(
+    {
+        params
+    }: Props) {
     const {
-        dataService,
-        dataPatientRegis,
-        dataConfirmationPatients,
-        dataFinishTreatment,
-        dataAdmin,
-        dataRooms,
-        doctors,
-        loadDataService,
-        loadDataDoctors,
-        loadGetDataAdmin,
-        pushTriggedErr
-    } = ServicingHours()
+        detailDataPatientRegis,
+        dataConfirmPatient,
+        dataPatientFinishTreatment
+    } = UsePatientData({ params })
 
     return (
         <>
-            <RegistrationData/>
+            <RegistrationData
+                detailDataPatientRegis={detailDataPatientRegis}
+                dataConfirmPatient={dataConfirmPatient}
+                dataPatientFinishTreatment={dataPatientFinishTreatment}
+                params={params}
+            />
         </>
     )
 }

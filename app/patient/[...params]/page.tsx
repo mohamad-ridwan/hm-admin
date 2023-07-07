@@ -1,18 +1,24 @@
 import Template from "app/template";
 import { Container } from "components/Container";
-import { RegistrationData } from "components/views/personalData/RegistrationData";
+import { PersonalData } from "components/views/personalData/PersonalData";
 
-export default function PersonalDataRegistration() {
+export default function PersonalDataRegistration({
+    params
+}: {
+    params: {params: string}
+}) {
     return (
         <Template
             key={7}
-            title="Ridwan | Patient Data"
+            title={`${params.params[3]} | Personal data`}
             description="detail data pasien hospice medical"
         >
             <Container
                 overflow="overflow-x-auto"
             >
-                <RegistrationData/>
+                <PersonalData
+                params={params.params}
+                />
             </Container>
         </Template>
     )

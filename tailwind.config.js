@@ -45,7 +45,8 @@ module.exports = {
         'green-success': '#47d400',
         'border-success': '#7ec86f27',
         'pink': '#f85084',
-        'orange': '#FFA500'
+        'orange': '#FFA500',
+        'orange-young': '#fa9c1b'
       },
       boxShadow:{
         'shadow-menu': '0 2px 3px -1px rgba(0, 0, 0, 0.3)'
@@ -53,6 +54,7 @@ module.exports = {
       screens: {
         'mobile': '0px',
         'tablet': '918px',
+        'max-info-card-mobile': '568px'
       }
     },
   },

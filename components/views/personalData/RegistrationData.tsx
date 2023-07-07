@@ -1,55 +1,129 @@
 'use client'
 
-import {useParams} from 'next/navigation'
-import { faCheckToSlot } from "@fortawesome/free-solid-svg-icons"
+import { useState } from "react"
+import { faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Container } from "components/Container"
+import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
 import { AdminT } from "lib/types/AdminT.types"
-import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
+import { ProfileDoctorT } from "lib/types/DoctorsT.types"
+import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
+import { createDateFormat } from "lib/datePicker/createDateFormat"
+import { createHourFormat } from "lib/datePicker/createHourFormat"
 
 type Props = {
-    dataPatientRegis: PatientRegistrationT[]
-    dataConfirmationPatients: ConfirmationPatientsT[]
-    dataFinishTreatment: PatientFinishTreatmentT[]
-    dataAdmin: AdminT[]
+    detailDataPatientRegis: PatientRegistrationT
+    dataConfirmPatient: ConfirmationPatientsT
+    dataPatientFinishTreatment: PatientFinishTreatmentT
 }
 
-export function RegistrationData(){
-    const params = useParams()
-    const getPatientName = params?.params?.split('/')
+export function RegistrationData({
+    detailDataPatientRegis,
+    dataConfirmPatient,
+    dataPatientFinishTreatment,
+    params
+}: Props & { params: string }) {
+    const submissionDate = new Date(`${detailDataPatientRegis?.submissionDate?.submissionDate} ${detailDataPatientRegis?.submissionDate?.clock}`)
+
     return (
         <Container
-        isNavleft={false}
-        title="Patient of"
-        desc={getPatientName[3]}
-        classHeadDesc="text-3xl font-semibold flex-col"
+            isNavleft={false}
+            title="Patient of"
+            desc={params[3]}
+            classHeadDesc="text-3xl font-semibold flex-col"
         >
-            <div
+            {dataPatientFinishTreatment?.id && (
+                <div
                 className="flex justify-end overflow-hidden"
             >
                 <div
-                className="flex flex-wrap items-center text-green mt-2"
+                    className="flex flex-wrap items-center text-green mt-2"
                 >
-                    <FontAwesomeIcon 
-                    icon={faCheckToSlot} 
-                    className="text-3xl mr-2 justify-end"
+                    <FontAwesomeIcon
+                        icon={faCheckToSlot}
+                        className="text-3xl mr-2 justify-end"
                     />
-                    <h1 
-                    className="text-3xl font-semibold"
+                    <h1
+                        className="text-3xl font-semibold"
                     >Have Finished Treatment</h1>
                 </div>
             </div>
+            )}
 
             <Container
-            isNavleft={false}
-            classWrapp="flex-col shadow-sm bg-white p-4 mx-1 my-8 rounded-md"
-            maxWidth="auto"
+                isNavleft={false}
+                classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
+                maxWidth="auto"
             >
-                <HeadInfo
-                    title="Confirmed"
+                {!dataConfirmPatient?.id && (
+                    <HeadInfo
+                    title='Not yet confirmed'
                     titleInfo="Patient Information"
+                    icon={faCircleExclamation}
+                    classTitle="text-orange-young"
                 />
+                )}
+
+                {dataConfirmPatient?.id && (
+                    <HeadInfo
+                    title='Confirmed'
+                    titleInfo="Patient Information"
+                    icon={faCircleCheck}
+                />
+                )}
+
+                <div
+                    className="w-full flex flex-wrap justify-between"
+                >
+                    {detailDataPatientRegis?.id && (
+                        <>
+                            <CardInfo
+                                title='Patient Name'
+                                textInfo={detailDataPatientRegis.patientName}
+                            />
+                            <CardInfo
+                                title="Appointment Date"
+                                textInfo={createDateFormat(detailDataPatientRegis.appointmentDate, true)}
+                                icon={faCalendarDays}
+                            />
+                            <CardInfo
+                                title='Patient Complaints'
+                                textInfo={detailDataPatientRegis.patientMessage.patientComplaints}
+                            />
+                            <CardInfo
+                                title='Date of Birth'
+                                textInfo={createDateFormat(detailDataPatientRegis.dateOfBirth, true)}
+                            />
+                            <CardInfo
+                                title='Email'
+                                textInfo={detailDataPatientRegis.emailAddress}
+                            />
+                            <CardInfo
+                                title='Phone'
+                                textInfo={detailDataPatientRegis.phone}
+                            />
+                            <CardInfo
+                                title='Patient ID'
+                                textInfo={detailDataPatientRegis.id}
+                            />
+                            <CardInfo
+                                title='Messages from patient'
+                                textInfo={detailDataPatientRegis.patientMessage.message}
+                            />
+                            <CardInfo
+                                title="Submission Date"
+                                textInfo={createDateFormat(detailDataPatientRegis.submissionDate.submissionDate, true)}
+                                icon={faCalendarDays}
+                            />
+                            <CardInfo
+                                title="Confirmation Hour"
+                                textInfo={createHourFormat(submissionDate)}
+                                icon={faCalendarDays}
+                            />
+                        </>
+                    )}
+                </div>
             </Container>
         </Container>
     )

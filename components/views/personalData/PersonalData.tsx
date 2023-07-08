@@ -1,6 +1,6 @@
 'use client'
 
-import { UsePatientData } from "components/dataInformation/UsePatientData"
+import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
 import { RegistrationData } from "./RegistrationData"
 
 type Props = {

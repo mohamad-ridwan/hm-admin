@@ -480,6 +480,7 @@ export function Register() {
     return (
         <InputContainer
             tag="div"
+            className="flex flex-col w-full"
         >
             <ImageInput
                 src={input.image}

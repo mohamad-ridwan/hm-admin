@@ -14,12 +14,7 @@ export function UsePatientData({ params }: { params: string }) {
         dataPatientRegis,
         dataConfirmationPatients,
         dataFinishTreatment,
-        dataAdmin,
-        dataRooms,
-        doctors,
         loadDataService,
-        loadDataDoctors,
-        loadGetDataAdmin,
         pushTriggedErr
     } = ServicingHours()
 

@@ -61,6 +61,7 @@ export function FormPopup({
 
             <InputContainer
                 tag={tag}
+                className="flex flex-col w-full"
             >
                 {children}
             </InputContainer>

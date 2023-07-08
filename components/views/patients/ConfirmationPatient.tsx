@@ -208,7 +208,7 @@ export function ConfirmationPatient() {
     } = FormPatientConfirmation()
 
     // zustand store
-    const {user} = authStore()
+    const { user } = authStore()
 
     const router = useRouter()
 
@@ -841,6 +841,33 @@ export function ConfirmationPatient() {
         }
     }
 
+    function deleteActionCallback(
+        roleId: string,
+        patientId: string,
+        alertMessage?: string,
+        errMessage?: string,
+        endDeleted?: boolean,
+        cb?: ()=>void
+    ): void {
+        API().APIDeletePatientData(
+            roleId,
+            patientId
+        )
+            .then(result => {
+                if (endDeleted) {
+                    if(typeof cb === 'function'){
+                        cb()
+                    }
+                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
+                    alert(alertMessage)
+                }
+            })
+            .catch(err => {
+                setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
+                pushTriggedErr(errMessage as string)
+            })
+    }
+
     // click delete detail and confirm data
     function clickDeleteDetailAndConfirmData(): void {
         if (window.confirm(`Delete details and confirmation data from patient "${namePatientToDelete}"?`)) {
@@ -848,27 +875,20 @@ export function ConfirmationPatient() {
             setOnPopupChooseDelete(false)
 
             const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
-            API().APIDeletePatientData(
+            deleteActionCallback(
                 'confirmation-patients',
-                findIdConfirmData?.id as string
+                findIdConfirmData?.id as string,
+                '',
+                'There was an error deleting patient data details and confirmation',
+                false,
+                ()=>deleteActionCallback(
+                    'patient-registration',
+                    idPatientToDelete,
+                    'delete successfully',
+                    'There was an error deleting patient data details and confirmation',
+                    true
+                )
             )
-                .then(res => {
-                    API().APIDeletePatientData(
-                        'patient-registration',
-                        idPatientToDelete
-                    )
-                        .then(result => {
-                            setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
-                            alert('delete successfully')
-                        })
-                        .catch(err => {
-                            setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
-                            pushTriggedErr('There was an error deleting patient data details and confirmation')
-                        })
-                })
-                .catch(err => {
-                    pushTriggedErr('There was an error deleting patient data details and confirmation')
-                })
         }
     }
 
@@ -879,25 +899,20 @@ export function ConfirmationPatient() {
             setOnPopupChooseDelete(false)
 
             const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
-
-            API().APIDeletePatientData(
+            
+            deleteActionCallback(
                 'confirmation-patients',
-                findIdConfirmData?.id as string
+                findIdConfirmData?.id as string,
+                'delete successfully',
+                'There was an error deleting patient confirmation data',
+                true
             )
-                .then(res => {
-                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
-                    alert('delete successfully')
-                })
-                .catch(err => {
-                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
-                    pushTriggedErr('There was an error deleting patient confirmation data')
-                })
         }
     }
 
     // cancel treatment
-    function clickCancelTreatment():void{
-        if(window.confirm(`cancel the registration of patient ${namePatientToDelete}?`)){
+    function clickCancelTreatment(): void {
+        if (window.confirm(`cancel the registration of patient ${namePatientToDelete}?`)) {
             setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
             setOnPopupChooseDelete(false)
 
@@ -907,29 +922,24 @@ export function ConfirmationPatient() {
                     dateConfirm: createDateFormat(new Date()),
                     confirmHour: createHourFormat(new Date())
                 },
-                adminInfo: {adminId: user.user?.id as string}
+                adminInfo: { adminId: user.user?.id as string }
             }
             API().APIPostPatientData(
                 'finished-treatment',
                 dataFinishTreatment
             )
-            .then(res=>{
-                API().APIDeletePatientData(
-                    'confirmation-patients',
-                    idPatientToDelete
-                )
-                .then(res=>{
-                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
-                    alert('Successfully cancel patient registration')
+                .then(res => {
+                    deleteActionCallback(
+                        'confirmation-patients',
+                        idPatientToDelete,
+                        'Successfully cancel patient registration',
+                        'There was an error deleting patient confirmation data',
+                        true
+                    )
                 })
-                .catch(err=>{
-                    setIdSuccessPatientsDelete((current) => [...current, idPatientToDelete])
-                    pushTriggedErr('There was an error deleting patient confirmation data')
+                .catch(err => {
+                    pushTriggedErr('a server error occurred while adding data to the treatment is complete. please try again')
                 })
-            })
-            .catch(err=>{
-                pushTriggedErr('a server error occurred while adding data to the treatment is complete. please try again')
-            })
         }
     }
 
@@ -938,16 +948,16 @@ export function ConfirmationPatient() {
             {/* popup edit patient detail / profile patient */}
             {onPopupEdit && (
                 <EditPatientRegistration
-                loadingSubmitEdit={loadingSubmitEdit}
-                valueInputEditDetailPatient={valueInputEditDetailPatient}
-                patientName={patientName}
-                errEditInputDetailPatient={errEditInputDetailPatient}
-                clickClosePopupEdit={clickClosePopupEdit}
-                changeDateEditDetailPatient={changeDateEditDetailPatient}
-                changeEditDetailPatient={changeEditDetailPatient}
-                handleSubmitUpdate={handleSubmitUpdate}
-                idPatientToEdit={idPatientToEdit}
-                idLoadingEdit={idLoadingEdit}
+                    loadingSubmitEdit={loadingSubmitEdit}
+                    valueInputEditDetailPatient={valueInputEditDetailPatient}
+                    patientName={patientName}
+                    errEditInputDetailPatient={errEditInputDetailPatient}
+                    clickClosePopupEdit={clickClosePopupEdit}
+                    changeDateEditDetailPatient={changeDateEditDetailPatient}
+                    changeEditDetailPatient={changeEditDetailPatient}
+                    handleSubmitUpdate={handleSubmitUpdate}
+                    idPatientToEdit={idPatientToEdit}
+                    idLoadingEdit={idLoadingEdit}
                 />
             )}
             {/* end popup edit detail patient */}
@@ -955,26 +965,26 @@ export function ConfirmationPatient() {
             {/* popup edit confirmation data */}
             {onPopupEditConfirmPatient && (
                 <EditPatientConfirmation
-                valueInputEditConfirmPatient={valueInputEditConfirmPatient}
-                nameEditConfirmPatient={nameEditConfirmPatient}
-                errEditInputConfirmPatient={errEditInputConfirmPatient}
-                closePopupEditConfirmPatient={closePopupEditConfirmPatient}
-                changeEditConfirmPatient={changeEditConfirmPatient}
-                selectEmailAdmin={selectEmailAdmin}
-                handleInputSelectConfirmPatient={handleInputSelectConfirmPatient}
-                changeDateConfirm={changeDateConfirm}
-                selectDoctorSpecialist={selectDoctorSpecialist}
-                loadDataDoctor={loadDataDoctor}
-                loadDataRoom={loadDataRoom}
-                selectDoctor={selectDoctor}
-                selectRoom={selectRoom}
-                editActiveManualQueue={editActiveManualQueue}
-                toggleChangeManualQueue={toggleChangeManualQueue}
-                toggleSetAutoQueue={toggleSetAutoQueue}
-                selectPresence={selectPresence}
-                idWaitToSubmitConfirmPatient={idWaitToSubmitConfirmPatient}
-                idPatientToEditConfirmPatient={idPatientToEditConfirmPatient}
-                submitEditConfirmPatient={submitEditConfirmPatient}
+                    valueInputEditConfirmPatient={valueInputEditConfirmPatient}
+                    nameEditConfirmPatient={nameEditConfirmPatient}
+                    errEditInputConfirmPatient={errEditInputConfirmPatient}
+                    closePopupEditConfirmPatient={closePopupEditConfirmPatient}
+                    changeEditConfirmPatient={changeEditConfirmPatient}
+                    selectEmailAdmin={selectEmailAdmin}
+                    handleInputSelectConfirmPatient={handleInputSelectConfirmPatient}
+                    changeDateConfirm={changeDateConfirm}
+                    selectDoctorSpecialist={selectDoctorSpecialist}
+                    loadDataDoctor={loadDataDoctor}
+                    loadDataRoom={loadDataRoom}
+                    selectDoctor={selectDoctor}
+                    selectRoom={selectRoom}
+                    editActiveManualQueue={editActiveManualQueue}
+                    toggleChangeManualQueue={toggleChangeManualQueue}
+                    toggleSetAutoQueue={toggleSetAutoQueue}
+                    selectPresence={selectPresence}
+                    idWaitToSubmitConfirmPatient={idWaitToSubmitConfirmPatient}
+                    idPatientToEditConfirmPatient={idPatientToEditConfirmPatient}
+                    submitEditConfirmPatient={submitEditConfirmPatient}
                 />
             )}
             {/* end popup edit confirmation patient */}

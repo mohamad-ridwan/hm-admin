@@ -105,6 +105,7 @@ export function Login() {
                 e.preventDefault()
                 handleSubmit()
             }}
+            className="flex flex-col w-full"
         >
             <Input
                 type="text"

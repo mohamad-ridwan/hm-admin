@@ -4,7 +4,7 @@ import { EditBtn } from "components/editBtn/EditBtn"
 
 type TitleProps = {
     classTitle?: string
-    title: string
+    title?: string
     titleInfo: string
     icon?: IconDefinition
 }
@@ -48,7 +48,7 @@ export function HeadInfo({
                 >
                     <EditBtn
                         icon={faPencil}
-                        classBtn="mr-2 hover:bg-color-default-old hover:text-white"
+                        classBtn="mr-1 hover:bg-color-default-old hover:text-white"
                     />
                     <EditBtn
                         icon={faTrash}

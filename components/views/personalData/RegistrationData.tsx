@@ -11,6 +11,7 @@ import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/datePicker/createDateFormat"
 import { createHourFormat } from "lib/datePicker/createHourFormat"
+import FormRegistrationData from "lib/actions/dataInformation/FormRegistrationData"
 
 type Props = {
     detailDataPatientRegis: PatientRegistrationT
@@ -35,20 +36,20 @@ export function RegistrationData({
         >
             {dataPatientFinishTreatment?.id && (
                 <div
-                className="flex justify-end overflow-hidden"
-            >
-                <div
-                    className="flex flex-wrap items-center text-green mt-2"
+                    className="flex justify-end overflow-hidden"
                 >
-                    <FontAwesomeIcon
-                        icon={faCheckToSlot}
-                        className="text-3xl mr-2 justify-end"
-                    />
-                    <h1
-                        className="text-3xl font-semibold"
-                    >Have Finished Treatment</h1>
+                    <div
+                        className="flex flex-wrap items-center text-green mt-2"
+                    >
+                        <FontAwesomeIcon
+                            icon={faCheckToSlot}
+                            className="text-3xl mr-2 justify-end"
+                        />
+                        <h1
+                            className="text-3xl font-semibold"
+                        >Have Finished Treatment</h1>
+                    </div>
                 </div>
-            </div>
             )}
 
             <Container
@@ -58,19 +59,19 @@ export function RegistrationData({
             >
                 {!dataConfirmPatient?.id && (
                     <HeadInfo
-                    title='Not yet confirmed'
-                    titleInfo="Patient Information"
-                    icon={faCircleExclamation}
-                    classTitle="text-orange-young"
-                />
+                        title='Not yet confirmed'
+                        titleInfo="Patient Information"
+                        icon={faCircleExclamation}
+                        classTitle="text-orange-young"
+                    />
                 )}
 
                 {dataConfirmPatient?.id && (
                     <HeadInfo
-                    title='Confirmed'
-                    titleInfo="Patient Information"
-                    icon={faCircleCheck}
-                />
+                        title='Confirmed'
+                        titleInfo="Patient Information"
+                        icon={faCircleCheck}
+                    />
                 )}
 
                 <div
@@ -125,6 +126,9 @@ export function RegistrationData({
                     )}
                 </div>
             </Container>
+
+            {/* Form confirmation of patient registration */}
+            <FormRegistrationData/>
         </Container>
     )
 }

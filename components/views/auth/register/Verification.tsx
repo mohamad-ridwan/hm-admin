@@ -169,6 +169,7 @@ export function Verification({
                     e.preventDefault()
                     submit()
                 }}
+                className="flex flex-col w-full"
             >
                 <Input
                     type="text"

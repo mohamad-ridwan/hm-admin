@@ -242,6 +242,7 @@ export default function CreateNewPasswordPage() {
                         e.preventDefault()
                         handleSubmit()
                     }}
+                    className="flex flex-col w-full"
                 >
                     <Input
                         type="password"

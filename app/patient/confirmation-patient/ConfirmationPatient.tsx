@@ -40,10 +40,10 @@ import { Toggle } from 'components/toggle/Toggle'
 import ServicingHours from 'lib/actions/ServicingHours'
 import { createHourFormat } from 'lib/datePicker/createHourFormat'
 import { authStore } from 'lib/useZustand/auth'
-import EditPatientRegistration from 'lib/actions/editPatient/editPatientRegistration/EditPatientRegistration'
-import EditPatientConfirmation from 'lib/actions/editPatient/editPatientConfirmation/EditPatientConfirmation'
-import FormPatientRegistration from 'lib/actions/editPatient/editPatientRegistration/FormPatientRegistration'
-import FormPatientConfirmation from 'lib/actions/editPatient/editPatientConfirmation/FormPatientConfirmation'
+import EditPatientRegistration from 'app/patient/patient-registration/EditPatientRegistration'
+import EditPatientConfirmation from 'app/patient/confirmation-patient/EditPatientConfirmation'
+import FormPatientRegistration from 'lib/actions/editPatient/FormPatientRegistration'
+import FormPatientConfirmation from 'lib/actions/editPatient/FormPatientConfirmation'
 
 export function ConfirmationPatient() {
     const [head] = useState<HeadDataTableT>([

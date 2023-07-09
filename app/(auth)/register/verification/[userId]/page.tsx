@@ -1,10 +1,10 @@
 import { backendUrl } from "lib/api/backendUrl";
 import { endpoint } from "lib/api/endpoint";
 import Template from "app/template";
-import ProtectContainer from "components/views/auth/ProtectContainer";
+import ProtectContainer from "app/(auth)/ProtectContainer";
 import { AuthRequiredError } from "lib/errorHandling/exceptions";
 import { AdminT } from "lib/types/AdminT.types"
-import { Verification } from "components/views/auth/register/Verification";
+import { Verification } from "app/(auth)/register/verification/Verification";
 import { faKey } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 

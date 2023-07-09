@@ -11,7 +11,7 @@ import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/datePicker/createDateFormat"
 import { createHourFormat } from "lib/datePicker/createHourFormat"
-import FormRegistrationData from "lib/actions/dataInformation/FormRegistrationData"
+import FormRegistrationData from "app/patient/[...params]/FormRegistrationData"
 
 type Props = {
     detailDataPatientRegis: PatientRegistrationT

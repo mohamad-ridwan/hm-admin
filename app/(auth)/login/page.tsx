@@ -1,6 +1,6 @@
 import Template from "app/template"
-import ProtectContainer from "components/views/auth/ProtectContainer"
-import { Login } from 'components/views/auth/login/Login'
+import ProtectContainer from "app/(auth)/ProtectContainer"
+import { Login } from 'app/(auth)/login/Login'
 
 export default function LoginPage() {
     return (

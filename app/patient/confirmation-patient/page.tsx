@@ -1,7 +1,7 @@
 import Template from "app/template";
 import { Container } from "components/Container";
 import { TableContainer } from "components/table/TableContainer";
-import { ConfirmationPatient } from "components/views/patients/ConfirmationPatient";
+import { ConfirmationPatient } from "app/patient/confirmation-patient/ConfirmationPatient";
 
 export default async function ConfirmationPatientPage() {
     return (

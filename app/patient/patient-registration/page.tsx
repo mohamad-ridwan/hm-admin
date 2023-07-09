@@ -1,6 +1,6 @@
 import Template from "app/template";
 import { Container } from "components/Container";
-import { PatientRegistration } from "components/views/patients/PatientRegistration";
+import { PatientRegistration } from "app/patient/patient-registration/PatientRegistration";
 import { TableContainer } from "components/table/TableContainer";
 
 export default async function PatientRegistrationPage() {

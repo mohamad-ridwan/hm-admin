@@ -1,6 +1,6 @@
 import Template from "app/template";
 import { Container } from "components/Container";
-import { PersonalData } from "components/views/personalData/PersonalData";
+import { PersonalData } from "app/patient/[...params]/PersonalData";
 
 export default function PersonalDataRegistration({
     params

@@ -1,8 +1,8 @@
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Template from "app/template";
-import ProtectContainer from "components/views/auth/ProtectContainer";
-import { ForgotPassword } from "components/views/auth/forgotPassword/ForgotPassword";
+import ProtectContainer from "app/(auth)/ProtectContainer";
+import { ForgotPassword } from "app/(auth)/forgot-password/ForgotPassword";
 
 export default function ForgotPasswordPage() {
     return (

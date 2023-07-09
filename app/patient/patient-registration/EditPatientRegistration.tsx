@@ -8,7 +8,7 @@ import Input from "components/input/Input";
 import ErrorInput from "components/input/ErrorInput";
 import { InputSearch } from "components/input/InputSearch";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
-import { renderCustomHeader } from "lib/datePicker/renderCustomHeader";
+import { renderCustomHeader } from "lib/dates/renderCustomHeader";
 import { InputArea } from "components/input/InputArea";
 import Button from "components/Button";
 import { InputEditPatientRegistrationT } from "lib/types/InputT.type";

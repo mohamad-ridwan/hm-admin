@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
-import { faAngleDown, faAngleUp, faBarsProgress, faBedPulse, faChartLine, faClipboardCheck, faHospitalUser, faSitemap, faTag } from '@fortawesome/free-solid-svg-icons'
+import { faAngleDown, faAngleUp, faBarsProgress, faBedPulse, faChartLine, faClipboardCheck, faHospitalUser, faPeopleRoof, faSitemap, faStethoscope, faTag } from '@fortawesome/free-solid-svg-icons'
 import { navigationStore } from 'lib/useZustand/navigation'
 import { MenuNavLeft } from './MenuNavLeft'
 import { LeftMenuNavChild } from './LeftMenuNavChild'
@@ -59,6 +59,18 @@ export function ContainerMenuNavLeft({
                 }
             ]
         },
+        {
+            name: 'Doctors',
+            path: null,
+            icon: faStethoscope,
+            children: [
+                {
+                    name: 'Our Doctor',
+                    path: '/doctors/our-doctor',
+                    icon: faPeopleRoof
+                }
+            ]
+        }
         // {
         //     name: 'Blog',
         //     path: null,
@@ -118,7 +130,7 @@ export function ContainerMenuNavLeft({
                         icon={item.icon}
                         name={onNavLeft ? '' : item.name}
                         iconDrop={idxActiveDropMenu === index ? faAngleUp : faAngleDown}
-                        classWrappMenuChild={heightMenuChild}
+                        classWrappMenuChild={idxActiveDropMenu === index ? heightMenuChild : '48px'}
                         click={() => clickChildMenu(index)}
                     >
                         {item?.children && (

@@ -10,10 +10,6 @@ import { TableBody } from "components/table/TableBody"
 import { TableHead } from 'components/table/TableHead'
 import Pagination from 'components/pagination/Pagination'
 import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT } from 'lib/types/PatientT.types'
-import { dayNamesInd } from 'lib/namesOfCalendar/dayNamesInd'
-import { monthNames } from 'lib/namesOfCalendar/monthNames'
-import { monthNamesInd } from 'lib/namesOfCalendar/monthNamesInd'
-import { dayNamesEng } from 'lib/namesOfCalendar/dayNamesEng'
 import { TableColumns } from 'components/table/TableColumns'
 import { TableData } from 'components/table/TableData'
 import { API } from 'lib/api'
@@ -24,13 +20,15 @@ import { DataOnDataTableContentT, DataOptionT, DataTableContentT } from 'lib/typ
 import { InputSelect } from 'components/input/InputSelect'
 import { spaceString } from 'lib/regex/spaceString'
 import { specialCharacter } from 'lib/regex/specialCharacter'
-import { renderCustomHeader } from "lib/datePicker/renderCustomHeader"
+import { renderCustomHeader } from "lib/dates/renderCustomHeader"
 import ServicingHours from 'lib/actions/ServicingHours'
 import EditPatientRegistration from 'app/patient/patient-registration/EditPatientRegistration'
 import FormPatientRegistration from 'lib/actions/editPatient/FormPatientRegistration'
 import { ContainerPopup } from 'components/popup/ContainerPopup'
 import { SettingPopup } from 'components/popup/SettingPopup'
 import Button from 'components/Button'
+import { createDateNormalFormat } from 'lib/dates/createDateNormalFormat'
+import { createDateFormat } from 'lib/dates/createDateFormat'
 
 export function PatientRegistration() {
     const [head] = useState<HeadDataTableT>([
@@ -164,19 +162,6 @@ export function PatientRegistration() {
                 const newData: DataTableContentT[] = []
                 const getDataColumns = (): void => {
                     findRegistration.forEach(patient => {
-                        // make a normal date
-                        const makeNormalDate = ((date: string, dateOfBirth?: boolean): string => {
-                            const getDate = `${new Date(date)}`
-                            const findIdxDayNameOfAD = dayNamesEng.findIndex(day => day === getDate.split(' ')[0]?.toLowerCase())
-                            const getNameOfAD = `${dayNamesInd[findIdxDayNameOfAD]?.substr(0, 1)?.toUpperCase()}${dayNamesInd[findIdxDayNameOfAD]?.substr(1, dayNamesInd[findIdxDayNameOfAD]?.length - 1)}`
-                            const findIdxMonthOfAD = monthNames.findIndex(month => month.toLowerCase() === getDate.split(' ')[1]?.toLowerCase())
-                            const getMonthOfAD = monthNamesInd[findIdxMonthOfAD]
-                            const getDateOfAD = date?.split('/')[1]
-                            const getYearOfAD = date?.split('/')[2]
-
-                            return !dateOfBirth ? `${getMonthOfAD} ${getDateOfAD} ${getYearOfAD}, ${getNameOfAD}` : `${getMonthOfAD} ${getDateOfAD} ${getYearOfAD}`
-                        })
-
                         const dataRegis: DataTableContentT = {
                             id: patient.id,
                             data: [
@@ -184,7 +169,7 @@ export function PatientRegistration() {
                                     name: patient.patientName
                                 },
                                 {
-                                    firstDesc: makeNormalDate(patient.appointmentDate),
+                                    firstDesc: createDateNormalFormat(patient.appointmentDate),
                                     color: '#ff296d',
                                     colorName: '#777',
                                     marginBottom: '4.5px',
@@ -194,7 +179,7 @@ export function PatientRegistration() {
                                     name: patient.appointmentDate,
                                 },
                                 {
-                                    firstDesc: makeNormalDate(patient.submissionDate.submissionDate),
+                                    firstDesc: createDateNormalFormat(patient.submissionDate.submissionDate),
                                     color: '#7600bc',
                                     colorName: '#777',
                                     marginBottom: '4.5px',
@@ -210,7 +195,7 @@ export function PatientRegistration() {
                                     name: patient.emailAddress
                                 },
                                 {
-                                    firstDesc: makeNormalDate(patient.dateOfBirth),
+                                    firstDesc: createDateNormalFormat(patient.dateOfBirth),
                                     color: '#187bcd',
                                     colorName: '#777',
                                     marginBottom: '4.5px',
@@ -276,24 +261,13 @@ export function PatientRegistration() {
     }
 
     // filter table
-    const makeFormatDate = (): string => {
-        const getCurrentDate = `${selectDate}`.split(' ')
-        const getCurrentMonth = monthNames.findIndex(month => month?.toLowerCase() === getCurrentDate[1]?.toLowerCase())
-        const getNumberOfCurrentMonth = getCurrentMonth?.toString()?.length === 1 ? `0${getCurrentMonth + 1}` : `${getCurrentMonth + 1}`
-        const dateNow = getCurrentDate[2]
-        const yearsNow = getCurrentDate[3]
-        const currentDate = `${getNumberOfCurrentMonth}/${dateNow}/${yearsNow}`
-
-        return currentDate
-    }
-
     // filter by date
     const filterByDate: DataTableContentT[] = dataColumns?.length > 0 ? dataColumns.filter(patient => {
         function onFilterDate(): DataOnDataTableContentT[] | undefined {
             if (selectDate) {
                 const findDate = patient.data.filter(data =>
                     data.filterBy?.toLowerCase() === chooseFilterByDate.id.toLowerCase() &&
-                    data.name === makeFormatDate())
+                    data.name === createDateFormat(selectDate))
                 return findDate
             } else if (chooseFilterByDate.id !== 'Filter By') {
                 const findDate = patient.data.filter(data =>
@@ -581,7 +555,7 @@ export function PatientRegistration() {
         setCurrentPage(1)
     }
 
-    const handleFilterDate = () => {
+    const handleFilterDate = (): void => {
         const selectEl = document.getElementById('filterDateTable') as HTMLSelectElement
         const id = selectEl?.options[selectEl.selectedIndex].value
         if (id) {

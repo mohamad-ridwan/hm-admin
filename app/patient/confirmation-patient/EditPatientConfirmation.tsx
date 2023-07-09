@@ -12,7 +12,7 @@ import { InputEditConfirmPatientT } from "lib/types/InputT.type"
 import { DataOptionT } from "lib/types/FilterT"
 import { InputSearch } from "components/input/InputSearch"
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons"
-import { renderCustomHeader } from "lib/datePicker/renderCustomHeader"
+import { renderCustomHeader } from "lib/dates/renderCustomHeader"
 import Button from "components/Button"
 
 type ActionProps = {

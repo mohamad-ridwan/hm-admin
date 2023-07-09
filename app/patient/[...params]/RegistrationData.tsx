@@ -9,9 +9,9 @@ import { HeadInfo } from "components/dataInformation/HeadInfo"
 import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
-import { createDateFormat } from "lib/datePicker/createDateFormat"
-import { createHourFormat } from "lib/datePicker/createHourFormat"
+import { createHourFormat } from "lib/dates/createHourFormat"
 import FormRegistrationData from "app/patient/[...params]/FormRegistrationData"
+import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
 
 type Props = {
     detailDataPatientRegis: PatientRegistrationT
@@ -85,7 +85,7 @@ export function RegistrationData({
                             />
                             <CardInfo
                                 title="Appointment Date"
-                                textInfo={createDateFormat(detailDataPatientRegis.appointmentDate, true)}
+                                textInfo={createDateNormalFormat(detailDataPatientRegis.appointmentDate)}
                                 icon={faCalendarDays}
                             />
                             <CardInfo
@@ -94,7 +94,7 @@ export function RegistrationData({
                             />
                             <CardInfo
                                 title='Date of Birth'
-                                textInfo={createDateFormat(detailDataPatientRegis.dateOfBirth, true)}
+                                textInfo={createDateNormalFormat(detailDataPatientRegis.dateOfBirth)}
                             />
                             <CardInfo
                                 title='Email'
@@ -114,7 +114,7 @@ export function RegistrationData({
                             />
                             <CardInfo
                                 title="Submission Date"
-                                textInfo={createDateFormat(detailDataPatientRegis.submissionDate.submissionDate, true)}
+                                textInfo={createDateNormalFormat(detailDataPatientRegis.submissionDate.submissionDate)}
                                 icon={faCalendarDays}
                             />
                             <CardInfo

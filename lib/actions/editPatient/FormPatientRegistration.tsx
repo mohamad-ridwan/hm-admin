@@ -3,7 +3,7 @@
 import { ChangeEvent, useState } from "react"
 import { InputEditPatientRegistrationT } from "lib/types/InputT.type"
 import { mailRegex } from "lib/regex/mailRegex"
-import { createDateFormat } from "lib/datePicker/createDateFormat"
+import { createDateFormat } from "lib/dates/createDateFormat"
 import { API } from "lib/api"
 import ServicingHours from "lib/actions/ServicingHours"
 

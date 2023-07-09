@@ -15,7 +15,7 @@ import { DataOptionT, DataTableContentT } from 'lib/types/FilterT'
 import { specialCharacter } from 'lib/regex/specialCharacter'
 import { spaceString } from 'lib/regex/spaceString'
 import { monthNames } from 'lib/namesOfCalendar/monthNames'
-import { renderCustomHeader } from 'lib/datePicker/renderCustomHeader'
+import { renderCustomHeader } from 'lib/dates/renderCustomHeader'
 import Pagination from 'components/pagination/Pagination'
 import { dayNamesEng } from 'lib/namesOfCalendar/dayNamesEng'
 import { dayNamesInd } from 'lib/namesOfCalendar/dayNamesInd'
@@ -33,17 +33,18 @@ import { InputEditConfirmPatientT, InputEditPatientRegistrationT, SubmitEditConf
 import { InputArea } from 'components/input/InputArea'
 import { mailRegex } from 'lib/regex/mailRegex'
 import { API } from 'lib/api'
-import { createDateFormat } from 'lib/datePicker/createDateFormat'
+import { createDateFormat } from 'lib/dates/createDateFormat'
 import { AdminT } from 'lib/types/AdminT.types'
 import { ProfileDoctorT } from 'lib/types/DoctorsT.types'
 import { Toggle } from 'components/toggle/Toggle'
 import ServicingHours from 'lib/actions/ServicingHours'
-import { createHourFormat } from 'lib/datePicker/createHourFormat'
+import { createHourFormat } from 'lib/dates/createHourFormat'
 import { authStore } from 'lib/useZustand/auth'
 import EditPatientRegistration from 'app/patient/patient-registration/EditPatientRegistration'
 import EditPatientConfirmation from 'app/patient/confirmation-patient/EditPatientConfirmation'
 import FormPatientRegistration from 'lib/actions/editPatient/FormPatientRegistration'
 import FormPatientConfirmation from 'lib/actions/editPatient/FormPatientConfirmation'
+import { createDateNormalFormat } from 'lib/dates/createDateNormalFormat'
 
 export function ConfirmationPatient() {
     const [head] = useState<HeadDataTableT>([
@@ -287,19 +288,6 @@ export function ConfirmationPatient() {
             const newData: DataTableContentT[] = []
             const getDataColumns = (): void => {
                 res.forEach(patient => {
-                    // make a normal date
-                    const makeNormalDate = ((date: string, dateOfBirth?: boolean): string => {
-                        const getDate = `${new Date(date)}`
-                        const findIdxDayNameOfAD = dayNamesEng.findIndex(day => day === getDate.split(' ')[0]?.toLowerCase())
-                        const getNameOfAD = `${dayNamesInd[findIdxDayNameOfAD]?.substr(0, 1)?.toUpperCase()}${dayNamesInd[findIdxDayNameOfAD]?.substr(1, dayNamesInd[findIdxDayNameOfAD]?.length - 1)}`
-                        const findIdxMonthOfAD = monthNames.findIndex(month => month.toLowerCase() === getDate.split(' ')[1]?.toLowerCase())
-                        const getMonthOfAD = monthNamesInd[findIdxMonthOfAD]
-                        const getDateOfAD = date?.split('/')[1]
-                        const getYearOfAD = date?.split('/')[2]
-
-                        return !dateOfBirth ? `${getMonthOfAD} ${getDateOfAD} ${getYearOfAD}, ${getNameOfAD}` : `${getMonthOfAD} ${getDateOfAD} ${getYearOfAD}`
-                    })
-
                     // patient already on confirm
                     const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
 
@@ -324,7 +312,7 @@ export function ConfirmationPatient() {
                                 fontWeightName: 'bold'
                             },
                             {
-                                firstDesc: makeNormalDate(patient.appointmentDate),
+                                firstDesc: createDateNormalFormat(patient.appointmentDate),
                                 color: '#ff296d',
                                 colorName: '#777',
                                 marginBottom: '4.5px',
@@ -338,7 +326,7 @@ export function ConfirmationPatient() {
                                 name: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours as string
                             },
                             {
-                                firstDesc: makeNormalDate(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
+                                firstDesc: createDateNormalFormat(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
                                 color: '#006400',
                                 colorName: '#777',
                                 marginBottom: '4.5px',
@@ -354,7 +342,7 @@ export function ConfirmationPatient() {
                                 name: patient.emailAddress
                             },
                             {
-                                firstDesc: makeNormalDate(patient.dateOfBirth),
+                                firstDesc: createDateNormalFormat(patient.dateOfBirth),
                                 color: '#187bcd',
                                 colorName: '#777',
                                 marginBottom: '4.5px',
@@ -418,17 +406,6 @@ export function ConfirmationPatient() {
         }
     }, [loadDataService, dataService])
 
-    const makeFormatDate = (): string => {
-        const getCurrentDate = `${selectDate}`.split(' ')
-        const getCurrentMonth = monthNames.findIndex(month => month?.toLowerCase() === getCurrentDate[1]?.toLowerCase())
-        const getNumberOfCurrentMonth = getCurrentMonth?.toString()?.length === 1 ? `0${getCurrentMonth + 1}` : `${getCurrentMonth + 1}`
-        const dateNow = getCurrentDate[2]
-        const yearsNow = getCurrentDate[3]
-        const currentDate = `${getNumberOfCurrentMonth}/${dateNow}/${yearsNow}`
-
-        return currentDate
-    }
-
     // filter by room
     function filterByRoom(): DataTableContentT[] {
         if (dataColumns.length > 0 && chooseFilterByRoom.id !== 'Filter By Room') {
@@ -451,7 +428,7 @@ export function ConfirmationPatient() {
             const findPatient = resultFilterByRoom.filter(patient => {
                 const getData = patient.data.filter(data =>
                     data.filterBy === chooseFilterByDate.id &&
-                    data.name === makeFormatDate()
+                    data.name === createDateFormat(selectDate)
                 )
 
                 return getData.length > 0

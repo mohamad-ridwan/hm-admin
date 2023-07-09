@@ -13,7 +13,7 @@ export function TableBody({
 }: Props){
     return(
         <div
-        className={`flex flex-col ${width ? width : 'w-[1300px]'}`}
+        className={`flex flex-col ${width ? width : 'w-[1300px]'} table-auto`}
         style={style}
         >
             {children}

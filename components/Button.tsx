@@ -17,6 +17,7 @@ type ChildrenButton = ButtonProps & {
 
 type IconButton = ChildrenButton & {
     icon?: ReactElement
+    iconLeft?: ReactElement
 }
 
 type LoadingProps = IconButton & {
@@ -37,6 +38,7 @@ export default function Button({
     styleBtn,
     nameBtn,
     children,
+    iconLeft,
     icon,
     idLoading,
     classLoading,
@@ -46,6 +48,12 @@ export default function Button({
 }: Props) {
     return <button className={`flex text-center ${typeof colorBtnTxt === 'undefined' ? 'text-white' : colorBtnTxt} justify-center items-center py-[0.7rem] px-2 border-bdr-one border-color-default bg-color-default 
     text-[0.85rem] font-semibold hover:text-color-default hover:border-color-default transition ${classBtn}`} disabled={disabled} onClick={clickBtn} style={styleBtn}>
+        {typeof iconLeft !== 'undefined' && (
+            <>
+            {iconLeft}
+            </>
+        )}
+
         {nameBtn}
         {children}
 

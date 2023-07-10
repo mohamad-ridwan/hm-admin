@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
 import { TableHead } from "components/table/TableHead"
@@ -8,10 +8,15 @@ import { TableColumns } from "components/table/TableColumns"
 import { TableData } from "components/table/TableData"
 import { TableFilter } from "components/table/TableFilter"
 import { InputSearch } from "components/input/InputSearch"
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
+import { faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { InputSelect } from "components/input/InputSelect"
 import UseTableColumns from "./UseTableColumns"
 import UseTableFilter from "./UseTableFilter"
+import Button from "components/Button"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import FormAddDoctor from "./FormAddDoctor"
+import { AddDoctor } from "./AddDoctor"
+import { AddMedsos } from "./AddMedsos"
 
 export function OurDoctor() {
     const [head, setHead] = useState<{ name: string }[]>([
@@ -49,12 +54,70 @@ export function OurDoctor() {
     } = UseTableFilter()
 
     const {
-        dataColumns,
+        onPopupAddDoctor,
+        closePopupAddDoctor,
+        clickNewDoctor,
+        inputValueAddDoctor,
+        errInputAddDoctor,
+        clickOpenImage,
+        getImgFile,
+        deleteImg,
+        changeInputAddDoctor,
+        onAddMedsos,
+        onPopupAddMedsos,
+        inputAddMedsos,
+        errInputAddMedsos,
+        submitAddMedsos,
+        changeInputAddMedsos
+    } = FormAddDoctor()
+
+    const {
         resultFilterData
-    } = UseTableColumns({currentFilter, selectCurrentFilter, searchText})
+    } = UseTableColumns({ currentFilter, selectCurrentFilter, searchText })
 
     return (
         <>
+            {/* popup add new doctor */}
+            {onPopupAddDoctor && (
+                <AddDoctor
+                    inputValueAddDoctor={inputValueAddDoctor}
+                    clickClosePopupEdit={closePopupAddDoctor}
+                    errInputAddDoctor={errInputAddDoctor}
+                    clickOpenImage={clickOpenImage}
+                    getImgFile={getImgFile}
+                    deleteImg={deleteImg}
+                    changeInputAddDoctor={changeInputAddDoctor}
+                    onAddMedsos={onAddMedsos}
+                />
+            )}
+
+            {/* popup add medsos */}
+            {onPopupAddMedsos && (
+                <AddMedsos
+                    onAddMedsos={onAddMedsos}
+                    submitAddMedsos={submitAddMedsos}
+                    inputAddMedsos={inputAddMedsos}
+                    errInputAddMedsos={errInputAddMedsos}
+                    changeInputAddMedsos={changeInputAddMedsos}
+                />
+            )}
+
+            {/* add new doctor */}
+            <div
+                className="flex justify-end"
+            >
+                <Button
+                    iconLeft={<FontAwesomeIcon
+                        icon={faPlus}
+                        className="mr-2"
+                    />}
+                    nameBtn="New doctor"
+                    classBtn="hover:bg-white py-[0.5rem]"
+                    classLoading="hidden"
+                    clickBtn={clickNewDoctor}
+                />
+            </div>
+
             {/* table filter */}
             <TableFilter
                 leftChild={
@@ -71,24 +134,6 @@ export function OurDoctor() {
                                 setSearchText('')
                             }}
                         />
-                        {/* not used for now */}
-                        {/* {displayOnCalendar && (
-                            <InputSearch
-                                icon={faCalendarDays}
-                                classWrapp='mt-2'
-                                placeHolder='Search Date'
-                                placeholderText='Search Date'
-                                onCalendar={true}
-                                changeInput={handleInputDate}
-                                selected={selectDate}
-                                onCloseSearch={selectDate !== undefined}
-                                renderCustomHeader={renderCustomHeader}
-                                clickCloseSearch={() => {
-                                    setCurrentPage(1)
-                                    setSelectDate(undefined)
-                                }}
-                            />
-                        )} */}
                     </>
                 }
                 rightChild={
@@ -101,11 +146,11 @@ export function OurDoctor() {
                         />
                         {currentFilter.id !== 'Filter By' && (
                             <InputSelect
-                            id='currentFilter'
-                            classWrapp='mt-2'
-                            data={chooseFilter}
-                            handleSelect={handleCurrentFilter}
-                        />
+                                id='currentFilter'
+                                classWrapp='mt-2'
+                                data={chooseFilter}
+                                handleSelect={handleCurrentFilter}
+                            />
                         )}
                     </>
                 }

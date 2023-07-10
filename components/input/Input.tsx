@@ -12,7 +12,7 @@ type Props = {
     maxLength?: number
     styles?: CSSProperties
     readonly?: boolean
-    changeInput: (e: ChangeEvent<HTMLInputElement>)=>void
+    changeInput?: (e: ChangeEvent<HTMLInputElement>)=>void
     ref?: LegacyRef<HTMLInputElement>
 }
 

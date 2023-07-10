@@ -12,7 +12,7 @@ type ActionProps = {
 
 type TitleProps = {
     title: string
-    namePatient: string
+    namePatient?: string
 }
 
 type InputContainerProps = {

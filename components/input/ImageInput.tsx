@@ -8,6 +8,7 @@ type ImgProps = {
     height?: number
     width?: number
     src: string | StaticImageData
+    alt?: string
 }
 
 type ButtonProps = ImgProps & {
@@ -29,18 +30,19 @@ export default function ImageInput({
     clickImg,
     changeInput,
     nameInput,
-    valueInput
+    valueInput,
+    alt = 'user image hospice medical admin'
 }: Props){
     return(
         <div
         className="flex justify-center mb-2"
         >
             <div
-            className="flex justify-center overflow-hidden relative h-24 w-24"
+            className="flex justify-center overflow-hidden relative h-20 w-20"
             >
                 <Image
                 src={src}
-                alt='user image hospice medical admin'
+                alt={alt}
                 height={height}
                 width={width}
                 className="flex object-cover rounded-full border-[3.5px] border-[#f1f1f1]"

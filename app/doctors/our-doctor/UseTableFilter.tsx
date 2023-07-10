@@ -1,13 +1,12 @@
 'use client'
 
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useCallback, useState } from "react"
 import { DataOptionT } from "lib/types/FilterT"
 import ServicingHours from "lib/actions/ServicingHours"
 
 function UseTableFilter() {
     const [searchText, setSearchText] = useState<string>('')
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const [displayOnCalendar, setDisplayOnCalendar] = useState<boolean>(false)
     const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [chooseFilter, setChooseFilter] = useState<DataOptionT>([])
     const [currentFilter, setCurrentFilter] = useState<{
@@ -50,10 +49,12 @@ function UseTableFilter() {
         setSearchText(e?.target.value as string)
     }
 
-    // const handleInputDate = (e?: Date | ChangeEvent<HTMLInputElement>): void => {
-    //     setSelectDate(e as Date)
-    //     setCurrentPage(1)
-    // }
+    const setDefaultOptions = useCallback(()=>{
+        const selectEl = document.getElementById('currentFilter') as HTMLSelectElement
+        if(selectEl){
+            selectEl.selectedIndex = 0
+        }
+    }, [currentFilter])
 
     const handleFilterBy = (): void => {
         const selectEl = document.getElementById('filterBy') as HTMLSelectElement
@@ -68,6 +69,8 @@ function UseTableFilter() {
             }
 
             setCurrentFilter({id: id, title: id})
+            setSelectCurrentFilter({id: 'no filter', title: 'no filter'})
+            setDefaultOptions()
         }
     }
 

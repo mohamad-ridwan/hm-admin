@@ -16,6 +16,7 @@ import { storage } from "lib/firebase/firebase"
 import { uploadImg } from "lib/firebase/uploadImg"
 import { sendEmail } from "lib/emailJS/sendEmail"
 import Link from "next/link"
+import { getImgValue } from "lib/actions/getImgValue"
 
 type InputT = {
     name: string
@@ -64,25 +65,18 @@ export function Register() {
 
     function changeInputImg(e: ChangeEvent<HTMLInputElement>): void {
         const files = e.target.files
-        if (files?.length === 1) {
-            const getTypeFile = files[0].type.split('/')[1]
-            if (
-                getTypeFile.toLowerCase() === 'jpg' ||
-                getTypeFile.toLowerCase() === 'jpeg' ||
-                getTypeFile.toLowerCase() === 'png'
-            ) {
-                let url: string = ''
-                url = URL.createObjectURL(files[0])
-                setInput({
-                    ...input,
-                    image: url
-                })
+        getImgValue(files)
+        .then(res=>{
+            setInput({
+                ...input,
+                image: res.url
+            })
 
-                setImgFile(files[0])
-            } else {
-                alert('Must be image file\nlike .png/.jpeg/.jpg')
-            }
-        }
+            setImgFile(res.files[0])
+        })
+        .catch(err=>{
+            alert(err)
+        })
     }
 
     function deleteImg(): void {

@@ -138,7 +138,7 @@ function UseTableColumns({
         const filterText = dataColumns.filter(items=>{
             const findItem = items.data.filter(data => data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
 
-            return findItem
+            return findItem.length > 0
         })
 
         return filterText

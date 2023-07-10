@@ -1,10 +1,20 @@
-type MedsosDoctorT={
+export type MedsosDoctorT={
     id: string
     nameIcon: string
     path: string
+    medsosName: string
 }
 
-type DoctorScheduleT = string[]
+export type DoctorScheduleT = {
+    id: string
+    dayName: string
+    practiceHours: string
+}
+
+export type HolidaySchedule = {
+    id: string
+    date: string
+}
 
 export type ProfileDoctorT = {
     id: string
@@ -12,6 +22,7 @@ export type ProfileDoctorT = {
     name: string
     deskripsi: string
     medsos: MedsosDoctorT[]
-    jadwalDokter: DoctorScheduleT
+    doctorSchedule: DoctorScheduleT[]
+    holidaySchedule: HolidaySchedule[]
     room: string
 }

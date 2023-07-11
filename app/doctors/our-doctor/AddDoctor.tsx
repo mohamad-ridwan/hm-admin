@@ -19,6 +19,8 @@ type ErrInputAddDoctor = {
     image: string
     name: string
     deskripsi: string
+    email: string
+    phone: string
     room: string
     medsos: string
     doctorSchedule: string
@@ -38,7 +40,7 @@ type ActionProps = {
     deleteHolidaySchedule: (id: string) => void
     onAddHolidaySchedule: () => void
     submitAddDoctor: () => void
-    selectRoomDoctor: ()=>void
+    selectRoomDoctor: () => void
 }
 
 type Props = ActionProps & {
@@ -135,6 +137,32 @@ export function AddDoctor({
                 <ErrorInput
                     {...styleError}
                     error={errInputAddDoctor?.deskripsi}
+                />
+
+                <TitleInput title='Email' />
+                <Input
+                    type='text'
+                    nameInput='email'
+                    placeholder="doctor@gmail.com"
+                    changeInput={changeInputAddDoctor}
+                    valueInput={inputValueAddDoctor.email}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.email}
+                />
+
+                <TitleInput title='Phone' />
+                <Input
+                    type='tel'
+                    nameInput='phone'
+                    placeholder="081..."
+                    changeInput={changeInputAddDoctor}
+                    valueInput={inputValueAddDoctor.phone}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.phone}
                 />
 
                 <TitleInput title='Room' />

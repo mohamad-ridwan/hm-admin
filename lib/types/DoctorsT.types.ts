@@ -22,6 +22,8 @@ export type ProfileDoctorT = {
     image: string
     name: string
     deskripsi: string
+    email: string
+    phone: string
     medsos: MedsosDoctorT[]
     doctorSchedule: DoctorScheduleT[]
     holidaySchedule: HolidaySchedule[]

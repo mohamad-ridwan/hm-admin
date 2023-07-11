@@ -57,10 +57,10 @@ function UseTableColumns({
                             name: doctor.deskripsi
                         },
                         {
-                            name: 'no email found'
+                            name: doctor.email
                         },
                         {
-                            name: 'no phone found'
+                            name: doctor.phone
                         },
                         {
                             name: findRoom?.room as string
@@ -217,6 +217,8 @@ function UseTableColumns({
                     elementTData = document.getElementById(`tData${i}0`) as HTMLElement
                     if(elementTData?.style){
                         elementTData.style.width = 'calc(100%/4.5)'
+                        elementTData.style.overflowX = 'auto'
+                        elementTData = document.getElementById(`tData${i}2`) as HTMLElement
                         elementTData.style.overflowX = 'auto'
                     }
                 }

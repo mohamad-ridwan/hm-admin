@@ -21,6 +21,7 @@ import { AddDoctorSchedule } from "./AddDoctorSchedule"
 import { AddHolidaySchedule } from "./AddHolidaySchedule"
 import Image from "next/image"
 import Pagination from "components/pagination/Pagination"
+import profileDefault from 'images/user.png'
 
 export function OurDoctor() {
     const [head, setHead] = useState<{ name: string }[]>([
@@ -172,7 +173,7 @@ export function OurDoctor() {
                         className="mr-2"
                     />}
                     nameBtn="New doctor"
-                    classBtn="hover:bg-white py-[0.45rem]"
+                    classBtn="hover:bg-white py-[7px]"
                     classLoading="hidden"
                     clickBtn={clickNewDoctor}
                 />
@@ -184,7 +185,7 @@ export function OurDoctor() {
                     <>
                         <InputSearch
                             icon={faMagnifyingGlass}
-                            classWrapp='mt-2'
+                            classWrapp='mt-2 mr-2'
                             placeHolder='Search Text'
                             onCloseSearch={searchText.length > 0}
                             valueText={searchText}
@@ -248,18 +249,23 @@ export function OurDoctor() {
                                             name={dataItem.name}
                                             leftName={
                                                 indexData === 0 &&
-                                                dataItem?.image?.includes('https')
-                                                ?
-                                                <div
-                                                >
+                                                    dataItem?.image?.includes('https')
+                                                    ?
                                                     <Image
-                                                    alt={dataItem.name}
-                                                    src={dataItem.image}
-                                                    height={10}
-                                                    width={10}
-                                                    className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
-                                                />
-                                                </div> : <></>}
+                                                        alt={dataItem.name}
+                                                        src={dataItem.image}
+                                                        height={10}
+                                                        width={10}
+                                                        className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
+                                                    /> : indexData === 0 ?
+                                                        <Image
+                                                            alt={dataItem.name}
+                                                            src={profileDefault}
+                                                            height={10}
+                                                            width={10}
+                                                            className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
+                                                        /> : <></>
+                                            }
                                         />
                                     )
                                 })}

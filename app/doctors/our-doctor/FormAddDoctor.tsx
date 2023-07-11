@@ -11,11 +11,14 @@ import { getDownloadURL, ref } from "firebase/storage"
 import { storage } from "lib/firebase/firebase"
 import ServicingHours from "lib/actions/ServicingHours"
 import { DataOptionT } from "lib/types/FilterT"
+import { mailRegex } from "lib/regex/mailRegex"
 
 type ErrInputAddDoctor = {
     image: string
     name: string
     deskripsi: string
+    email: string
+    phone: string
     room: string
     medsos: string
     doctorSchedule: string
@@ -38,6 +41,8 @@ function FormAddDoctor() {
         image: '',
         name: '',
         deskripsi: '',
+        email: '',
+        phone: '',
         room: '',
         medsos: [],
         doctorSchedule: [],
@@ -103,6 +108,8 @@ function FormAddDoctor() {
             image: '',
             name: '',
             deskripsi: '',
+            email: '',
+            phone: '',
             room: '',
             medsos: [],
             doctorSchedule: [],
@@ -436,6 +443,14 @@ function FormAddDoctor() {
         }
         if (!inputValueAddDoctor.deskripsi.trim()) {
             err.deskripsi = 'Must be required'
+        }
+        if(!inputValueAddDoctor.email.trim()){
+            err.email = 'Must be required'
+        }else if(!mailRegex.test(inputValueAddDoctor.email)){
+            err.email = 'Invalid e-mail address'
+        }
+        if(!inputValueAddDoctor.phone.trim()){
+            err.phone = 'Must be required'
         }
         if (!inputValueAddDoctor.room.trim()) {
             err.room = 'Must be required'

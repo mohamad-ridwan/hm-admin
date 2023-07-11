@@ -38,6 +38,8 @@ export type AddNewDoctorT = {
     image: string
     name: string
     deskripsi: string
+    email: string
+    phone: string
     room: string
     medsos: MedsosDoctorT[]
     doctorSchedule: DoctorScheduleT[]

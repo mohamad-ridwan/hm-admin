@@ -9,8 +9,8 @@ import Button from "components/Button";
 
 type ActionProps = {
     onAddMedsos: () => void
-    submitAddMedsos: ()=>void
-    changeInputAddMedsos: (e: ChangeEvent<HTMLInputElement>)=>void
+    submitAddMedsos: () => void
+    changeInputAddMedsos: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
 type Props = ActionProps & {
@@ -63,6 +63,19 @@ export function AddMedsos({
                 <ErrorInput
                     {...styleError}
                     error={errInputAddMedsos?.nameIcon}
+                />
+
+                <TitleInput title='Element Icon' />
+                <Input
+                    type='text'
+                    nameInput='elementIcon'
+                    placeholder="svg tag html"
+                    valueInput={inputAddMedsos.elementIcon}
+                    changeInput={changeInputAddMedsos}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddMedsos?.elementIcon}
                 />
 
                 <TitleInput title='Social Media links' />

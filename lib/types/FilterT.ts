@@ -19,6 +19,7 @@ export type DataOnDataTableContentT = DataTableConfirmation &  {
     fontSize?: string,
     filterBy?: string,
     clock?: string,
+    image?: string
     name: string,
 }
 

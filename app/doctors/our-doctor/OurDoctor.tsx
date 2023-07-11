@@ -17,6 +17,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import FormAddDoctor from "./FormAddDoctor"
 import { AddDoctor } from "./AddDoctor"
 import { AddMedsos } from "./AddMedsos"
+import { AddDoctorSchedule } from "./AddDoctorSchedule"
+import { AddHolidaySchedule } from "./AddHolidaySchedule"
+import Image from "next/image"
+import Pagination from "components/pagination/Pagination"
 
 export function OurDoctor() {
     const [head, setHead] = useState<{ name: string }[]>([
@@ -68,11 +72,35 @@ export function OurDoctor() {
         inputAddMedsos,
         errInputAddMedsos,
         submitAddMedsos,
-        changeInputAddMedsos
+        changeInputAddMedsos,
+        deleteMedsos,
+        onPopupAddDoctorSchedule,
+        onAddDoctorSchedule,
+        inputAddDoctorSchedule,
+        errInputAddDoctorSchedule,
+        submitAddDoctorSchedule,
+        changeInputAddDocSchedule,
+        selectDayAddDoctorSchedule,
+        deleteSchedule,
+        onPopupAddHolidaySchedule,
+        onAddHolidaySchedule,
+        inputAddHolidaySchedule,
+        errInputAddHolidaySchedule,
+        deleteHolidaySchedule,
+        selectHolidayDate,
+        submitAddHolidaySchedule,
+        submitAddDoctor,
+        loadingSubmitAddDoctor,
+        selectRoomDoctor,
+        roomOptions
     } = FormAddDoctor()
 
     const {
-        resultFilterData
+        currentTableData,
+        clickDelete,
+        lastPage,
+        maxLength,
+        currentPage
     } = UseTableColumns({ currentFilter, selectCurrentFilter, searchText })
 
     return (
@@ -80,6 +108,7 @@ export function OurDoctor() {
             {/* popup add new doctor */}
             {onPopupAddDoctor && (
                 <AddDoctor
+                    loadingSubmitAddDoctor={loadingSubmitAddDoctor}
                     inputValueAddDoctor={inputValueAddDoctor}
                     clickClosePopupEdit={closePopupAddDoctor}
                     errInputAddDoctor={errInputAddDoctor}
@@ -88,6 +117,14 @@ export function OurDoctor() {
                     deleteImg={deleteImg}
                     changeInputAddDoctor={changeInputAddDoctor}
                     onAddMedsos={onAddMedsos}
+                    deleteMedsos={deleteMedsos}
+                    onAddDoctorSchedule={onAddDoctorSchedule}
+                    deleteSchedule={deleteSchedule}
+                    deleteHolidaySchedule={deleteHolidaySchedule}
+                    onAddHolidaySchedule={onAddHolidaySchedule}
+                    submitAddDoctor={submitAddDoctor}
+                    selectRoomDoctor={selectRoomDoctor}
+                    rooms={roomOptions}
                 />
             )}
 
@@ -102,6 +139,29 @@ export function OurDoctor() {
                 />
             )}
 
+            {/* popup add doctor schedule */}
+            {onPopupAddDoctorSchedule && (
+                <AddDoctorSchedule
+                    onAddDoctorSchedule={onAddDoctorSchedule}
+                    submitAddDoctorSchedule={submitAddDoctorSchedule}
+                    inputAddDoctorSchedule={inputAddDoctorSchedule}
+                    errInputAddDoctorSchedule={errInputAddDoctorSchedule}
+                    changeInputAddDocSchedule={changeInputAddDocSchedule}
+                    selectDayAddDoctorSchedule={selectDayAddDoctorSchedule}
+                />
+            )}
+
+            {/* popup add holiday schedule */}
+            {onPopupAddHolidaySchedule && (
+                <AddHolidaySchedule
+                    onAddHolidaySchedule={onAddHolidaySchedule}
+                    inputAddHolidaySchedule={inputAddHolidaySchedule}
+                    errInputAddHolidaySchedule={errInputAddHolidaySchedule}
+                    selectHolidayDate={selectHolidayDate}
+                    submitAddHolidaySchedule={submitAddHolidaySchedule}
+                />
+            )}
+
             {/* add new doctor */}
             <div
                 className="flex justify-end"
@@ -112,7 +172,7 @@ export function OurDoctor() {
                         className="mr-2"
                     />}
                     nameBtn="New doctor"
-                    classBtn="hover:bg-white py-[0.5rem]"
+                    classBtn="hover:bg-white py-[0.45rem]"
                     classLoading="hidden"
                     clickBtn={clickNewDoctor}
                 />
@@ -163,17 +223,20 @@ export function OurDoctor() {
                         id='tHead'
                     />
 
-                    {resultFilterData.length > 0 ? resultFilterData.map((item, index) => {
+                    {currentTableData.length > 0 ? currentTableData.map((item, index) => {
                         const pathDoctor = `/doctors/profile/${item.id}`
 
                         return (
                             <TableColumns
                                 key={index}
+                                idIconDelete={`iconDelete${item.id}`}
+                                idLoadingDelete={`loadingDelete${item.id}`}
                                 clickBtn={() => pathDoctor}
                                 clickEdit={(e) => {
                                     e?.stopPropagation()
                                 }}
                                 clickDelete={(e) => {
+                                    clickDelete(item.id)
                                     e?.stopPropagation()
                                 }}
                             >
@@ -183,6 +246,20 @@ export function OurDoctor() {
                                             key={indexData}
                                             id={`tData${index}${indexData}`}
                                             name={dataItem.name}
+                                            leftName={
+                                                indexData === 0 &&
+                                                dataItem?.image?.includes('https')
+                                                ?
+                                                <div
+                                                >
+                                                    <Image
+                                                    alt={dataItem.name}
+                                                    src={dataItem.image}
+                                                    height={10}
+                                                    width={10}
+                                                    className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
+                                                />
+                                                </div> : <></>}
                                         />
                                     )
                                 })}
@@ -200,6 +277,17 @@ export function OurDoctor() {
 
                 </TableBody>
             </ContainerTableBody>
+
+            <div
+                className='flex justify-end mt-4'
+            >
+                <Pagination
+                    currentPage={currentPage}
+                    lastPage={lastPage}
+                    maxLength={maxLength}
+                    setCurrentPage={setCurrentPage}
+                />
+            </div>
         </>
     )
 }

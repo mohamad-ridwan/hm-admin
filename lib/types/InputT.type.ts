@@ -38,6 +38,7 @@ export type AddNewDoctorT = {
     image: string
     name: string
     deskripsi: string
+    room: string
     medsos: MedsosDoctorT[]
     doctorSchedule: DoctorScheduleT[]
     holidaySchedule: HolidaySchedule[]

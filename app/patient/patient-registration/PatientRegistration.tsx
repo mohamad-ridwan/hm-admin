@@ -382,7 +382,7 @@ export function PatientRegistration() {
         }
     }, [patientsIdToDeleteSuccess, currentTableData])
 
-    const changeTableStyle = (dataColumnsBody: DataTableContentT[]) => {
+    const changeTableStyle = (dataColumnsBody: DataTableContentT[]):void => {
         if (dataColumnsBody?.length > 0) {
             let elementTHead = document.getElementById('tHead0') as HTMLElement
             let elementTData = document.getElementById('tData00') as HTMLElement
@@ -660,7 +660,6 @@ export function PatientRegistration() {
                             <InputSearch
                                 icon={faCalendarDays}
                                 classWrapp='mt-2'
-                                placeHolder='Search Date'
                                 placeholderText='Search Date'
                                 onCalendar={true}
                                 changeInput={handleInputDate}

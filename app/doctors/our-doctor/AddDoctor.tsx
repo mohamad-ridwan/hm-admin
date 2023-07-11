@@ -8,13 +8,18 @@ import { AddNewDoctorT } from "lib/types/InputT.type";
 import ImageInput from "components/input/ImageInput";
 import defaultDoctor from 'images/user.png'
 import Button from "components/Button";
-import { CardAddMedsos } from "components/medsos/CardAddMedsos";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { CardAddMedsos } from "components/doctors/CardAddMedsos";
+import { faCirclePlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CardAddDoctorSchedule } from "components/doctors/CardAddDoctorSchedule";
+import { InputSelect } from "components/input/InputSelect";
+import { DataOptionT } from "lib/types/FilterT";
 
 type ErrInputAddDoctor = {
     image: string
     name: string
     deskripsi: string
+    room: string
     medsos: string
     doctorSchedule: string
     holidaySchedule: string
@@ -26,12 +31,21 @@ type ActionProps = {
     getImgFile: (e: ChangeEvent<HTMLInputElement>) => void
     deleteImg: () => void
     changeInputAddDoctor: (e: ChangeEvent<HTMLInputElement>) => void
-    onAddMedsos: ()=>void
+    onAddMedsos: () => void
+    deleteMedsos: (id: string) => void
+    onAddDoctorSchedule: () => void
+    deleteSchedule: (id: string) => void
+    deleteHolidaySchedule: (id: string) => void
+    onAddHolidaySchedule: () => void
+    submitAddDoctor: () => void
+    selectRoomDoctor: ()=>void
 }
 
 type Props = ActionProps & {
     inputValueAddDoctor: AddNewDoctorT
     errInputAddDoctor: ErrInputAddDoctor
+    loadingSubmitAddDoctor: boolean
+    rooms: DataOptionT
 }
 
 export function AddDoctor({
@@ -42,7 +56,16 @@ export function AddDoctor({
     inputValueAddDoctor,
     deleteImg,
     changeInputAddDoctor,
-    onAddMedsos
+    onAddMedsos,
+    deleteMedsos,
+    onAddDoctorSchedule,
+    deleteSchedule,
+    deleteHolidaySchedule,
+    onAddHolidaySchedule,
+    submitAddDoctor,
+    loadingSubmitAddDoctor,
+    rooms,
+    selectRoomDoctor
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -71,16 +94,6 @@ export function AddDoctor({
                     clickImg={clickOpenImage}
                     changeInput={getImgFile}
                 />
-                {/* <Input
-                    type='text'
-                    nameInput='patientName'
-                    changeInput={changeEditDetailPatient}
-                    valueInput={valueInputEditDetailPatient.patientName}
-                /> */}
-                {/* <ErrorInput
-                    {...styleError}
-                    error={errInputAddDoctor?.image}
-                /> */}
                 {inputValueAddDoctor.image.length > 0 && (
                     <div
                         className="flex justify-center"
@@ -102,6 +115,7 @@ export function AddDoctor({
                 <Input
                     type='text'
                     nameInput='name'
+                    placeholder="Dr. Something.sp.pda"
                     changeInput={changeInputAddDoctor}
                     valueInput={inputValueAddDoctor.name}
                 />
@@ -114,6 +128,7 @@ export function AddDoctor({
                 <Input
                     type='text'
                     nameInput='deskripsi'
+                    placeholder="Spesialis THT"
                     changeInput={changeInputAddDoctor}
                     valueInput={inputValueAddDoctor.deskripsi}
                 />
@@ -122,33 +137,126 @@ export function AddDoctor({
                     error={errInputAddDoctor?.deskripsi}
                 />
 
-                <TitleInput title='Social Media' />
+                <TitleInput title='Room' />
+                <InputSelect
+                    data={rooms}
+                    id="selectRoom"
+                    handleSelect={selectRoomDoctor}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.room}
+                />
+
                 <div
-                className="flex flex-wrap justify-between"
+                    className="flex flex-wrap justify-between"
                 >
-                    {inputValueAddDoctor.medsos.length > 0 && inputValueAddDoctor.medsos.map((item, index)=>{
-                        const medsosName = item.medsosName === 'twitter' ? faTrash : faTrash
-                        return(
+                    <TitleInput title='Social Media' />
+
+                    <button
+                        onClick={onAddMedsos}
+                    >
+                        <FontAwesomeIcon
+                            icon={faCirclePlus}
+                            className="text-lg text-color-default"
+                        />
+                    </button>
+                </div>
+
+                <div
+                    className="flex flex-wrap"
+                >
+                    {inputValueAddDoctor.medsos.length > 0 && inputValueAddDoctor.medsos.map((item, index) => {
+                        return (
                             <CardAddMedsos
-                            key={index}
-                            icon={medsosName}
-                            socialMediaLinks={item.path}
-                            socialMediaName={item.medsosName}
-                            nameIcon={item.nameIcon}
-                            id={item.id}
+                                key={index}
+                                elementIcon={item.elementIcon}
+                                socialMediaLinks={item.path}
+                                socialMediaName={item.medsosName}
+                                nameIcon={item.nameIcon}
+                                id={item.id}
+                                deleteMedsos={() => deleteMedsos(item.id)}
                             />
                         )
                     })}
                 </div>
-                <Button
-                nameBtn='Add social media'
-                classLoading="hidden"
-                classBtn="hover:bg-white"
-                clickBtn={onAddMedsos}
-                />
                 <ErrorInput
                     {...styleError}
                     error={errInputAddDoctor?.medsos}
+                />
+
+                <div
+                    className="flex flex-wrap justify-between"
+                >
+                    <TitleInput title='Doctor Schedule' />
+
+                    <button
+                        onClick={onAddDoctorSchedule}
+                    >
+                        <FontAwesomeIcon
+                            icon={faCirclePlus}
+                            className="text-lg text-color-default"
+                        />
+                    </button>
+                </div>
+                <div
+                    className="flex flex-wrap"
+                >
+                    {inputValueAddDoctor.doctorSchedule.length > 0 && inputValueAddDoctor.doctorSchedule.map((item, index) => {
+                        return (
+                            <CardAddDoctorSchedule
+                                key={index}
+                                dayName={item.dayName}
+                                practiceHours={item.practiceHours}
+                                id={item.id}
+                                deleteSchedule={() => deleteSchedule(item.id)}
+                            />
+                        )
+                    })}
+                </div>
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.doctorSchedule}
+                />
+
+                <div
+                    className="flex flex-wrap justify-between"
+                >
+                    <TitleInput title='Holiday Schedule' />
+
+                    <button
+                        onClick={onAddHolidaySchedule}
+                    >
+                        <FontAwesomeIcon
+                            icon={faCirclePlus}
+                            className="text-lg text-color-default"
+                        />
+                    </button>
+                </div>
+                <div
+                    className="flex flex-wrap"
+                >
+                    {inputValueAddDoctor.holidaySchedule.length > 0 && inputValueAddDoctor.holidaySchedule.map((item, index) => {
+                        return (
+                            <CardAddDoctorSchedule
+                                key={index}
+                                dayName={item.date}
+                                id={item.id}
+                                deleteSchedule={() => deleteHolidaySchedule(item.id)}
+                            />
+                        )
+                    })}
+                </div>
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.holidaySchedule}
+                />
+
+                <Button
+                    nameBtn='Add Doctor'
+                    classLoading={loadingSubmitAddDoctor ? 'flex' : 'hidden'}
+                    classBtn={loadingSubmitAddDoctor ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
+                    clickBtn={submitAddDoctor}
                 />
             </FormPopup>
         </ContainerPopup>

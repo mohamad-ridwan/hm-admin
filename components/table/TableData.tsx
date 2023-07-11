@@ -1,4 +1,4 @@
-import { CSSProperties } from "react"
+import { CSSProperties, ReactElement } from "react"
 
 type PropsDefault = {
     id?: string
@@ -12,6 +12,7 @@ type PropsFirstDesc = {
 type PropsName = {
     name: string
     styleName?: CSSProperties
+    leftName?: ReactElement
 }
 
 type Props = PropsDefault & PropsFirstDesc & PropsName
@@ -21,24 +22,32 @@ export function TableData({
     name,
     firstDesc,
     styleFirstDesc,
-    styleName
-}: Props){
-    return(
+    styleName,
+    leftName
+}: Props) {
+    return (
         <div
-        id={id}
-        className="flex w-[calc(100%/7)] p-[20px]"
+            id={id}
+            className="flex w-[calc(100%/7)] p-[20px]"
         >
             <div
-            className="flex flex-col w-full"
+                className="flex flex-col w-full"
             >
                 <p
-                style={styleFirstDesc}
-                className="text-[0.82rem] text-start"
+                    style={styleFirstDesc}
+                    className="text-[0.82rem] text-start"
                 >{firstDesc}</p>
-                <p
-                style={styleName}
-                className="text-[0.82rem] text-start"
-                >{name}</p>
+                <div
+                className="flex items-center"
+                >
+                    {leftName}
+                    <p
+                        style={styleName}
+                        className="text-[0.82rem] text-start"
+                    >
+                        {name}
+                    </p>
+                </div>
             </div>
         </div>
     )

@@ -3,6 +3,7 @@ export type MedsosDoctorT={
     nameIcon: string
     path: string
     medsosName: string
+    elementIcon: string
 }
 
 export type DoctorScheduleT = {

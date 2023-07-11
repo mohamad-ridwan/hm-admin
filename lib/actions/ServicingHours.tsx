@@ -37,7 +37,7 @@ function ServicingHours(){
     const dataAdmin: AdminT[] | undefined = findDataAdmin?.data
 
     // doctors
-    const { data: getDataDoctors, error: errGetDataDoctors, isLoading: loadDataDoctors } = useSwr(endpoint.getDoctors())
+    const { data: getDataDoctors, error: errGetDataDoctors, isLoading: loadDataDoctors } = useSwr(endpoint.getDoctors(), { refreshInterval: 5000 })
     const newDataDoctor: { [key: string]: any } | undefined = getDataDoctors as {}
     const getDoctorDocument: { [key: string]: any } | undefined = newDataDoctor?.data?.find((data: { [key: string]: any }) => data?.id === 'doctor')
     const doctors: ProfileDoctorT[] | undefined = getDoctorDocument?.data

@@ -9,7 +9,7 @@ import ImageInput from "components/input/ImageInput";
 import defaultDoctor from 'images/user.png'
 import Button from "components/Button";
 import { CardAddMedsos } from "components/doctors/CardAddMedsos";
-import { faCirclePlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CardAddDoctorSchedule } from "components/doctors/CardAddDoctorSchedule";
 import { InputSelect } from "components/input/InputSelect";
@@ -41,6 +41,7 @@ type ActionProps = {
     onAddHolidaySchedule: () => void
     submitAddDoctor: () => void
     selectRoomDoctor: () => void
+    submitEditDoctor: ()=>void
 }
 
 type Props = ActionProps & {
@@ -48,6 +49,9 @@ type Props = ActionProps & {
     errInputAddDoctor: ErrInputAddDoctor
     loadingSubmitAddDoctor: boolean
     rooms: DataOptionT
+    titleFormDoctor: {title: string, peopleName: string, btnName: string}
+    idLoadingEdit: string[]
+    idEditDoctor: string | null
 }
 
 export function AddDoctor({
@@ -67,7 +71,11 @@ export function AddDoctor({
     submitAddDoctor,
     loadingSubmitAddDoctor,
     rooms,
-    selectRoomDoctor
+    selectRoomDoctor,
+    titleFormDoctor,
+    submitEditDoctor,
+    idLoadingEdit,
+    idEditDoctor
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -77,6 +85,8 @@ export function AddDoctor({
 
     const currentImg = !inputValueAddDoctor.image ? defaultDoctor : inputValueAddDoctor.image
 
+    const currentLoadingEdit = idLoadingEdit.find(id=>id === idEditDoctor)
+
     return (
         <ContainerPopup
             className='flex justify-center overflow-y-auto'
@@ -84,7 +94,8 @@ export function AddDoctor({
             <FormPopup
                 tag="div"
                 clickClose={clickClosePopupEdit}
-                title="Added a new doctor"
+                title={titleFormDoctor.title}
+                namePatient={titleFormDoctor.peopleName}
             >
                 <TitleInput title='Image' />
                 <ImageInput
@@ -280,12 +291,22 @@ export function AddDoctor({
                     error={errInputAddDoctor?.holidaySchedule}
                 />
 
-                <Button
+                {!titleFormDoctor.peopleName && (
+                    <Button
                     nameBtn='Add Doctor'
                     classLoading={loadingSubmitAddDoctor ? 'flex' : 'hidden'}
                     classBtn={loadingSubmitAddDoctor ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
                     clickBtn={submitAddDoctor}
                 />
+                )}
+                {titleFormDoctor.peopleName.length > 0 && (
+                    <Button
+                    nameBtn='Edit'
+                    classLoading={currentLoadingEdit ? 'flex' : 'hidden'}
+                    classBtn={currentLoadingEdit ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
+                    clickBtn={submitEditDoctor}
+                />
+                )}
             </FormPopup>
         </ContainerPopup>
     )

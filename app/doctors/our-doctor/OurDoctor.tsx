@@ -24,7 +24,7 @@ import Pagination from "components/pagination/Pagination"
 import profileDefault from 'images/user.png'
 
 export function OurDoctor() {
-    const [head, setHead] = useState<{ name: string }[]>([
+    const [head] = useState<{ name: string }[]>([
         {
             name: 'Name'
         },
@@ -48,7 +48,6 @@ export function OurDoctor() {
     const {
         searchText,
         handleSearchText,
-        setCurrentPage,
         setSearchText,
         handleFilterBy,
         filterBy,
@@ -93,7 +92,13 @@ export function OurDoctor() {
         submitAddDoctor,
         loadingSubmitAddDoctor,
         selectRoomDoctor,
-        roomOptions
+        roomOptions,
+        titleFormDoctor,
+        // action edit doctor
+        idLoadingEdit,
+        idEditDoctor,
+        clickEdit,
+        submitEditDoctor
     } = FormAddDoctor()
 
     const {
@@ -101,7 +106,8 @@ export function OurDoctor() {
         clickDelete,
         lastPage,
         maxLength,
-        currentPage
+        currentPage,
+        setCurrentPage
     } = UseTableColumns({ currentFilter, selectCurrentFilter, searchText })
 
     return (
@@ -109,10 +115,14 @@ export function OurDoctor() {
             {/* popup add new doctor */}
             {onPopupAddDoctor && (
                 <AddDoctor
+                    titleFormDoctor={titleFormDoctor}
                     loadingSubmitAddDoctor={loadingSubmitAddDoctor}
                     inputValueAddDoctor={inputValueAddDoctor}
                     clickClosePopupEdit={closePopupAddDoctor}
                     errInputAddDoctor={errInputAddDoctor}
+                    rooms={roomOptions}
+                    idLoadingEdit={idLoadingEdit}
+                    idEditDoctor={idEditDoctor}
                     clickOpenImage={clickOpenImage}
                     getImgFile={getImgFile}
                     deleteImg={deleteImg}
@@ -125,9 +135,11 @@ export function OurDoctor() {
                     onAddHolidaySchedule={onAddHolidaySchedule}
                     submitAddDoctor={submitAddDoctor}
                     selectRoomDoctor={selectRoomDoctor}
-                    rooms={roomOptions}
+                    submitEditDoctor={submitEditDoctor}
                 />
             )}
+
+            {/* popup edit doctor */}
 
             {/* popup add medsos */}
             {onPopupAddMedsos && (
@@ -234,6 +246,7 @@ export function OurDoctor() {
                                 idLoadingDelete={`loadingDelete${item.id}`}
                                 clickBtn={() => pathDoctor}
                                 clickEdit={(e) => {
+                                    clickEdit(item.id)
                                     e?.stopPropagation()
                                 }}
                                 clickDelete={(e) => {

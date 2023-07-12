@@ -42,8 +42,8 @@ import { createHourFormat } from 'lib/dates/createHourFormat'
 import { authStore } from 'lib/useZustand/auth'
 import EditPatientRegistration from 'app/patient/patient-registration/EditPatientRegistration'
 import EditPatientConfirmation from 'app/patient/confirmation-patient/EditPatientConfirmation'
-import FormPatientRegistration from 'lib/actions/editPatient/FormPatientRegistration'
-import FormPatientConfirmation from 'lib/actions/editPatient/FormPatientConfirmation'
+import FormPatientRegistration from 'app/patient/patient-registration/FormPatientRegistration'
+import FormPatientConfirmation from 'app/patient/confirmation-patient/FormPatientConfirmation'
 import { createDateNormalFormat } from 'lib/dates/createDateNormalFormat'
 
 export function ConfirmationPatient() {
@@ -302,18 +302,17 @@ export function ConfirmationPatient() {
                             },
                             {
                                 name: findRoomOfPatient?.room as string,
-                                colorName: '#ff296d',
                                 fontWeightName: 'bold',
                                 filterRoom: true
                             },
                             {
                                 name: findPatientOnConfirm?.roomInfo?.queueNumber as string,
-                                colorName: '#288bbc',
+                                colorName: '#ff296d',
                                 fontWeightName: 'bold'
                             },
                             {
                                 firstDesc: createDateNormalFormat(patient.appointmentDate),
-                                color: '#ff296d',
+                                color: '#288bbc',
                                 colorName: '#777',
                                 marginBottom: '4.5px',
                                 fontSize: '12px',
@@ -327,7 +326,6 @@ export function ConfirmationPatient() {
                             },
                             {
                                 firstDesc: createDateNormalFormat(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
-                                color: '#006400',
                                 colorName: '#777',
                                 marginBottom: '4.5px',
                                 fontSize: '12px',
@@ -343,7 +341,6 @@ export function ConfirmationPatient() {
                             },
                             {
                                 firstDesc: createDateNormalFormat(patient.dateOfBirth),
-                                color: '#187bcd',
                                 colorName: '#777',
                                 marginBottom: '4.5px',
                                 fontSize: '12px',

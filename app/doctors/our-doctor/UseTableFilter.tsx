@@ -6,7 +6,6 @@ import ServicingHours from "lib/actions/ServicingHours"
 
 function UseTableFilter() {
     const [searchText, setSearchText] = useState<string>('')
-    const [currentPage, setCurrentPage] = useState<number>(1)
     const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [chooseFilter, setChooseFilter] = useState<DataOptionT>([])
     const [currentFilter, setCurrentFilter] = useState<{
@@ -146,9 +145,7 @@ function UseTableFilter() {
 
     return {
         searchText,
-        currentPage,
         selectDate,
-        setCurrentPage,
         setSearchText,
         handleSearchText,
         handleFilterBy,

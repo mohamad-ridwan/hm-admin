@@ -11,6 +11,7 @@ const deletePatientData = (roleId: string, id: string): string=>`v8/servicing-ho
 const getDoctors = (): string=>'v10/doctors/get'
 const postNewDoctor = (id: string):string=>`v10/doctors/post/data/${id}`
 const deleteProfileDoctor = (roleId: string, id: string):string=>`v10/doctors/delete/role/${roleId}/data/${id}`
+const putProfileDoctor = (roleId: string, id: string):string=>`v10/doctors/put/role/${roleId}/data/${id}`
 
 // verification
 const getVerification = (): string => 'v13/verification/get'
@@ -39,6 +40,7 @@ export const endpoint= {
     getDoctors,
     postNewDoctor,
     deleteProfileDoctor,
+    putProfileDoctor,
     getVerification,
     putVerification,
     postVerification,

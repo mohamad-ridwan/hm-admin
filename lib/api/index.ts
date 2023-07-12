@@ -21,6 +21,7 @@ const APIDeletePatientData = (roleId: string, id: string) => useFetch(endpoint.d
 // doctors
 const APIPostNewDoctor = (id: string, data: DataRequest)=>useFetch(endpoint.postNewDoctor(id), 'POST', data)
 const APIDeleteProfileDoctor = (roleId: string, id: string)=>useFetch(endpoint.deleteProfileDoctor(roleId, id), 'DELETE')
+const APIPutProfileDoctor = (roleId: string, id: string, data: DataRequest)=>useFetch(endpoint.putProfileDoctor(roleId, id), 'PUT', data)
 
 // verification
 const APIGetVerification = () => useFetch(endpoint.getVerification(), 'GET')
@@ -47,6 +48,7 @@ export function API() {
         APIDeletePatientData,
         APIPostNewDoctor,
         APIDeleteProfileDoctor,
+        APIPutProfileDoctor,
         APIGetVerification,
         APIPutVerification,
         APIPostVerification,

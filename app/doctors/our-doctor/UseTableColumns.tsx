@@ -322,7 +322,8 @@ function UseTableColumns({
         clickDelete,
         lastPage,
         maxLength,
-        currentPage
+        currentPage,
+        setCurrentPage
     }
 }
 

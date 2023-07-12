@@ -3,7 +3,7 @@
 import { ChangeEvent, useEffect, useState } from "react"
 import { AddNewDoctorT } from "lib/types/InputT.type"
 import { getImgValue } from "lib/actions/getImgValue"
-import { DoctorScheduleT, HolidaySchedule, MedsosDoctorT } from "lib/types/DoctorsT.types"
+import { DoctorScheduleT, HolidaySchedule, MedsosDoctorT, ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { API } from "lib/api"
 import { uploadImg } from "lib/firebase/uploadImg"
@@ -27,6 +27,15 @@ type ErrInputAddDoctor = {
 
 function FormAddDoctor() {
     const [onPopupAddDoctor, setOnPopupAddDoctor] = useState<boolean>(false)
+    const [titleFormDoctor, setTitleFormDoctor] = useState<{
+        title: string
+        peopleName: string
+        btnName: string
+    }>({
+        title: '',
+        peopleName: '',
+        btnName: ''
+    })
     const [onPopupAddMedsos, setOnPopupAddMedsos] = useState<boolean>(false)
     const [onPopupAddDoctorSchedule, setOnPopupDoctorSchedule] = useState<boolean>(false)
     const [onPopupAddHolidaySchedule, setOnPopupAddHolidaySchedule] = useState<boolean>(false)
@@ -69,10 +78,14 @@ function FormAddDoctor() {
     const [errInputAddMedsos, setErrInputAddMedsos] = useState<MedsosDoctorT>({} as MedsosDoctorT)
     const [errInputAddDoctor, setErrInputAddDoctor] = useState<ErrInputAddDoctor>({} as ErrInputAddDoctor)
     const [loadingSubmitAddDoctor, setLoadingSubmitAddDoctor] = useState<boolean>(false)
+    // action edit doctor
+    const [idEditDoctor, setIdEditDoctor] = useState<string | null>(null)
+    const [idLoadingEdit, setIdLoadingEdit] = useState<string[]>([])
 
     const {
         loadDataService,
         dataRooms,
+        doctors,
         pushTriggedErr
     } = ServicingHours()
 
@@ -116,6 +129,12 @@ function FormAddDoctor() {
             holidaySchedule: []
         })
         setImgFile(null)
+        setTitleFormDoctor({
+            title: 'Added a new doctor',
+            peopleName: '',
+            btnName: 'Add Doctor'
+        })
+        setErrInputAddDoctor({} as ErrInputAddDoctor)
     }
 
     function clickOpenImage(): void {
@@ -444,12 +463,12 @@ function FormAddDoctor() {
         if (!inputValueAddDoctor.deskripsi.trim()) {
             err.deskripsi = 'Must be required'
         }
-        if(!inputValueAddDoctor.email.trim()){
+        if (!inputValueAddDoctor.email.trim()) {
             err.email = 'Must be required'
-        }else if(!mailRegex.test(inputValueAddDoctor.email)){
+        } else if (!mailRegex.test(inputValueAddDoctor.email)) {
             err.email = 'Invalid e-mail address'
         }
-        if(!inputValueAddDoctor.phone.trim()){
+        if (!inputValueAddDoctor.phone.trim()) {
             err.phone = 'Must be required'
         }
         if (!inputValueAddDoctor.room.trim()) {
@@ -534,6 +553,115 @@ function FormAddDoctor() {
     }
     // end submit form add doctor
 
+    // action edit doctor
+    function clickEdit(doctorId: string): void {
+        const findDoctor: ProfileDoctorT = doctors?.find(doctor => doctor.id === doctorId) as ProfileDoctorT
+        const {
+            image,
+            name,
+            deskripsi,
+            email,
+            phone,
+            medsos,
+            doctorSchedule,
+            holidaySchedule,
+            room
+        } = findDoctor
+
+        setInputValueAddDoctor({
+            image,
+            name,
+            deskripsi,
+            email,
+            phone,
+            medsos,
+            doctorSchedule,
+            holidaySchedule,
+            room
+        })
+        setIdEditDoctor(doctorId)
+        setOnPopupAddDoctor(true)
+        setTitleFormDoctor({
+            title: 'Edit Doctor',
+            peopleName: name,
+            btnName: 'Edit'
+        })
+        setErrInputAddDoctor({} as ErrInputAddDoctor)
+
+        const currentRoom = dataRooms?.find(roomData => roomData.id === room)
+        const findIdxRoom = roomOptions.findIndex(room => room.id === currentRoom?.room)
+        setTimeout(() => {
+            const roomElement = document.getElementById('selectRoom') as HTMLSelectElement
+            if (roomElement && findIdxRoom !== -1) {
+                roomElement.selectedIndex = findIdxRoom
+            }
+        }, 50)
+    }
+
+    function submitEditDoctor(): void {
+        const findCurrentLoading = idLoadingEdit.find(id => id === idEditDoctor)
+        if (
+            !findCurrentLoading &&
+            validateFormAddDoctor() &&
+            window.confirm(`update doctor "${titleFormDoctor.peopleName}"?`)
+        ) {
+            setIdLoadingEdit((current)=>[...current, idEditDoctor as string])
+            pushToUpdateProfileDoctor()
+        }
+    }
+
+    function pushToUpdateProfileDoctor(): void {
+        let newData = inputValueAddDoctor
+        if(
+            imgFile === null ||
+            newData.image.includes('https')
+            ){
+            API().APIPutProfileDoctor(
+                'doctor',
+                idEditDoctor as string,
+                newData
+            )
+            .then(res=>{
+                if(res?.doctorId){
+                    const removeLoadingId = idLoadingEdit.filter(id=>id !== res.doctorId)
+                    setIdLoadingEdit(removeLoadingId)
+                    alert('updated successfully')
+                }else{
+                    pushTriggedErr('a server error occurred. please try again')
+                }
+            })
+            .catch(err=>{
+                pushTriggedErr(err)
+            })
+        }else if(imgFile !== null){
+            uploadImgToFirebase()
+            .then(urlImg=>{
+                newData.image = urlImg as string
+                API().APIPutProfileDoctor(
+                    'doctor',
+                    idEditDoctor as string,
+                    newData
+                )
+                .then(res=>{
+                    if(res?.doctorId){
+                        const removeLoadingId = idLoadingEdit.filter(id=>id !== res.doctorId)
+                        setIdLoadingEdit(removeLoadingId)
+                        alert('updated successfully')
+                    }else{
+                        pushTriggedErr('a server error occurred. please try again')
+                    }
+                })
+                .catch(err=>{
+                    pushTriggedErr(err)
+                })
+            })
+            .catch(err=>{
+                pushTriggedErr(err)
+            })
+        }
+    }
+    // end action edit doctor
+
     return {
         onPopupAddDoctor,
         closePopupAddDoctor,
@@ -569,7 +697,12 @@ function FormAddDoctor() {
         submitAddDoctor,
         loadingSubmitAddDoctor,
         selectRoomDoctor,
-        roomOptions
+        roomOptions,
+        clickEdit,
+        titleFormDoctor,
+        submitEditDoctor,
+        idEditDoctor,
+        idLoadingEdit
     }
 }
 

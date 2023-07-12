@@ -23,8 +23,6 @@ function FormPatientRegistration() {
     const [onPopupEdit, setOnPopupEdit] = useState<boolean>(false)
     const [idPatientToEdit, setIdPatientToEdit] = useState<string | null>(null)
     const [idLoadingEdit, setIdLoadingEdit] = useState<string[]>([])
-    const [idSuccessEdit, setIdSuccessEdit] = useState<string[]>([])
-    const [loadingSubmitEdit, setLoadingSubmitEdit] = useState<boolean>(false)
     const [errEditInputDetailPatient, setErrEditInputDetailPatient] = useState<InputEditPatientRegistrationT>({} as InputEditPatientRegistrationT)
 
     // swr fetching data
@@ -130,7 +128,6 @@ function FormPatientRegistration() {
     // push to update patient data
     function pushToUpdatePatient(): void {
         setIdLoadingEdit((current) => [...current, idPatientToEdit as string])
-        setIdSuccessEdit((current) => [...current, idPatientToEdit as string])
 
         const {
             patientName,
@@ -165,27 +162,13 @@ function FormPatientRegistration() {
             idPatientToEdit as string,
             data
         )
-            .then((res: any) => {
+            .then((res) => {
+                const removeLoadingId = idLoadingEdit.filter(id=> id !== res?.id)
+                setIdLoadingEdit(removeLoadingId)
                 alert(`Patient data from "${patientName}" updated successfully`)
-
-                const findIdLoading = idLoadingEdit.filter(loadingId => {
-                    const findIdSuccess = idSuccessEdit.find(successId => loadingId === successId)
-
-                    return !findIdSuccess
-                })
-
-                setIdLoadingEdit(findIdLoading)
             })
-            .catch((err: any) => {
+            .catch((err) => {
                 pushTriggedErr('a server error occurred. please try again later')
-
-                const findIdLoading = idLoadingEdit.filter(loadingId => {
-                    const findIdSuccess = idSuccessEdit.find(successId => loadingId === successId)
-
-                    return !findIdSuccess
-                })
-
-                setIdLoadingEdit(findIdLoading)
             })
     }
 
@@ -235,9 +218,7 @@ function FormPatientRegistration() {
         clickClosePopupEdit,
         changeDateEditDetailPatient,
         handleSubmitUpdate,
-        loadingSubmitEdit,
         clickEdit,
-        setLoadingSubmitEdit,
         idPatientToEdit,
         idLoadingEdit,
         valueInputEditDetailPatient,

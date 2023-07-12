@@ -24,7 +24,6 @@ type Props = {
     valueInputEditDetailPatient: InputEditPatientRegistrationT
     patientName: string | null
     errEditInputDetailPatient: InputEditPatientRegistrationT
-    loadingSubmitEdit: boolean
     idPatientToEdit: string | null
     idLoadingEdit: string []
 }
@@ -36,7 +35,6 @@ function EditPatientRegistration({
     changeEditDetailPatient,
     errEditInputDetailPatient,
     changeDateEditDetailPatient,
-    loadingSubmitEdit,
     handleSubmitUpdate,
     idPatientToEdit,
     idLoadingEdit

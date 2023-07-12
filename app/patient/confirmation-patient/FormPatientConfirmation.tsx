@@ -8,14 +8,16 @@ import { API } from "lib/api"
 import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
+import { createDateFormat } from "lib/dates/createDateFormat"
 
-function FormPatientConfirmation(){
+function FormPatientConfirmation() {
     const [nameEditConfirmPatient, setNameEditConfirmPatient] = useState<string>('')
     const [editActiveManualQueue, setEditActiveManualQueue] = useState<boolean>(true)
     const [editActiveAutoQueue, setEditActiveAutoQueue] = useState<boolean>(false)
     const [onPopupSettings, setOnPopupSettings] = useState<boolean>(false)
     const [onPopupEditConfirmPatient, setOnPopupEditConfirmPatient] = useState<boolean>(false)
     const [idPatientToEditConfirmPatient, setIdPatientToEditConfirmPatient] = useState<string | null>(null)
+    const [idLoadingEditConfirmPatient, setIdLoadingEditConfirmPatient] = useState<string[]>([])
     const [valueInputEditConfirmPatient, setValueInputEditConfirmPatient] = useState<InputEditConfirmPatientT>({
         patientId: '',
         emailAdmin: '',
@@ -66,9 +68,7 @@ function FormPatientConfirmation(){
             title: 'Select Room'
         }
     ])
-    const [idSubmitEditConfirmPatient, setIdSubmitEditConfirmPatient] = useState<string[]>([])
     const [errEditInputConfirmPatient, setErrEditInputConfirmPatient] = useState<InputEditConfirmPatientT>({} as InputEditConfirmPatientT)
-    const [idWaitToSubmitConfirmPatient, setIdWaitToSubmitConfirmPatient] = useState<string[]>([])
 
     // swr fetching data
     // servicing hours
@@ -119,7 +119,7 @@ function FormPatientConfirmation(){
     function changeDateConfirm(e: ChangeEvent<HTMLInputElement> | Date | undefined, inputName: string): void {
         setValueInputEditConfirmPatient({
             ...valueInputEditConfirmPatient,
-            [inputName]: !e ? '' : `${e as Date}`
+            [inputName]: !e ? '' : `${createDateFormat(e as Date)}`
         })
 
         setErrEditInputConfirmPatient({
@@ -223,9 +223,8 @@ function FormPatientConfirmation(){
     }
 
     function submitEditConfirmPatient(): void {
-        const findIdWaitSubmitEditConfirmPatient = idWaitToSubmitConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
-
-        if (!findIdWaitSubmitEditConfirmPatient) {
+        const isLoading = idLoadingEditConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
+        if (!isLoading) {
             validateEditConfirmPatient()
                 .then(res => {
                     if (window.confirm(`Update confirmation data from patient "${nameEditConfirmPatient}"?`)) {
@@ -294,13 +293,8 @@ function FormPatientConfirmation(){
     }
 
     function pushToUpdateConfirmPatient(): void {
-        setIdWaitToSubmitConfirmPatient((current) => [...current, idPatientToEditConfirmPatient as string])
-        const findIdSubmitEdit = idSubmitEditConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
-        if (!findIdSubmitEdit) {
-            setIdSubmitEditConfirmPatient((current) => [...current, idPatientToEditConfirmPatient as string])
-        }
-
         const findId = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToEditConfirmPatient)
+        setIdLoadingEditConfirmPatient((current) => [...current, idPatientToEditConfirmPatient as string])
 
         const {
             patientId,
@@ -372,27 +366,13 @@ function FormPatientConfirmation(){
             data
         )
             .then((res) => {
+                const findPatientRegisId = dataConfirmationPatients?.find(patient => patient.id === res?.id)
+                const removeLoadingId = idLoadingEditConfirmPatient.filter(id => id !== findPatientRegisId?.patientId)
+                setIdLoadingEditConfirmPatient(removeLoadingId)
                 alert('patient confirmation data successfully updated')
-
-                const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.filter(id => {
-                    const findIdSubmit = idSubmitEditConfirmPatient.find(idWait => idWait === id)
-
-                    return !findIdSubmit
-                })
-
-                setIdWaitToSubmitConfirmPatient(findIdWaitSubmitConfirmPatient)
             })
-            .catch((err: any) => {
-                console.log(err)
-
-                const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.filter(id => {
-                    const findIdSubmit = idSubmitEditConfirmPatient.find(idWait => idWait === id)
-
-                    return !findIdSubmit
-                })
-
-                setIdWaitToSubmitConfirmPatient(findIdWaitSubmitConfirmPatient)
-                pushTriggedErr('a server error occurred while updating confirmation data')
+            .catch((err) => {
+                pushTriggedErr('a server error occurred. please try again')
             })
     }
 
@@ -577,8 +557,8 @@ function FormPatientConfirmation(){
         toggleChangeManualQueue,
         toggleSetAutoQueue,
         selectPresence,
-        idWaitToSubmitConfirmPatient,
         idPatientToEditConfirmPatient,
+        idLoadingEditConfirmPatient,
         submitEditConfirmPatient,
         clickOnEditConfirmPatient
     }

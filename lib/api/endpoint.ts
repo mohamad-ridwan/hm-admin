@@ -5,7 +5,7 @@ const postPatientData = (roleId: string):string=>`v8/servicing-hours/post/role/$
 // update patient data
 const putPatientData = (roleId: string, id: string): string=> `v8/servicing-hours/put/role/${roleId}/data/${id}`
 // delete patient data
-const deletePatientData = (roleId: string, id: string): string=>`v8/servicing-hours/delete/role/${roleId}/data/${id}`
+const deletePatientData = (roleId: string, id: string, patientId: string): string=>`v8/servicing-hours/delete/role/${roleId}/data/${id}/${patientId}`
 
 // doctors
 const getDoctors = (): string=>'v10/doctors/get'

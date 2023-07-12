@@ -44,8 +44,8 @@ type Props = ActionProps & {
     selectRoom: DataOptionT
     editActiveManualQueue: boolean
     selectPresence: DataOptionT
-    idWaitToSubmitConfirmPatient: string[]
     idPatientToEditConfirmPatient: string | null
+    idLoadingEditConfirmPatient: string[]
 }
 
 function EditPatientConfirmation({
@@ -66,8 +66,8 @@ function EditPatientConfirmation({
     toggleChangeManualQueue,
     toggleSetAutoQueue,
     selectPresence,
-    idWaitToSubmitConfirmPatient,
     idPatientToEditConfirmPatient,
+    idLoadingEditConfirmPatient,
     submitEditConfirmPatient
 }: Props) {
 
@@ -77,8 +77,7 @@ function EditPatientConfirmation({
         }
     }
 
-    // on loading edit confirmation patient
-    const findIdWaitSubmitConfirmPatient = idWaitToSubmitConfirmPatient.find(id => id === idPatientToEditConfirmPatient)
+    const isLoadingEdit = idLoadingEditConfirmPatient.find(id=>id === idPatientToEditConfirmPatient)
 
     return (
         <ContainerPopup
@@ -230,8 +229,8 @@ function EditPatientConfirmation({
 
                 <Button
                     nameBtn="UPDATE"
-                    classLoading={findIdWaitSubmitConfirmPatient ? 'flex' : 'hidden'}
-                    classBtn={findIdWaitSubmitConfirmPatient ? 'hover:bg-color-default hover:text-white cursor-not-allowed' : 'hover:bg-white'}
+                    classLoading={isLoadingEdit ? 'flex' : 'hidden'}
+                    classBtn={isLoadingEdit ? 'hover:bg-color-default hover:text-white cursor-not-allowed' : 'hover:bg-white'}
                     clickBtn={submitEditConfirmPatient}
                 />
             </FormPopup>

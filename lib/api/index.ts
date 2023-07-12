@@ -16,7 +16,7 @@ const APIPostPatientData = (roleId: string, data: DataRequest)=>useFetch(endpoin
 // update patient data
 const APIPutPatientData = (roleId: string, id: string, data: DataRequest) => useFetch(endpoint.putPatientData(roleId, id), 'PUT', data)
 // delete patient data
-const APIDeletePatientData = (roleId: string, id: string) => useFetch(endpoint.deletePatientData(roleId, id), 'DELETE')
+const APIDeletePatientData = (roleId: string, id: string, patientId: string) => useFetch(endpoint.deletePatientData(roleId, id, patientId), 'DELETE')
 
 // doctors
 const APIPostNewDoctor = (id: string, data: DataRequest)=>useFetch(endpoint.postNewDoctor(id), 'POST', data)

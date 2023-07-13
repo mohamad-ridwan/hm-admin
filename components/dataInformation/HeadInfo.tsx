@@ -9,6 +9,9 @@ type TitleProps = {
     titleInfo: string
     icon?: IconDefinition
     styleHeadTop?: CSSProperties
+    iconRight?: IconDefinition
+    titleRight?: string
+    styleHeadRight?: CSSProperties
 }
 
 type Props = TitleProps
@@ -18,7 +21,10 @@ export function HeadInfo({
     icon,
     title,
     titleInfo,
-    styleHeadTop
+    styleHeadTop,
+    iconRight,
+    titleRight,
+    styleHeadRight
 }: Props) {
     return (
         <div
@@ -28,17 +34,37 @@ export function HeadInfo({
                 className={`flex flex-wrap py-4 border-b-bdr-one border-bdr-bottom items-center text-color-default-old ${classTitle}`}
                 style={styleHeadTop}
             >
-                {typeof icon !== 'undefined' && (
-                    <FontAwesomeIcon
-                        icon={icon}
-                        className="text-2xl mr-2"
-                    />
-                )}
-                <h1
-                    className={`text-2xl text-start font-bold`}
+                <div
+                    className="flex flex-wrap items-center"
                 >
-                    {title}
-                </h1>
+                    {typeof icon !== 'undefined' && (
+                        <FontAwesomeIcon
+                            icon={icon}
+                            className="text-2xl mr-2"
+                        />
+                    )}
+                    <h1
+                        className={`text-2xl text-start font-bold`}
+                    >
+                        {title}
+                    </h1>
+                </div>
+                <div
+                    className="flex flex-wrap items-center ml-2"
+                    style={styleHeadRight}
+                >
+                    {typeof iconRight !== 'undefined' && (
+                        <FontAwesomeIcon
+                            icon={iconRight}
+                            className="text-2xl mr-2"
+                        />
+                    )}
+                    <h1
+                        className={`text-2xl text-start font-bold`}
+                    >
+                        {titleRight}
+                    </h1>
+                </div>
             </div>
 
             <div

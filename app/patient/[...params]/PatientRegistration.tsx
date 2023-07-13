@@ -1,4 +1,4 @@
-import { faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
+import { faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
@@ -24,7 +24,7 @@ type Props = ActionProps & {
     dataPatientRegis: PatientRegistrationT[] | undefined
 }
 
-export function RegistrationData({
+export function PatientRegistration({
     detailDataPatientRegis,
     dataConfirmPatient,
     dataPatientFinishTreatment,
@@ -34,7 +34,7 @@ export function RegistrationData({
     idPatientRegistration,
     dataConfirmationPatients,
     dataPatientRegis,
-    pushTriggedErr
+    pushTriggedErr,
 }: Props & { params: string }) {
     const submissionDate = new Date(`${detailDataPatientRegis?.submissionDate?.submissionDate} ${detailDataPatientRegis?.submissionDate?.clock}`)
 
@@ -42,7 +42,7 @@ export function RegistrationData({
         <Container
             isNavleft={false}
             title="Patient of"
-            desc={params[3]}
+            desc={detailDataPatientRegis?.patientName}
             classHeadDesc="text-3xl font-semibold flex-col"
         >
             {dataPatientFinishTreatment?.id && (
@@ -131,7 +131,7 @@ export function RegistrationData({
                             <CardInfo
                                 title="Confirmation Hour"
                                 textInfo={createHourFormat(submissionDate)}
-                                icon={faCalendarDays}
+                                icon={faClock}
                             />
                         </>
                     )}
@@ -141,6 +141,7 @@ export function RegistrationData({
             {/* Form confirmation of patient registration */}
             {!dataConfirmPatient?.id && !dataPatientFinishTreatment?.id && (
                 <FormRegistrationData
+                params={params}
                 doctors={doctors}
                 dataRooms={dataRooms}
                 appointmentDate={createDateNormalFormat(detailDataPatientRegis.appointmentDate)}

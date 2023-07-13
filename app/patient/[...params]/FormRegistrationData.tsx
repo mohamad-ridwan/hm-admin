@@ -23,6 +23,7 @@ type Props = ActionProps & {
     idPatientRegistration: string
     dataConfirmationPatients: ConfirmationPatientsT[] | undefined
     dataPatientRegis: PatientRegistrationT[] | undefined
+    params: string
 }
 
 function FormRegistrationData({
@@ -33,6 +34,7 @@ function FormRegistrationData({
     dataConfirmationPatients,
     dataPatientRegis,
     pushTriggedErr,
+    params
 }: Props) {
     const {
         optionsSpecialist,
@@ -52,7 +54,8 @@ function FormRegistrationData({
             idPatientRegistration,
             dataConfirmationPatients,
             dataPatientRegis,
-            pushTriggedErr
+            pushTriggedErr,
+            params
         }
     )
 

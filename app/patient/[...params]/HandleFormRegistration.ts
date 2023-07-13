@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { DataOptionT } from "lib/types/FilterT"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { ConfirmationPatientsT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
@@ -22,6 +23,7 @@ type Props = ActionProps & {
     idPatientRegistration: string
     dataConfirmationPatients: ConfirmationPatientsT[] | undefined
     dataPatientRegis: PatientRegistrationT[] | undefined
+    params: string
 }
 
 export function HandleFormRegistration({
@@ -31,7 +33,8 @@ export function HandleFormRegistration({
     idPatientRegistration,
     dataConfirmationPatients,
     dataPatientRegis,
-    pushTriggedErr
+    pushTriggedErr,
+    params
 }: Props) {
     const [inputValue, setInputValue] = useState<InputPatientRegistrationT>({
         specialist: 'Select Specialist',
@@ -63,6 +66,7 @@ export function HandleFormRegistration({
     ])
 
     const { user } = authStore()
+    const router = useRouter()
 
     function loadSpecialist(): void {
         if (
@@ -96,7 +100,33 @@ export function HandleFormRegistration({
 
     function loadDoctorName(): void {
         if (inputValue.specialist !== 'Select Specialist') {
-            const getDoctors = doctors?.filter(doctor => doctor.deskripsi === inputValue.specialist)
+            const dayOfAppointment = appointmentDate.split(',')[1]?.replace(spaceString, '')
+            const dateOfAppointment = createDateFormat(new Date(appointmentDate.split(',')[0]))
+            const getDoctors = doctors?.filter(doctor => {
+                const checkCurrentSchedule = doctor.doctorSchedule.find(day=>day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
+                const checkHolidaySchedule = doctor.holidaySchedule.find(day=>day.date === dateOfAppointment)
+
+                return doctor.deskripsi === inputValue.specialist && 
+                checkCurrentSchedule && 
+                !checkHolidaySchedule
+            })
+            if(
+                Array.isArray(getDoctors) &&
+                getDoctors.length === 0
+            ){
+                setErrInputValue({
+                    ...errInputValue,
+                    doctor: `No doctor's schedule is available on the patient's designated day`
+                })
+
+                return
+            }else{
+                setErrInputValue({
+                    ...errInputValue,
+                    doctor: ''
+                })
+            }
+
             const currentDoctor = getDoctors?.map(doctor => ({
                 id: doctor.name,
                 title: doctor.name
@@ -385,6 +415,7 @@ export function HandleFormRegistration({
         .then(res=>{
             setLoadingSubmit(false)
             alert('successful confirmation')
+            router.push(`/patient/${params[0]}/${params[1]}/confirmed/${params[3]}/${params[4]}`)
         })
         .catch(err=>{
             pushTriggedErr('There was a server error when confirming patient registration. please try again')

@@ -22,6 +22,8 @@ import FormPatientRegistration from 'app/patient/patient-registration/FormPatien
 import FormPatientConfirmation from 'app/patient/confirmation-patient/FormPatientConfirmation'
 import { FilterTable } from './FilterTable'
 import { DeletePatient } from './DeletePatient'
+import { specialCharacter } from 'lib/regex/specialCharacter'
+import { spaceString } from 'lib/regex/spaceString'
 
 export function ConfirmationPatient() {
     // Form edit patient registration
@@ -329,7 +331,10 @@ export function ConfirmationPatient() {
 
                     {/* load data */}
                     {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
-                        const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${patient.data[0]?.name}/${patient.id}`
+                        const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
+                        const namePatient = cleanName.replace(spaceString, '')
+
+                        const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${namePatient}/${patient.id}`
 
                         return (
                             <TableColumns

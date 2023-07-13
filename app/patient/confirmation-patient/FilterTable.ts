@@ -221,7 +221,7 @@ export function FilterTable() {
                                 fontSize: '12px',
                                 filterBy: 'Appointment Date',
                                 queueNumber: findPatientOnConfirm?.roomInfo?.queueNumber,
-                                treatmentHours: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours,
+                                confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
                                 name: patient.appointmentDate,
                             },
                             {
@@ -423,10 +423,10 @@ export function FilterTable() {
             const getDateApp1 = findAppointment1?.name
             const getDateApp2 = findAppointment2?.name
 
-            const getTreamentHours1 = findAppointment1?.treatmentHours?.split('-')[0]
-            const getTreamentHours2 = findAppointment2?.treatmentHours?.split('-')[0]
+            const getConfirmHour1 = findAppointment1?.confirmHour
+            const getConfirmHour2 = findAppointment2?.confirmHour
 
-            return (new Date(`${getDateApp2} ${getTreamentHours2}`).valueOf()) - (new Date(`${getDateApp1} ${getTreamentHours1}`).valueOf())
+            return (new Date(`${getDateApp2} ${getConfirmHour2}`).valueOf()) - (new Date(`${getDateApp1} ${getConfirmHour1}`).valueOf())
         })
 
         return sortPatient
@@ -440,10 +440,10 @@ export function FilterTable() {
             const getDateApp1 = findAppointment1?.name
             const getDateApp2 = findAppointment2?.name
 
-            const getTreamentHours1 = findAppointment1?.treatmentHours?.split('-')[0]
-            const getTreamentHours2 = findAppointment2?.treatmentHours?.split('-')[0]
+            const getConfirmHour1 = findAppointment1?.confirmHour
+            const getConfirmHour2 = findAppointment2?.confirmHour
 
-            return (new Date(`${getDateApp1} ${getTreamentHours1}`).valueOf()) - (new Date(`${getDateApp2} ${getTreamentHours2}`).valueOf())
+            return (new Date(`${getDateApp1} ${getConfirmHour1}`).valueOf()) - (new Date(`${getDateApp2} ${getConfirmHour2}`).valueOf())
         })
 
         return sortPatient

@@ -31,16 +31,18 @@ export function CardInfo({
                     <p
                         className="text-sm my-1 text-start text-font-color-2"
                     >
-                        <FontAwesomeIcon
-                            icon={icon as IconDefinition}
-                            className="mr-1"
-                        />
+                        {typeof icon !== 'undefined' && (
+                            <FontAwesomeIcon
+                                icon={icon}
+                                className="mr-1"
+                            />
+                        )}
                         {textInfo}
                     </p>
                     <span>{additionalInfo}</span>
                 </>
             )}
-            
+
             {children}
         </div>
     )

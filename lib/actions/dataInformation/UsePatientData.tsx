@@ -15,6 +15,9 @@ export function UsePatientData({ params }: { params: string }) {
         dataConfirmationPatients,
         dataFinishTreatment,
         loadDataService,
+        loadDataDoctors,
+        doctors,
+        dataRooms,
         pushTriggedErr
     } = ServicingHours()
 
@@ -70,6 +73,11 @@ export function UsePatientData({ params }: { params: string }) {
     return {
         detailDataPatientRegis,
         dataConfirmPatient,
-        dataPatientFinishTreatment
+        dataPatientFinishTreatment,
+        doctors,
+        dataRooms,
+        dataConfirmationPatients,
+        dataPatientRegis,
+        pushTriggedErr
     }
 }

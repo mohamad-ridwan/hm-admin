@@ -1,29 +1,40 @@
-'use client'
-
-import { useState } from "react"
 import { faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
-import { AdminT } from "lib/types/AdminT.types"
-import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { createHourFormat } from "lib/dates/createHourFormat"
 import FormRegistrationData from "app/patient/[...params]/FormRegistrationData"
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 
-type Props = {
+type ActionProps = {
+    pushTriggedErr: (message: string)=>void
+}
+
+type Props = ActionProps & {
     detailDataPatientRegis: PatientRegistrationT
     dataConfirmPatient: ConfirmationPatientsT
     dataPatientFinishTreatment: PatientFinishTreatmentT
+    doctors: ProfileDoctorT[] | undefined
+    dataRooms: RoomTreatmentT[] | undefined
+    idPatientRegistration: string
+    dataConfirmationPatients: ConfirmationPatientsT[] | undefined
+    dataPatientRegis: PatientRegistrationT[] | undefined
 }
 
 export function RegistrationData({
     detailDataPatientRegis,
     dataConfirmPatient,
     dataPatientFinishTreatment,
-    params
+    params,
+    doctors,
+    dataRooms,
+    idPatientRegistration,
+    dataConfirmationPatients,
+    dataPatientRegis,
+    pushTriggedErr
 }: Props & { params: string }) {
     const submissionDate = new Date(`${detailDataPatientRegis?.submissionDate?.submissionDate} ${detailDataPatientRegis?.submissionDate?.clock}`)
 
@@ -128,7 +139,17 @@ export function RegistrationData({
             </Container>
 
             {/* Form confirmation of patient registration */}
-            <FormRegistrationData/>
+            {!dataConfirmPatient?.id && !dataPatientFinishTreatment?.id && (
+                <FormRegistrationData
+                doctors={doctors}
+                dataRooms={dataRooms}
+                appointmentDate={createDateNormalFormat(detailDataPatientRegis.appointmentDate)}
+                dataConfirmationPatients={dataConfirmationPatients}
+                idPatientRegistration={idPatientRegistration}
+                dataPatientRegis={dataPatientRegis}
+                pushTriggedErr={pushTriggedErr}
+                />
+            )}
         </Container>
     )
 }

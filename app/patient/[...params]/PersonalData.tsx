@@ -14,7 +14,12 @@ export function PersonalData(
     const {
         detailDataPatientRegis,
         dataConfirmPatient,
-        dataPatientFinishTreatment
+        dataPatientFinishTreatment,
+        doctors,
+        dataRooms,
+        dataConfirmationPatients,
+        dataPatientRegis,
+        pushTriggedErr
     } = UsePatientData({ params })
 
     return (
@@ -23,7 +28,13 @@ export function PersonalData(
                 detailDataPatientRegis={detailDataPatientRegis}
                 dataConfirmPatient={dataConfirmPatient}
                 dataPatientFinishTreatment={dataPatientFinishTreatment}
+                dataConfirmationPatients={dataConfirmationPatients}
                 params={params}
+                doctors={doctors}
+                dataRooms={dataRooms}
+                idPatientRegistration={detailDataPatientRegis?.id}
+                dataPatientRegis={dataPatientRegis}
+                pushTriggedErr={pushTriggedErr}
             />
         </>
     )

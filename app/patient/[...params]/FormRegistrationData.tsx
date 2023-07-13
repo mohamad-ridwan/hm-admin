@@ -1,6 +1,3 @@
-'use client'
-
-import { ChangeEvent } from "react"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
@@ -9,12 +6,56 @@ import Input from "components/input/Input"
 import InputContainer from "components/input/InputContainer"
 import { InputSelect } from "components/input/InputSelect"
 import { TitleInput } from "components/input/TitleInput"
+import Button from "components/Button"
+import { ProfileDoctorT } from "lib/types/DoctorsT.types"
+import { ConfirmationPatientsT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
+import { HandleFormRegistration } from "./HandleFormRegistration"
+import { Toggle } from "components/toggle/Toggle"
 
 type ActionProps = {
-    changeText: (e: ChangeEvent<HTMLInputElement>)=>void
+    pushTriggedErr: (message: string) => void
 }
 
-function FormRegistrationData() {
+type Props = ActionProps & {
+    doctors: ProfileDoctorT[] | undefined
+    dataRooms: RoomTreatmentT[] | undefined
+    appointmentDate: string
+    idPatientRegistration: string
+    dataConfirmationPatients: ConfirmationPatientsT[] | undefined
+    dataPatientRegis: PatientRegistrationT[] | undefined
+}
+
+function FormRegistrationData({
+    doctors,
+    dataRooms,
+    appointmentDate,
+    idPatientRegistration,
+    dataConfirmationPatients,
+    dataPatientRegis,
+    pushTriggedErr,
+}: Props) {
+    const {
+        optionsSpecialist,
+        handleSelect,
+        submitConfirmation,
+        errInputValue,
+        optionsDoctor,
+        optionsRoom,
+        inputValue,
+        clickToggleAutoRoom,
+        loadingSubmit
+    } = HandleFormRegistration(
+        {
+            doctors,
+            dataRooms,
+            appointmentDate,
+            idPatientRegistration,
+            dataConfirmationPatients,
+            dataPatientRegis,
+            pushTriggedErr
+        }
+    )
+
     return (
         <Container
             isNavleft={false}
@@ -23,6 +64,10 @@ function FormRegistrationData() {
         >
             <HeadInfo
                 titleInfo="Form Confirmation"
+                classTitle="border-none"
+                styleHeadTop={{
+                    padding: '0'
+                }}
             />
 
             <InputContainer
@@ -35,10 +80,12 @@ function FormRegistrationData() {
                         title="Doctor Specialist"
                     />
                     <InputSelect
-                        data={[]}
+                        id="specialist"
+                        data={optionsSpecialist}
+                        handleSelect={() => handleSelect('specialist')}
                     />
                     <ErrorInput
-                        error="error"
+                        error={errInputValue?.specialist}
                     />
                 </CardInfo>
 
@@ -49,26 +96,12 @@ function FormRegistrationData() {
                         title="Choose Doctor"
                     />
                     <InputSelect
-                        data={[]}
+                        id="doctor"
+                        data={optionsDoctor}
+                        handleSelect={() => handleSelect('doctor')}
                     />
                     <ErrorInput
-                        error="error"
-                    />
-                </CardInfo>
-
-                <CardInfo
-                    classWrapp="flex flex-col"
-                >
-                    <TitleInput
-                        title="Practice Hours"
-                    />
-                    {/* <Input
-                    type="text"
-                    nameInput="Practice Hours"
-                    changeInput={changeText}
-                    /> */}
-                    <ErrorInput
-                        error="error"
+                        error={errInputValue?.doctor}
                     />
                 </CardInfo>
 
@@ -79,10 +112,40 @@ function FormRegistrationData() {
                         title="Room Name"
                     />
                     <InputSelect
-                        data={[]}
+                        id="roomName"
+                        data={optionsRoom}
+                        handleSelect={() => handleSelect('roomName')}
                     />
                     <ErrorInput
-                        error="error"
+                        error={errInputValue?.roomName}
+                    />
+                    <div
+                        className="flex flex-wrap justify-end"
+                    >
+                        <Toggle
+                            idToggle="setAutoRoom"
+                            labelText="Set auto room"
+                            classWrapp="mt-2"
+                            clickToggle={clickToggleAutoRoom}
+                        />
+                    </div>
+                </CardInfo>
+
+                <CardInfo
+                    classWrapp="flex flex-col"
+                >
+                    <TitleInput
+                        title="Practice Hours"
+                    />
+                    <Input
+                        type="text"
+                        nameInput="practiceHours"
+                        valueInput={inputValue.practiceHours}
+                        placeholder="08:00 - 10:00"
+                        readonly={true}
+                    />
+                    <ErrorInput
+                        error={errInputValue?.practiceHours}
                     />
                 </CardInfo>
 
@@ -90,24 +153,31 @@ function FormRegistrationData() {
                     classWrapp="flex flex-col"
                 >
                     <TitleInput
-                        title={`Treatment Hours "Example" (08:00 - 10:00)`}
+                        title={`Treatment Hours`}
                     />
-                    {/* <Input
-                    type="text"
-                    nameInput="Practice Hours"
-                    changeInput={changeText}
-                    /> */}
+                    <Input
+                        type="text"
+                        nameInput="treatmentHours"
+                        valueInput={inputValue.treatmentHours}
+                        placeholder="08:00 - 10:00"
+                        readonly={true}
+                    />
                     <ErrorInput
-                        error="error"
+                        error={errInputValue?.treatmentHours}
                     />
                 </CardInfo>
             </InputContainer>
 
-            {/* <div
-                className="w-full flex flex-wrap justify-between"
+            <div
+                className="flex w-full justify-center"
             >
-
-            </div> */}
+                <Button
+                    nameBtn="CONFIRM PATIENT"
+                    classBtn={`${loadingSubmit ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'} px-4`}
+                    classLoading={`${loadingSubmit ? 'flex' : 'hidden'}`}
+                    clickBtn={submitConfirmation}
+                />
+            </div>
         </Container>
     )
 }

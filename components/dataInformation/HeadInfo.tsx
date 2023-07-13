@@ -1,3 +1,4 @@
+import { CSSProperties } from "react"
 import { IconDefinition, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { EditBtn } from "components/editBtn/EditBtn"
@@ -7,6 +8,7 @@ type TitleProps = {
     title?: string
     titleInfo: string
     icon?: IconDefinition
+    styleHeadTop?: CSSProperties
 }
 
 type Props = TitleProps
@@ -16,6 +18,7 @@ export function HeadInfo({
     icon,
     title,
     titleInfo,
+    styleHeadTop
 }: Props) {
     return (
         <div
@@ -23,11 +26,14 @@ export function HeadInfo({
         >
             <div
                 className={`flex flex-wrap py-4 border-b-bdr-one border-bdr-bottom items-center text-color-default-old ${classTitle}`}
+                style={styleHeadTop}
             >
-                <FontAwesomeIcon
-                    icon={icon as IconDefinition}
-                    className="text-2xl mr-2"
-                />
+                {typeof icon !== 'undefined' && (
+                    <FontAwesomeIcon
+                        icon={icon}
+                        className="text-2xl mr-2"
+                    />
+                )}
                 <h1
                     className={`text-2xl text-start font-bold`}
                 >

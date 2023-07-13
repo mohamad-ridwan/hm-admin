@@ -45,3 +45,23 @@ export type AddNewDoctorT = {
     doctorSchedule: DoctorScheduleT[]
     holidaySchedule: HolidaySchedule[]
 }
+
+export type InputPatientRegistrationT = {
+    specialist: string
+    doctor: string
+    practiceHours: string
+    roomName: string
+    treatmentHours: string
+}
+
+export type SubmitFormPatientRegisT = {
+    patientId: string
+    adminInfo:{
+        adminId: string
+    }
+    dateConfirmInfo: DateConfirmInfo
+    doctorInfo:{
+        doctorId: string
+    }
+    roomInfo: RoomInfo
+}

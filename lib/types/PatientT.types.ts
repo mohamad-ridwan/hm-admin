@@ -43,7 +43,7 @@ export type ConfirmationPatientsT = {
 }
 
 // finished treatment
-type ConfirmedTime = {
+export type ConfirmedTime = {
     dateConfirm: string
     confirmHour: string
 }
@@ -53,6 +53,7 @@ export type PatientFinishTreatmentT = {
     patientId: string
     confirmedTime: ConfirmedTime
     adminInfo: { adminId: string }
+    isCanceled: boolean | string
 }
 
 // room

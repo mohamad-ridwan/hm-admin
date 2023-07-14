@@ -1,5 +1,5 @@
 import { DoctorScheduleT, HolidaySchedule, MedsosDoctorT } from "./DoctorsT.types"
-import { DateConfirmInfo, RoomInfo } from "./PatientT.types"
+import { ConfirmedTime, DateConfirmInfo, RoomInfo } from "./PatientT.types"
 
 export type InputEditPatientRegistrationT = {
     patientName: string
@@ -64,4 +64,11 @@ export type SubmitFormPatientRegisT = {
         doctorId: string
     }
     roomInfo: RoomInfo
+}
+
+export type SubmitFinishedTreatmentT = {
+    patientId: string
+    confirmedTime: ConfirmedTime
+    adminInfo: { adminId: string }
+    isCanceled: boolean | string
 }

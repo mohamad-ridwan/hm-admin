@@ -63,8 +63,8 @@ export function UsePatientData({ params }: { params: string }) {
 
         if(
             !loadDataService &&
-            Array.isArray(dataPatientFinishTreatment) &&
-            dataPatientFinishTreatment.length > 0
+            Array.isArray(dataFinishTreatment) &&
+            dataFinishTreatment.length > 0
         ){
             getPatientFinishTreatment()
         }

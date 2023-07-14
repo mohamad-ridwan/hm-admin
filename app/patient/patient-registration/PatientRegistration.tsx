@@ -66,6 +66,7 @@ export function PatientRegistration() {
 
     const {
         clickDelete,
+        clickCancelTreatment
     } = DeletePatient({ findDataRegistration, dataColumns })
 
     function toPage(path: string): void {
@@ -166,6 +167,8 @@ export function PatientRegistration() {
                                 key={index}
                                 idLoadingDelete={`loadDelete${patient.id}`}
                                 idIconDelete={`iconDelete${patient.id}`}
+                                idIconCancel={`iconCancel${patient.id}`}
+                                idLoadingCancel={`loadingCancel${patient.id}`}
                                 iconCancel={faBan}
                                 styleColumnMenu={{
                                     display: indexActiveColumnMenu === index ? 'flex' : 'none'
@@ -179,6 +182,11 @@ export function PatientRegistration() {
                                 }}
                                 clickDelete={(e) => {
                                     clickDelete(patient.id, patient.data[0]?.name)
+                                    setIndexActiveColumnMenu(null)
+                                    e?.stopPropagation()
+                                }}
+                                clickCancel={(e)=>{
+                                    clickCancelTreatment(patient.id, patient.data[0]?.name)
                                     setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
                                 }}

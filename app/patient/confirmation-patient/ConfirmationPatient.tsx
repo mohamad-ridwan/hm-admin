@@ -344,6 +344,8 @@ export function ConfirmationPatient() {
                                 key={index}
                                 idLoadingDelete={`loadDelete${patient.id}`}
                                 idIconDelete={`iconDelete${patient.id}`}
+                                idIconCancel={`iconCancel${patient.id}`}
+                                idLoadingCancel={`loadingCancel${patient.id}`}
                                 iconCancel={faBan}
                                 styleColumnMenu={{
                                     display: indexActiveTableMenu === index ? 'flex' : 'none'
@@ -358,6 +360,11 @@ export function ConfirmationPatient() {
                                 }}
                                 clickDelete={(e) => {
                                     clickDeleteIcon(patient.id, patient.data[0]?.name)
+                                    setIndexActiveTableMenu(null)
+                                    e?.stopPropagation()
+                                }}
+                                clickCancel={(e)=>{
+                                    clickCancelTreatment(patient.id, patient.data[0]?.name)
                                     setIndexActiveTableMenu(null)
                                     e?.stopPropagation()
                                 }}

@@ -1,6 +1,6 @@
 'use client'
 
-import { faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock } from "@fortawesome/free-solid-svg-icons"
+import { faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock, faClockFour, faUserXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
@@ -81,7 +81,7 @@ export function PatientRegistration({
                 desc={detailDataPatientRegis?.patientName}
                 classHeadDesc="text-3xl font-semibold flex-col"
             >
-                {dataPatientFinishTreatment?.id && (
+                {dataPatientFinishTreatment?.isCanceled === false && (
                     <div
                         className="flex justify-end overflow-hidden"
                     >
@@ -97,6 +97,40 @@ export function PatientRegistration({
                             >Have Finished Treatment</h1>
                         </div>
                     </div>
+                )}
+                {dataPatientFinishTreatment?.isCanceled && (
+                    <div
+                        className="flex justify-end overflow-hidden"
+                    >
+                        <div
+                            className="flex flex-wrap items-center text-red-default mt-2"
+                        >
+                            <FontAwesomeIcon
+                                icon={faUserXmark}
+                                className="text-3xl mr-2 justify-end"
+                            />
+                            <h1
+                                className="text-3xl font-semibold"
+                            >Canceled</h1>
+                        </div>
+                    </div>
+                )}
+                {!dataPatientFinishTreatment?.id && (
+                    <div
+                    className="flex justify-end overflow-hidden"
+                >
+                    <div
+                        className="flex flex-wrap items-center text-color-default-old"
+                    >
+                        <FontAwesomeIcon
+                            icon={faClockFour}
+                            className="text-3xl mr-2 justify-end"
+                        />
+                        <h1
+                            className="text-3xl font-semibold"
+                        >In Process</h1>
+                    </div>
+                </div>
                 )}
 
                 <Container

@@ -133,7 +133,7 @@ export function FilterTable() {
                 // patient at finish treatment
                 const findPatientFT = dataFinishTreatment?.find((patientFT) => patientFT.patientId === patient.patientId)
 
-                return findPatientRegistration && !findPatientFT
+                return !findPatientFT && findPatientRegistration
             })
 
             const setPatientRegistration = async (): Promise<PatientRegistrationT[]> => {

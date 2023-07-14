@@ -253,6 +253,9 @@ export function OurDoctor() {
                                     clickDelete(item.id)
                                     e?.stopPropagation()
                                 }}
+                                clickColumnMenu={()=>{
+                                    
+                                }}
                             >
                                 {item.data.map((dataItem, indexData) => {
                                     return (

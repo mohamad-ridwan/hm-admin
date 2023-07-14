@@ -1,46 +1,22 @@
 'use client'
 
-import { IconDefinition, faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock, faClockFour, faPencil, faTrash, faUserXmark } from "@fortawesome/free-solid-svg-icons"
+import { IconDefinition, faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock, faClockFour, faPencil, faTrash, faTriangleExclamation, faUserXmark } from "@fortawesome/free-solid-svg-icons"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
-import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { createHourFormat } from "lib/dates/createHourFormat"
 import FormRegistrationData from "app/patient/[...params]/patientRegistration/FormRegistrationData"
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
-import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import FormPatientRegistration from "app/patient/patient-registration/FormPatientRegistration"
 import EditPatientRegistration from "app/patient/patient-registration/EditPatientRegistration"
 import { StatusRegistration } from "./StatusRegistration"
 import { DeletePatient } from "./DeletePatient"
+import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
+import { ContainerPopup } from "components/popup/ContainerPopup"
+import { SettingPopup } from "components/popup/SettingPopup"
+import Button from "components/Button"
 
-type ActionProps = {
-    pushTriggedErr: (message: string) => void
-}
-
-type Props = ActionProps & {
-    detailDataPatientRegis: PatientRegistrationT
-    dataConfirmPatient: ConfirmationPatientsT
-    dataPatientFinishTreatment: PatientFinishTreatmentT
-    doctors: ProfileDoctorT[] | undefined
-    dataRooms: RoomTreatmentT[] | undefined
-    idPatientRegistration: string
-    dataConfirmationPatients: ConfirmationPatientsT[] | undefined
-    dataPatientRegis: PatientRegistrationT[] | undefined
-}
-
-export function PatientRegistration({
-    detailDataPatientRegis,
-    dataConfirmPatient,
-    dataPatientFinishTreatment,
-    params,
-    doctors,
-    dataRooms,
-    idPatientRegistration,
-    dataConfirmationPatients,
-    dataPatientRegis,
-    pushTriggedErr,
-}: Props & { params: string }) {
+export function PatientRegistration({ params }: { params: string }) {
     // Form edit patient registration
     const {
         clickEdit,
@@ -57,7 +33,18 @@ export function PatientRegistration({
         idLoadingEdit,
     } = FormPatientRegistration()
 
-    const {} = DeletePatient({params})
+    const {
+        detailDataPatientRegis,
+        dataConfirmPatient,
+        dataPatientFinishTreatment,
+    } = UsePatientData({ params })
+
+    const {
+        clickDelete,
+        loadingDelete,
+        onPopupDelete,
+        setOnPopupDelete
+    } = DeletePatient({ params })
 
     const submissionDate = new Date(`${detailDataPatientRegis?.submissionDate?.submissionDate} ${detailDataPatientRegis?.submissionDate?.clock}`)
 
@@ -128,6 +115,43 @@ export function PatientRegistration({
                 />
             )}
 
+            {/* popup delete */}
+            {onPopupDelete && (
+                <ContainerPopup
+                    className='flex justify-center items-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        clickClose={()=>setOnPopupDelete(false)}
+                        title={`Delete all data from patient "${detailDataPatientRegis?.patientName}"?`}
+                        classIcon='text-pink-old'
+                        iconPopup={faTriangleExclamation}
+                    >
+                        <Button
+                        nameBtn="Delete"
+                        classBtn="bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old"
+                        classLoading="hidden"
+                        styleBtn={{
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }}
+                        clickBtn={() => clickDelete(detailDataPatientRegis?.id)}
+                        />
+                        <Button
+                        nameBtn="Cancel"
+                        classBtn="bg-white border-orange-young hover:bg-orange-young hover:border-orange-young hover:text-white"
+                        colorBtnTxt="text-orange-young"
+                        classLoading="hidden"
+                        styleBtn={{
+                            padding: '0.5rem',
+                            marginTop: '0.5rem'
+                        }}
+                        clickBtn={()=>setOnPopupDelete(false)}
+                        />
+                    </SettingPopup>
+                </ContainerPopup>
+            )}
+
             <Container
                 isNavleft={false}
                 title="Patient of"
@@ -167,11 +191,14 @@ export function PatientRegistration({
                         icon={!dataConfirmPatient?.id ? faCircleExclamation : faCircleCheck}
                         classTitle={!dataConfirmPatient?.id ? 'text-orange-young' : ''}
                         editIcon={faPencil}
-                        deleteIcon={faTrash}
-                        clickEdit={()=>{
+                        deleteIcon={loadingDelete ? undefined : faTrash}
+                        classDeleteBtn={loadingDelete ? 'cursor-not-allowed' : 'cursor-pointer'}
+                        classLoadingDelete={loadingDelete ? 'flex' : 'hidden'}
+                        clickEdit={() => {
                             clickEdit(detailDataPatientRegis?.id, detailDataPatientRegis?.patientName)
                             setOnPopupEdit(true)
                         }}
+                        clickDelete={()=>setOnPopupDelete(true)}
                     />
 
                     <div
@@ -197,15 +224,7 @@ export function PatientRegistration({
                 {/* Form confirmation of patient registration */}
                 {!dataConfirmPatient?.id && !dataPatientFinishTreatment?.id && (
                     <FormRegistrationData
-                        params={params}
-                        doctors={doctors}
-                        dataRooms={dataRooms}
-                        appointmentDate={createDateNormalFormat(detailDataPatientRegis.appointmentDate)}
-                        dataConfirmationPatients={dataConfirmationPatients}
-                        idPatientRegistration={idPatientRegistration}
-                        dataPatientRegis={dataPatientRegis}
-                        pushTriggedErr={pushTriggedErr}
-                    />
+                        params={params} />
                 )}
             </Container>
         </>

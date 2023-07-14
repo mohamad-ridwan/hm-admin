@@ -4,38 +4,16 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { DataOptionT } from "lib/types/FilterT"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
-import { ConfirmationPatientsT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { InputPatientRegistrationT, SubmitFormPatientRegisT } from "lib/types/InputT.type"
 import { spaceString } from "lib/regex/spaceString"
 import { API } from "lib/api"
 import { authStore } from "lib/useZustand/auth"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { createHourFormat } from "lib/dates/createHourFormat"
+import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
+import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
 
-type ActionProps = {
-    pushTriggedErr: (message: string)=>void
-}
-
-type Props = ActionProps & {
-    doctors: ProfileDoctorT[] | undefined
-    dataRooms: RoomTreatmentT[] | undefined
-    appointmentDate: string
-    idPatientRegistration: string
-    dataConfirmationPatients: ConfirmationPatientsT[] | undefined
-    dataPatientRegis: PatientRegistrationT[] | undefined
-    params: string
-}
-
-export function HandleFormRegistration({
-    doctors,
-    dataRooms,
-    appointmentDate,
-    idPatientRegistration,
-    dataConfirmationPatients,
-    dataPatientRegis,
-    pushTriggedErr,
-    params
-}: Props) {
+export function HandleFormRegistration({params}: {params: string}) {
     const [inputValue, setInputValue] = useState<InputPatientRegistrationT>({
         specialist: 'Select Specialist',
         doctor: 'Select Doctor',
@@ -64,6 +42,18 @@ export function HandleFormRegistration({
             title: 'Select Room'
         }
     ])
+
+    const {
+        detailDataPatientRegis,
+        doctors,
+        dataRooms,
+        dataConfirmationPatients,
+        dataPatientRegis,
+        pushTriggedErr
+    } = UsePatientData({ params })
+
+    const appointmentDate = createDateNormalFormat(detailDataPatientRegis?.appointmentDate)
+    const idPatientRegistration = detailDataPatientRegis?.id
 
     const { user } = authStore()
     const router = useRouter()

@@ -34,7 +34,7 @@ export function SettingPopup({
 }: Props) {
     return (
         <div
-            className="flex flex-col bg-white h-fit w-full max-w-[400px] mt-[5rem] mb-[5rem] mx-[10px] rounded-md shadow-lg pt-4 pb-6"
+            className="flex flex-col bg-white h-fit w-full max-w-[400px] mt-[5rem] mb-[5rem] mx-[10px] rounded-md shadow-lg pt-4 pb-4"
             onClick={(e) => {
                 e.stopPropagation()
             }}
@@ -71,7 +71,7 @@ export function SettingPopup({
 
             {/* button action */}
             <div
-                className="flex flex-wrap justify-center mt-4 border-t-[1px] border-bdr-bottom pt-4 px-2"
+                className="flex flex-wrap justify-end mt-4 border-t-[1px] border-bdr-bottom pt-2 px-4"
             >
                 {children}
             </div>

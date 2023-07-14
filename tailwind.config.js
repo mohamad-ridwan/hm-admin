@@ -25,7 +25,8 @@ module.exports = {
         'table-hover': '#d9f9f9',
         'pink': '#f85084',
         'orange': '#FFA500',
-        'red': '#ff0000'
+        'orange-young': '#fa9c1b',
+        'red': '#ff0000',
       },
       borderWidth:{
         'bdr-one': '1px'

@@ -1,18 +1,20 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
+import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import ServicingHours from "lib/actions/ServicingHours"
 
 export function UsePatientData({ params }: { params?: string }) {
     const [detailDataPatientRegis, setDetailDataPatientRegis] = useState<PatientRegistrationT>({} as PatientRegistrationT)
     const [dataConfirmPatient, setDataConfirmPatient] = useState<ConfirmationPatientsT>({} as ConfirmationPatientsT)
     const [dataPatientFinishTreatment, setDataPatientFinishTreatment] = useState<PatientFinishTreatmentT>({} as PatientFinishTreatmentT)
+    const [drugCounterPatient, setDrugCounterPatient] = useState<DrugCounterT>({} as DrugCounterT)
 
     const {
         dataService,
         dataPatientRegis,
         dataConfirmationPatients,
+        dataDrugCounter,
         dataFinishTreatment,
         loadDataService,
         loadDataDoctors,
@@ -22,18 +24,18 @@ export function UsePatientData({ params }: { params?: string }) {
     } = ServicingHours()
 
     function getPatientRegis(): void {
-        if(typeof params !== 'undefined'){
+        if (typeof params !== 'undefined') {
             const findPatient = dataPatientRegis?.find(patient => patient?.id === params[4])
             if (findPatient) {
                 setDetailDataPatientRegis(findPatient)
             } else {
                 pushTriggedErr(`no patient found with id "${params[4]}"`)
             }
-        } 
+        }
     }
 
     function getPatientConfirmation(): void {
-        if(typeof params !== 'undefined'){
+        if (typeof params !== 'undefined') {
             const findPatient = dataConfirmationPatients?.find(patient => patient?.patientId === params[4])
             if (findPatient) {
                 setDataConfirmPatient(findPatient)
@@ -41,8 +43,17 @@ export function UsePatientData({ params }: { params?: string }) {
         }
     }
 
-    function getPatientFinishTreatment():void{
-        if(typeof params !== 'undefined'){
+    function getPatientInCounter(): void {
+        if (typeof params !== 'undefined') {
+            const findPatient = dataDrugCounter?.find(patient => patient?.patientId === params[4])
+            if (findPatient) {
+                setDrugCounterPatient(findPatient)
+            }
+        }
+    }
+
+    function getPatientFinishTreatment(): void {
+        if (typeof params !== 'undefined') {
             const findPatient = dataFinishTreatment?.find(patient => patient?.patientId === params[4])
             if (findPatient) {
                 setDataPatientFinishTreatment(findPatient)
@@ -58,27 +69,15 @@ export function UsePatientData({ params }: { params?: string }) {
         ) {
             getPatientRegis()
         }
-
-        if (
-            !loadDataService &&
-            Array.isArray(dataConfirmationPatients) &&
-            dataConfirmationPatients.length > 0
-        ) {
-            getPatientConfirmation()
-        }
-
-        if(
-            !loadDataService &&
-            Array.isArray(dataFinishTreatment) &&
-            dataFinishTreatment.length > 0
-        ){
-            getPatientFinishTreatment()
-        }
+        getPatientConfirmation()
+        getPatientInCounter()
+        getPatientFinishTreatment()
     }, [loadDataService, dataService])
 
     return {
         detailDataPatientRegis,
         dataConfirmPatient,
+        drugCounterPatient,
         dataPatientFinishTreatment,
         doctors,
         dataRooms,

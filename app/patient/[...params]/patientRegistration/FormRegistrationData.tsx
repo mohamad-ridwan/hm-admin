@@ -7,35 +7,10 @@ import InputContainer from "components/input/InputContainer"
 import { InputSelect } from "components/input/InputSelect"
 import { TitleInput } from "components/input/TitleInput"
 import Button from "components/Button"
-import { ProfileDoctorT } from "lib/types/DoctorsT.types"
-import { ConfirmationPatientsT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { HandleFormRegistration } from "./HandleFormRegistration"
 import { Toggle } from "components/toggle/Toggle"
 
-type ActionProps = {
-    pushTriggedErr: (message: string) => void
-}
-
-type Props = ActionProps & {
-    doctors: ProfileDoctorT[] | undefined
-    dataRooms: RoomTreatmentT[] | undefined
-    appointmentDate: string
-    idPatientRegistration: string
-    dataConfirmationPatients: ConfirmationPatientsT[] | undefined
-    dataPatientRegis: PatientRegistrationT[] | undefined
-    params: string
-}
-
-function FormRegistrationData({
-    doctors,
-    dataRooms,
-    appointmentDate,
-    idPatientRegistration,
-    dataConfirmationPatients,
-    dataPatientRegis,
-    pushTriggedErr,
-    params
-}: Props) {
+function FormRegistrationData({params}: {params: string}) {
     const {
         optionsSpecialist,
         handleSelect,
@@ -47,16 +22,7 @@ function FormRegistrationData({
         clickToggleAutoRoom,
         loadingSubmit
     } = HandleFormRegistration(
-        {
-            doctors,
-            dataRooms,
-            appointmentDate,
-            idPatientRegistration,
-            dataConfirmationPatients,
-            dataPatientRegis,
-            pushTriggedErr,
-            params
-        }
+        {params}
     )
 
     return (
@@ -71,6 +37,7 @@ function FormRegistrationData({
                 styleHeadTop={{
                     padding: '0'
                 }}
+                classDeleteBtn="hidden"
             />
 
             <InputContainer

@@ -42,6 +42,34 @@ export type ConfirmationPatientsT = {
     roomInfo: RoomInfo
 }
 
+type IsConfirmDrugCounterT = {
+    dateConfirm:{
+        dateConfirm: string
+        confirmHour: string
+    }
+    adminInfo: {adminId: string}
+    paymentInfo: {
+        paymentMethod: 'cash' | 'BPJS'
+        bpjsNumber: string
+        totalCost: string
+    }
+}
+
+// drug counter
+export type DrugCounterT = {
+    id: string
+    patientId: string
+    loketInfo: {loketId: string}
+    message: string
+    adminInfo: {adminId: string}
+    presence: string
+    submissionDate: {
+        submissionDate: string
+        submitHours: string
+    }
+    isConfirm: {confirmState: boolean} & IsConfirmDrugCounterT
+}
+
 // finished treatment
 export type ConfirmedTime = {
     dateConfirm: string

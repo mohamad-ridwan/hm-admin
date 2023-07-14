@@ -98,22 +98,18 @@ export function HeadInfo({
                 <div
                     className="flex flex-wrap justify-end"
                 >
-                    {typeof editIcon !== 'undefined' && (
-                        <EditBtn
-                            icon={editIcon}
-                            classBtn={`${classEditBtn} mr-1 hover:bg-color-default-old hover:text-white`}
-                            classLoading={classLoadingEdit}
-                            clickBtn={clickEdit}
-                        />
-                    )}
-                    {typeof deleteIcon !== 'undefined' && (
-                        <EditBtn
-                            icon={editIcon}
-                            classBtn={`${classDeleteBtn} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
-                            classLoading={classLoadingDelete}
-                            clickBtn={clickDelete}
-                        />
-                    )}
+                    <EditBtn
+                        icon={editIcon}
+                        classBtn={`${classEditBtn} mr-1 hover:bg-color-default-old hover:text-white`}
+                        classLoading={classLoadingEdit}
+                        clickBtn={clickEdit}
+                    />
+                    <EditBtn
+                        icon={deleteIcon}
+                        classBtn={`${classDeleteBtn} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
+                        classLoading={classLoadingDelete}
+                        clickBtn={clickDelete}
+                    />
                 </div>
             </div>
         </div>

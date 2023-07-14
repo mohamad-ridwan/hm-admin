@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSwr } from "lib/useFetch/useSwr"
 import { endpoint } from "../api/endpoint"
-import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
+import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { AuthRequiredError } from "lib/errorHandling/exceptions"
@@ -14,7 +14,7 @@ function ServicingHours(){
 
     // swr fetching data
     // servicing hours
-    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), { refreshInterval: 4000 })
+    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), { refreshInterval: 10000 })
     const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
     const getPatientRegistration: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'patient-registration')
     const dataPatientRegis: PatientRegistrationT[] | undefined = getPatientRegistration?.data
@@ -22,6 +22,10 @@ function ServicingHours(){
     // confirmation patients
     const getConfirmationPatients: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: ConfirmationPatientsT) => item?.id === 'confirmation-patients')
     const dataConfirmationPatients: ConfirmationPatientsT[] | undefined = getConfirmationPatients?.data
+
+    // drug counter
+    const getDrugCounter: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: ConfirmationPatientsT) => item?.id === 'drug-counter')
+    const dataDrugCounter: DrugCounterT[] | undefined = getDrugCounter?.data
 
     // finished treatment data
     const getFinishTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientFinishTreatmentT) => item?.id === 'finished-treatment')
@@ -37,7 +41,7 @@ function ServicingHours(){
     const dataAdmin: AdminT[] | undefined = findDataAdmin?.data
 
     // doctors
-    const { data: getDataDoctors, error: errGetDataDoctors, isLoading: loadDataDoctors } = useSwr(endpoint.getDoctors(), { refreshInterval: 5000 })
+    const { data: getDataDoctors, error: errGetDataDoctors, isLoading: loadDataDoctors } = useSwr(endpoint.getDoctors(), { refreshInterval: 10000 })
     const newDataDoctor: { [key: string]: any } | undefined = getDataDoctors as {}
     const getDoctorDocument: { [key: string]: any } | undefined = newDataDoctor?.data?.find((data: { [key: string]: any }) => data?.id === 'doctor')
     const doctors: ProfileDoctorT[] | undefined = getDoctorDocument?.data
@@ -76,6 +80,7 @@ function ServicingHours(){
         dataService,
         dataPatientRegis,
         dataConfirmationPatients,
+        dataDrugCounter,
         dataFinishTreatment,
         dataAdmin,
         dataRooms,

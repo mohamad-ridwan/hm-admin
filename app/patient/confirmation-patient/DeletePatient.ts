@@ -124,40 +124,7 @@ export function DeletePatient({
             )
         }
     }
-
-    // function clickCancelTreatment(): void {
-    //     if (window.confirm(`cancel the registration of patient ${namePatientToDelete}?`)) {
-    //         setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
-    //         setOnPopupChooseDelete(false)
-
-    //         const dataFinishTreatment = {
-    //             patientId: idPatientToDelete,
-    //             confirmedTime: {
-    //                 dateConfirm: createDateFormat(new Date()),
-    //                 confirmHour: createHourFormat(new Date())
-    //             },
-    //             adminInfo: { adminId: user.user?.id as string }
-    //         }
-    //         API().APIPostPatientData(
-    //             'finished-treatment',
-    //             dataFinishTreatment
-    //         )
-    //             .then(res => {
-    //                 deleteActionCallback(
-    //                     'confirmation-patients',
-    //                     idPatientToDelete,
-    //                     idPatientToDelete,
-    //                     'Successfully cancel patient registration',
-    //                     'There was an error deleting patient confirmation data',
-    //                     true
-    //                 )
-    //             })
-    //             .catch(err => {
-    //                 pushTriggedErr('a server error occurred while adding data to the treatment is complete. please try again')
-    //             })
-    //     }
-    // }
-
+    
     // action delete
     function loadingDeleteIcon(): void {
         if (dataColumns.length > 0) {

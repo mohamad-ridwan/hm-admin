@@ -16,6 +16,7 @@ export function FilterTable() {
     const [searchText, setSearchText] = useState<string>('')
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [displayOnCalendar, setDisplayOnCalendar] = useState<boolean>(false)
+    const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
     const [chooseFilterByDate, setChooseFilterByDate] = useState<{
         id: string
         title: string
@@ -304,38 +305,13 @@ export function FilterTable() {
 
     const changeTableStyle = (dataColumnsBody: DataTableContentT[]):void => {
         if (dataColumnsBody?.length > 0) {
-            let elementTHead = document.getElementById('tHead0') as HTMLElement
             let elementTData = document.getElementById('tData00') as HTMLElement
-
-            if (elementTHead !== null) {
-                elementTHead = document.getElementById(`tHead0`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/7)'
-                elementTHead = document.getElementById(`tHead1`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/7)'
-                elementTHead = document.getElementById(`tHead2`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/8)'
-                elementTHead = document.getElementById(`tHead3`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/8)'
-                elementTHead = document.getElementById(`tHead4`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/6)'
-                elementTHead = document.getElementById(`tHead5`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/10)'
-            }
             if (elementTData !== null) {
                 for (let i = 0; i < dataColumnsBody?.length; i++) {
                     elementTData = document.getElementById(`tData${i}0`) as HTMLElement
                     if (elementTData?.style) {
-                        elementTData.style.width = 'calc(100%/7)'
-                        elementTData = document.getElementById(`tData${i}1`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/7)'
-                        elementTData = document.getElementById(`tData${i}2`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/8)'
-                        elementTData = document.getElementById(`tData${i}3`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/8)'
                         elementTData = document.getElementById(`tData${i}4`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/6)'
-                        elementTData = document.getElementById(`tData${i}5`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/10)'
+                        elementTData.style.overflowX = 'auto'
                     }
                 }
             }
@@ -400,6 +376,14 @@ export function FilterTable() {
     const lastPage: number = filterText.length < 5 ? 1 : Math.ceil(filterText.length / pageSize)
     const maxLength: number = 7
 
+    function clickColumnMenu(index: number):void{
+        if(index === indexActiveColumnMenu){
+            setIndexActiveColumnMenu(null)
+        }else{
+            setIndexActiveColumnMenu(index)
+        }
+    }
+
     return {
         head,
         searchText,
@@ -421,6 +405,9 @@ export function FilterTable() {
         maxLength,
         findDataRegistration,
         filterBy,
-        dataColumns
+        dataColumns,
+        clickColumnMenu,
+        indexActiveColumnMenu,
+        setIndexActiveColumnMenu
     }
 }

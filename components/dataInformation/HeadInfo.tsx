@@ -12,6 +12,8 @@ type TitleProps = {
     iconRight?: IconDefinition
     titleRight?: string
     styleHeadRight?: CSSProperties
+    classEditBtn?: string
+    classDeleteBtn?: string
 }
 
 type Props = TitleProps
@@ -24,7 +26,9 @@ export function HeadInfo({
     styleHeadTop,
     iconRight,
     titleRight,
-    styleHeadRight
+    styleHeadRight,
+    classEditBtn,
+    classDeleteBtn
 }: Props) {
     return (
         <div
@@ -80,11 +84,11 @@ export function HeadInfo({
                 >
                     <EditBtn
                         icon={faPencil}
-                        classBtn="mr-1 hover:bg-color-default-old hover:text-white"
+                        classBtn={`${classEditBtn} mr-1 hover:bg-color-default-old hover:text-white`}
                     />
                     <EditBtn
                         icon={faTrash}
-                        classBtn="bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white"
+                        classBtn={`${classDeleteBtn} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
                     />
                 </div>
             </div>

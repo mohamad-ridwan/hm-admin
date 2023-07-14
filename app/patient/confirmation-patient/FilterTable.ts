@@ -42,9 +42,6 @@ export function FilterTable() {
         {
             name: 'Phone'
         },
-        {
-            name: ''
-        },
     ])
     const [dataColumns, setDataColumns] = useState<DataTableContentT[]>([])
     const [searchText, setSearchText] = useState<string>('')
@@ -52,6 +49,7 @@ export function FilterTable() {
     const [displayOnCalendar, setDisplayOnCalendar] = useState<boolean>(false)
     const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [dataFilterRoom, setDataFilterRoom] = useState<DataOptionT>([])
+    const [indexActiveTableMenu, setIndexActiveTableMenu] = useState<number | null>(null)
     const [chooseOnSortDate, setChooseOnSortDate] = useState<{
         id: string
         title: string
@@ -576,52 +574,12 @@ export function FilterTable() {
 
     const changeTableStyle = (dataColumnsBody: DataTableContentT[]) => {
         if (dataColumnsBody?.length > 0) {
-            let elementTHead = document.getElementById('tHead0') as HTMLElement
             let elementTData = document.getElementById('tData00') as HTMLElement
-
-            if (elementTHead !== null) {
-                elementTHead = document.getElementById(`tHead0`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/7)'
-                elementTHead = document.getElementById(`tHead1`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/7)'
-                elementTHead = document.getElementById(`tHead2`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/8)'
-                elementTHead = document.getElementById(`tHead3`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/7)'
-                elementTHead = document.getElementById(`tHead4`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/7)'
-                elementTHead = document.getElementById(`tHead5`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/7)'
-                elementTHead = document.getElementById(`tHead6`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/6.5)'
-                elementTHead = document.getElementById(`tHead7`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/6.5)'
-                elementTHead = document.getElementById(`tHead8`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/7)'
-                elementTHead = document.getElementById(`tHead9`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/8)'
-                elementTHead = document.getElementById(`tHead10`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/12)'
-            }
             if (elementTData !== null) {
                 for (let i = 0; i < dataColumnsBody?.length; i++) {
                     elementTData = document.getElementById(`tData${i}0`) as HTMLElement
                     if (elementTData?.style) {
-                        elementTData.style.width = 'calc(100%/7)'
-                        elementTData = document.getElementById(`tData${i}1`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/7)'
-                        elementTData = document.getElementById(`tData${i}2`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/9)'
-                        elementTData = document.getElementById(`tData${i}3`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/7)'
-                        elementTData = document.getElementById(`tData${i}4`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/7)'
-                        elementTData = document.getElementById(`tData${i}5`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/7)'
-                        elementTData = document.getElementById(`tData${i}6`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/6.8)'
                         elementTData = document.getElementById(`tData${i}7`) as HTMLElement
-                        elementTData.style.width = 'calc(100%/6.5)'
                         elementTData.style.overflowX = 'auto'
                     }
                 }
@@ -649,6 +607,14 @@ export function FilterTable() {
         }
     }
 
+    function clickColumnMenu(index: number):void{
+        if(index === indexActiveTableMenu){
+            setIndexActiveTableMenu(null)
+        }else{
+            setIndexActiveTableMenu(index)
+        }
+    }
+
     return {
         head,
         dataColumns,
@@ -672,6 +638,9 @@ export function FilterTable() {
         lastPage,
         maxLength,
         dataSortDate,
-        handleSortCategory
+        handleSortCategory,
+        indexActiveTableMenu,
+        clickColumnMenu,
+        setIndexActiveTableMenu
     }
 }

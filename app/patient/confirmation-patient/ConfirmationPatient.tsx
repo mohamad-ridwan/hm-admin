@@ -92,7 +92,10 @@ export function ConfirmationPatient() {
         lastPage,
         maxLength,
         dataSortDate,
-        handleSortCategory
+        handleSortCategory,
+        indexActiveTableMenu,
+        clickColumnMenu,
+        setIndexActiveTableMenu
     } = FilterTable()
 
     // zustand store
@@ -238,7 +241,7 @@ export function ConfirmationPatient() {
                                 marginTop: '0.5rem'
                             }}
                         />
-                        <Button
+                        {/* <Button
                             nameBtn="Cancel Treatment"
                             classBtn='bg-red hover:bg-white border-red-default hover:border-red-default hover:text-red-default'
                             classLoading='hidden'
@@ -248,7 +251,7 @@ export function ConfirmationPatient() {
                                 marginRight: '0.5rem',
                                 marginTop: '0.5rem'
                             }}
-                        />
+                        /> */}
                     </SettingPopup>
                 </ContainerPopup>
             )}
@@ -321,7 +324,7 @@ export function ConfirmationPatient() {
             <ContainerTableBody>
                 <TableBody
                     style={{
-                        width: '1700px'
+                        width: '1800px'
                     }}
                 >
                     <TableHead
@@ -341,17 +344,24 @@ export function ConfirmationPatient() {
                                 key={index}
                                 idLoadingDelete={`loadDelete${patient.id}`}
                                 idIconDelete={`iconDelete${patient.id}`}
+                                iconCancel={faBan}
+                                styleColumnMenu={{
+                                    display: indexActiveTableMenu === index ? 'flex' : 'none'
+                                }}
                                 clickBtn={() => toPage(pathUrlToDataDetail)}
                                 clickEdit={(e) => {
                                     clickEdit(patient.id, patient.data[0]?.name)
                                     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
                                     setOnPopupSettings(true)
+                                    setIndexActiveTableMenu(null)
                                     e?.stopPropagation()
                                 }}
                                 clickDelete={(e) => {
                                     clickDeleteIcon(patient.id, patient.data[0]?.name)
+                                    setIndexActiveTableMenu(null)
                                     e?.stopPropagation()
                                 }}
+                                clickColumnMenu={()=>clickColumnMenu(index)}
                             >
                                 {patient.data.map((item, idx) => {
                                     return (

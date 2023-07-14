@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faBan, faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
 import { TableHead } from 'components/table/TableHead'
@@ -58,7 +58,10 @@ export function PatientRegistration() {
         maxLength,
         findDataRegistration,
         filterBy,
-        dataColumns
+        dataColumns,
+        clickColumnMenu,
+        indexActiveColumnMenu,
+        setIndexActiveColumnMenu
     } = FilterTable()
 
     const {
@@ -145,7 +148,8 @@ export function PatientRegistration() {
             />
 
             <ContainerTableBody>
-                <TableBody>
+                <TableBody
+                >
                     <TableHead
                         data={head}
                         id='tHead'
@@ -162,16 +166,23 @@ export function PatientRegistration() {
                                 key={index}
                                 idLoadingDelete={`loadDelete${patient.id}`}
                                 idIconDelete={`iconDelete${patient.id}`}
+                                iconCancel={faBan}
+                                styleColumnMenu={{
+                                    display: indexActiveColumnMenu === index ? 'flex' : 'none'
+                                }}
                                 clickBtn={() => toPage(pathUrlToDataDetail)}
                                 clickEdit={(e) => {
                                     clickEdit(patient.id, patient.data[0]?.name)
                                     setOnPopupEdit(true)
+                                    setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
                                 }}
                                 clickDelete={(e) => {
                                     clickDelete(patient.id, patient.data[0]?.name)
+                                    setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
                                 }}
+                                clickColumnMenu={()=>clickColumnMenu(index)}
                             >
                                 {patient.data.map((item, idx) => {
                                     return (

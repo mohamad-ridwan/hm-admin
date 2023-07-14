@@ -42,7 +42,7 @@ export function ConfirmationPatient({
                 maxWidth="auto"
             >
                 <HeadInfo
-                    title='1'
+                    title={dataConfirmPatient?.roomInfo?.queueNumber}
                     titleInfo="Confirmation Data Information"
                     icon={faListOl}
                     iconRight={doctorIsAvailable ? faCheck : faTriangleExclamation}
@@ -53,7 +53,6 @@ export function ConfirmationPatient({
                     styleHeadRight={{
                         color: doctorIsAvailable ? '#288bbc' : '#ff296d'
                     }}
-                // classTitle="text-orange-young"
                 />
                 <div
                     className="w-full flex flex-wrap justify-between"

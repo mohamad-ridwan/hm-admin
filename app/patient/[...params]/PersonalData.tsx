@@ -1,8 +1,8 @@
 'use client'
 
 import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
-import { PatientRegistration } from "./PatientRegistration"
-import { ConfirmationPatient } from "./ConfirmationPatient"
+import { PatientRegistration } from "./patientRegistration/PatientRegistration"
+import { ConfirmationPatient } from "./confirmationPatient/ConfirmationPatient"
 
 type Props = {
     params: string
@@ -38,12 +38,14 @@ export function PersonalData(
                 pushTriggedErr={pushTriggedErr}
             />
 
-            <ConfirmationPatient
-                dataConfirmPatient={dataConfirmPatient}
-                detailDataPatientRegis={detailDataPatientRegis}
-                dataRooms={dataRooms}
-                doctors={doctors}
-            />
+            {dataConfirmPatient?.id && (
+                <ConfirmationPatient
+                    dataConfirmPatient={dataConfirmPatient}
+                    detailDataPatientRegis={detailDataPatientRegis}
+                    dataRooms={dataRooms}
+                    doctors={doctors}
+                />
+            )}
         </>
     )
 }

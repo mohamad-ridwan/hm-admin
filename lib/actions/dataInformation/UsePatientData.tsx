@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import ServicingHours from "lib/actions/ServicingHours"
 
-export function UsePatientData({ params }: { params: string }) {
+export function UsePatientData({ params }: { params?: string }) {
     const [detailDataPatientRegis, setDetailDataPatientRegis] = useState<PatientRegistrationT>({} as PatientRegistrationT)
     const [dataConfirmPatient, setDataConfirmPatient] = useState<ConfirmationPatientsT>({} as ConfirmationPatientsT)
     const [dataPatientFinishTreatment, setDataPatientFinishTreatment] = useState<PatientFinishTreatmentT>({} as PatientFinishTreatmentT)
@@ -22,25 +22,31 @@ export function UsePatientData({ params }: { params: string }) {
     } = ServicingHours()
 
     function getPatientRegis(): void {
-        const findPatient = dataPatientRegis?.find(patient => patient?.id === params[4])
-        if (findPatient) {
-            setDetailDataPatientRegis(findPatient)
-        } else {
-            pushTriggedErr(`no patient found with id "${params[4]}"`)
-        }
+        if(typeof params !== 'undefined'){
+            const findPatient = dataPatientRegis?.find(patient => patient?.id === params[4])
+            if (findPatient) {
+                setDetailDataPatientRegis(findPatient)
+            } else {
+                pushTriggedErr(`no patient found with id "${params[4]}"`)
+            }
+        } 
     }
 
     function getPatientConfirmation(): void {
-        const findPatient = dataConfirmationPatients?.find(patient => patient?.patientId === params[4])
-        if (findPatient) {
-            setDataConfirmPatient(findPatient)
+        if(typeof params !== 'undefined'){
+            const findPatient = dataConfirmationPatients?.find(patient => patient?.patientId === params[4])
+            if (findPatient) {
+                setDataConfirmPatient(findPatient)
+            }
         }
     }
 
     function getPatientFinishTreatment():void{
-        const findPatient = dataFinishTreatment?.find(patient => patient?.patientId === params[4])
-        if (findPatient) {
-            setDataPatientFinishTreatment(findPatient)
+        if(typeof params !== 'undefined'){
+            const findPatient = dataFinishTreatment?.find(patient => patient?.patientId === params[4])
+            if (findPatient) {
+                setDataPatientFinishTreatment(findPatient)
+            }
         }
     }
 

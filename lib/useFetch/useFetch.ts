@@ -4,9 +4,9 @@ type ParamT = string | number | boolean
 
 export async function useFetch<Type extends
     {
-        [key: string]: ParamT |
-        { [key: string]: ParamT } |
-        { [key: string]: ParamT }[]
+        [key: string]: any |
+        { [key: string]: any } |
+        { [key: string]: any }[]
     }
     |
     ParamT
@@ -25,7 +25,7 @@ export async function useFetch<Type extends
             body: JSON.stringify(data)
         })
             .then(res => res.json())
-            .then((res: Type) => resolve(res))
+            .then((res) => resolve(res as Type))
             .catch(err => reject(err))
     })
 }

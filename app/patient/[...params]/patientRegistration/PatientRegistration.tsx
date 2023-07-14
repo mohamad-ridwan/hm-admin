@@ -1,7 +1,6 @@
 'use client'
 
-import { faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock, faClockFour, faUserXmark } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { IconDefinition, faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock, faClockFour, faPencil, faTrash, faUserXmark } from "@fortawesome/free-solid-svg-icons"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
@@ -12,6 +11,8 @@ import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import FormPatientRegistration from "app/patient/patient-registration/FormPatientRegistration"
 import EditPatientRegistration from "app/patient/patient-registration/EditPatientRegistration"
+import { StatusRegistration } from "./StatusRegistration"
+import { DeletePatient } from "./DeletePatient"
 
 type ActionProps = {
     pushTriggedErr: (message: string) => void
@@ -56,7 +57,59 @@ export function PatientRegistration({
         idLoadingEdit,
     } = FormPatientRegistration()
 
+    const {} = DeletePatient({params})
+
     const submissionDate = new Date(`${detailDataPatientRegis?.submissionDate?.submissionDate} ${detailDataPatientRegis?.submissionDate?.clock}`)
+
+    const detailData: {
+        title: string
+        textInfo: string
+        icon?: IconDefinition
+    }[] = detailDataPatientRegis?.id ? [
+        {
+            title: "Patient Name",
+            textInfo: createDateNormalFormat(detailDataPatientRegis.appointmentDate),
+        },
+        {
+            title: "Appointment Date",
+            textInfo: createDateNormalFormat(detailDataPatientRegis.appointmentDate),
+            icon: faCalendarDays
+        },
+        {
+            title: 'Patient Complaints',
+            textInfo: detailDataPatientRegis.patientMessage.patientComplaints
+        },
+        {
+            title: 'Date of Birth',
+            textInfo: createDateNormalFormat(detailDataPatientRegis.dateOfBirth)
+        },
+        {
+            title: 'Email',
+            textInfo: detailDataPatientRegis.emailAddress
+        },
+        {
+            title: 'Phone',
+            textInfo: detailDataPatientRegis.phone
+        },
+        {
+            title: 'Patient ID',
+            textInfo: detailDataPatientRegis.id
+        },
+        {
+            title: 'Messages from patient',
+            textInfo: detailDataPatientRegis.patientMessage.message
+        },
+        {
+            title: "Submission Date",
+            textInfo: createDateNormalFormat(detailDataPatientRegis.submissionDate.submissionDate),
+            icon: faCalendarDays
+        },
+        {
+            title: "Confirmation Hour",
+            textInfo: createHourFormat(submissionDate),
+            icon: faClock
+        }
+    ] : []
 
     return (
         <>
@@ -82,55 +135,25 @@ export function PatientRegistration({
                 classHeadDesc="text-3xl font-semibold flex-col"
             >
                 {dataPatientFinishTreatment?.isCanceled === false && (
-                    <div
-                        className="flex justify-end overflow-hidden"
-                    >
-                        <div
-                            className="flex flex-wrap items-center text-green mt-2"
-                        >
-                            <FontAwesomeIcon
-                                icon={faCheckToSlot}
-                                className="text-3xl mr-2 justify-end"
-                            />
-                            <h1
-                                className="text-3xl font-semibold"
-                            >Have Finished Treatment</h1>
-                        </div>
-                    </div>
+                    <StatusRegistration
+                        icon={faCheckToSlot}
+                        title="Have Finished Treatment"
+                        classText="text-green"
+                    />
                 )}
                 {dataPatientFinishTreatment?.isCanceled && (
-                    <div
-                        className="flex justify-end overflow-hidden"
-                    >
-                        <div
-                            className="flex flex-wrap items-center text-red-default mt-2"
-                        >
-                            <FontAwesomeIcon
-                                icon={faUserXmark}
-                                className="text-3xl mr-2 justify-end"
-                            />
-                            <h1
-                                className="text-3xl font-semibold"
-                            >Canceled</h1>
-                        </div>
-                    </div>
+                    <StatusRegistration
+                        icon={faUserXmark}
+                        title="Canceled"
+                        classText="text-red-default"
+                    />
                 )}
                 {!dataPatientFinishTreatment?.id && (
-                    <div
-                    className="flex justify-end overflow-hidden"
-                >
-                    <div
-                        className="flex flex-wrap items-center text-color-default-old"
-                    >
-                        <FontAwesomeIcon
-                            icon={faClockFour}
-                            className="text-3xl mr-2 justify-end"
-                        />
-                        <h1
-                            className="text-3xl font-semibold"
-                        >In Process</h1>
-                    </div>
-                </div>
+                    <StatusRegistration
+                        icon={faClockFour}
+                        title="In Process"
+                        classText="text-color-default-old"
+                    />
                 )}
 
                 <Container
@@ -138,71 +161,34 @@ export function PatientRegistration({
                     classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
                     maxWidth="auto"
                 >
-                    {!dataConfirmPatient?.id && (
-                        <HeadInfo
-                            title='Not yet confirmed'
-                            titleInfo="Patient Information"
-                            icon={faCircleExclamation}
-                            classTitle="text-orange-young"
-                        />
-                    )}
-
-                    {dataConfirmPatient?.id && (
-                        <HeadInfo
-                            title='Confirmed'
-                            titleInfo="Patient Information"
-                            icon={faCircleCheck}
-                        />
-                    )}
+                    <HeadInfo
+                        title={!dataConfirmPatient?.id ? 'Not yet confirmed' : 'Confirmed'}
+                        titleInfo="Patient Information"
+                        icon={!dataConfirmPatient?.id ? faCircleExclamation : faCircleCheck}
+                        classTitle={!dataConfirmPatient?.id ? 'text-orange-young' : ''}
+                        editIcon={faPencil}
+                        deleteIcon={faTrash}
+                        clickEdit={()=>{
+                            clickEdit(detailDataPatientRegis?.id, detailDataPatientRegis?.patientName)
+                            setOnPopupEdit(true)
+                        }}
+                    />
 
                     <div
                         className="w-full flex flex-wrap justify-between"
                     >
                         {detailDataPatientRegis?.id && (
                             <>
-                                <CardInfo
-                                    title='Patient Name'
-                                    textInfo={detailDataPatientRegis.patientName}
-                                />
-                                <CardInfo
-                                    title="Appointment Date"
-                                    textInfo={createDateNormalFormat(detailDataPatientRegis.appointmentDate)}
-                                    icon={faCalendarDays}
-                                />
-                                <CardInfo
-                                    title='Patient Complaints'
-                                    textInfo={detailDataPatientRegis.patientMessage.patientComplaints}
-                                />
-                                <CardInfo
-                                    title='Date of Birth'
-                                    textInfo={createDateNormalFormat(detailDataPatientRegis.dateOfBirth)}
-                                />
-                                <CardInfo
-                                    title='Email'
-                                    textInfo={detailDataPatientRegis.emailAddress}
-                                />
-                                <CardInfo
-                                    title='Phone'
-                                    textInfo={detailDataPatientRegis.phone}
-                                />
-                                <CardInfo
-                                    title='Patient ID'
-                                    textInfo={detailDataPatientRegis.id}
-                                />
-                                <CardInfo
-                                    title='Messages from patient'
-                                    textInfo={detailDataPatientRegis.patientMessage.message}
-                                />
-                                <CardInfo
-                                    title="Submission Date"
-                                    textInfo={createDateNormalFormat(detailDataPatientRegis.submissionDate.submissionDate)}
-                                    icon={faCalendarDays}
-                                />
-                                <CardInfo
-                                    title="Confirmation Hour"
-                                    textInfo={createHourFormat(submissionDate)}
-                                    icon={faClock}
-                                />
+                                {detailData.length > 0 && detailData.map((item, index) => {
+                                    return (
+                                        <CardInfo
+                                            key={index}
+                                            title={item.title}
+                                            textInfo={item.textInfo}
+                                            icon={item?.icon}
+                                        />
+                                    )
+                                })}
                             </>
                         )}
                     </div>

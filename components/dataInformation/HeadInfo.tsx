@@ -1,22 +1,32 @@
 import { CSSProperties } from "react"
-import { IconDefinition, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { EditBtn } from "components/editBtn/EditBtn"
 
-type TitleProps = {
+type ActionProps = {
+    clickEdit?: () => void
+    clickDelete?: () => void
+}
+
+type IconProps = {
+    icon?: IconDefinition
+    iconRight?: IconDefinition
+    editIcon?: IconDefinition
+    deleteIcon?: IconDefinition
+}
+
+type Props = IconProps & ActionProps & {
     classTitle?: string
     title?: string
     titleInfo: string
-    icon?: IconDefinition
     styleHeadTop?: CSSProperties
-    iconRight?: IconDefinition
     titleRight?: string
     styleHeadRight?: CSSProperties
     classEditBtn?: string
     classDeleteBtn?: string
+    classLoadingEdit?: string
+    classLoadingDelete?: string
 }
-
-type Props = TitleProps
 
 export function HeadInfo({
     classTitle,
@@ -28,7 +38,13 @@ export function HeadInfo({
     titleRight,
     styleHeadRight,
     classEditBtn,
-    classDeleteBtn
+    classDeleteBtn,
+    editIcon,
+    deleteIcon,
+    classLoadingEdit,
+    classLoadingDelete,
+    clickEdit,
+    clickDelete
 }: Props) {
     return (
         <div
@@ -82,14 +98,22 @@ export function HeadInfo({
                 <div
                     className="flex flex-wrap justify-end"
                 >
-                    <EditBtn
-                        icon={faPencil}
-                        classBtn={`${classEditBtn} mr-1 hover:bg-color-default-old hover:text-white`}
-                    />
-                    <EditBtn
-                        icon={faTrash}
-                        classBtn={`${classDeleteBtn} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
-                    />
+                    {typeof editIcon !== 'undefined' && (
+                        <EditBtn
+                            icon={editIcon}
+                            classBtn={`${classEditBtn} mr-1 hover:bg-color-default-old hover:text-white`}
+                            classLoading={classLoadingEdit}
+                            clickBtn={clickEdit}
+                        />
+                    )}
+                    {typeof deleteIcon !== 'undefined' && (
+                        <EditBtn
+                            icon={editIcon}
+                            classBtn={`${classDeleteBtn} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
+                            classLoading={classLoadingDelete}
+                            clickBtn={clickDelete}
+                        />
+                    )}
                 </div>
             </div>
         </div>

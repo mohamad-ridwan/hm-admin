@@ -2,12 +2,10 @@ import { useFetch } from "lib/useFetch/useFetch";
 import { endpoint } from "./endpoint";
 import { fetchJwtToken } from "lib/useFetch/fetchJwtToken";
 
-type ParamT = string | number | boolean
-
 export type DataRequest = {
-    [key: string]: ParamT |
-    { [key: string]: ParamT } |
-    { [key: string]: ParamT }[]
+    [key: string]: any |
+    { [key: string]: any } |
+    { [key: string]: any }[]
 }
 
 // servicing hours

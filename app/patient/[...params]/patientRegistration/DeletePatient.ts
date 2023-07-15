@@ -1,19 +1,30 @@
 'use client'
 
-import { useState } from "react"
+import { ChangeEvent, useState } from "react"
 import { useRouter } from 'next/navigation'
 import { API } from "lib/api"
 import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
+import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
+import { createDateFormat } from "lib/dates/createDateFormat"
+import { createHourFormat } from "lib/dates/createHourFormat"
+import { authStore } from "lib/useZustand/auth"
 
 export function DeletePatient({ params }: { params?: string }) {
     const [loadingDelete, setLoadingDelete] = useState<boolean>(false)
+    const [loadingCancelTreatment, setLoadingCancelTreatment] = useState<boolean>(false)
+    const [onPopupSettings, setOnPopupSettings] = useState<boolean>(false)
+    const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
+    const [inputMsgCancelPatient, setInputMsgCancelPatient] = useState<string>('')
 
     const {
+        detailDataPatientRegis,
         dataConfirmPatient,
         drugCounterPatient,
         dataPatientFinishTreatment,
         pushTriggedErr
     } = UsePatientData({ params })
+
+    const {user} = authStore()
 
     const router = useRouter()
 
@@ -89,8 +100,53 @@ export function DeletePatient({ params }: { params?: string }) {
         }, 500)
     }
 
+    // action cancel treatment
+    function clickCancelTreatment():void{
+        if(loadingCancelTreatment === false){
+            setOnPopupSettings(true)
+        }
+    }
+
+    function submitCancelTreatment():void{
+        if(inputMsgCancelPatient.length > 0){
+            setOnMsgCancelTreatment(false)
+            const data: SubmitFinishedTreatmentT = {
+                patientId: detailDataPatientRegis?.id,
+                confirmedTime: {
+                    dateConfirm: createDateFormat(new Date()),
+                    confirmHour: createHourFormat(new Date())
+                },
+                adminInfo: {adminId: user.user?.id as string},
+                isCanceled: true,
+                messageCancelled: inputMsgCancelPatient
+            }
+            API().APIPostPatientData(
+                'finished-treatment',
+                data,
+            )
+            .then(res=>{
+                alert('Successfully cancel patient registration')
+            })
+            .catch(err=>pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
+        }
+    }
+
+    function handleCancelMsg(e?: ChangeEvent<HTMLInputElement>):void{
+        setInputMsgCancelPatient(e?.target.value as string)
+    }
+    // end action cancel treatment
+
     return {
         clickDelete,
         loadingDelete,
+        loadingCancelTreatment,
+        onPopupSettings,
+        setOnPopupSettings,
+        clickCancelTreatment,
+        onMsgCancelTreatment, 
+        setOnMsgCancelTreatment,
+        handleCancelMsg,
+        inputMsgCancelPatient,
+        submitCancelTreatment
     }
 }

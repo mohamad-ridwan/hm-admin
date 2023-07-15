@@ -71,4 +71,5 @@ export type SubmitFinishedTreatmentT = {
     confirmedTime: ConfirmedTime
     adminInfo: { adminId: string }
     isCanceled: boolean | string
+    messageCancelled: string
 }

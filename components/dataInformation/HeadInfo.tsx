@@ -88,13 +88,8 @@ export function HeadInfo({
             </div>
 
             <div
-                className="flex flex-wrap justify-between my-8"
+                className="flex flex-col justify-between my-8"
             >
-                <h1
-                    className="text-[1.3rem] text-start font-bold text-font-color-4"
-                >
-                    {titleInfo}
-                </h1>
                 <div
                     className="flex flex-wrap justify-end"
                 >
@@ -111,6 +106,12 @@ export function HeadInfo({
                         clickBtn={clickDelete}
                     />
                 </div>
+                
+                <h1
+                    className="text-[1.3rem] text-start font-bold text-font-color-4"
+                >
+                    {titleInfo}
+                </h1>
             </div>
         </div>
     )

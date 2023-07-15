@@ -226,7 +226,8 @@ export function DeletePatient({
             adminInfo: {
                 adminId: user.user?.id as string
             },
-            isCanceled: true
+            isCanceled: true,
+            messageCancelled: ''
         }
         API().APIPostPatientData(
             'finished-treatment',

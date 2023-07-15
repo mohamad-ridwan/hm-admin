@@ -9,8 +9,13 @@ import { TitleInput } from "components/input/TitleInput"
 import Button from "components/Button"
 import { HandleFormRegistration } from "./HandleFormRegistration"
 import { Toggle } from "components/toggle/Toggle"
+import { faBan } from "@fortawesome/free-solid-svg-icons"
+import { DeletePatient } from "./DeletePatient"
+import { ContainerPopup } from "components/popup/ContainerPopup"
+import { SettingPopup } from "components/popup/SettingPopup"
+import { FormPopup } from "components/popup/FormPopup"
 
-function FormRegistrationData({params}: {params: string}) {
+function FormRegistrationData({ params }: { params: string }) {
     const {
         optionsSpecialist,
         handleSelect,
@@ -22,8 +27,33 @@ function FormRegistrationData({params}: {params: string}) {
         clickToggleAutoRoom,
         loadingSubmit
     } = HandleFormRegistration(
-        {params}
+        { params }
     )
+
+    const {
+        loadingCancelTreatment,
+        onPopupSettings,
+        setOnPopupSettings,
+        clickCancelTreatment,
+        onMsgCancelTreatment,
+        setOnMsgCancelTreatment,
+        handleCancelMsg,
+        inputMsgCancelPatient,
+        submitCancelTreatment
+    } = DeletePatient({ params })
+
+    function cancelPopupSetting(): void {
+        setOnPopupSettings(false)
+    }
+
+    function clickYes(): void {
+        setOnMsgCancelTreatment(true)
+        setOnPopupSettings(false)
+    }
+
+    function cancelOnMsgCancelPatient(): void {
+        setOnMsgCancelTreatment(false)
+    }
 
     return (
         <Container
@@ -31,13 +61,102 @@ function FormRegistrationData({params}: {params: string}) {
             classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
             maxWidth="auto"
         >
+            {onPopupSettings && (
+                <ContainerPopup
+                    className='flex justify-center items-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        clickClose={cancelPopupSetting}
+                        title='Cancel patient registration?'
+                        classIcon='text-font-color-2'
+                        iconPopup={faBan}
+                    >
+                        <Button
+                            nameBtn="Yes"
+                            classBtn="hover:bg-white"
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginRight: '0.6rem',
+                                marginTop: '0.5rem'
+                            }}
+                            clickBtn={clickYes}
+                        />
+                        <Button
+                            nameBtn="Cancel"
+                            classBtn="bg-white border-none"
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginTop: '0.5rem',
+                                color: '#495057'
+                            }}
+                            clickBtn={cancelPopupSetting}
+                        />
+                    </SettingPopup>
+                </ContainerPopup>
+            )}
+
+            {onMsgCancelTreatment && (
+                <ContainerPopup
+                    className='flex justify-center overflow-y-auto'
+                >
+                    <FormPopup
+                        tag="div"
+                        clickClose={cancelOnMsgCancelPatient}
+                        title="Messages for canceled patients"
+                    >
+                        <TitleInput title='Message' />
+                        <Input
+                            type='text'
+                            nameInput='messageCancelled'
+                            changeInput={handleCancelMsg}
+                            valueInput={inputMsgCancelPatient}
+                        />
+                        <ErrorInput
+                            error={inputMsgCancelPatient.length === 0 ? 'Must be required' : ''}
+                        />
+
+                        <div
+                            className="flex flex-wrap justify-end"
+                        >
+                            <Button
+                                nameBtn="Confirm"
+                                classBtn="hover:bg-white"
+                                classLoading="hidden"
+                                styleBtn={{
+                                    padding: '0.5rem',
+                                    marginTop: '0.5rem',
+                                }}
+                                clickBtn={submitCancelTreatment}
+                            />
+                            <Button
+                                nameBtn="Cancel"
+                                classBtn="bg-white border-none"
+                                classLoading="hidden"
+                                styleBtn={{
+                                    padding: '0.5rem',
+                                    marginTop: '0.5rem',
+                                    color: '#495057'
+                                }}
+                                clickBtn={cancelOnMsgCancelPatient}
+                            />
+                        </div>
+                    </FormPopup>
+                </ContainerPopup>
+            )}
+
             <HeadInfo
                 titleInfo="Form Confirmation"
+                classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange ${loadingCancelTreatment && 'cursor-not-allowed'}`}
                 classTitle="border-none"
                 styleHeadTop={{
                     padding: '0'
                 }}
                 classDeleteBtn="hidden"
+                editIcon={loadingCancelTreatment ? undefined : faBan}
+                classLoadingEdit={loadingCancelTreatment ? 'flex' : 'hidden'}
+                clickEdit={clickCancelTreatment}
             />
 
             <InputContainer

@@ -82,6 +82,7 @@ export type PatientFinishTreatmentT = {
     confirmedTime: ConfirmedTime
     adminInfo: { adminId: string }
     isCanceled: boolean | string
+    messageCancelled: string
 }
 
 // room

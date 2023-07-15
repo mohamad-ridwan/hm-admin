@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
 import { AddNewDoctorT } from "lib/types/InputT.type"
 import { getImgValue } from "lib/actions/getImgValue"
 import { DoctorScheduleT, HolidaySchedule, MedsosDoctorT, ProfileDoctorT } from "lib/types/DoctorsT.types"
@@ -12,6 +12,24 @@ import { storage } from "lib/firebase/firebase"
 import ServicingHours from "lib/actions/ServicingHours"
 import { DataOptionT } from "lib/types/FilterT"
 import { mailRegex } from "lib/regex/mailRegex"
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
+import { faPencil, faUserPlus } from "@fortawesome/free-solid-svg-icons"
+
+type PopupSetting = {
+    title: string
+    classIcon?: string
+    classBtnNext?: string
+    iconPopup?: IconDefinition
+    nameBtnNext: string
+    doctorId?: string
+    categoryAction: 'delete-doctor' | 'edit-doctor' | 'add-doctor'
+}
+
+type ActionProps = {
+    setOnPopupSetting: Dispatch<SetStateAction<PopupSetting>>
+}
+
+type PropsComponent = ActionProps
 
 type ErrInputAddDoctor = {
     image: string
@@ -25,7 +43,9 @@ type ErrInputAddDoctor = {
     holidaySchedule: string
 }
 
-function FormAddDoctor() {
+function FormAddDoctor({
+    setOnPopupSetting
+}: PropsComponent) {
     const [onPopupAddDoctor, setOnPopupAddDoctor] = useState<boolean>(false)
     const [titleFormDoctor, setTitleFormDoctor] = useState<{
         title: string
@@ -445,13 +465,25 @@ function FormAddDoctor() {
     function submitAddDoctor(): void {
         if (
             loadingSubmitAddDoctor === false &&
-            validateFormAddDoctor() &&
-            window.confirm(`add "${inputValueAddDoctor.name}" as a Doctor?`
-            )) {
-            setLoadingSubmitAddDoctor(true)
-            pushToAddNewDoctor()
-            setErrInputAddDoctor({} as ErrInputAddDoctor)
+            validateFormAddDoctor()
+            ) {
+            setOnPopupSetting({
+                title: `Add "${inputValueAddDoctor.name}" as a Doctor?`,
+                classIcon: 'text-color-default',
+                classBtnNext: 'hover:bg-white',
+                iconPopup: faUserPlus,
+                nameBtnNext: 'Yes',
+                doctorId: idEditDoctor as string,
+                categoryAction: 'add-doctor'
+            })
         }
+    }
+
+    function nextSubmitAddDoctor(): void {
+        setLoadingSubmitAddDoctor(true)
+        pushToAddNewDoctor()
+        setErrInputAddDoctor({} as ErrInputAddDoctor)
+        setOnPopupSetting({} as PopupSetting)
     }
 
     function validateFormAddDoctor(): string | undefined {
@@ -602,62 +634,73 @@ function FormAddDoctor() {
         const findCurrentLoading = idLoadingEdit.find(id => id === idEditDoctor)
         if (
             !findCurrentLoading &&
-            validateFormAddDoctor() &&
-            window.confirm(`update doctor "${titleFormDoctor.peopleName}"?`)
+            validateFormAddDoctor()
         ) {
-            setIdLoadingEdit((current)=>[...current, idEditDoctor as string])
-            pushToUpdateProfileDoctor()
+            setOnPopupSetting({
+                title: `update doctor "${titleFormDoctor.peopleName}"?`,
+                classIcon: 'text-color-default',
+                classBtnNext: 'hover:bg-white',
+                iconPopup: faPencil,
+                nameBtnNext: 'Save',
+                doctorId: idEditDoctor as string,
+                categoryAction: 'edit-doctor'
+            })
         }
+    }
+
+    function nextSubmitEditDoctor(): void {
+        setIdLoadingEdit((current) => [...current, idEditDoctor as string])
+        pushToUpdateProfileDoctor()
     }
 
     function pushToUpdateProfileDoctor(): void {
         let newData = inputValueAddDoctor
-        if(
+        if (
             imgFile === null ||
             newData.image.includes('https')
-            ){
+        ) {
             API().APIPutProfileDoctor(
                 'doctor',
                 idEditDoctor as string,
                 newData
             )
-            .then(res=>{
-                if(res?.doctorId){
-                    const removeLoadingId = idLoadingEdit.filter(id=>id !== res.doctorId)
-                    setIdLoadingEdit(removeLoadingId)
-                    alert('updated successfully')
-                }else{
-                    pushTriggedErr('a server error occurred. please try again')
-                }
-            })
-            .catch(err=>{
-                pushTriggedErr(err)
-            })
-        }else if(imgFile !== null){
-            uploadImgToFirebase()
-            .then(urlImg=>{
-                newData.image = urlImg as string
-                API().APIPutProfileDoctor(
-                    'doctor',
-                    idEditDoctor as string,
-                    newData
-                )
-                .then(res=>{
-                    if(res?.doctorId){
-                        const removeLoadingId = idLoadingEdit.filter(id=>id !== res.doctorId)
+                .then(res => {
+                    if (res?.doctorId) {
+                        const removeLoadingId = idLoadingEdit.filter(id => id !== res.doctorId)
                         setIdLoadingEdit(removeLoadingId)
                         alert('updated successfully')
-                    }else{
+                    } else {
                         pushTriggedErr('a server error occurred. please try again')
                     }
                 })
-                .catch(err=>{
+                .catch(err => {
                     pushTriggedErr(err)
                 })
-            })
-            .catch(err=>{
-                pushTriggedErr(err)
-            })
+        } else if (imgFile !== null) {
+            uploadImgToFirebase()
+                .then(urlImg => {
+                    newData.image = urlImg as string
+                    API().APIPutProfileDoctor(
+                        'doctor',
+                        idEditDoctor as string,
+                        newData
+                    )
+                        .then(res => {
+                            if (res?.doctorId) {
+                                const removeLoadingId = idLoadingEdit.filter(id => id !== res.doctorId)
+                                setIdLoadingEdit(removeLoadingId)
+                                alert('updated successfully')
+                            } else {
+                                pushTriggedErr('a server error occurred. please try again')
+                            }
+                        })
+                        .catch(err => {
+                            pushTriggedErr(err)
+                        })
+                })
+                .catch(err => {
+                    pushTriggedErr(err)
+                })
         }
     }
     // end action edit doctor
@@ -702,7 +745,9 @@ function FormAddDoctor() {
         titleFormDoctor,
         submitEditDoctor,
         idEditDoctor,
-        idLoadingEdit
+        idLoadingEdit,
+        nextSubmitEditDoctor,
+        nextSubmitAddDoctor
     }
 }
 

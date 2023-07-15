@@ -31,7 +31,7 @@ export function PatientRegistration({ params }: { params: string }) {
         setOnPopupEdit,
         idPatientToEdit,
         idLoadingEdit,
-    } = FormPatientRegistration()
+    } = FormPatientRegistration({})
 
     const {
         detailDataPatientRegis,

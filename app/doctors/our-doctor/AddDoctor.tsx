@@ -128,7 +128,7 @@ export function AddDoctor({
                 <Input
                     type='text'
                     nameInput='name'
-                    placeholder="Dr. Something.sp.pda"
+                    placeholder="Dr. Someone.Sp.pda"
                     changeInput={changeInputAddDoctor}
                     valueInput={inputValueAddDoctor.name}
                 />

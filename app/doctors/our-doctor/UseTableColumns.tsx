@@ -28,6 +28,7 @@ function UseTableColumns({
     const [idLoadingDelete, setIdLoadingDelete] = useState<string[]>([])
     const [idFinishDelete, setIdFinishDelete] = useState<string[]>([])
     const [currentPage, setCurrentPage] = useState<number>(1)
+    const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
 
     const {
         doctors,
@@ -204,7 +205,7 @@ function UseTableColumns({
     const maxLength: number = 7
 
     const changeTableStyle = (currentData: DataTableContentT[]): void => {
-        if(currentData.length > 0){
+        if (currentData.length > 0) {
             let elementTHead = document.getElementById('tHead0') as HTMLElement
             let elementTData = document.getElementById('tData00') as HTMLElement
 
@@ -212,10 +213,10 @@ function UseTableColumns({
                 elementTHead = document.getElementById(`tHead0`) as HTMLElement
                 elementTHead.style.width = 'calc(100%/4.5)'
             }
-            if(elementTData !== null){
-                for(let i = 0; i < currentData.length; i++){
+            if (elementTData !== null) {
+                for (let i = 0; i < currentData.length; i++) {
                     elementTData = document.getElementById(`tData${i}0`) as HTMLElement
-                    if(elementTData?.style){
+                    if (elementTData?.style) {
                         elementTData.style.width = 'calc(100%/4.5)'
                         elementTData.style.overflowX = 'auto'
                         elementTData = document.getElementById(`tData${i}2`) as HTMLElement
@@ -226,7 +227,7 @@ function UseTableColumns({
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         if (currentTableData.length > 0) {
             changeTableStyle(currentTableData)
         }
@@ -234,37 +235,29 @@ function UseTableColumns({
 
     // action delete
     function clickDelete(id: string): void {
-        const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === id)
-        const findDoctor = doctors?.find(doctor => doctor.id === id)
+        setIdLoadingDelete((current) => [...current, id])
+        setIdFinishDelete((current) => [...current, id])
 
-        if (
-            !findCurrentLoading &&
-            window.confirm(`delete doctor ${findDoctor?.name}?`
-            )) {
-            setIdLoadingDelete((current) => [...current, id])
-            setIdFinishDelete((current) => [...current, id])
-
-            API().APIDeleteProfileDoctor(
-                'doctor',
-                id
-            )
-                .then(res => {
-                    preloadFetch(endpoint.getDoctors())
-                        .then(doctor => {
-                            if (doctor?.data) {
-                                preloadDoctors(doctor.data)
-                            } else {
-                                deleteFailed()
-                            }
-                        })
-                        .catch(err => {
+        API().APIDeleteProfileDoctor(
+            'doctor',
+            id
+        )
+            .then(res => {
+                preloadFetch(endpoint.getDoctors())
+                    .then(doctor => {
+                        if (doctor?.data) {
+                            preloadDoctors(doctor.data)
+                        } else {
                             deleteFailed()
-                        })
-                })
-                .catch(err => {
-                    deleteFailed()
-                })
-        }
+                        }
+                    })
+                    .catch(err => {
+                        deleteFailed()
+                    })
+            })
+            .catch(err => {
+                deleteFailed()
+            })
     }
 
     function deleteSuccess(): void {
@@ -323,7 +316,10 @@ function UseTableColumns({
         lastPage,
         maxLength,
         currentPage,
-        setCurrentPage
+        setCurrentPage,
+        indexActiveColumnMenu,
+        setIndexActiveColumnMenu,
+        idLoadingDelete
     }
 }
 

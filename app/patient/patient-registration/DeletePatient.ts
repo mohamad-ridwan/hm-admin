@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import {useRouter} from 'next/navigation'
 import { API } from "lib/api"
 import { preloadFetch } from 'lib/useFetch/preloadFetch'
@@ -14,6 +14,18 @@ import { createHourFormat } from "lib/dates/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
+import { faBan, faTrash } from "@fortawesome/free-solid-svg-icons"
+
+type PopupSetting = {
+    title: string
+    classIcon?: string
+    classBtnNext?: string
+    iconPopup?: IconDefinition
+    nameBtnNext: string
+    patientId?: string
+    categoryAction: 'edit-patient' | 'cancel-treatment' | 'delete-patient'
+}
 
 type Props = {
     findDataRegistration: (
@@ -22,11 +34,13 @@ type Props = {
         dataFinishTreatment: PatientFinishTreatmentT[] | undefined
     ) => void
     dataColumns: DataTableContentT[]
+    setOnPopupSetting: Dispatch<SetStateAction<PopupSetting>>
 }
 
 export function DeletePatient({
     findDataRegistration,
-    dataColumns
+    dataColumns,
+    setOnPopupSetting
 }: Props) {
     const [idLoadingDeletePatient, setIdLoadingDeletePatient] = useState<string[]>([])
     const [idLoadingCancelTreatment, setIdLoadingCancelTreatment] = useState<string[]>([])
@@ -80,16 +94,26 @@ export function DeletePatient({
         name: string,
     ): void {
         const findId = idLoadingDeletePatient.find(patientId => patientId === id)
-        if (
-            !findId &&
-            window.confirm(`Delete patient of "${name}"`)
-        ) {
-            setIdLoadingDeletePatient((current) => [...current, id])
-            deleteDataPersonalPatient(id, name)
+        if (!findId) {
+            setOnPopupSetting({
+                title: `Delete patient of "${name}"`,
+                classIcon: 'text-pink-old',
+                classBtnNext: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
+                iconPopup: faTrash,
+                nameBtnNext: 'Yes',
+                patientId: id,
+                categoryAction: 'delete-patient'
+            })
         }
     }
 
-    function deleteDataPersonalPatient(id: string, name: string): void {
+    function nextConfirmDelete(id: string):void{
+        setIdLoadingDeletePatient((current) => [...current, id])
+        deleteDataPersonalPatient(id)
+        setOnPopupSetting({} as PopupSetting)
+    }
+
+    function deleteDataPersonalPatient(id: string): void {
         API().APIDeletePatientData(
             'patient-registration',
             id,
@@ -101,7 +125,7 @@ export function DeletePatient({
                         if (res?.data) {
                             let newId: {[key: string]: any} = deleteResult as {[key: string]: any}
                             preloadDataRegistration(res, newId?.id as string, 'delete')
-                            alert(`Successfully deleted data from "${name}" patient`)
+                            alert(`Successfully deleted data patient`)
                         } else {
                             pushTriggedErr('error preload data service. no property "data" found')
                         }
@@ -155,13 +179,23 @@ export function DeletePatient({
     // action cancel treatment
     function clickCancelTreatment(id: string, name: string):void{
         const findId = idLoadingCancelTreatment.find(patientId => patientId === id)
-        if(
-            !findId &&
-            window.confirm(`cancel treatment from patient "${name}"?`)
-            ){
-            setIdLoadingCancelTreatment((current)=>[...current, id])
-            pushCancelTreatment(id)
+        if(!findId){
+                setOnPopupSetting({
+                    title: `Cancel patient registration "${name}"?`,
+                    classIcon: 'text-red-default',
+                    classBtnNext: 'bg-red border-red-default hover:bg-white hover:text-red-default hover:border-red-default',
+                    iconPopup: faBan,
+                    nameBtnNext: 'Yes',
+                    patientId: id,
+                    categoryAction: 'cancel-treatment'
+                })
         }
+    }
+
+    function nextCancelTreatment(id: string):void{
+        setIdLoadingCancelTreatment((current)=>[...current, id])
+        pushCancelTreatment(id)
+        setOnPopupSetting({} as PopupSetting)
     }
 
     function pushCancelTreatment(patientId: string):void{
@@ -243,6 +277,8 @@ export function DeletePatient({
 
     return {
         clickDelete,
-        clickCancelTreatment
+        clickCancelTreatment,
+        nextCancelTreatment,
+        nextConfirmDelete
     }
 }

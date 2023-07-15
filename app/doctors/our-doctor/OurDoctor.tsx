@@ -8,7 +8,7 @@ import { TableColumns } from "components/table/TableColumns"
 import { TableData } from "components/table/TableData"
 import { TableFilter } from "components/table/TableFilter"
 import { InputSearch } from "components/input/InputSearch"
-import { faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons"
+import { IconDefinition, faBan, faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { InputSelect } from "components/input/InputSelect"
 import UseTableColumns from "./UseTableColumns"
 import UseTableFilter from "./UseTableFilter"
@@ -22,8 +22,21 @@ import { AddHolidaySchedule } from "./AddHolidaySchedule"
 import Image from "next/image"
 import Pagination from "components/pagination/Pagination"
 import profileDefault from 'images/user.png'
+import { ContainerPopup } from "components/popup/ContainerPopup"
+import { SettingPopup } from "components/popup/SettingPopup"
+
+type PopupSetting = {
+    title: string
+    classIcon?: string
+    classBtnNext?: string
+    iconPopup?: IconDefinition
+    nameBtnNext: string
+    doctorId?: string
+    categoryAction: 'delete-doctor' | 'edit-doctor' | 'add-doctor'
+}
 
 export function OurDoctor() {
+    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
     const [head] = useState<{ name: string }[]>([
         {
             name: 'Name'
@@ -94,12 +107,14 @@ export function OurDoctor() {
         selectRoomDoctor,
         roomOptions,
         titleFormDoctor,
+        nextSubmitAddDoctor,
         // action edit doctor
         idLoadingEdit,
         idEditDoctor,
         clickEdit,
-        submitEditDoctor
-    } = FormAddDoctor()
+        submitEditDoctor,
+        nextSubmitEditDoctor
+    } = FormAddDoctor({setOnPopupSetting})
 
     const {
         currentTableData,
@@ -107,7 +122,10 @@ export function OurDoctor() {
         lastPage,
         maxLength,
         currentPage,
-        setCurrentPage
+        setCurrentPage,
+        indexActiveColumnMenu,
+        setIndexActiveColumnMenu,
+        idLoadingDelete
     } = UseTableColumns({ currentFilter, selectCurrentFilter, searchText })
 
     return (
@@ -139,7 +157,52 @@ export function OurDoctor() {
                 />
             )}
 
-            {/* popup edit doctor */}
+            {/* popup next / cancel */}
+            {onPopupSetting?.title && (
+                <ContainerPopup
+                    className='flex justify-center items-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        clickClose={() => setOnPopupSetting({} as PopupSetting)}
+                        title={onPopupSetting.title}
+                        classIcon={onPopupSetting.classIcon}
+                        iconPopup={onPopupSetting.iconPopup}
+                    >
+                        <Button
+                            nameBtn={onPopupSetting.nameBtnNext}
+                            classBtn={onPopupSetting?.classBtnNext}
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginRight: '0.6rem',
+                                marginTop: '0.5rem'
+                            }}
+                            clickBtn={() =>{
+                                if(onPopupSetting.categoryAction === 'delete-doctor'){
+                                    clickDelete(onPopupSetting.doctorId as string)
+                                    setOnPopupSetting({} as PopupSetting)
+                                }else if(onPopupSetting.categoryAction === 'edit-doctor'){
+                                    nextSubmitEditDoctor()
+                                    setOnPopupSetting({} as PopupSetting)
+                                }else if(onPopupSetting.categoryAction === 'add-doctor'){
+                                    nextSubmitAddDoctor()
+                                }
+                            }}
+                        />
+                        <Button
+                        nameBtn="Cancel"
+                        classBtn="bg-white border-orange-young hover:bg-orange-young hover:border-orange-young hover:text-white"
+                        colorBtnTxt="text-orange-young"
+                        classLoading="hidden"
+                        styleBtn={{
+                            padding: '0.5rem',
+                            marginTop: '0.5rem'
+                        }}
+                        clickBtn={()=>setOnPopupSetting({} as PopupSetting)}
+                        />
+                    </SettingPopup>
+                </ContainerPopup>
+            )}
 
             {/* popup add medsos */}
             {onPopupAddMedsos && (
@@ -244,17 +307,38 @@ export function OurDoctor() {
                                 key={index}
                                 idIconDelete={`iconDelete${item.id}`}
                                 idLoadingDelete={`loadingDelete${item.id}`}
+                                styleColumnMenu={{
+                                    display: indexActiveColumnMenu === index ? 'flex' : 'none',
+                                    marginLeft: '-4rem',
+                                }}
                                 clickBtn={() => pathDoctor}
                                 clickEdit={(e) => {
                                     clickEdit(item.id)
+                                    setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
                                 }}
                                 clickDelete={(e) => {
-                                    clickDelete(item.id)
+                                    const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
+                                    if(!findCurrentLoading){
+                                        setOnPopupSetting({
+                                            title: `delete doctor ${item.data[0].name}?`,
+                                            classIcon: 'text-pink-old',
+                                            classBtnNext: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
+                                            iconPopup: faBan,
+                                            nameBtnNext: 'Delete',
+                                            doctorId: item.id,
+                                            categoryAction: 'delete-doctor'
+                                        })
+                                    }
+                                    setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
                                 }}
-                                clickColumnMenu={()=>{
-                                    
+                                clickColumnMenu={() => {
+                                    if (indexActiveColumnMenu === index) {
+                                        setIndexActiveColumnMenu(null)
+                                    } else {
+                                        setIndexActiveColumnMenu(index)
+                                    }
                                 }}
                             >
                                 {item.data.map((dataItem, indexData) => {

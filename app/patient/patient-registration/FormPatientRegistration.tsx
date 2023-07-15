@@ -1,13 +1,31 @@
 'use client'
 
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
 import { InputEditPatientRegistrationT } from "lib/types/InputT.type"
 import { mailRegex } from "lib/regex/mailRegex"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { API } from "lib/api"
 import ServicingHours from "lib/actions/ServicingHours"
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
+import { faPencil } from "@fortawesome/free-solid-svg-icons"
 
-function FormPatientRegistration() {
+type PopupSetting = {
+    title: string
+    classIcon?: string
+    classBtnNext?: string
+    iconPopup?: IconDefinition
+    nameBtnNext: string
+    patientId?: string
+    categoryAction: 'edit-patient' | 'cancel-treatment' | 'delete-patient'
+}
+
+type Props = {
+    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
+}
+
+function FormPatientRegistration({
+    setOnPopupSetting
+}: Props) {
     const [patientName, setPatientName] = useState<string | null>(null)
     const [valueInputEditDetailPatient, setValueInputEditDetailPatient] = useState<InputEditPatientRegistrationT>({
         patientName: '',
@@ -78,11 +96,27 @@ function FormPatientRegistration() {
         if (!findIdLoading) {
             validateSubmitUpdate()
                 .then(res => {
-                    if (window.confirm(`update patient data from "${patientName}"?`)) {
-                        setErrEditInputDetailPatient({} as InputEditPatientRegistrationT)
-                        pushToUpdatePatient()
+                    if(typeof setOnPopupSetting !== 'undefined'){
+                        setOnPopupSetting({
+                            title: `Update patient "${patientName}"?`,
+                            classIcon: 'text-color-default',
+                            classBtnNext: 'hover:bg-white',
+                            iconPopup: faPencil,
+                            nameBtnNext: 'Save',
+                            patientId: idPatientToEdit as string,
+                            categoryAction: 'edit-patient'
+                        })
                     }
+                    
                 })
+        }
+    }
+
+    function nextSubmitUpdate():void{
+        setErrEditInputDetailPatient({} as InputEditPatientRegistrationT)
+        pushToUpdatePatient()
+        if(typeof setOnPopupSetting !== 'undefined'){
+            setOnPopupSetting({} as PopupSetting)
         }
     }
 
@@ -222,6 +256,7 @@ function FormPatientRegistration() {
         idPatientToEdit,
         idLoadingEdit,
         valueInputEditDetailPatient,
+        nextSubmitUpdate
     }
 }
 

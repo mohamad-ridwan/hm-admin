@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { faBan, faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { IconDefinition, faBan, faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
 import { TableHead } from 'components/table/TableHead'
@@ -18,8 +19,22 @@ import EditPatientRegistration from 'app/patient/patient-registration/EditPatien
 import FormPatientRegistration from 'app/patient/patient-registration/FormPatientRegistration'
 import { FilterTable } from './FilterTable'
 import { DeletePatient } from './DeletePatient'
+import { ContainerPopup } from 'components/popup/ContainerPopup'
+import { SettingPopup } from 'components/popup/SettingPopup'
+import Button from 'components/Button'
+
+type PopupSetting = {
+    title: string
+    classIcon?: string
+    classBtnNext?: string
+    iconPopup?: IconDefinition
+    nameBtnNext: string
+    patientId?: string
+    categoryAction: 'edit-patient' | 'cancel-treatment' | 'delete-patient'
+}
 
 export function PatientRegistration() {
+    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
     const router = useRouter()
 
     // Form edit patient registration
@@ -36,7 +51,8 @@ export function PatientRegistration() {
         setOnPopupEdit,
         idPatientToEdit,
         idLoadingEdit,
-    } = FormPatientRegistration()
+        nextSubmitUpdate
+    } = FormPatientRegistration({setOnPopupSetting})
 
     const {
         head,
@@ -66,8 +82,10 @@ export function PatientRegistration() {
 
     const {
         clickDelete,
-        clickCancelTreatment
-    } = DeletePatient({ findDataRegistration, dataColumns })
+        clickCancelTreatment,
+        nextCancelTreatment,
+        nextConfirmDelete
+    } = DeletePatient({ findDataRegistration, dataColumns, setOnPopupSetting })
 
     function toPage(path: string): void {
         router.push(path)
@@ -88,6 +106,51 @@ export function PatientRegistration() {
                     idPatientToEdit={idPatientToEdit}
                     idLoadingEdit={idLoadingEdit}
                 />
+            )}
+
+            {/* popup next / cancel actions */}
+            {onPopupSetting?.title && (
+                <ContainerPopup
+                    className='flex justify-center items-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        clickClose={() => setOnPopupSetting({} as PopupSetting)}
+                        title={onPopupSetting.title}
+                        classIcon={onPopupSetting.classIcon}
+                        iconPopup={onPopupSetting.iconPopup}
+                    >
+                        <Button
+                            nameBtn={onPopupSetting.nameBtnNext}
+                            classBtn={onPopupSetting?.classBtnNext}
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginRight: '0.6rem',
+                                marginTop: '0.5rem'
+                            }}
+                            clickBtn={() => {
+                                if (onPopupSetting.categoryAction === 'edit-patient') {
+                                    nextSubmitUpdate()
+                                } else if (onPopupSetting.categoryAction === 'cancel-treatment') {
+                                    nextCancelTreatment(onPopupSetting.patientId as string)
+                                } else if (onPopupSetting.categoryAction === 'delete-patient') {
+                                    nextConfirmDelete(onPopupSetting.patientId as string)
+                                }
+                            }}
+                        />
+                        <Button
+                            nameBtn="Cancel"
+                            classBtn="bg-white border-orange-young hover:bg-orange-young hover:border-orange-young hover:text-white"
+                            colorBtnTxt="text-orange-young"
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginTop: '0.5rem'
+                            }}
+                            clickBtn={() => setOnPopupSetting({} as PopupSetting)}
+                        />
+                    </SettingPopup>
+                </ContainerPopup>
             )}
 
             {/* table filter */}
@@ -180,17 +243,17 @@ export function PatientRegistration() {
                                     setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
                                 }}
+                                clickCancel={(e) => {
+                                    clickCancelTreatment(patient.id, patient.data[0]?.name)
+                                    setIndexActiveColumnMenu(null)
+                                    e?.stopPropagation()
+                                }}
                                 clickDelete={(e) => {
                                     clickDelete(patient.id, patient.data[0]?.name)
                                     setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
                                 }}
-                                clickCancel={(e)=>{
-                                    clickCancelTreatment(patient.id, patient.data[0]?.name)
-                                    setIndexActiveColumnMenu(null)
-                                    e?.stopPropagation()
-                                }}
-                                clickColumnMenu={()=>clickColumnMenu(index)}
+                                clickColumnMenu={() => clickColumnMenu(index)}
                             >
                                 {patient.data.map((item, idx) => {
                                     return (

@@ -40,7 +40,7 @@ export function ConfirmationPatient() {
         setOnPopupEdit,
         idPatientToEdit,
         idLoadingEdit,
-    } = FormPatientRegistration()
+    } = FormPatientRegistration({})
 
     // form edit confirm patient
     const {

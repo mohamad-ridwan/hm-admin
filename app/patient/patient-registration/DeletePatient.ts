@@ -14,18 +14,8 @@ import { createHourFormat } from "lib/dates/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { faBan, faTrash } from "@fortawesome/free-solid-svg-icons"
-
-type PopupSetting = {
-    title: string
-    classIcon?: string
-    classBtnNext?: string
-    iconPopup?: IconDefinition
-    nameBtnNext: string
-    patientId?: string
-    categoryAction: 'edit-patient' | 'cancel-treatment' | 'delete-patient'
-}
+import { PopupSetting } from "lib/types/TableT.type"
 
 type Props = {
     findDataRegistration: (

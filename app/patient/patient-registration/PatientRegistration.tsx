@@ -22,16 +22,7 @@ import { DeletePatient } from './DeletePatient'
 import { ContainerPopup } from 'components/popup/ContainerPopup'
 import { SettingPopup } from 'components/popup/SettingPopup'
 import Button from 'components/Button'
-
-type PopupSetting = {
-    title: string
-    classIcon?: string
-    classBtnNext?: string
-    iconPopup?: IconDefinition
-    nameBtnNext: string
-    patientId?: string
-    categoryAction: 'edit-patient' | 'cancel-treatment' | 'delete-patient'
-}
+import { PopupSetting } from 'lib/types/TableT.type'
 
 export function PatientRegistration() {
     const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
@@ -116,12 +107,12 @@ export function PatientRegistration() {
                     <SettingPopup
                         clickClose={() => setOnPopupSetting({} as PopupSetting)}
                         title={onPopupSetting.title}
-                        classIcon={onPopupSetting.classIcon}
+                        classIcon='text-font-color-2'
                         iconPopup={onPopupSetting.iconPopup}
                     >
                         <Button
                             nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn={onPopupSetting?.classBtnNext}
+                            classBtn="hover:bg-white"
                             classLoading="hidden"
                             styleBtn={{
                                 padding: '0.5rem',
@@ -140,12 +131,13 @@ export function PatientRegistration() {
                         />
                         <Button
                             nameBtn="Cancel"
-                            classBtn="bg-white border-orange-young hover:bg-orange-young hover:border-orange-young hover:text-white"
+                            classBtn="bg-white border-none"
                             colorBtnTxt="text-orange-young"
                             classLoading="hidden"
                             styleBtn={{
                                 padding: '0.5rem',
-                                marginTop: '0.5rem'
+                                marginTop: '0.5rem',
+                                color: '#495057'
                             }}
                             clickBtn={() => setOnPopupSetting({} as PopupSetting)}
                         />

@@ -1,7 +1,8 @@
 'use client'
 
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import ServicingHours from "lib/actions/ServicingHours"
-import {useRouter} from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { API } from "lib/api"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { createHourFormat } from "lib/dates/createHourFormat"
@@ -10,16 +11,19 @@ import { specialCharacter } from "lib/regex/specialCharacter"
 import { DataTableContentT } from "lib/types/FilterT"
 import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { UserT } from "lib/types/ZustandT.types"
-import { useEffect, useState } from "react"
+import { PopupSetting } from "lib/types/TableT.type"
+import { faBan } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     user: UserT
     dataColumns: DataTableContentT[]
+    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
 }
 
 export function DeletePatient({
     user,
-    dataColumns
+    dataColumns,
+    setOnPopupSetting
 }: Props) {
     const [loadingIdPatientsDelete, setLoadingIdPatientsDelete] = useState<string[]>([])
     const [idLoadingCancelTreatment, setIdLoadingCancelTreatment] = useState<string[]>([])
@@ -83,48 +87,80 @@ export function DeletePatient({
 
     // click delete detail and confirm data
     function clickDeleteDetailAndConfirmData(): void {
-        if (window.confirm(`Delete details and confirmation data from patient "${namePatientToDelete}"?`)) {
-            setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
-            setOnPopupChooseDelete(false)
+        if (typeof setOnPopupSetting !== 'undefined') {
+            setOnPopupSetting({
+                title: `Delete details and confirmation data from patient "${namePatientToDelete}"?`,
+                classIcon: 'text-font-color-2',
+                classBtnNext: 'hover:bg-white',
+                iconPopup: faBan,
+                nameBtnNext: 'Yes',
+                patientId: idPatientToDelete,
+                categoryAction: 'delete-detail-and-confirmation'
+            })
+        }
+    }
 
-            const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
-            deleteActionCallback(
-                'confirmation-patients',
-                findIdConfirmData?.id as string,
+    function nextDeleteDetailAndConfirmData():void{
+        setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
+        setOnPopupChooseDelete(false)
+
+        const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
+        deleteActionCallback(
+            'confirmation-patients',
+            findIdConfirmData?.id as string,
+            idPatientToDelete,
+            '',
+            'There was an error deleting patient data details and confirmation',
+            false,
+            () => deleteActionCallback(
+                'patient-registration',
                 idPatientToDelete,
-                '',
+                idPatientToDelete,
+                'delete successfully',
                 'There was an error deleting patient data details and confirmation',
-                false,
-                () => deleteActionCallback(
-                    'patient-registration',
-                    idPatientToDelete,
-                    idPatientToDelete,
-                    'delete successfully',
-                    'There was an error deleting patient data details and confirmation',
-                    true
-                )
+                true
             )
+        )
+
+        if (typeof setOnPopupSetting !== 'undefined') {
+            setOnPopupSetting({} as PopupSetting)
         }
     }
 
     function clickDeleteConfirmationData(): void {
-        if (window.confirm(`Delete confirmation data from "${namePatientToDelete}" patient`)) {
-            setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
-            setOnPopupChooseDelete(false)
-
-            const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
-
-            deleteActionCallback(
-                'confirmation-patients',
-                findIdConfirmData?.id as string,
-                idPatientToDelete,
-                'delete successfully',
-                'There was an error deleting patient confirmation data',
-                true
-            )
+        if (typeof setOnPopupSetting !== 'undefined') {
+            setOnPopupSetting({
+                title: `Delete confirmation data from "${namePatientToDelete}" patient`,
+                classIcon: 'text-font-color-2',
+                classBtnNext: 'hover:bg-white',
+                iconPopup: faBan,
+                nameBtnNext: 'Yes',
+                patientId: idPatientToDelete,
+                categoryAction: 'delete-confirmation'
+            })
         }
     }
-    
+
+    function nextDeleteConfirmationData(): void {
+        setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
+        setOnPopupChooseDelete(false)
+
+        const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
+
+        deleteActionCallback(
+            'confirmation-patients',
+            findIdConfirmData?.id as string,
+            idPatientToDelete,
+            'delete successfully',
+            'There was an error deleting patient confirmation data',
+            true
+        )
+
+        if (typeof setOnPopupSetting !== 'undefined') {
+            setOnPopupSetting({} as PopupSetting)
+        }
+    }
+
     // action delete
     function loadingDeleteIcon(): void {
         if (dataColumns.length > 0) {
@@ -157,12 +193,26 @@ export function DeletePatient({
     // action cancel treatment
     function clickCancelTreatment(id: string, name: string): void {
         const findId = idLoadingCancelTreatment.find(patientId => patientId === id)
-        if (
-            !findId &&
-            window.confirm(`cancel treatment from patient "${name}"?`)
-        ) {
-            setIdLoadingCancelTreatment((current) => [...current, id])
-            pushCancelTreatment(id)
+        if (!findId) {
+            if (typeof setOnPopupSetting !== 'undefined') {
+                setOnPopupSetting({
+                    title: `cancel treatment from patient "${name}"?`,
+                    classIcon: 'text-font-color-2',
+                    classBtnNext: 'hover:bg-white',
+                    iconPopup: faBan,
+                    nameBtnNext: 'Yes',
+                    patientId: id,
+                    categoryAction: 'cancel-treatment'
+                })
+            }
+        }
+    }
+
+    function nextCancelTreatment(id: string): void {
+        setIdLoadingCancelTreatment((current) => [...current, id])
+        pushCancelTreatment(id)
+        if (typeof setOnPopupSetting !== 'undefined') {
+            setOnPopupSetting({} as PopupSetting)
         }
     }
 
@@ -235,6 +285,9 @@ export function DeletePatient({
         closePopupChooseDelete,
         clickDeleteDetailAndConfirmData,
         clickDeleteConfirmationData,
-        clickCancelTreatment
+        clickCancelTreatment,
+        nextCancelTreatment,
+        nextDeleteConfirmationData,
+        nextDeleteDetailAndConfirmData
     }
 }

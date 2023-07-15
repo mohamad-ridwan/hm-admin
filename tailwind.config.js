@@ -32,6 +32,7 @@ module.exports = {
         'bdr-one': '1px'
       },
       colors: {
+        'bgp-default': '#f8f8f8',
         'font-color-2': '#495057',
         'font-color-3': '#444',
         'font-color-4': '#111',

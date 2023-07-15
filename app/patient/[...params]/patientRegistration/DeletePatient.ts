@@ -6,7 +6,6 @@ import { API } from "lib/api"
 import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
 
 export function DeletePatient({ params }: { params?: string }) {
-    const [onPopupDelete, setOnPopupDelete] = useState<boolean>(false)
     const [loadingDelete, setLoadingDelete] = useState<boolean>(false)
 
     const {
@@ -44,7 +43,6 @@ export function DeletePatient({ params }: { params?: string }) {
 
     function clickDelete(patientId: string): void {
         if (loadingDelete === false) {
-            setOnPopupDelete(false)
             setLoadingDelete(true)
             pushDeletePatient(
                 'finished-treatment',
@@ -94,7 +92,5 @@ export function DeletePatient({ params }: { params?: string }) {
     return {
         clickDelete,
         loadingDelete,
-        onPopupDelete,
-        setOnPopupDelete
     }
 }

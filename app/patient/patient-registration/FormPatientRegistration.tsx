@@ -6,18 +6,8 @@ import { mailRegex } from "lib/regex/mailRegex"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { API } from "lib/api"
 import ServicingHours from "lib/actions/ServicingHours"
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { faPencil } from "@fortawesome/free-solid-svg-icons"
-
-type PopupSetting = {
-    title: string
-    classIcon?: string
-    classBtnNext?: string
-    iconPopup?: IconDefinition
-    nameBtnNext: string
-    patientId?: string
-    categoryAction: 'edit-patient' | 'cancel-treatment' | 'delete-patient'
-}
+import { PopupSetting } from "lib/types/TableT.type"
 
 type Props = {
     setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>

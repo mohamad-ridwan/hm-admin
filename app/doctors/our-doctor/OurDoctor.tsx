@@ -165,12 +165,12 @@ export function OurDoctor() {
                     <SettingPopup
                         clickClose={() => setOnPopupSetting({} as PopupSetting)}
                         title={onPopupSetting.title}
-                        classIcon={onPopupSetting.classIcon}
+                        classIcon="text-font-color-2"
                         iconPopup={onPopupSetting.iconPopup}
                     >
                         <Button
                             nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn={onPopupSetting?.classBtnNext}
+                            classBtn="hover:bg-white"
                             classLoading="hidden"
                             styleBtn={{
                                 padding: '0.5rem',
@@ -191,12 +191,12 @@ export function OurDoctor() {
                         />
                         <Button
                         nameBtn="Cancel"
-                        classBtn="bg-white border-orange-young hover:bg-orange-young hover:border-orange-young hover:text-white"
-                        colorBtnTxt="text-orange-young"
+                        classBtn="bg-white border-none"
                         classLoading="hidden"
                         styleBtn={{
                             padding: '0.5rem',
-                            marginTop: '0.5rem'
+                            marginTop: '0.5rem',
+                            color: '#495057'
                         }}
                         clickBtn={()=>setOnPopupSetting({} as PopupSetting)}
                         />
@@ -321,11 +321,11 @@ export function OurDoctor() {
                                     const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
                                     if(!findCurrentLoading){
                                         setOnPopupSetting({
-                                            title: `delete doctor ${item.data[0].name}?`,
+                                            title: `Delete doctor ${item.data[0].name}?`,
                                             classIcon: 'text-pink-old',
                                             classBtnNext: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
                                             iconPopup: faBan,
-                                            nameBtnNext: 'Delete',
+                                            nameBtnNext: 'Yes',
                                             doctorId: item.id,
                                             categoryAction: 'delete-doctor'
                                         })

@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
 import { InputEditConfirmPatientT, SubmitEditConfirmPatientT } from "lib/types/InputT.type"
 import { DataOptionT } from "lib/types/FilterT"
 import ServicingHours from "lib/actions/ServicingHours"
@@ -9,8 +9,16 @@ import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/dates/createDateFormat"
+import { PopupSetting } from "lib/types/TableT.type"
+import { faPencil } from "@fortawesome/free-solid-svg-icons"
 
-function FormPatientConfirmation() {
+type Props = {
+    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
+}
+
+function FormPatientConfirmation({
+    setOnPopupSetting
+}: Props) {
     const [nameEditConfirmPatient, setNameEditConfirmPatient] = useState<string>('')
     const [editActiveManualQueue, setEditActiveManualQueue] = useState<boolean>(true)
     const [editActiveAutoQueue, setEditActiveAutoQueue] = useState<boolean>(false)
@@ -227,11 +235,26 @@ function FormPatientConfirmation() {
         if (!isLoading) {
             validateEditConfirmPatient()
                 .then(res => {
-                    if (window.confirm(`Update confirmation data from patient "${nameEditConfirmPatient}"?`)) {
-                        setErrEditInputConfirmPatient({} as InputEditConfirmPatientT)
-                        pushToUpdateConfirmPatient()
+                    if (typeof setOnPopupSetting !== 'undefined') {
+                        setOnPopupSetting({
+                            title: `Update confirmation data from patient "${nameEditConfirmPatient}"?`,
+                            classIcon: 'text-color-default',
+                            classBtnNext: 'hover:bg-white',
+                            iconPopup: faPencil,
+                            nameBtnNext: 'Save',
+                            patientId: idPatientToEditConfirmPatient as string,
+                            categoryAction: 'edit-confirm-patient'
+                        })
                     }
                 })
+        }
+    }
+
+    function nextSubmitEditConfirmPatient():void{
+        setErrEditInputConfirmPatient({} as InputEditConfirmPatientT)
+        pushToUpdateConfirmPatient()
+        if (typeof setOnPopupSetting !== 'undefined') {
+            setOnPopupSetting({} as PopupSetting)
         }
     }
 
@@ -560,7 +583,8 @@ function FormPatientConfirmation() {
         idPatientToEditConfirmPatient,
         idLoadingEditConfirmPatient,
         submitEditConfirmPatient,
-        clickOnEditConfirmPatient
+        clickOnEditConfirmPatient,
+        nextSubmitEditConfirmPatient
     }
 }
 

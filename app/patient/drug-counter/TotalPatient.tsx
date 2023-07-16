@@ -7,7 +7,7 @@ export function TotalPatient({
 }: Props) {
     return (
         <ul
-        className="my-6"
+        className="mt-8"
         >
             {data.length > 0 && data.map((item, index) => {
                 return (

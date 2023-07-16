@@ -15,13 +15,11 @@ export function IsLoggedIn({
     children,
 }: IsLoggedInProps) {
     const { data, error, isLoading } = useSwr(endpoint.getAdmin())
-    const { userId } = userIdAuthStore()
+    const { userId, setUserId } = userIdAuthStore()
     const { setUser, setLoadingAuth } = authStore()
 
     function findAdmin(): void {
-        if (
-            typeof isLoading === 'boolean' &&
-            !isLoading &&
+        if (!isLoading &&
             typeof data === 'object'
         ) {
             const newData: ObjString = {}
@@ -32,6 +30,7 @@ export function IsLoggedIn({
                     const findUser = newData.data.data.find((admin: ObjString) => admin.id === userId && admin.isVerification)
                     if (!findUser) {
                         setUser({user: null})
+                        setUserId(null)
                         setLoadingAuth(false)
                     } else {
                         setUser({user: findUser})
@@ -40,6 +39,7 @@ export function IsLoggedIn({
                 } else {
                     console.log('no one the admin found it')
                     setUser({user: null})
+                    setUserId(null)
                     setLoadingAuth(false)
                 }
             }, 0)

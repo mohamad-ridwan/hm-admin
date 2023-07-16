@@ -4,12 +4,19 @@ import { TitleInput } from "components/input/TitleInput";
 import { UseCounter } from "./UseCounter";
 import { InputSelect } from "components/input/InputSelect";
 import { TotalPatient } from "./TotalPatient";
+import { CardInfo } from "components/dataInformation/CardInfo";
+import Button from "components/Button";
+import ErrorInput from "components/input/ErrorInput";
 
 export function DrugCounter() {
     const {
         optionsCounter,
         optionsGoTo,
-        optionsTotalPatient
+        optionsTotalPatient,
+        handleCounter,
+        handleGoTo,
+        errSelectToPage,
+        clickViewPage
     } = UseCounter()
 
     return (
@@ -18,23 +25,47 @@ export function DrugCounter() {
                 className="font-bold text-[1.3rem] mb-8"
             >Counter Information</h1>
 
-            <TitleInput
-                title="Choose Counter"
-            />
-            <InputSelect
-                data={optionsCounter}
-                classWrapp="w-fit"
-            />
+            <div
+                className="flex flex-wrap justify-between"
+            >
+                <CardInfo>
+                    <TitleInput
+                        title="Choose Counter"
+                    />
+                    <InputSelect
+                        id="counter"
+                        data={optionsCounter}
+                        classWrapp="w-full"
+                        handleSelect={handleCounter}
+                    />
+                    <ErrorInput
+                        error={errSelectToPage?.counter}
+                    />
 
-            <TotalPatient data={optionsTotalPatient} />
+                    <TotalPatient data={optionsTotalPatient} />
+                </CardInfo>
 
-            <TitleInput
-                title="Choose to go to the page"
-            />
-            <InputSelect
-                data={optionsGoTo}
-                classWrapp="w-fit"
-            />
+                <CardInfo>
+                    <TitleInput
+                        title="Choose to go to the page"
+                    />
+                    <InputSelect
+                        id="goToPage"
+                        data={optionsGoTo}
+                        classWrapp="w-full"
+                        handleSelect={handleGoTo}
+                    />
+                    <ErrorInput
+                        error={errSelectToPage?.toPage}
+                    />
+                    <Button
+                        nameBtn='View page'
+                        classBtn="hover:bg-white mt-8"
+                        classLoading="hidden"
+                        clickBtn={clickViewPage}
+                    />
+                </CardInfo>
+            </div>
         </>
     )
 }

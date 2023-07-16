@@ -36,7 +36,7 @@ export function PatientRegistration({ params }: { params: string }) {
         idPatientToEdit,
         idLoadingEdit,
         nextSubmitUpdate
-    } = FormPatientRegistration({setOnPopupSetting})
+    } = FormPatientRegistration({ setOnPopupSetting })
 
     const {
         detailDataPatientRegis,
@@ -153,10 +153,10 @@ export function PatientRegistration({ params }: { params: string }) {
                                 marginTop: '0.5rem'
                             }}
                             clickBtn={() => {
-                                if(onPopupSetting.categoryAction === 'edit-patient'){
+                                if (onPopupSetting.categoryAction === 'edit-patient') {
                                     nextSubmitUpdate()
                                 }
-                                if(onPopupSetting.categoryAction === 'delete-patient'){
+                                if (onPopupSetting.categoryAction === 'delete-patient') {
                                     clickDelete(detailDataPatientRegis?.id)
                                     setOnPopupSetting({} as PopupSetting)
                                 }
@@ -229,20 +229,16 @@ export function PatientRegistration({ params }: { params: string }) {
                     <div
                         className="w-full flex flex-wrap justify-between"
                     >
-                        {detailDataPatientRegis?.id && (
-                            <>
-                                {detailData.length > 0 && detailData.map((item, index) => {
-                                    return (
-                                        <CardInfo
-                                            key={index}
-                                            title={item.title}
-                                            textInfo={item.textInfo}
-                                            icon={item?.icon}
-                                        />
-                                    )
-                                })}
-                            </>
-                        )}
+                        {detailData.length > 0 && detailData.map((item, index) => {
+                            return (
+                                <CardInfo
+                                    key={index}
+                                    title={item.title}
+                                    textInfo={item.textInfo}
+                                    icon={item?.icon}
+                                />
+                            )
+                        })}
                     </div>
                 </Container>
 

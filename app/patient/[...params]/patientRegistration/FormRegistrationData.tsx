@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from "react"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
@@ -14,8 +17,11 @@ import { DeletePatient } from "./DeletePatient"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import { FormPopup } from "components/popup/FormPopup"
+import { PopupSetting } from "lib/types/TableT.type"
 
 function FormRegistrationData({ params }: { params: string }) {
+    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+
     const {
         optionsSpecialist,
         handleSelect,
@@ -25,30 +31,29 @@ function FormRegistrationData({ params }: { params: string }) {
         optionsRoom,
         inputValue,
         clickToggleAutoRoom,
-        loadingSubmit
+        loadingSubmit,
+        nextSubmitConfirmation
     } = HandleFormRegistration(
-        { params }
+        { params, setOnPopupSetting }
     )
 
     const {
         loadingCancelTreatment,
-        onPopupSettings,
-        setOnPopupSettings,
         clickCancelTreatment,
         onMsgCancelTreatment,
         setOnMsgCancelTreatment,
         handleCancelMsg,
         inputMsgCancelPatient,
         submitCancelTreatment
-    } = DeletePatient({ params })
+    } = DeletePatient({ params, setOnPopupSetting })
 
     function cancelPopupSetting(): void {
-        setOnPopupSettings(false)
+        setOnPopupSetting({} as PopupSetting)
     }
 
     function clickYes(): void {
         setOnMsgCancelTreatment(true)
-        setOnPopupSettings(false)
+        setOnPopupSetting({} as PopupSetting)
     }
 
     function cancelOnMsgCancelPatient(): void {
@@ -61,18 +66,18 @@ function FormRegistrationData({ params }: { params: string }) {
             classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
             maxWidth="auto"
         >
-            {onPopupSettings && (
+            {onPopupSetting?.title && (
                 <ContainerPopup
                     className='flex justify-center items-center overflow-y-auto'
                 >
                     <SettingPopup
                         clickClose={cancelPopupSetting}
-                        title='Cancel patient registration?'
+                        title={onPopupSetting.title}
                         classIcon='text-font-color-2'
-                        iconPopup={faBan}
+                        iconPopup={onPopupSetting.iconPopup}
                     >
                         <Button
-                            nameBtn="Yes"
+                            nameBtn={onPopupSetting.nameBtnNext}
                             classBtn="hover:bg-white"
                             classLoading="hidden"
                             styleBtn={{
@@ -80,7 +85,13 @@ function FormRegistrationData({ params }: { params: string }) {
                                 marginRight: '0.6rem',
                                 marginTop: '0.5rem'
                             }}
-                            clickBtn={clickYes}
+                            clickBtn={()=>{
+                                if(onPopupSetting.categoryAction === 'cancel-treatment'){
+                                    clickYes()
+                                }else if(onPopupSetting.categoryAction === 'confirm-registration'){
+                                    nextSubmitConfirmation()
+                                }
+                            }}
                         />
                         <Button
                             nameBtn="Cancel"

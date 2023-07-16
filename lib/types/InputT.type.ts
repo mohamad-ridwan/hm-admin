@@ -73,3 +73,20 @@ export type SubmitFinishedTreatmentT = {
     isCanceled: boolean | string
     messageCancelled: string
 }
+
+export type InputDrugCounterT = {
+    loketName: string
+    message: string
+}
+
+export type SubmitDrugCounterT = {
+    patientId: string
+    loketInfo: {loketId: string}
+    message: string
+    adminInfo: {adminId: string}
+    presence: string
+    submissionDate: {
+        submissionDate: string
+        submitHours:string
+    }
+}

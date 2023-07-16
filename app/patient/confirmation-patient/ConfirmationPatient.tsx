@@ -26,6 +26,10 @@ import { DeletePatient } from './DeletePatient'
 import { specialCharacter } from 'lib/regex/specialCharacter'
 import { spaceString } from 'lib/regex/spaceString'
 import { PopupSetting } from 'lib/types/TableT.type'
+import { FormPopup } from 'components/popup/FormPopup'
+import { TitleInput } from 'components/input/TitleInput'
+import Input from 'components/input/Input'
+import ErrorInput from 'components/input/ErrorInput'
 
 export function ConfirmationPatient() {
     const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
@@ -116,8 +120,13 @@ export function ConfirmationPatient() {
         clickCancelTreatment,
         nextCancelTreatment,
         nextDeleteConfirmationData,
-        nextDeleteDetailAndConfirmData
-    } = DeletePatient({ user, dataColumns, setOnPopupSetting })
+        nextDeleteDetailAndConfirmData,
+        handleCancelMsg,
+        submitCancelTreatment,
+        onMsgCancelTreatment,
+        setOnMsgCancelTreatment,
+        inputMsgCancelPatient
+    } = DeletePatient({ user, dataColumns, setOnPopupSetting, onPopupSetting })
 
     const router = useRouter()
 
@@ -133,6 +142,10 @@ export function ConfirmationPatient() {
     function clickOnEditDetailPatient(): void {
         setOnPopupEdit(true)
         setOnPopupSettings(false)
+    }
+
+    function cancelOnMsgCancelPatient(): void {
+        setOnMsgCancelTreatment(false)
     }
 
     return (
@@ -305,7 +318,7 @@ export function ConfirmationPatient() {
                                 } else if (onPopupSetting.categoryAction === 'edit-confirm-patient') {
                                     nextSubmitEditConfirmPatient()
                                 } else if (onPopupSetting.categoryAction === 'cancel-treatment') {
-                                    nextCancelTreatment(onPopupSetting.patientId as string)
+                                    nextCancelTreatment()
                                 } else if (onPopupSetting.categoryAction === 'delete-confirmation') {
                                     nextDeleteConfirmationData()
                                 } else if (onPopupSetting.categoryAction === 'delete-detail-and-confirmation') {
@@ -326,6 +339,56 @@ export function ConfirmationPatient() {
                             clickBtn={() => setOnPopupSetting({} as PopupSetting)}
                         />
                     </SettingPopup>
+                </ContainerPopup>
+            )}
+
+            {/* form message cancel patient */}
+            {onMsgCancelTreatment && (
+                <ContainerPopup
+                    className='flex justify-center overflow-y-auto'
+                >
+                    <FormPopup
+                        tag="div"
+                        clickClose={cancelOnMsgCancelPatient}
+                        title="Messages for canceled patients"
+                    >
+                        <TitleInput title='Message' />
+                        <Input
+                            type='text'
+                            nameInput='messageCancelled'
+                            changeInput={handleCancelMsg}
+                            valueInput={inputMsgCancelPatient}
+                        />
+                        <ErrorInput
+                            error={inputMsgCancelPatient.length === 0 ? 'Must be required' : ''}
+                        />
+
+                        <div
+                            className="flex flex-wrap justify-end"
+                        >
+                            <Button
+                                nameBtn="Confirm"
+                                classBtn="hover:bg-white"
+                                classLoading="hidden"
+                                styleBtn={{
+                                    padding: '0.5rem',
+                                    marginTop: '0.5rem',
+                                }}
+                                clickBtn={submitCancelTreatment}
+                            />
+                            <Button
+                                nameBtn="Cancel"
+                                classBtn="bg-white border-none"
+                                classLoading="hidden"
+                                styleBtn={{
+                                    padding: '0.5rem',
+                                    marginTop: '0.5rem',
+                                    color: '#495057'
+                                }}
+                                clickBtn={cancelOnMsgCancelPatient}
+                            />
+                        </div>
+                    </FormPopup>
                 </ContainerPopup>
             )}
 

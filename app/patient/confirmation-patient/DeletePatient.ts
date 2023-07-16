@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
 import ServicingHours from "lib/actions/ServicingHours"
 import { useRouter } from 'next/navigation'
 import { API } from "lib/api"
@@ -18,18 +18,22 @@ type Props = {
     user: UserT
     dataColumns: DataTableContentT[]
     setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
+    onPopupSetting?: PopupSetting
 }
 
 export function DeletePatient({
     user,
     dataColumns,
-    setOnPopupSetting
+    setOnPopupSetting,
+    onPopupSetting
 }: Props) {
     const [loadingIdPatientsDelete, setLoadingIdPatientsDelete] = useState<string[]>([])
     const [idLoadingCancelTreatment, setIdLoadingCancelTreatment] = useState<string[]>([])
     const [namePatientToDelete, setNamePatientToDelete] = useState<string | null>(null)
     const [idPatientToDelete, setIdPatientToDelete] = useState<string>('')
     const [onPopupChooseDelete, setOnPopupChooseDelete] = useState<boolean>(false)
+    const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
+    const [inputMsgCancelPatient, setInputMsgCancelPatient] = useState<string>('')
 
     const {
         dataConfirmationPatients,
@@ -208,11 +212,22 @@ export function DeletePatient({
         }
     }
 
-    function nextCancelTreatment(id: string): void {
-        setIdLoadingCancelTreatment((current) => [...current, id])
-        pushCancelTreatment(id)
-        if (typeof setOnPopupSetting !== 'undefined') {
-            setOnPopupSetting({} as PopupSetting)
+    function nextCancelTreatment(): void {
+        setOnMsgCancelTreatment(true)
+    }
+
+    function handleCancelMsg(e: ChangeEvent<HTMLInputElement>):void{
+        setInputMsgCancelPatient(e.target.value)
+    }
+
+    function submitCancelTreatment():void{
+        if(inputMsgCancelPatient.length > 0){
+            setIdLoadingCancelTreatment((current) => [...current, onPopupSetting?.patientId as string])
+            pushCancelTreatment(onPopupSetting?.patientId as string)
+            if (typeof setOnPopupSetting !== 'undefined') {
+                setOnPopupSetting({} as PopupSetting)
+            }
+            setOnMsgCancelTreatment(false)
         }
     }
 
@@ -227,7 +242,7 @@ export function DeletePatient({
                 adminId: user.user?.id as string
             },
             isCanceled: true,
-            messageCancelled: ''
+            messageCancelled: inputMsgCancelPatient
         }
         API().APIPostPatientData(
             'finished-treatment',
@@ -289,6 +304,11 @@ export function DeletePatient({
         clickCancelTreatment,
         nextCancelTreatment,
         nextDeleteConfirmationData,
-        nextDeleteDetailAndConfirmData
+        nextDeleteDetailAndConfirmData,
+        handleCancelMsg,
+        submitCancelTreatment,
+        onMsgCancelTreatment,
+        setOnMsgCancelTreatment,
+        inputMsgCancelPatient
     }
 }

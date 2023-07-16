@@ -1,13 +1,15 @@
 'use client'
 
-import { faCalendarDays, faCheck, faClock, faListOl, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { IconDefinition, faCalendarDays, faCheck, faClock, faListOl, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { Container } from "components/Container";
 import { CardInfo } from "components/dataInformation/CardInfo";
 import { HeadInfo } from "components/dataInformation/HeadInfo";
+import ServicingHours from "lib/actions/ServicingHours";
 import { UsePatientData } from "lib/actions/dataInformation/UsePatientData";
 import { createDateFormat } from "lib/dates/createDateFormat";
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat";
 import { spaceString } from "lib/regex/spaceString";
+import { FormConfirmation } from "./FormConfirmation";
 
 export function ConfirmationPatient({ params }: { params: string }) {
     const {
@@ -16,6 +18,11 @@ export function ConfirmationPatient({ params }: { params: string }) {
         doctors,
         dataRooms,
     } = UsePatientData({ params })
+
+    const {
+        loadGetDataAdmin,
+        dataAdmin
+    } = ServicingHours()
 
     const findCurrentRoom = dataRooms?.find(room => room.id === dataConfirmPatient?.roomInfo?.roomId)
     const findCurrentDoctor = doctors?.find(doctor => doctor.id === dataConfirmPatient?.doctorInfo?.doctorId)
@@ -26,6 +33,63 @@ export function ConfirmationPatient({ params }: { params: string }) {
     const doctorIsHoliday = findCurrentDoctor?.holidaySchedule?.find(date => date.date === createDateFormat(dateOfAppointment))
     const doctorIsOnCurrentDay = findCurrentDoctor?.doctorSchedule?.find(day => day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
     const doctorIsAvailable = !doctorIsHoliday ? doctorIsOnCurrentDay ? true : false : false
+
+    const findAdmin = !loadGetDataAdmin && typeof dataAdmin !== 'undefined' ? dataAdmin.find(admin=>admin.id === dataConfirmPatient?.adminInfo?.adminId) : null
+
+    const detailData: {
+        title: string
+        textInfo: string
+        icon?: IconDefinition
+    }[] = dataConfirmPatient?.id ? [
+        {
+            title: 'Presence State',
+            textInfo: dataConfirmPatient.roomInfo.presence.toUpperCase()
+        },
+        {
+            title: 'Queue Number',
+            textInfo: dataConfirmPatient.roomInfo.queueNumber,
+            icon: faListOl
+        },
+        {
+            title: 'Treatment Hours',
+            textInfo: dataConfirmPatient.dateConfirmInfo.treatmentHours,
+            icon: faClock
+        },
+        {
+            title: 'Room Name',
+            textInfo: findCurrentRoom?.room as string,
+        },
+        {
+            title: 'Doctor Name',
+            textInfo: findCurrentDoctor?.name as string,
+        },
+        {
+            title: 'Doctor Specialist',
+            textInfo: findCurrentDoctor?.deskripsi as string,
+        },
+        {
+            title: 'Doctor ID',
+            textInfo: dataConfirmPatient.doctorInfo.doctorId,
+        },
+        {
+            title: 'Confirmation Hour',
+            textInfo: dataConfirmPatient.dateConfirmInfo.confirmHour,
+            icon: faClock
+        },
+        {
+            title: 'Confirmed Date',
+            textInfo: createDateNormalFormat(dataConfirmPatient.dateConfirmInfo.dateConfirm),
+            icon: faCalendarDays
+        },
+        {
+            title: 'Admin Email',
+            textInfo: findAdmin?.email as string,
+        },
+        {
+            title: 'Admin ID',
+            textInfo: findAdmin?.id as string,
+        },
+    ] : []
 
     return (
         <>
@@ -55,52 +119,21 @@ export function ConfirmationPatient({ params }: { params: string }) {
                         <div
                             className="w-full flex flex-wrap justify-between"
                         >
-                            {dataConfirmPatient?.id && (
-                                <>
+                            {detailData.length > 0 && detailData.map((item, index) => {
+                                return (
                                     <CardInfo
-                                        title='Presence State'
-                                        textInfo={dataConfirmPatient.roomInfo.presence.toUpperCase()}
+                                        key={index}
+                                        title={item.title}
+                                        textInfo={item.textInfo}
+                                        icon={item?.icon}
                                     />
-                                    <CardInfo
-                                        title='Queue Number'
-                                        textInfo={dataConfirmPatient.roomInfo.queueNumber}
-                                        icon={faListOl}
-                                    />
-                                    <CardInfo
-                                        title='Treatment Hours'
-                                        textInfo={dataConfirmPatient.dateConfirmInfo.treatmentHours}
-                                        icon={faClock}
-                                    />
-                                    <CardInfo
-                                        title='Room Name'
-                                        textInfo={findCurrentRoom?.room}
-                                    />
-                                    <CardInfo
-                                        title='Doctor Name'
-                                        textInfo={findCurrentDoctor?.name}
-                                    />
-                                    <CardInfo
-                                        title='Doctor Specialist'
-                                        textInfo={findCurrentDoctor?.deskripsi}
-                                    />
-                                    <CardInfo
-                                        title='Doctor ID'
-                                        textInfo={dataConfirmPatient.doctorInfo.doctorId}
-                                    />
-                                    <CardInfo
-                                        title='Confirmation Hour'
-                                        textInfo={dataConfirmPatient.dateConfirmInfo.confirmHour}
-                                        icon={faClock}
-                                    />
-                                    <CardInfo
-                                        title='Confirmed Date'
-                                        textInfo={createDateNormalFormat(dataConfirmPatient.dateConfirmInfo.dateConfirm)}
-                                        icon={faCalendarDays}
-                                    />
-                                </>
-                            )}
+                                )
+                            })}
                         </div>
                     </Container>
+
+                    {/* form confirm patient to counter */}
+                    <FormConfirmation/>
                 </Container>
             )}
         </>

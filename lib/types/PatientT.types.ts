@@ -90,3 +90,9 @@ export type RoomTreatmentT = {
     id: string
     room: string
 }
+
+// info loket
+export type InfoLoketT = {
+    id: string
+    loketName: string
+}

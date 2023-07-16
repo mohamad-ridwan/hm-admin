@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { CSSProperties, ReactNode } from "react"
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
@@ -9,6 +9,7 @@ type Props = {
     icon?: IconDefinition
     children?: ReactNode
     classWrapp?: string
+    styleWrapp?: CSSProperties
 }
 
 export function CardInfo({
@@ -17,11 +18,13 @@ export function CardInfo({
     textInfo,
     additionalInfo,
     icon,
-    children
+    children,
+    styleWrapp
 }: Props) {
     return (
         <div
             className={`w-full max-info-card-mobile:w-[45%] my-5 ${classWrapp}`}
+            style={styleWrapp}
         >
             {!children && (
                 <>

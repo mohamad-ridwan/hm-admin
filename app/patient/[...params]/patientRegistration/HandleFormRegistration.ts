@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { DataOptionT } from "lib/types/FilterT"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
@@ -12,8 +12,18 @@ import { createDateFormat } from "lib/dates/createDateFormat"
 import { createHourFormat } from "lib/dates/createHourFormat"
 import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { PopupSetting } from "lib/types/TableT.type"
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
 
-export function HandleFormRegistration({params}: {params: string}) {
+type Props = {
+    params: string
+    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
+}
+
+export function HandleFormRegistration({
+    params,
+    setOnPopupSetting
+}: Props) {
     const [inputValue, setInputValue] = useState<InputPatientRegistrationT>({
         specialist: 'Select Specialist',
         doctor: 'Select Doctor',
@@ -309,11 +319,26 @@ export function HandleFormRegistration({params}: {params: string}) {
         if (
             loadingSubmit === false &&
             validateSubmit() &&
-            window.confirm('confirm patient?')
+            typeof setOnPopupSetting !== 'undefined'
         ) {
-            setLoadingSubmit(true)
-            setErrInputValue({} as InputPatientRegistrationT)
-            pushToConfirm()
+            setOnPopupSetting({
+                title: 'Confirm patient?',
+                classIcon: 'text-font-color-2',
+                classBtnNext: 'hover:bg-white',
+                iconPopup: faCircleCheck,
+                nameBtnNext: 'Yes',
+                patientId: '',
+                categoryAction: 'confirm-registration'
+            })
+        }
+    }
+
+    function nextSubmitConfirmation():void{
+        setLoadingSubmit(true)
+        setErrInputValue({} as InputPatientRegistrationT)
+        pushToConfirm()
+        if(typeof setOnPopupSetting !== 'undefined'){
+            setOnPopupSetting({} as PopupSetting)
         }
     }
 
@@ -421,6 +446,7 @@ export function HandleFormRegistration({params}: {params: string}) {
         optionsRoom,
         inputValue,
         clickToggleAutoRoom,
-        loadingSubmit
+        loadingSubmit,
+        nextSubmitConfirmation,
     }
 }

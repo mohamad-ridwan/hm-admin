@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSwr } from "lib/useFetch/useSwr"
 import { endpoint } from "../api/endpoint"
-import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
+import { ConfirmationPatientsT, DrugCounterT, InfoLoketT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { AuthRequiredError } from "lib/errorHandling/exceptions"
@@ -34,6 +34,10 @@ function ServicingHours(){
     // room
     const getRoomsTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: RoomTreatmentT) => item?.id === 'room')
     const dataRooms: RoomTreatmentT[] | undefined = getRoomsTreatment?.data
+
+    // info loket
+    const getInfoLoket: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: InfoLoketT) => item?.id === 'info-loket')
+    const dataLoket: InfoLoketT[] | undefined = getInfoLoket?.data
 
     // admin
     const { data: getDataAdmin, error: errGetDataAdmin, isLoading: loadGetDataAdmin } = useSwr(endpoint.getAdmin())
@@ -84,6 +88,7 @@ function ServicingHours(){
         dataFinishTreatment,
         dataAdmin,
         dataRooms,
+        dataLoket,
         doctors,
         loadDataService,
         loadDataDoctors,

@@ -7,7 +7,7 @@ import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { HeadDataTableT } from "lib/types/TableT.type"
 import ServicingHours from "lib/actions/ServicingHours"
-import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
+import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
 
 export function FilterTable() {
@@ -110,6 +110,7 @@ export function FilterTable() {
         dataPatientRegis,
         dataConfirmationPatients,
         dataFinishTreatment,
+        dataDrugCounter,
         dataRooms,
         loadDataService,
     } = ServicingHours()
@@ -117,6 +118,7 @@ export function FilterTable() {
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,
         dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
+        dataDrugCounter: DrugCounterT[] | undefined,
         dataFinishTreatment: PatientFinishTreatmentT[] | undefined,
         room: RoomTreatmentT[] | undefined
     ): void {
@@ -128,12 +130,16 @@ export function FilterTable() {
             const findConfirmPatient = dataConfirmationPatients?.filter(patient => {
                 // patient registration
                 const findPatientRegistration = dataPatientRegis?.find(patientRegis =>
-                    patientRegis.id === patient.patientId && patient.roomInfo.presence === 'tidak hadir'
+                    patientRegis.id === patient.patientId
+                )
+                // patient in counter
+                const findPatientInCounter = dataDrugCounter?.find(counterP =>
+                    counterP.patientId === patient.patientId
                 )
                 // patient at finish treatment
                 const findPatientFT = dataFinishTreatment?.find((patientFT) => patientFT.patientId === patient.patientId)
 
-                return !findPatientFT && findPatientRegistration
+                return !findPatientFT && !findPatientInCounter && findPatientRegistration
             })
 
             const setPatientRegistration = async (): Promise<PatientRegistrationT[]> => {
@@ -292,6 +298,7 @@ export function FilterTable() {
         findDataRegistration(
             dataPatientRegis,
             dataConfirmationPatients,
+            dataDrugCounter,
             dataFinishTreatment,
             dataRooms
         )
@@ -607,10 +614,10 @@ export function FilterTable() {
         }
     }
 
-    function clickColumnMenu(index: number):void{
-        if(index === indexActiveTableMenu){
+    function clickColumnMenu(index: number): void {
+        if (index === indexActiveTableMenu) {
             setIndexActiveTableMenu(null)
-        }else{
+        } else {
             setIndexActiveTableMenu(index)
         }
     }
@@ -630,7 +637,7 @@ export function FilterTable() {
         dataFilterRoom,
         handleFilterByRoom,
         setChooseFilterByRoom,
-        chooseFilterByDate, 
+        chooseFilterByDate,
         setChooseFilterByDate,
         filterBy,
         handleFilterDate,

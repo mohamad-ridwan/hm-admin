@@ -36,22 +36,21 @@ function FormPatientConfirmation({
         doctorSpecialist: '',
         roomName: '',
         queueNumber: '',
-        presence: ''
     })
-    const [selectPresence, setSelectPresence] = useState<DataOptionT>([
-        {
-            id: 'Select Presence',
-            title: 'Select Presence'
-        },
-        {
-            id: 'tidak hadir',
-            title: 'tidak hadir'
-        },
-        {
-            id: 'hadir',
-            title: 'hadir'
-        }
-    ])
+    // const [selectPresence, setSelectPresence] = useState<DataOptionT>([
+    //     {
+    //         id: 'Select Presence',
+    //         title: 'Select Presence'
+    //     },
+    //     {
+    //         id: 'tidak hadir',
+    //         title: 'tidak hadir'
+    //     },
+    //     {
+    //         id: 'hadir',
+    //         title: 'hadir'
+    //     }
+    // ])
     const [selectDoctorSpecialist, setSelectDoctorSpecialist] = useState<DataOptionT>([
         {
             id: 'Select Specialist',
@@ -271,7 +270,7 @@ function FormPatientConfirmation({
             doctorSpecialist,
             roomName,
             queueNumber,
-            presence
+            // presence
         } = valueInputEditConfirmPatient
 
         if (!patientId.trim()) {
@@ -301,9 +300,9 @@ function FormPatientConfirmation({
         if (!queueNumber.trim()) {
             err.queueNumber = 'Please select attendance'
         }
-        if (presence === 'Select Presence') {
-            err.presence = 'Please select attendance'
-        }
+        // if (presence === 'Select Presence') {
+        //     err.presence = 'Please select attendance'
+        // }
 
         return await new Promise((resolve, reject) => {
             if (Object.keys(err).length === 0) {
@@ -329,7 +328,6 @@ function FormPatientConfirmation({
             doctorSpecialist,
             roomName,
             queueNumber,
-            presence
         } = valueInputEditConfirmPatient
 
         // admin
@@ -379,7 +377,7 @@ function FormPatientConfirmation({
             roomInfo: {
                 roomId: findRoom?.id as string,
                 queueNumber: specifyQueue,
-                presence
+                // presence
             }
         }
 
@@ -432,7 +430,7 @@ function FormPatientConfirmation({
                 doctorSpecialist: findDoctor?.deskripsi as string,
                 roomName: findRoom?.room as string,
                 queueNumber: roomInfo?.queueNumber,
-                presence: roomInfo?.presence
+                // presence: roomInfo?.presence
             })
 
             setTimeout(() => {
@@ -533,11 +531,11 @@ function FormPatientConfirmation({
         }
     }
 
-    function activeSelectPresence(): void {
-        const findIndexPresence: number = selectPresence.findIndex(presence => presence.id === valueInputEditConfirmPatient?.presence)
+    // function activeSelectPresence(): void {
+    //     const findIndexPresence: number = selectPresence.findIndex(presence => presence.id === valueInputEditConfirmPatient?.presence)
 
-        activeSelectEditConfirmPatient('selectPresence', findIndexPresence)
-    }
+    //     activeSelectEditConfirmPatient('selectPresence', findIndexPresence)
+    // }
 
     function clickOnEditConfirmPatient(): void {
         setOnPopupEditConfirmPatient(true)
@@ -550,7 +548,7 @@ function FormPatientConfirmation({
             activeSelectSpecialist()
             activeSelectDoctor()
             activeSelectRoom()
-            activeSelectPresence()
+            // activeSelectPresence()
         }, 500);
     }
 
@@ -579,7 +577,7 @@ function FormPatientConfirmation({
         editActiveManualQueue,
         toggleChangeManualQueue,
         toggleSetAutoQueue,
-        selectPresence,
+        // selectPresence,
         idPatientToEditConfirmPatient,
         idLoadingEditConfirmPatient,
         submitEditConfirmPatient,

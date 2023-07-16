@@ -15,6 +15,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
     const {
         detailDataPatientRegis,
         dataConfirmPatient,
+        drugCounterPatient,
         doctors,
         dataRooms,
     } = UsePatientData({ params })
@@ -41,9 +42,25 @@ export function ConfirmationPatient({ params }: { params: string }) {
         textInfo: string
         icon?: IconDefinition
     }[] = dataConfirmPatient?.id ? [
+        // {
+        //     title: 'Presence State',
+        //     textInfo: dataConfirmPatient.roomInfo.presence.toUpperCase()
+        // },
         {
-            title: 'Presence State',
-            textInfo: dataConfirmPatient.roomInfo.presence.toUpperCase()
+            title: 'Doctor Name',
+            textInfo: findCurrentDoctor?.name as string,
+        },
+        {
+            title: 'Doctor Specialist',
+            textInfo: findCurrentDoctor?.deskripsi as string,
+        },
+        {
+            title: 'Room Name',
+            textInfo: findCurrentRoom?.room as string,
+        },
+        {
+            title: 'Doctor ID',
+            textInfo: dataConfirmPatient.doctorInfo.doctorId,
         },
         {
             title: 'Queue Number',
@@ -54,22 +71,6 @@ export function ConfirmationPatient({ params }: { params: string }) {
             title: 'Treatment Hours',
             textInfo: dataConfirmPatient.dateConfirmInfo.treatmentHours,
             icon: faClock
-        },
-        {
-            title: 'Room Name',
-            textInfo: findCurrentRoom?.room as string,
-        },
-        {
-            title: 'Doctor Name',
-            textInfo: findCurrentDoctor?.name as string,
-        },
-        {
-            title: 'Doctor Specialist',
-            textInfo: findCurrentDoctor?.deskripsi as string,
-        },
-        {
-            title: 'Doctor ID',
-            textInfo: dataConfirmPatient.doctorInfo.doctorId,
         },
         {
             title: 'Confirmation Hour',
@@ -133,7 +134,9 @@ export function ConfirmationPatient({ params }: { params: string }) {
                     </Container>
 
                     {/* form confirm patient to counter */}
-                    <FormConfirmation/>
+                    {!drugCounterPatient?.id && (
+                        <FormConfirmation/>
+                    )}
                 </Container>
             )}
         </>

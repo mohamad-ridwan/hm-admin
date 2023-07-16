@@ -43,7 +43,7 @@ type Props = ActionProps & {
     selectDoctor: DataOptionT
     selectRoom: DataOptionT
     editActiveManualQueue: boolean
-    selectPresence: DataOptionT
+    // selectPresence: DataOptionT
     idPatientToEditConfirmPatient: string | null
     idLoadingEditConfirmPatient: string[]
 }
@@ -65,7 +65,7 @@ function EditPatientConfirmation({
     editActiveManualQueue,
     toggleChangeManualQueue,
     toggleSetAutoQueue,
-    selectPresence,
+    // selectPresence,
     idPatientToEditConfirmPatient,
     idLoadingEditConfirmPatient,
     submitEditConfirmPatient
@@ -215,7 +215,7 @@ function EditPatientConfirmation({
                     error={errEditInputConfirmPatient?.treatmentHours}
                 />
 
-                <TitleInput title='Presence' />
+                {/* <TitleInput title='Presence' />
                 <InputSelect
                     id='selectPresence'
                     classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
@@ -225,7 +225,7 @@ function EditPatientConfirmation({
                 <ErrorInput
                     {...styleError}
                     error={errEditInputConfirmPatient?.presence}
-                />
+                /> */}
 
                 <Button
                     nameBtn="UPDATE"

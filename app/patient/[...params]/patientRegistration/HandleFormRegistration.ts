@@ -419,7 +419,7 @@ export function HandleFormRegistration({
             roomInfo: {
                 roomId: findRoom?.id as string,
                 queueNumber: `${queueNumber}`,
-                presence: 'tidak hadir'
+                // presence: 'tidak hadir'
             }
         }
 

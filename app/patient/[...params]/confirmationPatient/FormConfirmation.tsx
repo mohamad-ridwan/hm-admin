@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react";
 import Button from "components/Button";
 import { Container } from "components/Container";
 import { CardInfo } from "components/dataInformation/CardInfo";
@@ -10,13 +11,27 @@ import { InputSelect } from "components/input/InputSelect";
 import { TitleInput } from "components/input/TitleInput";
 import { UseForm } from "./UseForm";
 import { TinyEditor } from "components/tinyEditor/TinyEditor";
+import { PopupSetting } from "lib/types/TableT.type";
+import { ContainerPopup } from "components/popup/ContainerPopup";
+import { SettingPopup } from "components/popup/SettingPopup";
 
 export function FormConfirmation() {
+    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+
     const {
         counterOptions,
         value,
-        setValue
-    } = UseForm()
+        setValue,
+        submitForm,
+        errInput,
+        confirmSubmitForm,
+        handleCounter,
+        loadingSubmit
+    } = UseForm({ setOnPopupSetting })
+
+    function cancelPopupSetting(): void {
+        setOnPopupSetting({} as PopupSetting)
+    }
 
     return (
         <Container
@@ -24,6 +39,47 @@ export function FormConfirmation() {
             classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
             maxWidth="auto"
         >
+            {onPopupSetting?.title && (
+                <ContainerPopup
+                    className='flex justify-center items-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        clickClose={cancelPopupSetting}
+                        title={onPopupSetting.title}
+                        classIcon='text-font-color-2'
+                        iconPopup={onPopupSetting.iconPopup}
+                    >
+                        <Button
+                            nameBtn={onPopupSetting.nameBtnNext}
+                            classBtn="hover:bg-white"
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginRight: '0.6rem',
+                                marginTop: '0.5rem'
+                            }}
+                            clickBtn={()=>{
+                                if(onPopupSetting.categoryAction === 'confirm-patient'){
+                                    confirmSubmitForm()
+                                }
+                            }}
+                        />
+
+                        <Button
+                            nameBtn="Cancel"
+                            classBtn="bg-white border-none"
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginTop: '0.5rem',
+                                color: '#495057'
+                            }}
+                            clickBtn={cancelPopupSetting}
+                        />
+                    </SettingPopup>
+                </ContainerPopup>
+            )}
+
             <HeadInfo
                 titleInfo="Form Confirm to Take Medicine"
                 // classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange ${loadingCancelTreatment && 'cursor-not-allowed'}`}
@@ -47,17 +103,16 @@ export function FormConfirmation() {
                         title={`Doctor's Prescription`}
                     />
                     <TinyEditor
-                    initialText="Medicine from a doctor such as capsules 3x1 day"
-                    value={value}
-                    setValue={setValue}
+                        value={value}
+                        setValue={setValue}
                     />
-                    {/* <ErrorInput
-                        error={errInputValue?.practiceHours}
-                    /> */}
+                    <ErrorInput
+                        error={errInput?.message}
+                    />
                 </CardInfo>
 
                 <CardInfo
-                classWrapp="flex flex-col"
+                    classWrapp="flex flex-col"
                 >
                     <TitleInput
                         title='Select Counter'
@@ -65,10 +120,11 @@ export function FormConfirmation() {
                     <InputSelect
                         id="selectCounter"
                         data={counterOptions}
+                        handleSelect={handleCounter}
                     />
-                    {/* <ErrorInput
-                        error={errInputValue?.practiceHours}
-                    /> */}
+                    <ErrorInput
+                        error={errInput?.loketName}
+                    />
                 </CardInfo>
             </InputContainer>
 
@@ -77,8 +133,9 @@ export function FormConfirmation() {
             >
                 <Button
                     nameBtn="Confirm at the counter"
-                    classBtn="hover:bg-white"
-                    classLoading="hidden"
+                    classBtn={loadingSubmit ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
+                    classLoading={loadingSubmit ? 'flex' : 'hidden'}
+                    clickBtn={submitForm}
                 />
             </div>
         </Container>

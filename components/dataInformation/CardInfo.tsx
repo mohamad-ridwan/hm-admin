@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 type Props = {
     title?: string
-    textInfo?: string
+    textInfo?: string | JSX.Element
     additionalInfo?: string
     icon?: IconDefinition
     children?: ReactNode

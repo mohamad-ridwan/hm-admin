@@ -18,6 +18,7 @@ export function UsePatientData({ params }: { params?: string }) {
         dataFinishTreatment,
         loadDataService,
         loadDataDoctors,
+        dataLoket,
         doctors,
         dataRooms,
         pushTriggedErr
@@ -83,6 +84,7 @@ export function UsePatientData({ params }: { params?: string }) {
         dataRooms,
         dataConfirmationPatients,
         dataPatientRegis,
+        dataLoket,
         pushTriggedErr
     }
 }

@@ -72,7 +72,7 @@ export function ConfirmationPatient() {
         editActiveManualQueue,
         toggleChangeManualQueue,
         toggleSetAutoQueue,
-        selectPresence,
+        // selectPresence,
         idPatientToEditConfirmPatient,
         submitEditConfirmPatient,
         clickOnEditConfirmPatient,
@@ -185,7 +185,7 @@ export function ConfirmationPatient() {
                     editActiveManualQueue={editActiveManualQueue}
                     toggleChangeManualQueue={toggleChangeManualQueue}
                     toggleSetAutoQueue={toggleSetAutoQueue}
-                    selectPresence={selectPresence}
+                    // selectPresence={selectPresence}
                     idPatientToEditConfirmPatient={idPatientToEditConfirmPatient}
                     idLoadingEditConfirmPatient={idLoadingEditConfirmPatient}
                     submitEditConfirmPatient={submitEditConfirmPatient}

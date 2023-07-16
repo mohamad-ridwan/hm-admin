@@ -23,7 +23,7 @@ export type InputEditConfirmPatientT = {
     doctorSpecialist: string
     roomName: string
     queueNumber: string
-    presence: string
+    // presence: string
 }
 
 export type SubmitEditConfirmPatientT = {
@@ -84,9 +84,10 @@ export type SubmitDrugCounterT = {
     loketInfo: {loketId: string}
     message: string
     adminInfo: {adminId: string}
-    presence: string
+    // presence: string
     submissionDate: {
         submissionDate: string
         submitHours:string
     }
+    queueNumber: string
 }

@@ -30,7 +30,7 @@ export type DateConfirmInfo = {
 export type RoomInfo = {
     roomId: string,
     queueNumber: string,
-    presence: string
+    // presence: string
 }
 
 export type ConfirmationPatientsT = {
@@ -62,11 +62,12 @@ export type DrugCounterT = {
     loketInfo: {loketId: string}
     message: string
     adminInfo: {adminId: string}
-    presence: string
+    // presence: string
     submissionDate: {
         submissionDate: string
         submitHours: string
     }
+    queueNumber: string
     isConfirm: {confirmState: boolean} & IsConfirmDrugCounterT
 }
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { IconDefinition, faBan, faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faBan, faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
 import { TableHead } from 'components/table/TableHead'
@@ -267,8 +267,7 @@ export function PatientRegistration() {
             />
 
             <ContainerTableBody>
-                <TableBody
-                >
+                <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'

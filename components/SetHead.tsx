@@ -13,6 +13,4 @@ export function setHead({
         document.title = title
         document.querySelector('meta[name="description"]')?.setAttribute("content", description)
     }
-
-    return
 }

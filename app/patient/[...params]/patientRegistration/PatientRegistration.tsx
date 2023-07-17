@@ -58,7 +58,7 @@ export function PatientRegistration({ params }: { params: string }) {
     }[] = detailDataPatientRegis?.id ? [
         {
             title: "Patient Name",
-            textInfo: createDateNormalFormat(detailDataPatientRegis.appointmentDate),
+            textInfo: detailDataPatientRegis.patientName,
         },
         {
             title: "Appointment Date",

@@ -381,6 +381,7 @@ export function FilterTable({ params }: ParamsProps) {
 
     const handleSearchText = (e?: ChangeEvent<HTMLInputElement>): void => {
         setSearchText(e?.target.value as string)
+        setCurrentPage(1)
     }
 
     const handleInputDate = (e?: Date | ChangeEvent<HTMLInputElement>): void => {

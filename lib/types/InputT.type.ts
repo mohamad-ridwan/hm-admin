@@ -91,3 +91,29 @@ export type SubmitDrugCounterT = {
     }
     queueNumber: string
 }
+
+export type InputConfirmDrugCounterT = {
+    paymentMethod: 'cash' | 'BPJS' | 'Select Payment Method'
+    bpjsNumber: string
+    totalCost: string
+    message: string
+}
+
+type PaymentInfo = {
+    paymentMethod: 'cash' | 'BPJS'
+    bpjsNumber: string
+    totalCost: string
+    message: string
+}
+
+export type SubmitConfirmDrugCounterT = SubmitDrugCounterT & {
+    isConfirm: {
+        confirmState: boolean
+        dateConfirm: {
+            dateConfirm: string
+            confirmHour: string
+        }
+        adminInfo: {adminId: string}
+        paymentInfo: PaymentInfo
+    }
+}

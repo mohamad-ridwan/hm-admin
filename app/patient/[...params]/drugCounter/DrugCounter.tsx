@@ -6,10 +6,13 @@ import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
 import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
 import { createDateFormat } from "lib/dates/createDateFormat"
+import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { CounterForm } from "./CounterForm"
 
 export function DrugCounter({ params }: { params: string }) {
     const {
         drugCounterPatient,
+        dataPatientFinishTreatment,
         dataLoket
     } = UsePatientData({ params })
 
@@ -29,7 +32,7 @@ export function DrugCounter({ params }: { params: string }) {
         ></div>
     }
 
-    const status = drugCounterPatient?.submissionDate?.submissionDate === createDateFormat(new Date()) ? 'WAITING' : 'EXPIRED'
+    const status = drugCounterPatient?.isConfirm?.confirmState === false && drugCounterPatient?.submissionDate?.submissionDate === createDateFormat(new Date()) ? 'WAITING' : drugCounterPatient?.isConfirm?.confirmState ? 'ALREADY CONFIRMED': drugCounterPatient?.isConfirm?.confirmState === false && drugCounterPatient?.submissionDate?.submissionDate < createDateFormat(new Date()) ? 'EXPIRED' : 'NULL'
 
     const detailData: {
         title: string
@@ -60,7 +63,7 @@ export function DrugCounter({ params }: { params: string }) {
         },
         {
             title: 'Submission Date',
-            textInfo: drugCounterPatient.submissionDate.submissionDate,
+            textInfo: createDateNormalFormat(drugCounterPatient.submissionDate.submissionDate),
             icon: faCalendarDays
         },
     ] : []
@@ -112,6 +115,10 @@ export function DrugCounter({ params }: { params: string }) {
                             })}
                         </div>
                     </Container>
+
+                    {!dataPatientFinishTreatment?.id && (
+                        <CounterForm params={params}/>
+                    )}
                 </Container>
             )}
         </>

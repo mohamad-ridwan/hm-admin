@@ -355,6 +355,27 @@ export function FilterTable({ params }: ParamsProps) {
         return filterText.slice(firstPageIndex, lastPageIndex)
     }, [filterText, currentPage])
 
+    const changeTableStyle = (dataColumnsBody: DataTableContentT[]):void => {
+        if (dataColumnsBody?.length > 0) {
+            let elementTData = document.getElementById('tData00') as HTMLElement
+            if (elementTData !== null) {
+                for (let i = 0; i < dataColumnsBody?.length; i++) {
+                    elementTData = document.getElementById(`tData${i}0`) as HTMLElement
+                    if (elementTData?.style) {
+                        elementTData = document.getElementById(`tData${i}4`) as HTMLElement
+                        elementTData.style.overflowX = 'auto'
+                    }
+                }
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (currentTableData.length > 0) {
+            changeTableStyle(currentTableData)
+        }
+    }, [currentPage, currentTableData])
+
     const lastPage: number = filterText.length < 5 ? 1 : Math.ceil(filterText.length / pageSize)
     const maxLength: number = 7
 

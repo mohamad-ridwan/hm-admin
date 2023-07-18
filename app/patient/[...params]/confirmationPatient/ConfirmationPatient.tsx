@@ -1,6 +1,6 @@
 'use client'
 
-import { IconDefinition, faCalendarDays, faCheck, faClock, faListOl, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { IconDefinition, faCalendarDays, faCheck, faClock, faDownload, faListOl, faPaperPlane, faPencil, faTrash, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { Container } from "components/Container";
 import { CardInfo } from "components/dataInformation/CardInfo";
 import { HeadInfo } from "components/dataInformation/HeadInfo";
@@ -42,10 +42,6 @@ export function ConfirmationPatient({ params }: { params: string }) {
         textInfo: string
         icon?: IconDefinition
     }[] = dataConfirmPatient?.id ? [
-        // {
-        //     title: 'Presence State',
-        //     textInfo: dataConfirmPatient.roomInfo.presence.toUpperCase()
-        // },
         {
             title: 'Doctor Name',
             textInfo: findCurrentDoctor?.name as string,
@@ -110,6 +106,18 @@ export function ConfirmationPatient({ params }: { params: string }) {
                             icon={faListOl}
                             iconRight={doctorIsAvailable ? faCheck : faTriangleExclamation}
                             titleRight={doctorIsAvailable ? 'Doctor available' : 'Doctor is not available'}
+                            deleteIcon={faTrash}
+                            editIcon={faPencil}
+                            downloadIcon={faDownload}
+                            sendIcon={faPaperPlane}
+                            clickSend={()=>{return}}
+                            clickDownload={()=>{return}}
+                            clickEdit={()=>{return}}
+                            clickDelete={()=>{return}}
+                            classEditBtn="mr-1 hover:text-white"
+                            classDownloadBtn="mr-1 hover:text-white bg-color-default-old"
+                            classSendIcon="mr-1 hover:text-white bg-orange-young border-orange-young hover:border-orange-young"
+                            classDeleteBtn="bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white"
                             styleHeadTop={{
                                 justifyContent: 'space-between'
                             }}

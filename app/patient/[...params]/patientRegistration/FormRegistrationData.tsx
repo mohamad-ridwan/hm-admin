@@ -159,7 +159,7 @@ function FormRegistrationData({ params }: { params: string }) {
 
             <HeadInfo
                 titleInfo="Form Confirmation"
-                classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange ${loadingCancelTreatment && 'cursor-not-allowed'}`}
+                classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange hover:text-white ${loadingCancelTreatment && 'cursor-not-allowed'}`}
                 classTitle="border-none"
                 styleHeadTop={{
                     padding: '0'

@@ -217,7 +217,8 @@ export function PatientRegistration({ params }: { params: string }) {
                         classTitle={!dataConfirmPatient?.id ? 'text-orange-young' : ''}
                         editIcon={faPencil}
                         deleteIcon={loadingDelete ? undefined : faTrash}
-                        classDeleteBtn={loadingDelete ? 'cursor-not-allowed' : 'cursor-pointer'}
+                        classEditBtn="mr-1 hover:bg-color-default-old hover:text-white"
+                        classDeleteBtn={`${loadingDelete ? 'cursor-not-allowed ' : 'cursor-pointer'} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
                         classLoadingDelete={loadingDelete ? 'flex' : 'hidden'}
                         clickEdit={() => {
                             clickEdit(detailDataPatientRegis?.id, detailDataPatientRegis?.patientName)

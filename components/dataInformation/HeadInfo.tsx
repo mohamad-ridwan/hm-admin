@@ -6,6 +6,8 @@ import { EditBtn } from "components/editBtn/EditBtn"
 type ActionProps = {
     clickEdit?: () => void
     clickDelete?: () => void
+    clickDownload?: () => void
+    clickSend?:() => void
 }
 
 type IconProps = {
@@ -13,6 +15,8 @@ type IconProps = {
     iconRight?: IconDefinition
     editIcon?: IconDefinition
     deleteIcon?: IconDefinition
+    downloadIcon?: IconDefinition
+    sendIcon? : IconDefinition
 }
 
 type Props = IconProps & ActionProps & {
@@ -25,7 +29,11 @@ type Props = IconProps & ActionProps & {
     classEditBtn?: string
     classDeleteBtn?: string
     classLoadingEdit?: string
-    classLoadingDelete?: string
+    classLoadingDelete?: string,
+    classDownloadBtn?: string,
+    classLoadingDownload?: string
+    classSendIcon?: string
+    classLoadingSend? : string
 }
 
 export function HeadInfo({
@@ -41,10 +49,18 @@ export function HeadInfo({
     classDeleteBtn,
     editIcon,
     deleteIcon,
+    downloadIcon,
+    sendIcon,
     classLoadingEdit,
     classLoadingDelete,
+    classDownloadBtn,
+    classLoadingDownload,
+    classSendIcon,
+    classLoadingSend,
     clickEdit,
-    clickDelete
+    clickDelete,
+    clickDownload,
+    clickSend
 }: Props) {
     return (
         <div
@@ -93,20 +109,43 @@ export function HeadInfo({
                 <div
                     className="flex flex-wrap justify-end"
                 >
-                    <EditBtn
-                        icon={editIcon}
-                        classBtn={`${classEditBtn} mr-1 hover:bg-color-default-old hover:text-white`}
-                        classLoading={classLoadingEdit}
-                        clickBtn={clickEdit}
-                    />
-                    <EditBtn
-                        icon={deleteIcon}
-                        classBtn={`${classDeleteBtn} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
-                        classLoading={classLoadingDelete}
-                        clickBtn={clickDelete}
-                    />
+                    {typeof clickEdit !== 'undefined' && (
+                        <EditBtn
+                            icon={editIcon}
+                            classBtn={classEditBtn}
+                            classLoading={classLoadingEdit}
+                            clickBtn={clickEdit}
+                        />
+                    )}
+
+                    {typeof clickDownload !== 'undefined' && (
+                        <EditBtn
+                            icon={downloadIcon}
+                            classBtn={classDownloadBtn}
+                            classLoading={classLoadingDownload}
+                            clickBtn={clickDownload}
+                        />
+                    )}
+
+                    {typeof clickSend !== 'undefined' && (
+                        <EditBtn
+                            icon={sendIcon}
+                            classBtn={classSendIcon}
+                            classLoading={classLoadingSend}
+                            clickBtn={clickSend}
+                        />
+                    )}
+
+                    {typeof clickDelete !== 'undefined' && (
+                        <EditBtn
+                            icon={deleteIcon}
+                            classBtn={classDeleteBtn}
+                            classLoading={classLoadingDelete}
+                            clickBtn={clickDelete}
+                        />
+                    )}
                 </div>
-                
+
                 <h1
                     className="text-[1.3rem] text-start font-bold text-font-color-4"
                 >

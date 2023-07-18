@@ -1,33 +1,23 @@
 'use client'
 
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { HeadDataTableT } from "lib/types/TableT.type"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import ServicingHours from "lib/actions/ServicingHours"
 import { PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { createDateFormat } from "lib/dates/createDateFormat"
+import { specialCharacter } from "lib/regex/specialCharacter"
+import { spaceString } from "lib/regex/spaceString"
 
 export function FilterTable() {
     const [dataColumns, setDataColumns] = useState<DataTableContentT[]>([])
     const [searchText, setSearchText] = useState<string>('')
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const [currentStatus, setCurrentStatus] = useState<string>('Status')
+    const [displayOnCalendar, setDisplayOnCalendar] = useState<boolean>(false)
+    const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [currentFilterBy, setCurrentFilterBy] = useState<string>('Filter By')
     const [currentSortBy, setCurrentSortBy] = useState<string>('Sort By')
-    const [statusOptions] = useState<DataOptionT>([
-        {
-            id: 'Status',
-            title: 'Status',
-        },
-        {
-            id: 'Completed',
-            title: 'Completed',
-        },
-        {
-            id: 'Canceled',
-            title: 'Canceled',
-        },
-    ])
     const [filterBy] = useState<DataOptionT>([
         {
             id: 'Filter By',
@@ -38,12 +28,12 @@ export function FilterTable() {
             title: 'Completed',
         },
         {
-            id: 'Confirmation Date',
-            title: 'Confirmation Date',
+            id: 'Canceled',
+            title: 'Canceled',
         },
         {
-            id: 'Date of Birth',
-            title: 'Date of Birth',
+            id: 'Confirmation Date',
+            title: 'Confirmation Date',
         },
     ])
     const [sortOptions] = useState<DataOptionT>([
@@ -128,6 +118,8 @@ export function FilterTable() {
                             {
                                 colorName: statusColor,
                                 fontWeightName: 'bold',
+                                filterBy: status,
+                                clock: `${patientFT?.confirmedTime?.dateConfirm as string} ${patientFT?.confirmedTime?.confirmHour as string}`,
                                 name: status.toUpperCase()
                             },
                             {
@@ -179,6 +171,238 @@ export function FilterTable() {
         )
     }, [loadDataService, dataService])
 
+    // filter table
+    // filter completed
+    function filterStatus(
+        statusFilter: 'Completed' | 'Canceled'
+    ): DataTableContentT[] {
+        if (currentFilterBy === statusFilter) {
+            if (selectDate) {
+                const completed = dataColumns.filter(patient => {
+                    const filterBy = patient.data.find(data =>
+                        data.filterBy === statusFilter
+                    )
+                    const checkTime = Date.parse(createDateFormat(new Date((filterBy?.clock as string)))) === Date.parse(createDateFormat(selectDate))
+                    return checkTime
+                })
+
+                return completed
+            } else {
+                const completed = dataColumns.filter(patient => {
+                    const filterBy = patient.data.find(data => data.filterBy === statusFilter)
+                    return filterBy
+                })
+                return completed
+            }
+        }
+
+        return []
+    }
+
+    // result filter status
+    const resultFilterStatus = filterStatus(currentFilterBy as 'Completed')
+
+    // sort by status
+    function sortByStatus(
+        statusFilter: 'Completed' | 'Canceled'
+    ): DataTableContentT[] {
+        if (
+            currentFilterBy === statusFilter &&
+            currentSortBy !== 'Sort By'
+        ) {
+            if (currentSortBy === 'Sort By Up') {
+                return sortUpStatus(statusFilter)
+            } else if (currentSortBy === 'Sort By Down') {
+                return sortDownStatus(statusFilter)
+            }
+        } else if (
+            currentFilterBy === statusFilter &&
+            currentSortBy === 'Sort By'
+        ) {
+            return resultFilterStatus
+        }
+
+        return []
+    }
+    // sort up (status)
+    function sortUpStatus(
+        statusFilter: 'Completed' | 'Canceled'
+    ): DataTableContentT[] {
+        const sort = resultFilterStatus.sort((a, b) => {
+            const dateB = b.data.find(data =>
+                data.filterBy === statusFilter
+            )
+            const dateA = a.data.find(data =>
+                data.filterBy === statusFilter
+            )
+            const compareDate = (new Date(dateB?.clock as string)).valueOf() - (new Date(dateA?.clock as string)).valueOf()
+            return compareDate
+        })
+
+        return sort
+    }
+    // sort down (status)
+    function sortDownStatus(
+        statusFilter: 'Completed' | 'Canceled'
+    ): DataTableContentT[] {
+        const sort = resultFilterStatus.sort((a, b) => {
+            const dateA = a.data.find(data =>
+                data.filterBy === statusFilter
+            )
+            const dateB = b.data.find(data =>
+                data.filterBy === statusFilter
+            )
+            const compareDate = (new Date(dateA?.clock as string)).valueOf() - (new Date(dateB?.clock as string)).valueOf()
+            return compareDate
+        })
+
+        return sort
+    }
+
+    const resultSortByStatus = sortByStatus(currentFilterBy as 'Completed')
+
+    // filter by confirmation date (only)
+    function filterConfirmationDate(): DataTableContentT[] {
+        if (currentFilterBy === 'Confirmation Date') {
+            if (selectDate) {
+                const confirmDate = dataColumns.filter(patient => {
+                    const filterBy = patient.data.find(data => data.filterBy === 'Confirmation Date')
+                    const checkTime = Date.parse(filterBy?.name as string) === Date.parse(createDateFormat(selectDate))
+                    return checkTime
+                })
+                return confirmDate
+            } else {
+                const confirmDate = dataColumns.filter(patient => {
+                    const filterBy = patient.data.find(data => data.filterBy === 'Confirmation Date')
+                    return filterBy
+                })
+                return confirmDate
+            }
+        }
+
+        return []
+    }
+
+    const resultFilterConfirmDate = filterConfirmationDate()
+
+    // sort by confirmation date (only)
+    function sortByConfirmDate(): DataTableContentT[] {
+        if (
+            currentFilterBy === 'Confirmation Date' &&
+            currentSortBy !== 'Sort By'
+        ) {
+            if (currentSortBy === 'Sort By Up') {
+                return sortUpConfirmDate()
+            } else if (currentSortBy === 'Sort By Down') {
+                return sortDownConfirmDate()
+            }
+        } else if (
+            currentFilterBy === 'Confirmation Date' &&
+            currentSortBy === 'Sort By'
+        ) {
+            return resultFilterConfirmDate
+        }
+
+        return []
+    }
+
+    // sort up confirmation date (only)
+    function sortUpConfirmDate(): DataTableContentT[] {
+        const sort = resultFilterConfirmDate.sort((a, b) => {
+            const filterB = b.data.find(data => data.filterBy === 'Confirmation Date')
+            const filterA = a.data.find(data => data.filterBy === 'Confirmation Date')
+            const compareDate =
+                (new Date(`${filterB?.name} ${filterB?.clock}`)).valueOf() -
+                (new Date(`${filterA?.name} ${filterA?.clock}`)).valueOf()
+            return compareDate
+        })
+
+        return sort
+    }
+    // sort down confirmation date (only)
+    function sortDownConfirmDate(): DataTableContentT[] {
+        const sort = resultFilterConfirmDate.sort((a, b) => {
+            const filterA = a.data.find(data => data.filterBy === 'Confirmation Date')
+            const filterB = b.data.find(data => data.filterBy === 'Confirmation Date')
+            const compareDate =
+                (new Date(`${filterA?.name} ${filterA?.clock}`)).valueOf() -
+                (new Date(`${filterB?.name} ${filterB?.clock}`)).valueOf()
+            return compareDate
+        })
+
+        return sort
+    }
+
+    const resultSortByConfirmDate = sortByConfirmDate()
+
+    function filterText(): DataTableContentT[] {
+        if (
+            currentFilterBy === 'Completed' ||
+            currentFilterBy === 'Canceled'
+        ) {
+            const search = resultSortByStatus.filter(patient => {
+                const name = patient.data.find(data =>
+                    data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
+                )
+                return name
+            })
+            return search
+        }else if(
+            currentFilterBy === 'Confirmation Date'
+        ){
+            const search = resultSortByConfirmDate.filter(patient=>{
+                const name = patient.data.find(data =>
+                    data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
+                )
+                return name
+            })
+            return search
+        }
+
+        const search = dataColumns.filter(patient=>{
+            const name = patient.data.find(data =>
+                data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
+            )
+            return name
+        })
+        return search
+    }
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchText])
+
+    const pageSize: number = 5
+    const currentTableData = useMemo((): DataTableContentT[] => {
+        const firstPageIndex = (currentPage - 1) * pageSize
+        const lastPageIndex = firstPageIndex + pageSize
+        return filterText().slice(firstPageIndex, lastPageIndex)
+    }, [filterText(), currentPage])
+
+    const lastPage: number = filterText().length < 5 ? 1 : Math.ceil(filterText().length / pageSize)
+    const maxLength: number = 7
+
+    const changeTableStyle = (dataColumnsBody: DataTableContentT[]):void => {
+        if (dataColumnsBody?.length > 0) {
+            let elementTData = document.getElementById('tData00') as HTMLElement
+            if (elementTData !== null) {
+                for (let i = 0; i < dataColumnsBody?.length; i++) {
+                    elementTData = document.getElementById(`tData${i}0`) as HTMLElement
+                    if (elementTData?.style) {
+                        elementTData = document.getElementById(`tData${i}4`) as HTMLElement
+                        elementTData.style.overflowX = 'auto'
+                    }
+                }
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (currentTableData.length > 0) {
+            changeTableStyle(currentTableData)
+        }
+    }, [currentPage, currentTableData])
+
     const handleSearchText = (e?: ChangeEvent<HTMLInputElement>): void => {
         setSearchText(e?.target.value as string)
         setCurrentPage(1)
@@ -189,22 +413,35 @@ export function FilterTable() {
         setSearchText('')
     }
 
-    function handleStatus():void{
-        const elem = document.getElementById('statusFilter') as HTMLSelectElement
-        const value = elem.options[elem.selectedIndex].value
-        setCurrentStatus(value)
-    }
-
-    function handleFilterBy():void{
+    function handleFilterBy(): void {
         const elem = document.getElementById('filterBy') as HTMLSelectElement
         const value = elem.options[elem.selectedIndex].value
         setCurrentFilterBy(value)
+
+        if (value !== 'Filter By') {
+            setDisplayOnCalendar(true)
+            return
+        }
+
+        setSelectDate(undefined)
+        setCurrentPage(1)
+        return setDisplayOnCalendar(false)
     }
 
-    function handleSort():void{
+    function handleSort(): void {
         const elem = document.getElementById('sortBy') as HTMLSelectElement
         const value = elem.options[elem.selectedIndex].value
         setCurrentSortBy(value)
+    }
+
+    const handleInputDate = (e?: Date | ChangeEvent<HTMLInputElement>): void => {
+        setSelectDate(e as Date)
+        setCurrentPage(1)
+    }
+
+    function closeSearchDate(): void {
+        setCurrentPage(1)
+        setSelectDate(undefined)
     }
 
     return {
@@ -213,12 +450,19 @@ export function FilterTable() {
         handleSearchText,
         closeSearch,
         searchText,
-        statusOptions,
         filterBy,
-        handleStatus,
         handleFilterBy,
         sortOptions,
         handleSort,
-        currentFilterBy
+        currentFilterBy,
+        selectDate,
+        displayOnCalendar,
+        handleInputDate,
+        closeSearchDate,
+        currentTableData,
+        lastPage,
+        maxLength,
+        currentPage,
+        setCurrentPage
     }
 }

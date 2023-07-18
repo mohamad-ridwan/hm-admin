@@ -348,6 +348,10 @@ export function FilterTable({ params }: ParamsProps) {
         return findItem.length > 0
     })
 
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchText])
+
     const pageSize: number = 5
     const currentTableData = useMemo((): DataTableContentT[] => {
         const firstPageIndex = (currentPage - 1) * pageSize

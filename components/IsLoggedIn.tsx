@@ -4,6 +4,8 @@ import { ReactNode, useEffect } from "react"
 import { endpoint } from "lib/api/endpoint"
 import { useSwr } from "lib/useFetch/useSwr"
 import { authStore, userIdAuthStore } from "lib/useZustand/auth"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
+import ServicingHours from "lib/actions/ServicingHours"
 
 type IsLoggedInProps = {
     children: ReactNode
@@ -44,7 +46,6 @@ export function IsLoggedIn({
                 }
             }, 0)
         } else if (isLoading === false && error) {
-            alert('Error occurred while fetching admin data')
             setLoadingAuth(false)
         }
     }

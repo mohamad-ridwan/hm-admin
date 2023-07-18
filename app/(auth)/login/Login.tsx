@@ -3,13 +3,14 @@
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { mailRegex } from 'lib/regex/mailRegex'
-import { API, DataRequest } from 'lib/api'
+import { API} from 'lib/api'
 import { userIdAuthStore } from 'lib/useZustand/auth'
 import InputContainer from 'components/input/InputContainer'
 import Input from 'components/input/Input'
 import ErrorInput from 'components/input/ErrorInput'
 import Link from 'next/link'
 import Button from 'components/Button'
+import { AuthRequiredError } from 'lib/errorHandling/exceptions'
 
 type StateInput = {
     email: string
@@ -17,6 +18,7 @@ type StateInput = {
 }
 
 export function Login() {
+    const [triggedErr, setTriggedErr] = useState<boolean>(false)
     const [input, setInput] = useState<StateInput>({
         email: '',
         password: ''
@@ -27,6 +29,10 @@ export function Login() {
     // zustand
     // userId auth
     const {setUserId} = userIdAuthStore()
+
+    if(triggedErr){
+        throw new AuthRequiredError('A server error has occurred. Please try again')
+    }
 
     const router = useRouter()
 
@@ -93,7 +99,7 @@ export function Login() {
                 }
             })
             .catch((err: any) => {
-                alert('a server error has occurred\nPlease try again')
+                setTriggedErr(true)
                 setLoadingSubmit(false)
                 console.log(err)
             })

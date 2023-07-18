@@ -8,8 +8,10 @@ import { TableColumns } from "components/table/TableColumns"
 import { TableData } from "components/table/TableData"
 import { TableFilter } from "components/table/TableFilter"
 import { InputSearch } from "components/input/InputSearch"
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
+import { faCalendarDays, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import { InputSelect } from "components/input/InputSelect"
+import { renderCustomHeader } from "lib/dates/renderCustomHeader"
+import Pagination from "components/pagination/Pagination"
 
 export function FinishedTreatment() {
     const {
@@ -18,13 +20,20 @@ export function FinishedTreatment() {
         searchText,
         handleSearchText,
         closeSearch,
-        statusOptions,
-        handleStatus,
         filterBy,
         handleFilterBy,
         sortOptions,
         handleSort,
-        currentFilterBy
+        currentFilterBy,
+        displayOnCalendar,
+        selectDate,
+        handleInputDate,
+        closeSearchDate,
+        currentTableData,
+        lastPage,
+        maxLength,
+        currentPage,
+        setCurrentPage
     } = FilterTable()
 
     return (
@@ -42,17 +51,24 @@ export function FinishedTreatment() {
                             changeInput={handleSearchText}
                             clickCloseSearch={closeSearch}
                         />
+
+                        {displayOnCalendar && (
+                            <InputSearch
+                                icon={faCalendarDays}
+                                classWrapp='mt-2'
+                                placeholderText='Search Date'
+                                onCalendar={true}
+                                changeInput={handleInputDate}
+                                selected={selectDate}
+                                onCloseSearch={selectDate !== undefined}
+                                renderCustomHeader={renderCustomHeader}
+                                clickCloseSearch={closeSearchDate}
+                            />
+                        )}
                     </>
                 }
                 rightChild={
                     <>
-                        <InputSelect
-                            id='statusFilter'
-                            classWrapp='mt-2'
-                            data={statusOptions}
-                            handleSelect={handleStatus}
-                        />
-
                         <InputSelect
                             id='filterBy'
                             classWrapp='mt-2'
@@ -60,12 +76,14 @@ export function FinishedTreatment() {
                             handleSelect={handleFilterBy}
                         />
 
-                        <InputSelect
-                            id='sortBy'
-                            classWrapp='mt-2'
-                            data={sortOptions}
-                            handleSelect={handleSort}
-                        />
+                        {currentFilterBy !== 'Filter By' && (
+                            <InputSelect
+                                id='sortBy'
+                                classWrapp='mt-2'
+                                data={sortOptions}
+                                handleSelect={handleSort}
+                            />
+                        )}
                     </>
                 }
             />
@@ -81,7 +99,7 @@ export function FinishedTreatment() {
                         id='tHead'
                     />
 
-                    {dataColumns.length > 0 ? dataColumns.map((patient, index) => {
+                    {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
                         return (
                             <TableColumns
                                 key={index}
@@ -125,6 +143,17 @@ export function FinishedTreatment() {
                     )}
                 </TableBody>
             </ContainerTableBody>
+
+            <div
+                className='flex justify-end mt-4'
+            >
+                <Pagination
+                    currentPage={currentPage}
+                    lastPage={lastPage}
+                    maxLength={maxLength}
+                    setCurrentPage={setCurrentPage}
+                />
+            </div>
         </>
     )
 }

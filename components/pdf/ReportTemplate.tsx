@@ -98,16 +98,24 @@ export function ReportTemplate({
         <>
             {patientRegis?.id && (
                 <div id="patientPDF" style={PdfStyle.page}
-                >
-                    <h1><img alt="" src="https://firebasestorage.googleapis.com/v0/b/hospice-medical.appspot.com/o/logo%2Flogo-two.png?alt=media&amp;token=97ed6578-9f6b-4c86-9eab-bd0ef74be168" style={PdfStyle.img} />&nbsp;&nbsp;<span><strong><span style={PdfStyle.titleRS}>HOSPICE MEDICAL</span></strong></span></h1>
-
+                >   
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}
+                    >
+                    <img alt="" src="https://firebasestorage.googleapis.com/v0/b/hospice-medical.appspot.com/o/logo%2Flogo-two.png?alt=media&amp;token=97ed6578-9f6b-4c86-9eab-bd0ef74be168" style={PdfStyle.img} />
+                    <h1 style={PdfStyle.titleRS}>HOSPICE MEDICAL</h1>
+                    </div>
+                    
                     <p>&nbsp;</p>
-                    <p><strong style={PdfStyle.patient}>Queue Number : {confirmDataInfoPDF?.queueNumber}</strong></p>
-                    <p><strong style={PdfStyle.patient}>{patientRegis?.patientName} - Patient</strong></p>
+                    <h1><strong style={PdfStyle.patient}>Queue Number : {confirmDataInfoPDF?.queueNumber}</strong></h1>
+                    <h1><strong style={PdfStyle.patient}>{patientRegis?.patientName} - Patient</strong></h1>
                     <div style={PdfStyle.borderPatient}></div>
 
                     <p>&nbsp;</p>
-                    <p><strong style={PdfStyle.patient}>Registration Information</strong></p>
+                    <h1><strong style={PdfStyle.patient}>Registration Information</strong></h1>
 
                     <Container
                         isNavleft={false}
@@ -136,7 +144,7 @@ export function ReportTemplate({
                     <p>&nbsp;</p>
                     <p>&nbsp;</p>
                     <p>&nbsp;</p>
-                    <p><strong style={PdfStyle.patient}>Confirmation Info</strong></p>
+                    <h1><strong style={PdfStyle.patient}>Confirmation Info</strong></h1>
 
                     <Container
                         isNavleft={false}
@@ -157,7 +165,7 @@ export function ReportTemplate({
                         })}
                     </Container>
                     <p>&nbsp;</p>
-                    <p><strong style={PdfStyle.patient}>Admin Confirmation</strong></p>
+                    <h1><strong style={PdfStyle.patient}>Admin Confirmation</strong></h1>
                     <Container
                         isNavleft={false}
                         styleHead={PdfStyle.styleHead}

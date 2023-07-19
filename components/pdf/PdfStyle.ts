@@ -24,7 +24,8 @@ export const PdfStyle: StyleType = {
     img: {
         float: 'left',
         height: '40px',
-        width: '40px'
+        width: '40px',
+        marginRight: '10px'
     },
     patient: {
         fontSize: '17px',
@@ -40,7 +41,9 @@ export const PdfStyle: StyleType = {
     titleRS: {
         fontSize: '18px',
         whiteSpace: 'normal',
-        letterSpacing: 'normal'
+        letterSpacing: 'normal',
+        marginTop: '-10px',
+        fontWeight: 'bold'
     },
     cardInfo: {
         margin: '5px 0 5px 0',

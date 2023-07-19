@@ -5,6 +5,7 @@ import {notFound} from 'next/navigation'
 import { UsePDF } from 'lib/pdf/UsePDF';
 import ServicingHours from 'lib/actions/ServicingHours';
 import { ConfirmInfoPDFT } from 'lib/types/PatientT.types';
+import { navigationStore } from 'lib/useZustand/navigation';
 
 type Props = {
     params: {params: string}
@@ -13,6 +14,12 @@ type Props = {
 export function LoadPDF({
     params,
 }: Props){
+    const { setIsNotFound } = navigationStore()
+
+    useEffect(()=>{
+        setIsNotFound(true)
+    }, [])
+
     if(
         params.params.length < 4 ||
         params.params.length > 5

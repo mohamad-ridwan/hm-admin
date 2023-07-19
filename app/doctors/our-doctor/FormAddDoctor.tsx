@@ -655,10 +655,7 @@ function FormAddDoctor({
 
     function pushToUpdateProfileDoctor(): void {
         let newData = inputValueAddDoctor
-        if (
-            imgFile === null ||
-            newData.image.includes('https')
-        ) {
+        if (imgFile === null) {
             API().APIPutProfileDoctor(
                 'doctor',
                 idEditDoctor as string,

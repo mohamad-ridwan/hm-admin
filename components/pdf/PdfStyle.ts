@@ -17,7 +17,8 @@ export const PdfStyle: StyleType = {
     page: {
         display: 'flex',
         flexDirection: 'column',
-        width: '400px',
+        maxWidth: '400px',
+        width: 'auto',
         margin: '1rem'
     },
     img: {
@@ -43,6 +44,7 @@ export const PdfStyle: StyleType = {
     },
     cardInfo: {
         margin: '5px 0 5px 0',
+        width: '45%'
     },
     titleInfo: {
         fontSize: '12px',

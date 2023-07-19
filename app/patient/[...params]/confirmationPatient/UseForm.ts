@@ -1,24 +1,19 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
 import ServicingHours from "lib/actions/ServicingHours"
 import { InputDrugCounterT, SubmitDrugCounterT} from "lib/types/InputT.type"
 import { PopupSetting } from "lib/types/TableT.type"
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
+import { faCircleCheck, faDownload } from "@fortawesome/free-solid-svg-icons"
 import { authStore } from "lib/useZustand/auth"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { createHourFormat } from "lib/dates/createHourFormat"
 import { API } from "lib/api"
 
-type Props = {
-    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
-}
-
-export function UseForm({
-    setOnPopupSetting
-}: Props) {
+export function UseForm() {
+    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
     const [value, setValue] = useState<string>('')
     const [currentCounter, setCurrentCounter] = useState<{
         id: string
@@ -48,6 +43,7 @@ export function UseForm({
     const router = useRouter()
     const params = useParams()
     const patientId = params?.params?.split('/')[4]
+    const patientName = params?.params?.split('/')[3]
 
     function loadCounter(): void {
         if (
@@ -99,17 +95,15 @@ export function UseForm({
                 return
             }
 
-            if (typeof setOnPopupSetting !== 'undefined') {
-                setOnPopupSetting({
-                    title: 'Confirm patient?',
-                    classIcon: 'text-font-color-2',
-                    classBtnNext: 'hover:bg-white',
-                    iconPopup: faCircleCheck,
-                    nameBtnNext: 'Yes',
-                    patientId: '',
-                    categoryAction: 'confirm-patient'
-                })
-            }
+            setOnPopupSetting({
+                title: 'Confirm patient?',
+                classIcon: 'text-font-color-2',
+                classBtnNext: 'hover:bg-white',
+                iconPopup: faCircleCheck,
+                nameBtnNext: 'Yes',
+                patientId: '',
+                categoryAction: 'confirm-patient'
+            })
             setErrInput({} as InputDrugCounterT)
         }
     }
@@ -128,9 +122,7 @@ export function UseForm({
         })
         .catch(err=>pushTriggedErr('An error occurred when confirming the patient to the counter. please try again'))
 
-        if (typeof setOnPopupSetting !== 'undefined') {
-            setOnPopupSetting({} as PopupSetting)
-        }
+        setOnPopupSetting({} as PopupSetting)
     }
 
     function dataSubmitToCounter(): SubmitDrugCounterT{
@@ -141,7 +133,6 @@ export function UseForm({
             loketInfo: { loketId: loketId as string },
             message: value,
             adminInfo: { adminId: user.user?.id as string },
-            // presence: 'menunggu',
             submissionDate: {
                 submissionDate: createDateFormat(new Date()),
                 submitHours: createHourFormat(new Date())
@@ -184,6 +175,27 @@ export function UseForm({
         }
     }
 
+    function cancelPopupFormConfirm():void{
+        setOnPopupSetting({} as PopupSetting)
+    }
+
+    function clickDownload():void{
+        setOnPopupSetting({
+            title: 'Download Pdf?',
+            classIcon: 'text-font-color-2',
+            classBtnNext: 'hover:bg-white',
+            iconPopup: faDownload,
+            nameBtnNext: 'Yes',
+            patientId: '',
+            categoryAction: 'download-pdf'
+        })
+    }
+
+    function confirmForDownloadPdf():void{
+        window.open(`/patient-registration-information/${patientId}/${patientName}/download/pdf`)
+        setOnPopupSetting({} as PopupSetting)
+    }
+
     return {
         counterOptions,
         value,
@@ -192,6 +204,10 @@ export function UseForm({
         errInput,
         confirmSubmitForm,
         handleCounter,
-        loadingSubmit
+        loadingSubmit,
+        onPopupSetting,
+        cancelPopupFormConfirm,
+        clickDownload,
+        confirmForDownloadPdf
     }
 }

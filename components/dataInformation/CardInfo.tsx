@@ -10,6 +10,8 @@ type Props = {
     children?: ReactNode
     classWrapp?: string
     styleWrapp?: CSSProperties
+    styleTextInfo?: CSSProperties,
+    styleTitle?: CSSProperties
 }
 
 export function CardInfo({
@@ -19,7 +21,9 @@ export function CardInfo({
     additionalInfo,
     icon,
     children,
-    styleWrapp
+    styleWrapp,
+    styleTextInfo,
+    styleTitle
 }: Props) {
     return (
         <div
@@ -30,9 +34,11 @@ export function CardInfo({
                 <>
                     <h1
                         className="text-font-color-3 font-bold text-start"
+                        style={styleTitle}
                     >{title}</h1>
                     <p
                         className="text-sm my-1 text-start text-font-color-2"
+                        style={styleTextInfo}
                     >
                         {typeof icon !== 'undefined' && (
                             <FontAwesomeIcon

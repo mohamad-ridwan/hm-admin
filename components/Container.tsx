@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode } from "react"
+import { CSSProperties, ReactNode } from "react"
 import { navigationStore } from "lib/useZustand/navigation"
 
 type TitleProps = {
@@ -16,6 +16,8 @@ type Props = TitleProps & {
     overflow?: string
     isNavleft?: boolean
     classWrapp?: string
+    styleContainer?: CSSProperties
+    styleHead?: CSSProperties
 }
 
 export function Container({
@@ -27,7 +29,9 @@ export function Container({
     maxWidth = 'w-[1300px]',
     overflow,
     classWrapp,
-    isNavleft = true
+    isNavleft = true,
+    styleContainer,
+    styleHead
 }: Props) {
     const { onNavLeft } = navigationStore()
 
@@ -37,9 +41,11 @@ export function Container({
         >
             <div
                 className={`flex flex-col ${maxWidth} ${overflow}`}
+                style={styleContainer}
             >
                 <div
                     className={`flex flex-wrap overflow-hidden ${classHeadTitle}`}
+                    style={styleHead}
                 >
                     <h1
                         className="text-3xl mr-2 font-semibold text-font-color-3 text-start"

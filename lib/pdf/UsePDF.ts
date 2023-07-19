@@ -9,6 +9,8 @@ export const UsePDF = (
         unit: 'px'
     });
 
+    doc.setFont('Inter-Regular', 'normal')
+
     doc.html(element, {
         callback: function(doc){
             doc.save(`patient-registration-information-${patientName}.pdf`)

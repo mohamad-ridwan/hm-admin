@@ -10,6 +10,10 @@ import { createDateFormat } from "lib/dates/createDateFormat";
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat";
 import { spaceString } from "lib/regex/spaceString";
 import { FormConfirmation } from "./FormConfirmation";
+import { UseForm } from "./UseForm";
+import { ContainerPopup } from "components/popup/ContainerPopup";
+import { SettingPopup } from "components/popup/SettingPopup";
+import Button from "components/Button";
 
 export function ConfirmationPatient({ params }: { params: string }) {
     const {
@@ -25,6 +29,13 @@ export function ConfirmationPatient({ params }: { params: string }) {
         dataAdmin
     } = ServicingHours()
 
+    const {
+        onPopupSetting,
+        clickDownload,
+        cancelPopupFormConfirm,
+        confirmForDownloadPdf
+    } = UseForm()
+
     const findCurrentRoom = dataRooms?.find(room => room.id === dataConfirmPatient?.roomInfo?.roomId)
     const findCurrentDoctor = doctors?.find(doctor => doctor.id === dataConfirmPatient?.doctorInfo?.doctorId)
 
@@ -35,7 +46,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
     const doctorIsOnCurrentDay = findCurrentDoctor?.doctorSchedule?.find(day => day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
     const doctorIsAvailable = !doctorIsHoliday ? doctorIsOnCurrentDay ? true : false : false
 
-    const findAdmin = !loadGetDataAdmin && typeof dataAdmin !== 'undefined' ? dataAdmin.find(admin=>admin.id === dataConfirmPatient?.adminInfo?.adminId) : null
+    const findAdmin = !loadGetDataAdmin && typeof dataAdmin !== 'undefined' ? dataAdmin.find(admin => admin.id === dataConfirmPatient?.adminInfo?.adminId) : null
 
     const detailData: {
         title: string
@@ -100,6 +111,47 @@ export function ConfirmationPatient({ params }: { params: string }) {
                         classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
                         maxWidth="auto"
                     >
+                        {onPopupSetting?.title && (
+                            <ContainerPopup
+                                className='flex justify-center items-center overflow-y-auto'
+                            >
+                                <SettingPopup
+                                    clickClose={cancelPopupFormConfirm}
+                                    title={onPopupSetting.title}
+                                    classIcon='text-font-color-2'
+                                    iconPopup={onPopupSetting.iconPopup}
+                                >
+                                    <Button
+                                        nameBtn={onPopupSetting.nameBtnNext}
+                                        classBtn="hover:bg-white"
+                                        classLoading="hidden"
+                                        styleBtn={{
+                                            padding: '0.5rem',
+                                            marginRight: '0.6rem',
+                                            marginTop: '0.5rem'
+                                        }}
+                                        clickBtn={() => {
+                                            if (onPopupSetting.categoryAction === 'download-pdf') {
+                                                confirmForDownloadPdf()
+                                            }
+                                        }}
+                                    />
+
+                                    <Button
+                                        nameBtn="Cancel"
+                                        classBtn="bg-white border-none"
+                                        classLoading="hidden"
+                                        styleBtn={{
+                                            padding: '0.5rem',
+                                            marginTop: '0.5rem',
+                                            color: '#495057'
+                                        }}
+                                        clickBtn={cancelPopupFormConfirm}
+                                    />
+                                </SettingPopup>
+                            </ContainerPopup>
+                        )}
+
                         <HeadInfo
                             title={dataConfirmPatient?.roomInfo?.queueNumber}
                             titleInfo="Confirmation Data Information"
@@ -110,10 +162,10 @@ export function ConfirmationPatient({ params }: { params: string }) {
                             editIcon={faPencil}
                             downloadIcon={faDownload}
                             sendIcon={faPaperPlane}
-                            clickSend={()=>{return}}
-                            clickDownload={()=>{return}}
-                            clickEdit={()=>{return}}
-                            clickDelete={()=>{return}}
+                            clickSend={() => { return }}
+                            clickDownload={clickDownload}
+                            clickEdit={() => { return }}
+                            clickDelete={() => { return }}
                             classEditBtn="mr-1 hover:text-white"
                             classDownloadBtn="mr-1 hover:text-white bg-color-default-old"
                             classSendIcon="mr-1 hover:text-white bg-orange-young border-orange-young hover:border-orange-young"
@@ -143,7 +195,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
 
                     {/* form confirm patient to counter */}
                     {!drugCounterPatient?.id && (
-                        <FormConfirmation/>
+                        <FormConfirmation />
                     )}
                 </Container>
             )}

@@ -97,3 +97,18 @@ export type InfoLoketT = {
     id: string
     loketName: string
 }
+
+// type for pdf download
+export type ConfirmInfoPDFT = {
+    queueNumber: string
+    treatmentHours: string
+    roomName: string
+    doctorName: string
+    doctorSpecialist: string
+    confirmHours: string
+    confirmDate: string
+    adminInfo: {
+        email: string
+        name: string
+    }
+}

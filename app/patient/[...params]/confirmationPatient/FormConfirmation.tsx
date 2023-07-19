@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from "react";
 import Button from "components/Button";
 import { Container } from "components/Container";
 import { CardInfo } from "components/dataInformation/CardInfo";
@@ -11,13 +10,10 @@ import { InputSelect } from "components/input/InputSelect";
 import { TitleInput } from "components/input/TitleInput";
 import { UseForm } from "./UseForm";
 import { TinyEditor } from "components/tinyEditor/TinyEditor";
-import { PopupSetting } from "lib/types/TableT.type";
 import { ContainerPopup } from "components/popup/ContainerPopup";
 import { SettingPopup } from "components/popup/SettingPopup";
 
 export function FormConfirmation() {
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
-
     const {
         counterOptions,
         value,
@@ -26,12 +22,10 @@ export function FormConfirmation() {
         errInput,
         confirmSubmitForm,
         handleCounter,
-        loadingSubmit
-    } = UseForm({ setOnPopupSetting })
-
-    function cancelPopupSetting(): void {
-        setOnPopupSetting({} as PopupSetting)
-    }
+        loadingSubmit,
+        onPopupSetting,
+        cancelPopupFormConfirm
+    } = UseForm()
 
     return (
         <Container
@@ -44,7 +38,7 @@ export function FormConfirmation() {
                     className='flex justify-center items-center overflow-y-auto'
                 >
                     <SettingPopup
-                        clickClose={cancelPopupSetting}
+                        clickClose={cancelPopupFormConfirm}
                         title={onPopupSetting.title}
                         classIcon='text-font-color-2'
                         iconPopup={onPopupSetting.iconPopup}
@@ -74,7 +68,7 @@ export function FormConfirmation() {
                                 marginTop: '0.5rem',
                                 color: '#495057'
                             }}
-                            clickBtn={cancelPopupSetting}
+                            clickBtn={cancelPopupFormConfirm}
                         />
                     </SettingPopup>
                 </ContainerPopup>

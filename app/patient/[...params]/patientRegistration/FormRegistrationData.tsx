@@ -12,12 +12,11 @@ import { TitleInput } from "components/input/TitleInput"
 import Button from "components/Button"
 import { HandleFormRegistration } from "./HandleFormRegistration"
 import { Toggle } from "components/toggle/Toggle"
-import { faBan } from "@fortawesome/free-solid-svg-icons"
 import { DeletePatient } from "./DeletePatient"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import { FormPopup } from "components/popup/FormPopup"
-import { PopupSetting } from "lib/types/TableT.type"
+import { ActionsDataT, PopupSetting } from "lib/types/TableT.type"
 
 function FormRegistrationData({ params }: { params: string }) {
     const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
@@ -44,7 +43,9 @@ function FormRegistrationData({ params }: { params: string }) {
         setOnMsgCancelTreatment,
         handleCancelMsg,
         inputMsgCancelPatient,
-        submitCancelTreatment
+        submitCancelTreatment,
+        isMenuActive,
+        clickMenu
     } = DeletePatient({ params, setOnPopupSetting })
 
     function cancelPopupSetting(): void {
@@ -59,6 +60,19 @@ function FormRegistrationData({ params }: { params: string }) {
     function cancelOnMsgCancelPatient(): void {
         setOnMsgCancelTreatment(false)
     }
+
+    const actionsMenu: ActionsDataT[] = [
+        {
+            name: 'Cancel Treatment',
+            classWrapp: loadingCancelTreatment ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' :  'cursor-pointer text-pink-old',
+            click: () => {
+                if(loadingCancelTreatment === false){
+                    clickCancelTreatment()
+                    clickMenu()
+                }
+            }
+        },
+    ]
 
     return (
         <Container
@@ -159,15 +173,18 @@ function FormRegistrationData({ params }: { params: string }) {
 
             <HeadInfo
                 titleInfo="Form Confirmation"
-                classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange hover:text-white ${loadingCancelTreatment && 'cursor-not-allowed'}`}
+                // classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange hover:text-white ${loadingCancelTreatment && 'cursor-not-allowed'}`}
                 classTitle="border-none"
                 styleHeadTop={{
                     padding: '0'
                 }}
-                classDeleteBtn="hidden"
-                editIcon={loadingCancelTreatment ? undefined : faBan}
-                classLoadingEdit={loadingCancelTreatment ? 'flex' : 'hidden'}
-                clickEdit={clickCancelTreatment}
+                // classDeleteBtn="hidden"
+                // editIcon={loadingCancelTreatment ? undefined : faBan}
+                // classLoadingEdit={loadingCancelTreatment ? 'flex' : 'hidden'}
+                // clickEdit={clickCancelTreatment}
+                actionsData={actionsMenu}
+                clickMenu={clickMenu}
+                classWrappMenu={`${isMenuActive ? 'flex' : 'hidden'} right-9`}
             />
 
             <InputContainer

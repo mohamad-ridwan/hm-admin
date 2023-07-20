@@ -24,6 +24,7 @@ export function DeletePatient({
     const [loadingCancelTreatment, setLoadingCancelTreatment] = useState<boolean>(false)
     const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
     const [inputMsgCancelPatient, setInputMsgCancelPatient] = useState<string>('')
+    const [isMenuActive, setIsMenuActive] = useState<boolean>(false)
 
     const {
         detailDataPatientRegis,
@@ -155,6 +156,10 @@ export function DeletePatient({
     }
     // end action cancel treatment
 
+    function clickMenu():void{
+        setIsMenuActive(!isMenuActive)
+    }
+
     return {
         clickDelete,
         loadingDelete,
@@ -164,6 +169,8 @@ export function DeletePatient({
         setOnMsgCancelTreatment,
         handleCancelMsg,
         inputMsgCancelPatient,
-        submitCancelTreatment
+        submitCancelTreatment,
+        isMenuActive,
+        clickMenu
     }
 }

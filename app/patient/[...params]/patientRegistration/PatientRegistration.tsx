@@ -16,7 +16,7 @@ import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import Button from "components/Button"
-import { PopupSetting } from "lib/types/TableT.type"
+import { ActionsDataT, PopupSetting } from "lib/types/TableT.type"
 
 export function PatientRegistration({ params }: { params: string }) {
     const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
@@ -47,6 +47,8 @@ export function PatientRegistration({ params }: { params: string }) {
     const {
         clickDelete,
         loadingDelete,
+        isMenuActive,
+        clickMenu
     } = DeletePatient({ params })
 
     const submissionDate = new Date(`${detailDataPatientRegis?.submissionDate?.submissionDate} ${detailDataPatientRegis?.submissionDate?.clock}`)
@@ -114,6 +116,28 @@ export function PatientRegistration({ params }: { params: string }) {
             })
         }
     }
+
+    const actionsMenu: ActionsDataT[] = [
+        {
+            name: 'Edit',
+            classWrapp: 'cursor-pointer',
+            click: () => {
+                clickEdit(detailDataPatientRegis?.id, detailDataPatientRegis?.patientName)
+                setOnPopupEdit(true)
+                clickMenu()
+            }
+        },
+        {
+            name: 'Delete',
+            classWrapp: loadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'text-red-default cursor-pointer',
+            click: ()=>{
+                onDeletePatient()
+                if(loadingDelete === false){
+                    clickMenu()
+                }
+            }
+        }
+    ]
 
     return (
         <>
@@ -215,16 +239,19 @@ export function PatientRegistration({ params }: { params: string }) {
                         titleInfo="Patient Information"
                         icon={!dataConfirmPatient?.id ? faCircleExclamation : faCircleCheck}
                         classTitle={!dataConfirmPatient?.id ? 'text-orange-young' : ''}
-                        editIcon={faPencil}
-                        deleteIcon={loadingDelete ? undefined : faTrash}
-                        classEditBtn="mr-1 hover:bg-color-default-old hover:text-white"
-                        classDeleteBtn={`${loadingDelete ? 'cursor-not-allowed ' : 'cursor-pointer'} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
-                        classLoadingDelete={loadingDelete ? 'flex' : 'hidden'}
-                        clickEdit={() => {
-                            clickEdit(detailDataPatientRegis?.id, detailDataPatientRegis?.patientName)
-                            setOnPopupEdit(true)
-                        }}
-                        clickDelete={onDeletePatient}
+                        // editIcon={faPencil}
+                        // deleteIcon={loadingDelete ? undefined : faTrash}
+                        // classEditBtn="mr-1 hover:bg-color-default-old hover:text-white"
+                        // classDeleteBtn={`${loadingDelete ? 'cursor-not-allowed ' : 'cursor-pointer'} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
+                        // classLoadingDelete={loadingDelete ? 'flex' : 'hidden'}
+                        // clickEdit={() => {
+                        //     clickEdit(detailDataPatientRegis?.id, detailDataPatientRegis?.patientName)
+                        //     setOnPopupEdit(true)
+                        // }}
+                        // clickDelete={onDeletePatient}
+                        actionsData={actionsMenu}
+                        clickMenu={clickMenu}
+                        classWrappMenu={`${isMenuActive ? 'flex' : 'hidden'} right-9`}
                     />
 
                     <div

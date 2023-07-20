@@ -1,13 +1,17 @@
 import { CSSProperties } from "react"
-import { IconDefinition } from "@fortawesome/free-solid-svg-icons"
+import { IconDefinition, faEllipsis } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { EditBtn } from "components/editBtn/EditBtn"
+import { WrappMenu } from "components/navbar/dropMenu/WrappMenu"
+import Button from "components/Button"
+import { ActionsDataT } from "lib/types/TableT.type"
+import { Menu } from "components/navbar/dropMenu/Menu"
 
 type ActionProps = {
     clickEdit?: () => void
     clickDelete?: () => void
     clickDownload?: () => void
-    clickSend?:() => void
+    clickSend?: () => void
+    clickMenu?: ()=>void
 }
 
 type IconProps = {
@@ -16,7 +20,7 @@ type IconProps = {
     editIcon?: IconDefinition
     deleteIcon?: IconDefinition
     downloadIcon?: IconDefinition
-    sendIcon? : IconDefinition
+    sendIcon?: IconDefinition
 }
 
 type Props = IconProps & ActionProps & {
@@ -33,7 +37,9 @@ type Props = IconProps & ActionProps & {
     classDownloadBtn?: string,
     classLoadingDownload?: string
     classSendIcon?: string
-    classLoadingSend? : string
+    classLoadingSend?: string
+    actionsData?: ActionsDataT[]
+    classWrappMenu?: string
 }
 
 export function HeadInfo({
@@ -60,7 +66,10 @@ export function HeadInfo({
     clickEdit,
     clickDelete,
     clickDownload,
-    clickSend
+    clickSend,
+    actionsData,
+    classWrappMenu,
+    clickMenu
 }: Props) {
     return (
         <div
@@ -104,9 +113,9 @@ export function HeadInfo({
             </div>
 
             <div
-                className="flex flex-col justify-between my-8"
+                className="flex flex-wrap justify-between my-8 relative"
             >
-                <div
+                {/* <div
                     className="flex flex-wrap justify-end"
                 >
                     {typeof clickEdit !== 'undefined' && (
@@ -144,13 +153,41 @@ export function HeadInfo({
                             clickBtn={clickDelete}
                         />
                     )}
-                </div>
+                </div> */}
+
+                <WrappMenu
+                classWrapp={`${classWrappMenu} bg-white shadow-lg`}
+                >
+                    {
+                        typeof actionsData !== 'undefined' &&
+                        actionsData.length > 0 &&
+                        actionsData.map((item, index) => {
+                            return (
+                                <Menu
+                                    key={index}
+                                    classWrapp={item?.classWrapp}
+                                    id={item.id}
+                                    name={item.name}
+                                    click={item.click}
+                                />
+                            )
+                        })
+                    }
+                </WrappMenu>
 
                 <h1
                     className="text-[1.3rem] text-start font-bold text-font-color-4"
                 >
                     {titleInfo}
                 </h1>
+                <Button
+                    classBtn="hover:text-white rounded-sm px-[0.4rem] h-7"
+                    classLoading="hidden"
+                    clickBtn={clickMenu}
+                    icon={<>
+                        <FontAwesomeIcon icon={faEllipsis} className="text-lg" />
+                    </>}
+                />
             </div>
         </div>
     )

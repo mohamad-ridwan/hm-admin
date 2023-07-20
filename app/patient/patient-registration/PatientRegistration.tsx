@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { faBan, faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import {faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
 import { TableHead } from 'components/table/TableHead'
@@ -27,7 +27,6 @@ import { FormPopup } from 'components/popup/FormPopup'
 import { TitleInput } from 'components/input/TitleInput'
 import ErrorInput from 'components/input/ErrorInput'
 import Input from 'components/input/Input'
-import { Menu } from 'components/navbar/dropMenu/Menu'
 
 export function PatientRegistration() {
     const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
@@ -296,7 +295,7 @@ export function PatientRegistration() {
                                 }
                             },
                             {
-                                classWrapp: findIdLoadingCancelT ? 'text-text-not-allowed hover:bg-white hover:text-text-not-allowed cursor-not-allowed' : '',
+                                classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-pink-old',
                                 name: 'Cancel Treatment',
                                 click: (e?: MouseEvent) => {
                                     clickCancelTreatment(patient.id, patient.data[0]?.name)
@@ -305,7 +304,7 @@ export function PatientRegistration() {
                                 }
                             },
                             {
-                                classWrapp: findIdLoadingDelete ? 'text-text-not-allowed hover:bg-white hover:text-text-not-allowed cursor-not-allowed' : '',
+                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-red-default',
                                 name: 'Delete',
                                 click: (e?: MouseEvent) => {
                                     clickDelete(patient.id, patient.data[0]?.name)
@@ -318,33 +317,9 @@ export function PatientRegistration() {
                         return (
                             <TableColumns
                                 key={index}
-                                // idLoadingDelete={`loadDelete${patient.id}`}
-                                // idIconDelete={`iconDelete${patient.id}`}
-                                // idIconCancel={`iconCancel${patient.id}`}
-                                // idLoadingCancel={`loadingCancel${patient.id}`}
-                                // iconCancel={faBan}
                                 clickBtn={() => toPage(pathUrlToDataDetail)}
                                 actionsData={actionsData}
                                 classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
-                                // styleColumnMenu={{
-                                //     display: indexActiveColumnMenu === index ? 'flex' : 'none'
-                                // }}
-                                // clickEdit={(e) => {
-                                //     clickEdit(patient.id, patient.data[0]?.name)
-                                //     setOnPopupEdit(true)
-                                //     setIndexActiveColumnMenu(null)
-                                //     e?.stopPropagation()
-                                // }}
-                                // clickCancel={(e) => {
-                                //     clickCancelTreatment(patient.id, patient.data[0]?.name)
-                                //     setIndexActiveColumnMenu(null)
-                                //     e?.stopPropagation()
-                                // }}
-                                // clickDelete={(e) => {
-                                //     clickDelete(patient.id, patient.data[0]?.name)
-                                //     setIndexActiveColumnMenu(null)
-                                //     e?.stopPropagation()
-                                // }}
                                 clickColumnMenu={() => clickColumnMenu(index)}
                             >
                                 {patient.data.map((item, idx) => {

@@ -14,6 +14,7 @@ import { UseForm } from "./UseForm";
 import { ContainerPopup } from "components/popup/ContainerPopup";
 import { SettingPopup } from "components/popup/SettingPopup";
 import Button from "components/Button";
+import { ActionsDataT } from "lib/types/TableT.type";
 
 export function ConfirmationPatient({ params }: { params: string }) {
     const {
@@ -36,7 +37,9 @@ export function ConfirmationPatient({ params }: { params: string }) {
         confirmForDownloadPdf,
         clickSend,
         confirmSendEmail,
-        loadingSendEmail
+        loadingSendEmail,
+        clickMenu,
+        isMenuActive
     } = UseForm()
 
     const findCurrentRoom = dataRooms?.find(room => room.id === dataConfirmPatient?.roomInfo?.roomId)
@@ -102,6 +105,41 @@ export function ConfirmationPatient({ params }: { params: string }) {
         },
     ] : []
 
+    const actionsMenu: ActionsDataT[] = [
+        {
+            name: 'Edit',
+            classWrapp: 'cursor-pointer',
+            click: () => {
+                return
+            }
+        },
+        {
+            name: 'Download PDF',
+            classWrapp: 'cursor-pointer',
+            click: ()=>{
+                clickDownload()
+                clickMenu()
+            }
+        },
+        {
+            name: 'Send Confirmation',
+            classWrapp: loadingSendEmail ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' :  'cursor-pointer',
+            click: ()=>{
+                if(loadingSendEmail === false){
+                    clickSend()
+                    clickMenu()
+                }
+            }
+        },
+        {
+            name: 'Delete',
+            classWrapp: 'text-red-default cursor-pointer',
+            click: ()=>{
+                return
+            }
+        }
+    ]
+
     return (
         <>
             {dataConfirmPatient?.id && (
@@ -163,25 +201,28 @@ export function ConfirmationPatient({ params }: { params: string }) {
                             icon={faListOl}
                             iconRight={doctorIsAvailable ? faCheck : faTriangleExclamation}
                             titleRight={doctorIsAvailable ? 'Doctor available' : 'Doctor is not available'}
-                            deleteIcon={faTrash}
-                            editIcon={faPencil}
-                            downloadIcon={faDownload}
-                            sendIcon={loadingSendEmail ? undefined : faPaperPlane}
-                            clickSend={clickSend}
-                            clickDownload={clickDownload}
-                            clickEdit={() => { return }}
-                            clickDelete={() => { return }}
-                            classEditBtn="mr-1 hover:text-white"
-                            classDownloadBtn="mr-1 hover:text-white bg-color-default-old"
-                            classSendIcon={`${loadingSendEmail ? 'cursor-not-allowed' : 'cursor-pointer'} mr-1 hover:text-white bg-orange-young border-orange-young hover:border-orange-young`}
-                            classLoadingSend={loadingSendEmail ? 'flex' : 'hidden'}
-                            classDeleteBtn="bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white"
+                            // deleteIcon={faTrash}
+                            // editIcon={faPencil}
+                            // downloadIcon={faDownload}
+                            // sendIcon={loadingSendEmail ? undefined : faPaperPlane}
+                            // clickSend={clickSend}
+                            // clickDownload={clickDownload}
+                            // clickEdit={() => { return }}
+                            // clickDelete={() => { return }}
+                            // classEditBtn="mr-1 hover:text-white"
+                            // classDownloadBtn="mr-1 hover:text-white bg-color-default-old"
+                            // classSendIcon={`${loadingSendEmail ? 'cursor-not-allowed' : 'cursor-pointer'} mr-1 hover:text-white bg-orange-young border-orange-young hover:border-orange-young`}
+                            // classLoadingSend={loadingSendEmail ? 'flex' : 'hidden'}
+                            // classDeleteBtn="bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white"
                             styleHeadTop={{
                                 justifyContent: 'space-between'
                             }}
                             styleHeadRight={{
                                 color: doctorIsAvailable ? '#288bbc' : '#ff296d'
                             }}
+                            actionsData={actionsMenu}
+                            classWrappMenu={`${isMenuActive ? 'flex' : 'hidden'} right-9`}
+                            clickMenu={clickMenu}
                         />
                         <div
                             className="w-full flex flex-wrap justify-between"

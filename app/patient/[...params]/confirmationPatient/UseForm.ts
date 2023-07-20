@@ -32,6 +32,7 @@ export function UseForm() {
     const [errInput, setErrInput] = useState<InputDrugCounterT>({} as InputDrugCounterT)
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
     const [loadingSendEmail, setLoadingSendEmail] = useState<boolean>(false)
+    const [isMenuActive, setIsMenuActive] = useState<boolean>(false)
 
     const {
         loadDataService,
@@ -251,6 +252,10 @@ export function UseForm() {
         }
     }
 
+    function clickMenu():void{
+        setIsMenuActive(!isMenuActive)
+    }
+
     return {
         counterOptions,
         value,
@@ -266,6 +271,8 @@ export function UseForm() {
         confirmForDownloadPdf,
         clickSend,
         confirmSendEmail,
-        loadingSendEmail
+        loadingSendEmail,
+        clickMenu,
+        isMenuActive
     }
 }

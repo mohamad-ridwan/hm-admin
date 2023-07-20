@@ -492,7 +492,7 @@ export function ConfirmationPatient() {
                             },
                             {
                                 name: 'Cancel Treatment',
-                                classWrapp: findIdLoadingCancelT ? 'text-text-not-allowed hover:bg-white hover:text-text-not-allowed cursor-not-allowed' : '',
+                                classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-pink-old',
                                 click: (e?: MouseEvent)=>{
                                     clickCancelTreatment(patient.id, patient.data[0]?.name)
                                     if(!findIdLoadingCancelT){
@@ -503,7 +503,7 @@ export function ConfirmationPatient() {
                             },
                             {
                                 name: 'Delete',
-                                classWrapp: findIdLoadingDelete ? 'text-text-not-allowed hover:bg-white hover:text-text-not-allowed cursor-not-allowed' : '',
+                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-red-default',
                                 click: (e?: MouseEvent)=>{
                                     clickDeleteIcon(patient.id, patient.data[0]?.name)
                                     setIndexActiveTableMenu(null)
@@ -516,34 +516,9 @@ export function ConfirmationPatient() {
                         return (
                             <TableColumns
                                 key={index}
-                                // idLoadingDelete={`loadDelete${patient.id}`}
-                                // idIconDelete={`iconDelete${patient.id}`}
-                                // idIconCancel={`iconCancel${patient.id}`}
-                                // idLoadingCancel={`loadingCancel${patient.id}`}
-                                // iconCancel={faBan}
                                 actionsData={actionsData}
                                 classWrappMenu={indexActiveTableMenu === index ? 'flex' : 'hidden'}
-                                // styleColumnMenu={{
-                                //     display: indexActiveTableMenu === index ? 'flex' : 'none'
-                                // }}
                                 clickBtn={() => toPage(pathUrlToDataDetail)}
-                                // clickEdit={(e) => {
-                                //     clickEdit(patient.id, patient.data[0]?.name)
-                                //     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
-                                //     setOnPopupSettings(true)
-                                //     setIndexActiveTableMenu(null)
-                                //     e?.stopPropagation()
-                                // }}
-                                // clickCancel={(e) => {
-                                //     clickCancelTreatment(patient.id, patient.data[0]?.name)
-                                //     setIndexActiveTableMenu(null)
-                                //     e?.stopPropagation()
-                                // }}
-                                // clickDelete={(e) => {
-                                //     clickDeleteIcon(patient.id, patient.data[0]?.name)
-                                //     setIndexActiveTableMenu(null)
-                                //     e?.stopPropagation()
-                                // }}
                                 clickColumnMenu={() => clickColumnMenu(index)}
                             >
                                 {patient.data.map((item, idx) => {

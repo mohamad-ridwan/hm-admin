@@ -316,7 +316,7 @@ export function OurDoctor() {
                             },
                             {
                                 name: 'Delete',
-                                classWrapp: findCurrentLoading ? 'text-text-not-allowed hover:text-text-not-allowed hover:bg-white cursor-not-allowed' : '',
+                                classWrapp: findCurrentLoading ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
                                 click: (e?: MouseEvent)=>{
                                     const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
                                     if(!findCurrentLoading){
@@ -339,36 +339,9 @@ export function OurDoctor() {
                         return (
                             <TableColumns
                                 key={index}
-                                // idIconDelete={`iconDelete${item.id}`}
-                                // idLoadingDelete={`loadingDelete${item.id}`}
-                                // styleColumnMenu={{
-                                //     display: indexActiveColumnMenu === index ? 'flex' : 'none',
-                                //     marginLeft: '-4rem',
-                                // }}
                                 clickBtn={() => pathDoctor}
                                 actionsData={actionsData}
                                 classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
-                                // clickEdit={(e) => {
-                                //     clickEdit(item.id)
-                                //     setIndexActiveColumnMenu(null)
-                                //     e?.stopPropagation()
-                                // }}
-                                // clickDelete={(e) => {
-                                //     const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
-                                    // if(!findCurrentLoading){
-                                    //     setOnPopupSetting({
-                                    //         title: `Delete doctor ${item.data[0].name}?`,
-                                    //         classIcon: 'text-pink-old',
-                                    //         classBtnNext: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
-                                    //         iconPopup: faBan,
-                                    //         nameBtnNext: 'Yes',
-                                    //         doctorId: item.id,
-                                    //         categoryAction: 'delete-doctor'
-                                    //     })
-                                    // }
-                                    // setIndexActiveColumnMenu(null)
-                                //     e?.stopPropagation()
-                                // }}
                                 clickColumnMenu={() => {
                                     if (indexActiveColumnMenu === index) {
                                         setIndexActiveColumnMenu(null)

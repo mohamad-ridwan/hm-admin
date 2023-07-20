@@ -121,12 +121,6 @@ export function FinishedTreatment() {
                                 clickBtn={() => ''}
                                 actionsData={actionsData}
                                 classWrappMenu="hidden"
-                                // clickEdit={(e) => {
-                                //     e?.stopPropagation()
-                                // }}
-                                // clickDelete={(e) => {
-                                //     e?.stopPropagation()
-                                // }}
                             >
                                 {patient.data.map((item, idx) => {
                                     return (

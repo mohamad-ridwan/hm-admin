@@ -12,6 +12,7 @@ import { UseForm } from "./UseForm";
 import { TinyEditor } from "components/tinyEditor/TinyEditor";
 import { ContainerPopup } from "components/popup/ContainerPopup";
 import { SettingPopup } from "components/popup/SettingPopup";
+import { ActionsDataT } from "lib/types/TableT.type";
 
 export function FormConfirmation() {
     const {
@@ -24,8 +25,25 @@ export function FormConfirmation() {
         handleCounter,
         loadingSubmit,
         onPopupSetting,
-        cancelPopupFormConfirm
+        cancelPopupFormConfirm,
+        isMenuActive,
+        clickMenu
     } = UseForm()
+
+    const actionsMenu: ActionsDataT[] = [
+        {
+            name: 'Cancel Treatment',
+            // classWrapp: loadingCancelTreatment ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' :  'cursor-pointer text-pink-old',
+            classWrapp: 'text-pink-old cursor-pointer',
+            click: () => {
+                // if(loadingCancelTreatment === false){
+                //     clickCancelTreatment()
+                //     setIsMenuActive(false)
+                // }
+                return
+            }
+        },
+    ]
 
     return (
         <Container
@@ -76,12 +94,13 @@ export function FormConfirmation() {
 
             <HeadInfo
                 titleInfo="Form Confirm to Take Medicine"
-                // classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange ${loadingCancelTreatment && 'cursor-not-allowed'}`}
                 classTitle="border-none"
                 styleHeadTop={{
                     padding: '0'
                 }}
-                classDeleteBtn="hidden"
+                actionsData={actionsMenu}
+                classWrappMenu={`${isMenuActive ? 'flex' : 'hidden'} right-9`}
+                clickMenu={clickMenu}
             />
 
             <InputContainer

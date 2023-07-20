@@ -37,20 +37,6 @@ function FormPatientConfirmation({
         roomName: '',
         queueNumber: '',
     })
-    // const [selectPresence, setSelectPresence] = useState<DataOptionT>([
-    //     {
-    //         id: 'Select Presence',
-    //         title: 'Select Presence'
-    //     },
-    //     {
-    //         id: 'tidak hadir',
-    //         title: 'tidak hadir'
-    //     },
-    //     {
-    //         id: 'hadir',
-    //         title: 'hadir'
-    //     }
-    // ])
     const [selectDoctorSpecialist, setSelectDoctorSpecialist] = useState<DataOptionT>([
         {
             id: 'Select Specialist',
@@ -531,12 +517,6 @@ function FormPatientConfirmation({
         }
     }
 
-    // function activeSelectPresence(): void {
-    //     const findIndexPresence: number = selectPresence.findIndex(presence => presence.id === valueInputEditConfirmPatient?.presence)
-
-    //     activeSelectEditConfirmPatient('selectPresence', findIndexPresence)
-    // }
-
     function clickOnEditConfirmPatient(): void {
         setOnPopupEditConfirmPatient(true)
         setOnPopupSettings(false)
@@ -548,7 +528,6 @@ function FormPatientConfirmation({
             activeSelectSpecialist()
             activeSelectDoctor()
             activeSelectRoom()
-            // activeSelectPresence()
         }, 500);
     }
 

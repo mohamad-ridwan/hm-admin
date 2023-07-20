@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
 import ServicingHours from "lib/actions/ServicingHours"
 import { useRouter } from 'next/navigation'
 import { API } from "lib/api"
@@ -8,7 +8,6 @@ import { createDateFormat } from "lib/dates/createDateFormat"
 import { createHourFormat } from "lib/dates/createHourFormat"
 import { spaceString } from "lib/regex/spaceString"
 import { specialCharacter } from "lib/regex/specialCharacter"
-import { DataTableContentT } from "lib/types/FilterT"
 import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { UserT } from "lib/types/ZustandT.types"
 import { PopupSetting } from "lib/types/TableT.type"
@@ -163,35 +162,6 @@ export function DeletePatient({
         }
     }
 
-    // action delete
-    // function loadingDeleteIcon(): void {
-    //     if (dataColumns.length > 0) {
-    //         dataColumns.forEach(patient => {
-    //             const loadingElement = document.getElementById(`loadDelete${patient.id}`) as HTMLElement
-    //             const iconDelete = document.getElementById(`iconDelete${patient.id}`) as HTMLElement
-
-    //             if (loadingElement && iconDelete) {
-    //                 loadingElement.style.display = 'none'
-    //                 iconDelete.style.display = 'flex'
-    //             }
-
-    //             loadingIdPatientsDelete.forEach(id => {
-    //                 const loadingElement = document.getElementById(`loadDelete${id}`) as HTMLElement
-    //                 const iconDelete = document.getElementById(`iconDelete${id}`) as HTMLElement
-
-    //                 if (loadingElement && iconDelete) {
-    //                     loadingElement.style.display = 'flex'
-    //                     iconDelete.style.display = 'none'
-    //                 }
-    //             })
-    //         })
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     loadingDeleteIcon()
-    // }, [loadingIdPatientsDelete, dataColumns])
-
     // action cancel treatment
     function clickCancelTreatment(id: string, name: string): void {
         const findId = idLoadingCancelTreatment.find(patientId => patientId === id)
@@ -261,35 +231,6 @@ export function DeletePatient({
             })
             .catch(err => pushTriggedErr('a server error occurred while canceling the patient. please try again'))
     }
-
-    // function onLoadingCancelTreatment(): void {
-    //     if (dataColumns.length > 0) {
-    //         dataColumns.forEach(patient => {
-    //             const loadingCancel = document.getElementById(`loadingCancel${patient.id}`) as HTMLElement
-    //             const iconCancel = document.getElementById(`iconCancel${patient.id}`) as HTMLElement
-
-    //             if (loadingCancel && iconCancel) {
-    //                 loadingCancel.style.display = 'none'
-    //                 iconCancel.style.display = 'flex'
-    //             }
-
-    //             idLoadingCancelTreatment.forEach(id => {
-    //                 const loadingCancel = document.getElementById(`loadingCancel${id}`) as HTMLElement
-    //                 const iconCancel = document.getElementById(`iconCancel${id}`) as HTMLElement
-
-    //                 if (loadingCancel && iconCancel) {
-    //                     loadingCancel.style.display = 'flex'
-    //                     iconCancel.style.display = 'none'
-    //                 }
-    //             })
-    //         })
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     onLoadingCancelTreatment()
-    // }, [idLoadingCancelTreatment, dataColumns])
-    // end action cancel treatment
 
     return {
         clickDeleteIcon,

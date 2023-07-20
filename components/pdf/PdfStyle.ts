@@ -17,8 +17,9 @@ export const PdfStyle: StyleType = {
     page: {
         display: 'flex',
         flexDirection: 'column',
-        maxWidth: '400px',
-        width: 'auto',
+        width: '400px',
+        // width: 'auto',
+        overflowX: 'auto',
         margin: '1rem'
     },
     img: {
@@ -30,7 +31,8 @@ export const PdfStyle: StyleType = {
     patient: {
         fontSize: '17px',
         whiteSpace: 'normal',
-        letterSpacing: 'normal'
+        letterSpacing: '0',
+        fontWeight: 'bold'
     },
     borderPatient: {
         height: '1px',
@@ -41,8 +43,8 @@ export const PdfStyle: StyleType = {
     titleRS: {
         fontSize: '18px',
         whiteSpace: 'normal',
-        letterSpacing: 'normal',
-        marginTop: '-10px',
+        letterSpacing: '0',
+        marginTop: '5px',
         fontWeight: 'bold'
     },
     cardInfo: {
@@ -52,12 +54,12 @@ export const PdfStyle: StyleType = {
     titleInfo: {
         fontSize: '12px',
         whiteSpace: 'normal',
-        letterSpacing: 'normal'
+        letterSpacing: '0'
     },
     textInfo: {
         fontSize: '11px',
         whiteSpace: 'normal',
-        letterSpacing: 'normal'
+        letterSpacing: '0'
     },
     styleHead: {
         display: 'none'

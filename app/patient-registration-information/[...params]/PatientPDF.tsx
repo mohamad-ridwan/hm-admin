@@ -1,7 +1,9 @@
 'use client'
 
+import { PdfStyle } from "components/pdf/PdfStyle"
 import { LoadPDF } from "./LoadPDF"
-import { ReportTemplate } from "components/pdf/ReportTemplate"
+import { RegistrationInfo } from "components/pdf/RegistrationInfo"
+import { ConfirmInfo } from "components/pdf/ConfirmInfo"
 
 export function PatientPDF({ params }: { params: { params: string } }) {
     const {
@@ -10,9 +12,28 @@ export function PatientPDF({ params }: { params: { params: string } }) {
     } = LoadPDF({ params })
 
     return (
-        <ReportTemplate
-            patientRegis={patientRegis}
-            confirmDataInfoPDF={confirmDataInfoPDF}
-        />
+        <>
+            {patientRegis?.id && (
+                <div
+                    id="patientPDF" style={PdfStyle.page}
+                >
+                    <RegistrationInfo
+                        patientRegis={patientRegis}
+                        confirmDataInfoPDF={confirmDataInfoPDF}
+                    />
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                    <ConfirmInfo
+                    confirmDataInfoPDF={confirmDataInfoPDF}
+                    />
+                </div>
+            )}
+        </>
     )
 }

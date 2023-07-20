@@ -1,15 +1,18 @@
-import { jsPDF } from 'jspdf'
+import JsPDF from 'jspdf'
 
 export const UsePDF = (
-    element: HTMLElement,
+    element: HTMLElement | string,
     patientName: string
 )=>{
-    const doc = new jsPDF({
+    const doc = new JsPDF({
         format: 'a4',
-        unit: 'px'
+        unit: 'px',
+        orientation: 'p',
+        putOnlyUsedFonts:true
     });
-
-    doc.setFont('Inter-Regular', 'normal')
+    
+    doc.setFont('times', 'bold', '800')
+    doc.setLineHeightFactor(0.7)
 
     doc.html(element, {
         callback: function(doc){

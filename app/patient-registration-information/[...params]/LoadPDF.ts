@@ -1,29 +1,29 @@
 'use client'
 
 import { useEffect } from 'react';
-import {notFound} from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { UsePDF } from 'lib/pdf/UsePDF';
 import ServicingHours from 'lib/actions/ServicingHours';
 import { ConfirmInfoPDFT } from 'lib/types/PatientT.types';
 import { navigationStore } from 'lib/useZustand/navigation';
 
 type Props = {
-    params: {params: string}
+    params: { params: string }
 }
 
 export function LoadPDF({
     params,
-}: Props){
+}: Props) {
     const { setIsNotFound } = navigationStore()
 
-    useEffect(()=>{
+    useEffect(() => {
         setIsNotFound(true)
     }, [])
 
-    if(
+    if (
         params.params.length < 4 ||
         params.params.length > 5
-    ){
+    ) {
         notFound()
     }
 
@@ -40,13 +40,13 @@ export function LoadPDF({
         pushTriggedErr
     } = ServicingHours()
 
-    const patientRegis = dataPatientRegis?.find(patient=>patient.id === params.params[0])
-    const confirmPatient = dataConfirmationPatients?.find(patient=>patient.patientId === params.params[0])
-    const finishPatient = dataFinishTreatment?.find(patient=>patient.patientId === params.params[0])
+    const patientRegis = dataPatientRegis?.find(patient => patient.id === params.params[0])
+    const confirmPatient = dataConfirmationPatients?.find(patient => patient.patientId === params.params[0])
+    const finishPatient = dataFinishTreatment?.find(patient => patient.patientId === params.params[0])
 
-    const room = dataRooms?.find(room=>room.id === confirmPatient?.roomInfo?.roomId)
-    const doctor = doctors?.find(docs=>docs.id === confirmPatient?.doctorInfo?.doctorId)
-    const admin = dataAdmin?.find(admins=>admins.id === confirmPatient?.adminInfo?.adminId)
+    const room = dataRooms?.find(room => room.id === confirmPatient?.roomInfo?.roomId)
+    const doctor = doctors?.find(docs => docs.id === confirmPatient?.doctorInfo?.doctorId)
+    const admin = dataAdmin?.find(admins => admins.id === confirmPatient?.adminInfo?.adminId)
 
     const confirmDataInfoPDF: ConfirmInfoPDFT = !loadDataService && confirmPatient ? {
         queueNumber: confirmPatient.roomInfo.queueNumber,
@@ -62,29 +62,29 @@ export function LoadPDF({
         }
     } : {} as ConfirmInfoPDFT
 
-    if(
+    if (
         !loadDataService &&
         !patientRegis &&
         !confirmPatient
-    ){
+    ) {
         pushTriggedErr(`Found no patient by id : ${params.params[0]}`)
     }
 
-    if(
+    if (
         params.params.length === 5 &&
         !finishPatient
-    ){
+    ) {
         pushTriggedErr(`Found no patient by id : ${params.params[0]}`)
     }
 
-    function downloadPdf():void{
-        if(
+    function downloadPdf(): void {
+        if (
             !loadDataService &&
             patientRegis &&
             confirmPatient
-        ){
+        ) {
             const element = document.getElementById('patientPDF') as HTMLElement
-            if(element){
+            if (element) {
                 UsePDF(
                     element,
                     patientRegis.patientName
@@ -93,7 +93,7 @@ export function LoadPDF({
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         setTimeout(() => {
             downloadPdf()
         }, 500)

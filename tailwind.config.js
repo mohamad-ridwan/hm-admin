@@ -48,7 +48,8 @@ module.exports = {
         'border-success': '#7ec86f27',
         'pink': '#f85084',
         'orange': '#FFA500',
-        'orange-young': '#fa9c1b'
+        'orange-young': '#fa9c1b',
+        'text-not-allowed': '#8f8f8f'
       },
       boxShadow:{
         'shadow-menu': '0 2px 3px -1px rgba(0, 0, 0, 0.3)'

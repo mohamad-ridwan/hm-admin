@@ -2,8 +2,10 @@
 
 import { CSSProperties, ReactNode } from "react"
 import { IconDefinition, faEllipsis, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons"
-import { EditBtn } from "components/editBtn/EditBtn"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { WrappMenu } from "components/navbar/dropMenu/WrappMenu"
+import { ActionsDataT } from "lib/types/TableT.type"
+import { Menu } from "components/navbar/dropMenu/Menu"
 
 type ButtonEditProps = {
     indexActiveEdit?: string | undefined
@@ -18,14 +20,16 @@ type ButtonEditProps = {
     idIconCancel?: string
     idLoadingCancel?: string
     styleColumnMenu?: CSSProperties
+    classWrappMenu?: string
+    actionsData?: ActionsDataT[]
 }
 
 type ActionButtonEdit = {
-    clickEdit: (e?: MouseEvent) => void
-    clickDelete: (e?: MouseEvent) => void
+    clickEdit?: (e?: MouseEvent) => void
+    clickDelete?: (e?: MouseEvent) => void
     clickBtn: () => void
     clickCancel?: (e?: MouseEvent) => void
-    clickColumnMenu?:()=>void
+    clickColumnMenu?: () => void
 }
 
 type ChildProps = {
@@ -52,20 +56,23 @@ export function TableColumns({
     idIconCancel,
     idLoadingCancel,
     clickColumnMenu,
-    styleColumnMenu
+    styleColumnMenu,
+    classWrappMenu,
+    actionsData
 }: Props) {
     return (
         <>
             <button
                 onClick={clickBtn}
-                className="flex even:bg-cyan-table hover:bg-table-hover transition-all items-center relative"
+                className="flex even:bg-cyan-table hover:bg-table-hover transition-all items-center"
             >
                 {children}
 
                 <div
-                    className="flex items-center justify-between pr-2 absolute right-0"
+                    className="flex items-center justify-between pr-2 right-0 absolute"
                 >
-                    <div
+
+                    {/* <div
                         className="hidden absolute ml-[-6rem] mt-[-6rem] bg-white shadow-lg p-3 rounded-sm items-center"
                         style={styleColumnMenu}
                     >
@@ -98,11 +105,11 @@ export function TableColumns({
                             padding={indexActiveDelete !== undefined ? '0.45rem 0.5rem' : '0.45rem 0.6rem'}
                             clickBtn={clickDelete}
                         />
-                    </div>
+                    </div> */}
                     <button
                         className="flex justify-center items-center rounded-sm bg-color-default text-white py-[0.3rem] px-[0.4rem]"
-                        onClick={(e)=>{
-                            if(typeof clickColumnMenu === 'function'){
+                        onClick={(e) => {
+                            if (typeof clickColumnMenu === 'function') {
                                 clickColumnMenu()
                             }
                             e.stopPropagation()
@@ -111,6 +118,25 @@ export function TableColumns({
                         <FontAwesomeIcon icon={faEllipsis} className="text-lg" />
                     </button>
                 </div>
+                <WrappMenu
+                    classWrapp={`${classWrappMenu} right-[3rem] bg-white shadow-lg`}
+                >
+                    {
+                        typeof actionsData !== 'undefined' &&
+                        actionsData.length > 0 &&
+                        actionsData.map((item, index) => {
+                            return (
+                                <Menu
+                                    key={index}
+                                    classWrapp={item?.classWrapp}
+                                    id={item.id}
+                                    name={item.name}
+                                    click={item.click}
+                                />
+                            )
+                        })
+                    }
+                </WrappMenu>
             </button>
         </>
     )

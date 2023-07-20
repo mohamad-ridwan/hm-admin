@@ -624,7 +624,6 @@ export function FilterTable() {
 
     return {
         head,
-        dataColumns,
         searchText,
         setSearchText,
         handleSearchText,

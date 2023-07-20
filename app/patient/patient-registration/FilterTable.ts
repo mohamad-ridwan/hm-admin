@@ -405,7 +405,6 @@ export function FilterTable() {
         maxLength,
         findDataRegistration,
         filterBy,
-        dataColumns,
         clickColumnMenu,
         indexActiveColumnMenu,
         setIndexActiveColumnMenu

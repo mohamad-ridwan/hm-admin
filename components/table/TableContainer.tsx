@@ -11,7 +11,7 @@ export function TableContainer({
 }: Props){
     return(
         <div
-        className="flex flex-col w-full rounded mt-[3rem] py-[40px] px-[30px] bg-white shadow overflow-x-auto"
+        className="flex flex-col w-full rounded mt-[3rem] bg-white shadow overflow-x-auto py-[40px] px-[30px]"
         style={style}
         >
             {children}

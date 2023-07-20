@@ -15,6 +15,7 @@ import { renderCustomHeader } from "lib/dates/renderCustomHeader";
 import { InputSelect } from "components/input/InputSelect";
 import { specialCharacter } from "lib/regex/specialCharacter";
 import { spaceString } from "lib/regex/spaceString";
+import { ActionsDataT } from "lib/types/TableT.type";
 
 type ParamsProps = {
     params: {
@@ -116,16 +117,33 @@ export function DrugCounter({ params }: ParamsProps) {
 
                         const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${namePatient}/${patient.id}/counter/${params?.counterName}/${status}/${queueNumber}`
 
+                        const actionsData: ActionsDataT[] = [
+                            {
+                                name: 'Edit',
+                                click: (e?: MouseEvent)=>{
+                                    e?.stopPropagation()
+                                }
+                            },
+                            {
+                                name: 'Delete',
+                                click: (e?: MouseEvent)=>{
+                                    e?.stopPropagation()
+                                }
+                            }
+                        ]
+
                         return (
                             <TableColumns
                                 key={index}
                                 clickBtn={() => router.push(pathUrlToDataDetail)}
-                                clickEdit={(e) => {
-                                    e?.stopPropagation()
-                                }}
-                                clickDelete={(e) => {
-                                    e?.stopPropagation()
-                                }}
+                                actionsData={actionsData}
+                                classWrappMenu="hidden"
+                                // clickEdit={(e) => {
+                                //     e?.stopPropagation()
+                                // }}
+                                // clickDelete={(e) => {
+                                //     e?.stopPropagation()
+                                // }}
                             >
                                 {patient.data.map((item, idx) => {
                                     return (

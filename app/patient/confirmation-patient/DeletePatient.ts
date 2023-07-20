@@ -16,14 +16,12 @@ import { faBan } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     user: UserT
-    dataColumns: DataTableContentT[]
     setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
     onPopupSetting?: PopupSetting
 }
 
 export function DeletePatient({
     user,
-    dataColumns,
     setOnPopupSetting,
     onPopupSetting
 }: Props) {
@@ -166,33 +164,33 @@ export function DeletePatient({
     }
 
     // action delete
-    function loadingDeleteIcon(): void {
-        if (dataColumns.length > 0) {
-            dataColumns.forEach(patient => {
-                const loadingElement = document.getElementById(`loadDelete${patient.id}`) as HTMLElement
-                const iconDelete = document.getElementById(`iconDelete${patient.id}`) as HTMLElement
+    // function loadingDeleteIcon(): void {
+    //     if (dataColumns.length > 0) {
+    //         dataColumns.forEach(patient => {
+    //             const loadingElement = document.getElementById(`loadDelete${patient.id}`) as HTMLElement
+    //             const iconDelete = document.getElementById(`iconDelete${patient.id}`) as HTMLElement
 
-                if (loadingElement && iconDelete) {
-                    loadingElement.style.display = 'none'
-                    iconDelete.style.display = 'flex'
-                }
+    //             if (loadingElement && iconDelete) {
+    //                 loadingElement.style.display = 'none'
+    //                 iconDelete.style.display = 'flex'
+    //             }
 
-                loadingIdPatientsDelete.forEach(id => {
-                    const loadingElement = document.getElementById(`loadDelete${id}`) as HTMLElement
-                    const iconDelete = document.getElementById(`iconDelete${id}`) as HTMLElement
+    //             loadingIdPatientsDelete.forEach(id => {
+    //                 const loadingElement = document.getElementById(`loadDelete${id}`) as HTMLElement
+    //                 const iconDelete = document.getElementById(`iconDelete${id}`) as HTMLElement
 
-                    if (loadingElement && iconDelete) {
-                        loadingElement.style.display = 'flex'
-                        iconDelete.style.display = 'none'
-                    }
-                })
-            })
-        }
-    }
+    //                 if (loadingElement && iconDelete) {
+    //                     loadingElement.style.display = 'flex'
+    //                     iconDelete.style.display = 'none'
+    //                 }
+    //             })
+    //         })
+    //     }
+    // }
 
-    useEffect(() => {
-        loadingDeleteIcon()
-    }, [loadingIdPatientsDelete, dataColumns])
+    // useEffect(() => {
+    //     loadingDeleteIcon()
+    // }, [loadingIdPatientsDelete, dataColumns])
 
     // action cancel treatment
     function clickCancelTreatment(id: string, name: string): void {
@@ -264,33 +262,33 @@ export function DeletePatient({
             .catch(err => pushTriggedErr('a server error occurred while canceling the patient. please try again'))
     }
 
-    function onLoadingCancelTreatment(): void {
-        if (dataColumns.length > 0) {
-            dataColumns.forEach(patient => {
-                const loadingCancel = document.getElementById(`loadingCancel${patient.id}`) as HTMLElement
-                const iconCancel = document.getElementById(`iconCancel${patient.id}`) as HTMLElement
+    // function onLoadingCancelTreatment(): void {
+    //     if (dataColumns.length > 0) {
+    //         dataColumns.forEach(patient => {
+    //             const loadingCancel = document.getElementById(`loadingCancel${patient.id}`) as HTMLElement
+    //             const iconCancel = document.getElementById(`iconCancel${patient.id}`) as HTMLElement
 
-                if (loadingCancel && iconCancel) {
-                    loadingCancel.style.display = 'none'
-                    iconCancel.style.display = 'flex'
-                }
+    //             if (loadingCancel && iconCancel) {
+    //                 loadingCancel.style.display = 'none'
+    //                 iconCancel.style.display = 'flex'
+    //             }
 
-                idLoadingCancelTreatment.forEach(id => {
-                    const loadingCancel = document.getElementById(`loadingCancel${id}`) as HTMLElement
-                    const iconCancel = document.getElementById(`iconCancel${id}`) as HTMLElement
+    //             idLoadingCancelTreatment.forEach(id => {
+    //                 const loadingCancel = document.getElementById(`loadingCancel${id}`) as HTMLElement
+    //                 const iconCancel = document.getElementById(`iconCancel${id}`) as HTMLElement
 
-                    if (loadingCancel && iconCancel) {
-                        loadingCancel.style.display = 'flex'
-                        iconCancel.style.display = 'none'
-                    }
-                })
-            })
-        }
-    }
+    //                 if (loadingCancel && iconCancel) {
+    //                     loadingCancel.style.display = 'flex'
+    //                     iconCancel.style.display = 'none'
+    //                 }
+    //             })
+    //         })
+    //     }
+    // }
 
-    useEffect(() => {
-        onLoadingCancelTreatment()
-    }, [idLoadingCancelTreatment, dataColumns])
+    // useEffect(() => {
+    //     onLoadingCancelTreatment()
+    // }, [idLoadingCancelTreatment, dataColumns])
     // end action cancel treatment
 
     return {
@@ -309,6 +307,8 @@ export function DeletePatient({
         submitCancelTreatment,
         onMsgCancelTreatment,
         setOnMsgCancelTreatment,
-        inputMsgCancelPatient
+        inputMsgCancelPatient,
+        idLoadingCancelTreatment,
+        loadingIdPatientsDelete
     }
 }

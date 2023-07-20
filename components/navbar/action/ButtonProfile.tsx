@@ -53,16 +53,18 @@ export function ButtonProfile() {
             />
 
             {onDropMenu && (
-                <WrappMenu>
+                <WrappMenu
+                classWrapp='top-[4.5rem] min-w-[120px] right-3'
+                >
                     <Link
                         href='/profile'
                     >
                         <Menu
-                            name='profile'
+                            name='Profile'
                         />
                     </Link>
-                    <Menu 
-                    name='log out'
+                    <Menu
+                    name='Log Out'
                     click={logOut}
                     />
                 </WrappMenu>

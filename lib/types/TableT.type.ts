@@ -11,3 +11,10 @@ export type PopupSetting = {
     patientId?: string
     categoryAction: string
 }
+
+export type ActionsDataT = {
+    id?: string
+    classWrapp?: string
+    name: string
+    click: ()=>void
+}

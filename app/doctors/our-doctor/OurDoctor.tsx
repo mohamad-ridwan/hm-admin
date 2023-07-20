@@ -24,6 +24,7 @@ import Pagination from "components/pagination/Pagination"
 import profileDefault from 'images/user.png'
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
+import { ActionsDataT } from "lib/types/TableT.type"
 
 type PopupSetting = {
     title: string
@@ -302,22 +303,21 @@ export function OurDoctor() {
                     {currentTableData.length > 0 ? currentTableData.map((item, index) => {
                         const pathDoctor = `/doctors/profile/${item.id}`
 
-                        return (
-                            <TableColumns
-                                key={index}
-                                idIconDelete={`iconDelete${item.id}`}
-                                idLoadingDelete={`loadingDelete${item.id}`}
-                                styleColumnMenu={{
-                                    display: indexActiveColumnMenu === index ? 'flex' : 'none',
-                                    marginLeft: '-4rem',
-                                }}
-                                clickBtn={() => pathDoctor}
-                                clickEdit={(e) => {
+                        const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
+
+                        const actionsData: ActionsDataT[] = [
+                            {
+                                name: 'Edit',
+                                click:(e?: MouseEvent)=>{
                                     clickEdit(item.id)
                                     setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
-                                }}
-                                clickDelete={(e) => {
+                                }
+                            },
+                            {
+                                name: 'Delete',
+                                classWrapp: findCurrentLoading ? 'text-text-not-allowed hover:text-text-not-allowed hover:bg-white cursor-not-allowed' : '',
+                                click: (e?: MouseEvent)=>{
                                     const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
                                     if(!findCurrentLoading){
                                         setOnPopupSetting({
@@ -329,10 +329,46 @@ export function OurDoctor() {
                                             doctorId: item.id,
                                             categoryAction: 'delete-doctor'
                                         })
+                                        setIndexActiveColumnMenu(null)
                                     }
-                                    setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
-                                }}
+                                }
+                            }
+                        ]
+
+                        return (
+                            <TableColumns
+                                key={index}
+                                // idIconDelete={`iconDelete${item.id}`}
+                                // idLoadingDelete={`loadingDelete${item.id}`}
+                                // styleColumnMenu={{
+                                //     display: indexActiveColumnMenu === index ? 'flex' : 'none',
+                                //     marginLeft: '-4rem',
+                                // }}
+                                clickBtn={() => pathDoctor}
+                                actionsData={actionsData}
+                                classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
+                                // clickEdit={(e) => {
+                                //     clickEdit(item.id)
+                                //     setIndexActiveColumnMenu(null)
+                                //     e?.stopPropagation()
+                                // }}
+                                // clickDelete={(e) => {
+                                //     const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
+                                    // if(!findCurrentLoading){
+                                    //     setOnPopupSetting({
+                                    //         title: `Delete doctor ${item.data[0].name}?`,
+                                    //         classIcon: 'text-pink-old',
+                                    //         classBtnNext: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
+                                    //         iconPopup: faBan,
+                                    //         nameBtnNext: 'Yes',
+                                    //         doctorId: item.id,
+                                    //         categoryAction: 'delete-doctor'
+                                    //     })
+                                    // }
+                                    // setIndexActiveColumnMenu(null)
+                                //     e?.stopPropagation()
+                                // }}
                                 clickColumnMenu={() => {
                                     if (indexActiveColumnMenu === index) {
                                         setIndexActiveColumnMenu(null)

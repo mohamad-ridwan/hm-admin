@@ -12,11 +12,11 @@ import { faCalendarDays, faMagnifyingGlass } from "@fortawesome/free-solid-svg-i
 import { InputSelect } from "components/input/InputSelect"
 import { renderCustomHeader } from "lib/dates/renderCustomHeader"
 import Pagination from "components/pagination/Pagination"
+import { ActionsDataT } from "lib/types/TableT.type"
 
 export function FinishedTreatment() {
     const {
         head,
-        dataColumns,
         searchText,
         handleSearchText,
         closeSearch,
@@ -100,16 +100,33 @@ export function FinishedTreatment() {
                     />
 
                     {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                        const actionsData: ActionsDataT[] = [
+                            {
+                                name: 'Edit',
+                                click: (e?: MouseEvent)=>{
+                                    e?.stopPropagation()
+                                }
+                            },
+                            {
+                                name: 'Delete',
+                                click: (e?: MouseEvent)=>{
+                                    e?.stopPropagation()
+                                }
+                            }
+                        ]
+
                         return (
                             <TableColumns
                                 key={index}
                                 clickBtn={() => ''}
-                                clickEdit={(e) => {
-                                    e?.stopPropagation()
-                                }}
-                                clickDelete={(e) => {
-                                    e?.stopPropagation()
-                                }}
+                                actionsData={actionsData}
+                                classWrappMenu="hidden"
+                                // clickEdit={(e) => {
+                                //     e?.stopPropagation()
+                                // }}
+                                // clickDelete={(e) => {
+                                //     e?.stopPropagation()
+                                // }}
                             >
                                 {patient.data.map((item, idx) => {
                                     return (

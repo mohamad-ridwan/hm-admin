@@ -25,7 +25,7 @@ import { FilterTable } from './FilterTable'
 import { DeletePatient } from './DeletePatient'
 import { specialCharacter } from 'lib/regex/specialCharacter'
 import { spaceString } from 'lib/regex/spaceString'
-import { PopupSetting } from 'lib/types/TableT.type'
+import { ActionsDataT, PopupSetting } from 'lib/types/TableT.type'
 import { FormPopup } from 'components/popup/FormPopup'
 import { TitleInput } from 'components/input/TitleInput'
 import Input from 'components/input/Input'
@@ -82,7 +82,6 @@ export function ConfirmationPatient() {
 
     const {
         head,
-        dataColumns,
         searchText,
         setSearchText,
         handleSearchText,
@@ -125,8 +124,10 @@ export function ConfirmationPatient() {
         submitCancelTreatment,
         onMsgCancelTreatment,
         setOnMsgCancelTreatment,
-        inputMsgCancelPatient
-    } = DeletePatient({ user, dataColumns, setOnPopupSetting, onPopupSetting })
+        inputMsgCancelPatient,
+        idLoadingCancelTreatment,
+        loadingIdPatientsDelete
+    } = DeletePatient({ user, setOnPopupSetting, onPopupSetting })
 
     const router = useRouter()
 
@@ -475,35 +476,74 @@ export function ConfirmationPatient() {
 
                         const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${namePatient}/${patient.id}`
 
-                        return (
-                            <TableColumns
-                                key={index}
-                                idLoadingDelete={`loadDelete${patient.id}`}
-                                idIconDelete={`iconDelete${patient.id}`}
-                                idIconCancel={`iconCancel${patient.id}`}
-                                idLoadingCancel={`loadingCancel${patient.id}`}
-                                iconCancel={faBan}
-                                styleColumnMenu={{
-                                    display: indexActiveTableMenu === index ? 'flex' : 'none'
-                                }}
-                                clickBtn={() => toPage(pathUrlToDataDetail)}
-                                clickEdit={(e) => {
+                        const findIdLoadingCancelT = idLoadingCancelTreatment.find(id=>id === patient.id)
+                        const findIdLoadingDelete = loadingIdPatientsDelete.find(id=>id === patient.id)
+
+                        const actionsData: ActionsDataT[] = [
+                            {
+                                name: 'Edit',
+                                click: (e?: MouseEvent)=>{
                                     clickEdit(patient.id, patient.data[0]?.name)
                                     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
                                     setOnPopupSettings(true)
                                     setIndexActiveTableMenu(null)
                                     e?.stopPropagation()
-                                }}
-                                clickCancel={(e) => {
+                                }
+                            },
+                            {
+                                name: 'Cancel Treatment',
+                                classWrapp: findIdLoadingCancelT ? 'text-text-not-allowed hover:bg-white hover:text-text-not-allowed cursor-not-allowed' : '',
+                                click: (e?: MouseEvent)=>{
                                     clickCancelTreatment(patient.id, patient.data[0]?.name)
-                                    setIndexActiveTableMenu(null)
+                                    if(!findIdLoadingCancelT){
+                                        setIndexActiveTableMenu(null)
+                                    }
                                     e?.stopPropagation()
-                                }}
-                                clickDelete={(e) => {
+                                }
+                            },
+                            {
+                                name: 'Delete',
+                                classWrapp: findIdLoadingDelete ? 'text-text-not-allowed hover:bg-white hover:text-text-not-allowed cursor-not-allowed' : '',
+                                click: (e?: MouseEvent)=>{
                                     clickDeleteIcon(patient.id, patient.data[0]?.name)
                                     setIndexActiveTableMenu(null)
                                     e?.stopPropagation()
-                                }}
+                                }
+                            }
+                        ] 
+
+
+                        return (
+                            <TableColumns
+                                key={index}
+                                // idLoadingDelete={`loadDelete${patient.id}`}
+                                // idIconDelete={`iconDelete${patient.id}`}
+                                // idIconCancel={`iconCancel${patient.id}`}
+                                // idLoadingCancel={`loadingCancel${patient.id}`}
+                                // iconCancel={faBan}
+                                actionsData={actionsData}
+                                classWrappMenu={indexActiveTableMenu === index ? 'flex' : 'hidden'}
+                                // styleColumnMenu={{
+                                //     display: indexActiveTableMenu === index ? 'flex' : 'none'
+                                // }}
+                                clickBtn={() => toPage(pathUrlToDataDetail)}
+                                // clickEdit={(e) => {
+                                //     clickEdit(patient.id, patient.data[0]?.name)
+                                //     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
+                                //     setOnPopupSettings(true)
+                                //     setIndexActiveTableMenu(null)
+                                //     e?.stopPropagation()
+                                // }}
+                                // clickCancel={(e) => {
+                                //     clickCancelTreatment(patient.id, patient.data[0]?.name)
+                                //     setIndexActiveTableMenu(null)
+                                //     e?.stopPropagation()
+                                // }}
+                                // clickDelete={(e) => {
+                                //     clickDeleteIcon(patient.id, patient.data[0]?.name)
+                                //     setIndexActiveTableMenu(null)
+                                //     e?.stopPropagation()
+                                // }}
                                 clickColumnMenu={() => clickColumnMenu(index)}
                             >
                                 {patient.data.map((item, idx) => {

@@ -26,7 +26,6 @@ function UseTableColumns({
 }: Props) {
     const [dataColumns, setDataColumns] = useState<DataTableContentT[]>([])
     const [idLoadingDelete, setIdLoadingDelete] = useState<string[]>([])
-    const [idFinishDelete, setIdFinishDelete] = useState<string[]>([])
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
 
@@ -119,10 +118,6 @@ function UseTableColumns({
                     currentDoctors as ProfileDoctorT[],
                     dataRooms
                 )
-
-                setTimeout(() => {
-                    deleteSuccess()
-                }, 500);
             }
         }, 500);
     }
@@ -236,7 +231,6 @@ function UseTableColumns({
     // action delete
     function clickDelete(id: string): void {
         setIdLoadingDelete((current) => [...current, id])
-        setIdFinishDelete((current) => [...current, id])
 
         API().APIDeleteProfileDoctor(
             'doctor',
@@ -254,61 +248,19 @@ function UseTableColumns({
                     .catch(err => {
                         deleteFailed()
                     })
+                const doctor = res as { [key: string]: any }
+                const removeLoadingId = idLoadingDelete.filter(doctorId => doctorId !== doctor?.doctorId)
+                setIdLoadingDelete(removeLoadingId)
+                alert('Delete successfully')
             })
             .catch(err => {
                 deleteFailed()
             })
     }
 
-    function deleteSuccess(): void {
-        const removeLoadingId = idLoadingDelete.filter(idLoading => {
-            const findIdFinish = idFinishDelete.find(idFinish => idFinish === idLoading)
-
-            return !findIdFinish
-        })
-        setIdLoadingDelete(removeLoadingId)
-        alert('delete successfully')
-    }
-
     function deleteFailed(): void {
-        const removeLoadingId = idLoadingDelete.filter(idLoading => {
-            const findIdFinish = idFinishDelete.find(idFinish => idFinish === idLoading)
-
-            return !findIdFinish
-        })
-
-        setIdLoadingDelete(removeLoadingId)
         pushTriggedErr('a server error occurred while deleting doctor data. please try again')
     }
-
-    useEffect(() => {
-        if (
-            idLoadingDelete.length > 0 &&
-            dataColumns.length > 0
-        ) {
-            dataColumns.forEach(item => {
-                const checkId = idLoadingDelete.find(loadingId => loadingId === item.id)
-
-                if (checkId) {
-                    const iconDeleteElement = document.getElementById(`iconDelete${checkId}`) as HTMLElement
-                    const loadingDeleteElement = document.getElementById(`loadingDelete${checkId}`) as HTMLElement
-
-                    if (iconDeleteElement && loadingDeleteElement) {
-                        iconDeleteElement.style.display = 'none'
-                        loadingDeleteElement.style.display = 'flex'
-                    }
-                } else {
-                    const iconDeleteElement = document.getElementById(`iconDelete${item.id}`) as HTMLElement
-                    const loadingDeleteElement = document.getElementById(`loadingDelete${item.id}`) as HTMLElement
-
-                    if (iconDeleteElement && loadingDeleteElement) {
-                        iconDeleteElement.style.display = 'flex'
-                        loadingDeleteElement.style.display = 'none'
-                    }
-                }
-            })
-        }
-    }, [idLoadingDelete, dataColumns])
 
     return {
         currentTableData,

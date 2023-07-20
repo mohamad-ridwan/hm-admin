@@ -33,7 +33,10 @@ export function ConfirmationPatient({ params }: { params: string }) {
         onPopupSetting,
         clickDownload,
         cancelPopupFormConfirm,
-        confirmForDownloadPdf
+        confirmForDownloadPdf,
+        clickSend,
+        confirmSendEmail,
+        loadingSendEmail
     } = UseForm()
 
     const findCurrentRoom = dataRooms?.find(room => room.id === dataConfirmPatient?.roomInfo?.roomId)
@@ -133,6 +136,8 @@ export function ConfirmationPatient({ params }: { params: string }) {
                                         clickBtn={() => {
                                             if (onPopupSetting.categoryAction === 'download-pdf') {
                                                 confirmForDownloadPdf()
+                                            } else if (onPopupSetting.categoryAction === 'send-email') {
+                                                confirmSendEmail()
                                             }
                                         }}
                                     />
@@ -161,14 +166,15 @@ export function ConfirmationPatient({ params }: { params: string }) {
                             deleteIcon={faTrash}
                             editIcon={faPencil}
                             downloadIcon={faDownload}
-                            sendIcon={faPaperPlane}
-                            clickSend={() => { return }}
+                            sendIcon={loadingSendEmail ? undefined : faPaperPlane}
+                            clickSend={clickSend}
                             clickDownload={clickDownload}
                             clickEdit={() => { return }}
                             clickDelete={() => { return }}
                             classEditBtn="mr-1 hover:text-white"
                             classDownloadBtn="mr-1 hover:text-white bg-color-default-old"
-                            classSendIcon="mr-1 hover:text-white bg-orange-young border-orange-young hover:border-orange-young"
+                            classSendIcon={`${loadingSendEmail ? 'cursor-not-allowed' : 'cursor-pointer'} mr-1 hover:text-white bg-orange-young border-orange-young hover:border-orange-young`}
+                            classLoadingSend={loadingSendEmail ? 'flex' : 'hidden'}
                             classDeleteBtn="bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white"
                             styleHeadTop={{
                                 justifyContent: 'space-between'

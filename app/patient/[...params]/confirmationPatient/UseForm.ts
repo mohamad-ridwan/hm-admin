@@ -193,6 +193,7 @@ export function UseForm() {
             patientId: '',
             categoryAction: 'download-pdf'
         })
+        clickMenu()
     }
 
     function confirmForDownloadPdf(): void {
@@ -211,6 +212,7 @@ export function UseForm() {
                 patientId: '',
                 categoryAction: 'send-email'
             })
+            clickMenu()
         }
     }
 

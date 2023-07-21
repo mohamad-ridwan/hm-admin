@@ -1,11 +1,11 @@
 'use client'
 
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
-import {useRouter} from 'next/navigation'
+import { ChangeEvent, useEffect, useState } from "react"
+import { useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
 import { InputConfirmDrugCounterT, SubmitConfirmDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { PopupSetting } from "lib/types/TableT.type"
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
+import { faCircleCheck, faDownload } from "@fortawesome/free-solid-svg-icons"
 import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { createHourFormat } from "lib/dates/createHourFormat"
@@ -20,12 +20,10 @@ type ErrorInput = {
 }
 
 type Props = {
-    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
     params: string
 }
 
 export function UseForm({
-    setOnPopupSetting,
     params
 }: Props) {
     const [value, setValue] = useState<string>('')
@@ -37,6 +35,8 @@ export function UseForm({
     })
     const [errInput, setErrInput] = useState<ErrorInput>({} as ErrorInput)
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
+    const [isActiveMenu, setIsActiveMenu] = useState<boolean>(false)
+    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
     const [paymentOptions, setPaymentOptions] = useState<DataOptionT>([
         {
             id: 'Select Payment Method',
@@ -54,10 +54,10 @@ export function UseForm({
 
     const {
         drugCounterPatient,
-        pushTriggedErr
-    } = UsePatientData({params})
+        pushTriggedErr,
+    } = UsePatientData({ params })
 
-    const {user} = authStore()
+    const { user } = authStore()
     const router = useRouter()
 
     useEffect(() => {
@@ -140,9 +140,9 @@ export function UseForm({
 
     const newRoute = `/patient/${params[0]}/${params[1]}/${params[2]}/${params[3]}/${params[4]}/${params[5]}/${params[6]}/confirmed/${drugCounterPatient?.queueNumber}`
 
-    function confirmSubmit():void{
+    function confirmSubmit(): void {
         setLoadingSubmit(true)
-        if(typeof setOnPopupSetting !== 'undefined'){
+        if (typeof setOnPopupSetting !== 'undefined') {
             setOnPopupSetting({} as PopupSetting)
         }
 
@@ -151,21 +151,21 @@ export function UseForm({
             drugCounterPatient?.id,
             dataConfirmCounter()
         )
-        .then(res=>{
-            return API().APIPostPatientData(
-                'finished-treatment',
-                dataConfirmFinishTreatment()
-            )
-        })
-        .then(res=>{
-            router.push(newRoute)
-            alert('Successful confirmation')
-            setLoadingSubmit(false)
-        })
-        .catch(err=>pushTriggedErr('There was an error confirming payment. please try again'))
+            .then(res => {
+                return API().APIPostPatientData(
+                    'finished-treatment',
+                    dataConfirmFinishTreatment()
+                )
+            })
+            .then(res => {
+                router.push(newRoute)
+                alert('Successful confirmation')
+                setLoadingSubmit(false)
+            })
+            .catch(err => pushTriggedErr('There was an error confirming payment. please try again'))
     }
 
-    function dataConfirmCounter():SubmitConfirmDrugCounterT{
+    function dataConfirmCounter(): SubmitConfirmDrugCounterT {
         const {
             patientId,
             loketInfo,
@@ -193,7 +193,7 @@ export function UseForm({
                     dateConfirm: createDateFormat(new Date()),
                     confirmHour: createHourFormat(new Date())
                 },
-                adminInfo: {adminId: user.user?.id as string},
+                adminInfo: { adminId: user.user?.id as string },
                 paymentInfo: {
                     paymentMethod: paymentMethod as 'cash',
                     bpjsNumber,
@@ -206,19 +206,45 @@ export function UseForm({
         return data
     }
 
-    function dataConfirmFinishTreatment(): SubmitFinishedTreatmentT{
+    function dataConfirmFinishTreatment(): SubmitFinishedTreatmentT {
         const data: SubmitFinishedTreatmentT = {
             patientId: drugCounterPatient?.patientId,
             confirmedTime: {
                 dateConfirm: createDateFormat(new Date()),
                 confirmHour: createHourFormat(new Date())
             },
-            adminInfo: {adminId: user.user?.id as string},
+            adminInfo: { adminId: user.user?.id as string },
             isCanceled: false,
             messageCancelled: ''
         }
 
         return data
+    }
+
+    function clickMenu(): void {
+        setIsActiveMenu(!isActiveMenu)
+    }
+
+    function cancelPopupSetting(): void {
+        setOnPopupSetting({} as PopupSetting)
+    }
+
+    function clickDownloadPdf(): void {
+        setIsActiveMenu(!isActiveMenu)
+        setOnPopupSetting({
+            title: 'Download PDF?',
+            classIcon: 'text-font-color-2',
+            classBtnNext: 'hover:bg-white',
+            iconPopup: faDownload,
+            nameBtnNext: 'Yes',
+            patientId: '',
+            categoryAction: 'download-pdf'
+        })
+    }
+
+    function confirmDownloadPdf():void{
+        setOnPopupSetting({} as PopupSetting)
+        window.open(`/patient-registration-information/${params[4]}/${params[3]}/drug-counter/download/pdf`)
     }
 
     return {
@@ -231,6 +257,12 @@ export function UseForm({
         handleInputTxt,
         submitForm,
         loadingSubmit,
-        confirmSubmit
+        confirmSubmit,
+        isActiveMenu,
+        clickMenu,
+        onPopupSetting,
+        cancelPopupSetting,
+        clickDownloadPdf,
+        confirmDownloadPdf
     }
 }

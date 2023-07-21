@@ -63,14 +63,7 @@ export function RegistrationInfo({
 
     return (
         <>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}
-            >
+            <div style={PdfStyle.headStyleRegis}>
                 <Image
                     alt="hospice medical"
                     src={logo}

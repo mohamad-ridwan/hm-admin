@@ -11,6 +11,11 @@ type StyleType = {
     textInfo: CSSProperties
     styleHead: CSSProperties
     styleContainer: CSSProperties
+    headStyleRegis: CSSProperties
+    styleWrappCounter: CSSProperties
+    titleCounter: CSSProperties
+    pageCounter: CSSProperties
+    containerBarcode: CSSProperties
 }
 
 export const PdfStyle: StyleType = {
@@ -18,9 +23,14 @@ export const PdfStyle: StyleType = {
         display: 'flex',
         flexDirection: 'column',
         width: '400px',
-        // width: 'auto',
         overflowX: 'auto',
         margin: '1rem'
+    },
+    headStyleRegis: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     img: {
         float: 'left',
@@ -70,5 +80,30 @@ export const PdfStyle: StyleType = {
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         width: '100%'
+    },
+    styleWrappCounter: {
+        display: 'flex',
+        flexDirection: 'column',
+        height: '30mm',
+        width: '100%',
+        justifyContent:'center',
+        alignItems: 'center',
+    },
+    titleCounter: {
+        fontSize: '4mm',
+        whiteSpace: 'normal',
+        letterSpacing: '0',
+        marginTop: '0mm',
+        fontWeight: 'bold'
+    },
+    pageCounter: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: '27mm',
+        overflowX: 'auto',
+        margin: '0mm'
+    },
+    containerBarcode: {
+        marginTop: '3mm'
     }
 }

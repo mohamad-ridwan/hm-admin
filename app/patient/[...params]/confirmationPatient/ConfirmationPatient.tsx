@@ -116,20 +116,12 @@ export function ConfirmationPatient({ params }: { params: string }) {
         {
             name: 'Download PDF',
             classWrapp: 'cursor-pointer',
-            click: ()=>{
-                clickDownload()
-                clickMenu()
-            }
+            click: ()=>clickDownload()
         },
         {
             name: 'Send Confirmation',
             classWrapp: loadingSendEmail ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' :  'cursor-pointer',
-            click: ()=>{
-                if(loadingSendEmail === false){
-                    clickSend()
-                    clickMenu()
-                }
-            }
+            click: ()=>clickSend()
         },
         {
             name: 'Delete',

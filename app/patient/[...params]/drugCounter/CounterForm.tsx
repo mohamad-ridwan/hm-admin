@@ -12,13 +12,11 @@ import ErrorInput from "components/input/ErrorInput"
 import { InputSelect } from "components/input/InputSelect"
 import Input from "components/input/Input"
 import Button from "components/Button"
-import { PopupSetting } from "lib/types/TableT.type"
+import { ActionsDataT, PopupSetting } from "lib/types/TableT.type"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 
 export function CounterForm({ params }: { params: string }) {
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
-
     const {
         value,
         setValue,
@@ -29,18 +27,33 @@ export function CounterForm({ params }: { params: string }) {
         handleInputTxt,
         submitForm,
         loadingSubmit,
-        confirmSubmit
-    } = UseForm({ setOnPopupSetting, params })
-
-    function cancelPopupSetting(): void {
-        setOnPopupSetting({} as PopupSetting)
-    }
+        confirmSubmit,
+        isActiveMenu,
+        clickMenu,
+        onPopupSetting,
+        cancelPopupSetting
+    } = UseForm({ params })
 
     const styleError: { style: CSSProperties } = {
         style: {
             marginBottom: '1rem'
         }
     }
+
+    const actionsMenu: ActionsDataT[] = [
+        {
+            name: 'Cancel Treatment',
+            // classWrapp: loadingCancelTreatment ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' :  'cursor-pointer text-pink-old',
+            classWrapp: 'text-pink-old cursor-pointer',
+            click: () => {
+                // if(loadingCancelTreatment === false){
+                //     clickCancelTreatment()
+                //     setIsMenuActive(false)
+                // }
+                return
+            }
+        },
+    ]
 
     return (
         <Container
@@ -96,6 +109,9 @@ export function CounterForm({ params }: { params: string }) {
                     padding: '0'
                 }}
                 classDeleteBtn="hidden"
+                actionsData={actionsMenu}
+                classWrappMenu={`${isActiveMenu ? 'flex' : 'hidden'} right-9`}
+                clickMenu={clickMenu}
             />
 
             <InputContainer

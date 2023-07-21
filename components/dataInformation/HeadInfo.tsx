@@ -11,7 +11,7 @@ type ActionProps = {
     clickDelete?: () => void
     clickDownload?: () => void
     clickSend?: () => void
-    clickMenu?: ()=>void
+    clickMenu?: () => void
 }
 
 type IconProps = {
@@ -113,7 +113,7 @@ export function HeadInfo({
             </div>
 
             <div
-                className="flex flex-wrap justify-between my-8 relative"
+                className="flex flex-col my-8 relative"
             >
                 {/* <div
                     className="flex flex-wrap justify-end"
@@ -156,7 +156,7 @@ export function HeadInfo({
                 </div> */}
 
                 <WrappMenu
-                classWrapp={`${classWrappMenu} bg-white shadow-lg`}
+                    classWrapp={`${classWrappMenu} bg-white shadow-lg`}
                 >
                     {
                         typeof actionsData !== 'undefined' &&
@@ -175,19 +175,24 @@ export function HeadInfo({
                     }
                 </WrappMenu>
 
+                <div
+                    className="flex justify-end mb-4"
+                >
+                    <Button
+                        classBtn="hover:text-white rounded-sm px-[0.4rem] h-7"
+                        classLoading="hidden"
+                        clickBtn={clickMenu}
+                        icon={<>
+                            <FontAwesomeIcon icon={faEllipsis} className="text-lg" />
+                        </>}
+                    />
+                </div>
+
                 <h1
                     className="text-[1.3rem] text-start font-bold text-font-color-4"
                 >
                     {titleInfo}
                 </h1>
-                <Button
-                    classBtn="hover:text-white rounded-sm px-[0.4rem] h-7"
-                    classLoading="hidden"
-                    clickBtn={clickMenu}
-                    icon={<>
-                        <FontAwesomeIcon icon={faEllipsis} className="text-lg" />
-                    </>}
-                />
             </div>
         </div>
     )

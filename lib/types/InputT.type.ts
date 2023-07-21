@@ -117,3 +117,30 @@ export type SubmitConfirmDrugCounterT = SubmitDrugCounterT & {
         paymentInfo: PaymentInfo
     }
 }
+
+export type FormatPDFT = 
+'a4' | 
+'a2' | 
+'b3' |
+'c3' |
+'dl' |
+'letter' |
+'government-letter' |
+'legal' |
+'junior-legal' |
+'ledger' |
+'tabloid' |
+'credit-card' |
+number[] |
+undefined
+
+export type UnitPDFT = 
+'em' |
+'pt' |
+'px' |
+'in' |
+'mm' |
+'cm' |
+'ex' |
+'pc' |
+undefined

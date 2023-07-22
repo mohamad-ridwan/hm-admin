@@ -15,7 +15,7 @@ type StyleType = {
     styleWrappCounter: CSSProperties
     titleCounter: CSSProperties
     pageCounter: CSSProperties
-    containerBarcode: CSSProperties
+    QRCode: CSSProperties
 }
 
 export const PdfStyle: StyleType = {
@@ -103,7 +103,10 @@ export const PdfStyle: StyleType = {
         overflowX: 'auto',
         margin: '0mm'
     },
-    containerBarcode: {
+    QRCode: {
+        height: "auto", 
+        maxWidth: "100%", 
+        width: "10mm", 
         marginTop: '3mm'
     }
 }

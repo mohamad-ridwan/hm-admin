@@ -1,33 +1,37 @@
-'use client'
-
-import QRCode from "react-qr-code"
+import { QRCodeCanvas } from 'qrcode.react'
 import { PdfStyle } from "./PdfStyle"
 
-export function CounterInfo() {
+type Props = {
+    bodyCounter: {
+        loketName: string
+        queueNumber: string
+        url: string
+    }
+}
 
-    const valueQR: string = 'https://hm-admin-six.vercel.app/patient-registration-information/1689491302448/Ridwan/download/pdf'
+export function CounterInfo({
+    bodyCounter
+}: Props) {
+    const {
+        loketName,
+        queueNumber,
+        url
+    } = bodyCounter
+    
+    const valueQR: string = url
 
     return (
         <div style={PdfStyle.styleWrappCounter}>
-            <h1 style={PdfStyle.titleCounter}>C.A01</h1>
-            <h1 style={PdfStyle.titleCounter}>30</h1>
+            <h1 style={PdfStyle.titleCounter}>{loketName}</h1>
+            <h1 style={PdfStyle.titleCounter}>{queueNumber}</h1>
 
-            {/* <div style={PdfStyle.containerBarcode}>
-                <QRCode 
-                value={valueQR} 
-                size={30}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }} 
-                viewBox={`0 0 256 256`}
-                />
-            </div> */}
-            <QRCode
+            <QRCodeCanvas
                 value={valueQR}
-                size={10}
-                style={{ height: "auto", maxWidth: "100%", width: "5mm" }}
-                viewBox={`0 0 256 256`}
-                bgColor="#ffffff"
-                fgColor="#000000"
-                level="M"
+                size={300}
+                bgColor='#ffffff'
+                fgColor='#000000'
+                level='H'
+                style={PdfStyle.QRCode}
             />
         </div>
     )

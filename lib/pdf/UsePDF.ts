@@ -5,13 +5,12 @@ export const UsePDF = (
     element: HTMLElement | string,
     patientName: string,
     format: FormatPDFT,
-    unit: UnitPDFT
+    unit: UnitPDFT,
 )=>{
     const doc = new JsPDF({
         format: format,
         unit: unit,
         orientation: 'p',
-        putOnlyUsedFonts:true
     });
     
     doc.setFont('times', 'bold', '800')

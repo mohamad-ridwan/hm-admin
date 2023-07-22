@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation'
 import { UsePDF } from 'lib/pdf/UsePDF';
 import ServicingHours from 'lib/actions/ServicingHours';
 import { ConfirmInfoPDFT } from 'lib/types/PatientT.types';
 import { navigationStore } from 'lib/useZustand/navigation';
-import { FormatPDFT, UnitPDFT } from 'lib/types/InputT.type';
+import { FormatPDFT, UnitPDFT } from 'lib/types/InputT.type'
 
 type Props = {
     params: { params: string }
@@ -15,6 +15,19 @@ type Props = {
 export function LoadPDF({
     params,
 }: Props) {
+    const [bodyCounter, setBodyCounter] = useState<{
+        bodyCounter: {
+            loketName: string
+            queueNumber: string
+            url: string
+        }
+    }>({
+        bodyCounter: {
+            loketName: '',
+            queueNumber: '',
+            url: ''
+        }
+    })
     const { setIsNotFound } = navigationStore()
 
     useEffect(() => {
@@ -46,6 +59,7 @@ export function LoadPDF({
     const confirmPatient = dataConfirmationPatients?.find(patient => patient.patientId === params.params[0])
     const finishPatient = dataFinishTreatment?.find(patient => patient.patientId === params.params[0])
     const patientCounter = dataDrugCounter?.find(patient => patient.patientId === params.params[0])
+    const patientCounterOn = dataLoket?.find(loket => loket.id === patientCounter?.loketInfo?.loketId)
 
     const room = dataRooms?.find(room => room.id === confirmPatient?.roomInfo?.roomId)
     const doctor = doctors?.find(docs => docs.id === confirmPatient?.doctorInfo?.doctorId)
@@ -73,11 +87,11 @@ export function LoadPDF({
         pushTriggedErr(`No registration data found with id : ${params.params[0]}`)
     }
 
-    if(
+    if (
         params.params.length === 5 &&
         params.params[2] !== 'drug-counter' &&
         params.params[2] !== 'treatment-results'
-    ){
+    ) {
         notFound()
     }
 
@@ -99,10 +113,10 @@ export function LoadPDF({
         pushTriggedErr(`No data on the results of treatment of patients with id : ${params.params[0]}`)
     }
 
-    const currentRoute: 'registration' | 'drug-counter' | 'treatment-results' | null = 
-    params.params.length === 4 ? 'registration' :
-    params.params.length === 5 && params.params[2] === 'drug-counter' ? 'drug-counter' :
-    params.params.length === 5 && params.params[2] === 'treatment-results' ? 'treatment-results' : null
+    const currentRoute: 'registration' | 'drug-counter' | 'treatment-results' | null =
+        params.params.length === 4 ? 'registration' :
+            params.params.length === 5 && params.params[2] === 'drug-counter' ? 'drug-counter' :
+                params.params.length === 5 && params.params[2] === 'treatment-results' ? 'treatment-results' : null
 
     function downloadPdf(): void {
         if (
@@ -114,16 +128,32 @@ export function LoadPDF({
             if (element) {
                 const formatForCurrentPDF: FormatPDFT = currentRoute === 'registration' || currentRoute === 'treatment-results' ? 'a4' : currentRoute === 'drug-counter' ? [100, 150] : undefined
                 const unitCurrentPDF: UnitPDFT = currentRoute === 'registration' || currentRoute === 'treatment-results' ? 'px' : currentRoute === 'drug-counter' ? 'mm' : undefined
-                if(typeof formatForCurrentPDF !== 'undefined'){
+                if (Array.isArray(formatForCurrentPDF)) {
+                    createCounterURL()
+                }
+                setTimeout(() => {
                     UsePDF(
                         element,
                         patientRegis.patientName,
                         formatForCurrentPDF,
-                        unitCurrentPDF
+                        unitCurrentPDF,
                     )
-                }
+                }, 500);
             }
         }
+    }
+
+    function createCounterURL(): void {
+        const urlOrigin = window.location.origin
+        const isCounterConfirm: 'confirmed' | 'not-yet-confirmed' = patientCounter?.isConfirm?.confirmState ? 'confirmed' : 'not-yet-confirmed'
+        const counterURL: string = `${urlOrigin}/patient/patient-registration/personal-data/confirmed/${params.params[1]}/${params.params[0]}/counter/${patientCounterOn?.loketName}/${isCounterConfirm}/${patientCounter?.queueNumber}`
+        setBodyCounter(() => ({
+            bodyCounter: {
+                loketName: patientCounterOn?.loketName as string,
+                queueNumber: patientCounter?.queueNumber as string,
+                url: counterURL
+            }
+        }))
     }
 
     useEffect(() => {
@@ -136,6 +166,7 @@ export function LoadPDF({
         patientRegis,
         confirmDataInfoPDF,
         patientCounter,
-        currentRoute
+        currentRoute,
+        bodyCounter
     }
 }

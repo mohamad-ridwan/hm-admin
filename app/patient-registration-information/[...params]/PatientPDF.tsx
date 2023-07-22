@@ -10,7 +10,8 @@ export function PatientPDF({ params }: { params: { params: string } }) {
     const {
         patientRegis,
         confirmDataInfoPDF,
-        currentRoute
+        currentRoute,
+        bodyCounter
     } = LoadPDF({ params })
 
     return (
@@ -42,7 +43,9 @@ export function PatientPDF({ params }: { params: { params: string } }) {
                     )}
 
                     {currentRoute === 'drug-counter' && (
-                        <CounterInfo/>
+                        <CounterInfo
+                        bodyCounter={bodyCounter.bodyCounter}
+                        />
                     )}
                 </div>
             )}

@@ -22,8 +22,17 @@ export function DrugCounter() {
         onScanner,
     } = UseCounter()
 
+    function OffDisplayScan() {
+        return <div
+            className="h-[250px] max-w-[250px] bg-[#f1f1f1]"
+        >
+
+        </div>
+    }
+
     return (
         <>
+
             <h1
                 className="font-bold text-[1.3rem] mb-8"
             >Counter Information</h1>
@@ -68,22 +77,42 @@ export function DrugCounter() {
                         clickBtn={clickViewPage}
                     />
                 </CardInfo>
+
                 <CardInfo
-                styleWrapp={{
-                    width: '250px'
-                }}
+                    styleWrapp={{
+                        width: '250px',
+                    }}
                 >
                     <TitleInput
                         title="QR Scanner"
                     />
-                    {viewScanner && (
-                        <QRScanner/>
+                    {viewScanner ? (
+                        <QRScanner />
+                    ) : (
+                        <OffDisplayScan />
                     )}
                     <Button
                         nameBtn={viewScanner ? 'Off Scanner' : 'On Scanner'}
                         classBtn="hover:bg-white mt-8 w-full"
                         classLoading="hidden"
                         clickBtn={onScanner}
+                    />
+                </CardInfo>
+
+                <CardInfo>
+                    <TitleInput
+                        title="Current Queue Number"
+                    />
+
+                    <h1
+                        className="font-bold text-[6rem]"
+                    >20</h1>
+
+                    <Button
+                        nameBtn="Pass Patient"
+                        classBtn="hover:bg-white mt-8"
+                        classLoading="hidden"
+                        // clickBtn={onScanner}
                     />
                 </CardInfo>
             </div>

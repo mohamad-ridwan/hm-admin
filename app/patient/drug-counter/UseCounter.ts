@@ -246,13 +246,13 @@ export function UseCounter() {
     function onDecode(
         result: string
     ):void{
-        router.push(`${result}#counterInfo`)
+        router.push(result)
     }
 
     function onError(
         error: Error
     ):void{
-        console.log(error)
+        pushTriggedErr(error.message)
     }
 
     return {

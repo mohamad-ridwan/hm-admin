@@ -7,6 +7,7 @@ import { TotalPatient } from "./TotalPatient";
 import { CardInfo } from "components/dataInformation/CardInfo";
 import Button from "components/Button";
 import ErrorInput from "components/input/ErrorInput";
+import { QRScanner } from "./QRScanner";
 
 export function DrugCounter() {
     const {
@@ -16,7 +17,9 @@ export function DrugCounter() {
         handleCounter,
         handleGoTo,
         errSelectToPage,
-        clickViewPage
+        clickViewPage,
+        viewScanner,
+        onScanner,
     } = UseCounter()
 
     return (
@@ -63,6 +66,24 @@ export function DrugCounter() {
                         classBtn="hover:bg-white mt-8"
                         classLoading="hidden"
                         clickBtn={clickViewPage}
+                    />
+                </CardInfo>
+                <CardInfo
+                styleWrapp={{
+                    width: '250px'
+                }}
+                >
+                    <TitleInput
+                        title="QR Scanner"
+                    />
+                    {viewScanner && (
+                        <QRScanner/>
+                    )}
+                    <Button
+                        nameBtn={viewScanner ? 'Off Scanner' : 'On Scanner'}
+                        classBtn="hover:bg-white mt-8 w-full"
+                        classLoading="hidden"
+                        clickBtn={onScanner}
                     />
                 </CardInfo>
             </div>

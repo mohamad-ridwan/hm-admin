@@ -18,6 +18,7 @@ type Props = TitleProps & {
     classWrapp?: string
     styleContainer?: CSSProperties
     styleHead?: CSSProperties
+    wrappId?: string
 }
 
 export function Container({
@@ -31,13 +32,15 @@ export function Container({
     classWrapp,
     isNavleft = true,
     styleContainer,
-    styleHead
+    styleHead,
+    wrappId
 }: Props) {
     const { onNavLeft } = navigationStore()
 
     return (
         <div
             className={`flex ${isNavleft ? `justify-center w-full pt-[120px] pr-[20px] pb-[40px] mobile:max-tablet:px-[0.65rem] ${onNavLeft ? 'tablet:pl-[90px]' : 'tablet:pl-[270px]'}`: classWrapp}  transition-all`}
+            id={wrappId}
         >
             <div
                 className={`flex flex-col ${maxWidth} ${overflow}`}

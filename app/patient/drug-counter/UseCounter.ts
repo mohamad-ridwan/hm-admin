@@ -35,6 +35,7 @@ export function UseCounter() {
             title: 'Choose Counter'
         }
     ])
+    const [viewScanner, setViewScanner] = useState<boolean>(false)
     const [optionsGoTo, setOptionsGoTo] = useState<DataOptionT>([
         {
             id: 'Select Go To',
@@ -71,7 +72,8 @@ export function UseCounter() {
     const {
         dataLoket,
         dataDrugCounter,
-        dataFinishTreatment
+        dataFinishTreatment,
+        pushTriggedErr
     } = ServicingHours()
 
     const router = useRouter()
@@ -236,6 +238,23 @@ export function UseCounter() {
         router.push(`drug-counter/${currentCounter.id}/${currentToPage.id.replace(spaceString, '-').toLowerCase()}`)
     }
 
+    // QR scanner actions
+    function onScanner():void{
+        setViewScanner(!viewScanner)
+    }
+
+    function onDecode(
+        result: string
+    ):void{
+        router.push(`${result}#counterInfo`)
+    }
+
+    function onError(
+        error: Error
+    ):void{
+        console.log(error)
+    }
+
     return {
         optionsCounter,
         optionsGoTo,
@@ -243,6 +262,10 @@ export function UseCounter() {
         handleCounter,
         handleGoTo,
         errSelectToPage,
-        clickViewPage
+        clickViewPage,
+        viewScanner,
+        onScanner,
+        onDecode,
+        onError,
     }
 }

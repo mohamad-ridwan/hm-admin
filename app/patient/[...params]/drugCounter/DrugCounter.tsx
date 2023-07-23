@@ -98,6 +98,7 @@ export function DrugCounter({ params }: { params: string }) {
                     title="At Counter"
                     desc={loketName?.loketName}
                     classHeadDesc="text-3xl font-semibold flex-col"
+                    wrappId="counterInfo"
                 >
                     <Container
                         isNavleft={false}

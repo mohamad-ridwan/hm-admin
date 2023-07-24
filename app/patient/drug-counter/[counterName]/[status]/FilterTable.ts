@@ -176,6 +176,8 @@ export function FilterTable({ params }: ParamsProps) {
                         const patientCounter = dataDrugCounter?.find(patientC => patientC.patientId === patient.id)
                         const status = params.status === 'waiting-patient' ? 'waiting' : params.status === 'already-confirmed' ? 'already confirmed' : params.status === 'expired-patient' ? 'expired' : 'null'
                         const colorStatus = status === 'waiting' ? '#FFA500' : status === 'already confirmed' ? '#288bbc' : status === 'expired' ? '#ff296d' : '#000'
+                        // find patient be passed
+                        const isPatientSkipped: 'Skipped' | null = patientCounter?.isConfirm?.isSkipped ? 'Skipped' : null
 
                         const dataRegis: DataTableContentT = {
                             id: patient.id,
@@ -188,9 +190,12 @@ export function FilterTable({ params }: ParamsProps) {
                                     filterBy: 'Queue Number'
                                 },
                                 {
-                                    name: status.toUpperCase(),
-                                    colorName: colorStatus,
-                                    fontWeightName: 'bold'
+                                    firstDesc: status.toUpperCase(),
+                                    name: isPatientSkipped ? `(${isPatientSkipped})` : '',
+                                    color: colorStatus,
+                                    colorName: '#777',
+                                    fontSize: '12px',
+                                    fontWeightFirstDesc: 'bold',
                                 },
                                 {
                                     name: params.counterName
@@ -343,7 +348,10 @@ export function FilterTable({ params }: ParamsProps) {
     }
 
     const filterText = resultFilterBy().filter(patient => {
-        const findItem = patient.data.filter(data => data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
+        const findItem = patient.data.filter(data =>
+            data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()) ||
+            data?.firstDesc?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
+        )
 
         return findItem.length > 0
     })
@@ -359,7 +367,7 @@ export function FilterTable({ params }: ParamsProps) {
         return filterText.slice(firstPageIndex, lastPageIndex)
     }, [filterText, currentPage])
 
-    const changeTableStyle = (dataColumnsBody: DataTableContentT[]):void => {
+    const changeTableStyle = (dataColumnsBody: DataTableContentT[]): void => {
         if (dataColumnsBody?.length > 0) {
             let elementTData = document.getElementById('tData00') as HTMLElement
             if (elementTData !== null) {
@@ -424,9 +432,9 @@ export function FilterTable({ params }: ParamsProps) {
         defaultCtgOptions()
     }
 
-    const defaultCtgOptions = ():void=>{
+    const defaultCtgOptions = (): void => {
         const elem = document.getElementById('sortByFilter') as HTMLSelectElement
-        if(elem){
+        if (elem) {
             elem.selectedIndex = 0
         }
     }

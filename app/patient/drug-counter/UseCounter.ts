@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import ServicingHours from "lib/actions/ServicingHours"
 import { DataOptionT } from "lib/types/FilterT"
@@ -88,6 +88,7 @@ export function UseCounter() {
         dataLoket,
         dataDrugCounter,
         dataFinishTreatment,
+        loadDataService,
         pushTriggedErr
     } = ServicingHours()
 
@@ -116,7 +117,7 @@ export function UseCounter() {
         loadDataCounter()
     }, [dataLoket])
 
-    const getPatientsAtCounter = useMemo(() => {
+    function getPatientsAtCounter():void{
         patientsAtCounter()
 
         if (currentCounter.id === 'Choose Counter') {
@@ -135,7 +136,11 @@ export function UseCounter() {
                 },
             ])
         }
-    }, [currentCounter])
+    }
+
+    useEffect(()=>{
+        getPatientsAtCounter()
+    }, [currentCounter, dataDrugCounter, dataFinishTreatment])
 
     function patientsAtCounter(): void {
         setOptionsTotalPatient([
@@ -154,12 +159,15 @@ export function UseCounter() {
         ])
     }
 
-    function checkPatientWaiting(): string{
-        if(patientWaitingToday().length > 0){
-            const patientNotCallYet = patientWaitingToday().filter(patient=> !patient.isConfirm?.isSkipped)
-            const patientSkipped = patientWaitingToday().filter(patient=> patient.isConfirm?.isSkipped)
+    function checkPatientWaiting(): string {
+        if (patientWaitingToday().length > 0) {
+            const patientNotCallYet = patientWaitingToday().filter(patient => !patient.isConfirm?.isSkipped)
+            const patientSkipped = patientWaitingToday().filter(patient => patient.isConfirm?.isSkipped)
 
-            return `(${patientNotCallYet.length} Haven't been called, ${patientSkipped.length} Patient passed)`
+            if (patientSkipped.length > 0) {
+                return `(${patientNotCallYet.length} Haven't been called, ${patientSkipped.length} Patient passed)`
+            }
+            return ''
         }
 
         return ''
@@ -194,7 +202,7 @@ export function UseCounter() {
         patient: DrugCounterT[]
     ): void {
         if (patient.length > 0) {
-            const patientNotCallYet = patient.filter(patientData=>!patientData.isConfirm?.isSkipped)
+            const patientNotCallYet = patient.filter(patientData => !patientData.isConfirm?.isSkipped)
             const sort = patientNotCallYet.sort((a, b) =>
                 Number(a.queueNumber) - Number(b.queueNumber)
             )
@@ -263,8 +271,6 @@ export function UseCounter() {
             id: value,
             title: value
         })
-
-        return getPatientsAtCounter
     }
 
     // handle go to page
@@ -302,7 +308,7 @@ export function UseCounter() {
     function onDecode(
         result: string
     ): void {
-        router.push(result)
+        window.open(result)
     }
 
     function onError(
@@ -326,13 +332,18 @@ export function UseCounter() {
     }
 
     function confirmPassPatient(): void {
+        const patientCounter = dataDrugCounter?.find(patient => patient.patientId === currentPatientCall.patientId)
+        if (!patientCounter) {
+            pushTriggedErr(`No patient found with id : ${currentPatientCall.patientId}`)
+        }
+
         setOnPopupSetting({} as PopupSetting)
         setLoadingPassPatient(true)
 
         API().APIPutPatientData(
             'drug-counter',
             currentPatientCall.documentId as string,
-            dataSubmitPassPatient()
+            dataSubmitPassPatient(patientCounter as DrugCounterT)
         )
             .then(res => {
                 setLoadingPassPatient(false)
@@ -341,12 +352,7 @@ export function UseCounter() {
             .catch(err => pushTriggedErr('A server error occurred. Occurs when passing a patient'))
     }
 
-    function dataSubmitPassPatient(): SubmitConfirmDrugCounterT {
-        const patientCounter = dataDrugCounter?.find(patient => patient.patientId === currentPatientCall.patientId)
-        if (!patientCounter) {
-            pushTriggedErr(`No patient found with id : ${currentPatientCall.patientId}`)
-        }
-
+    function dataSubmitPassPatient(patientCounter: DrugCounterT): SubmitConfirmDrugCounterT {
         const {
             patientId,
             loketInfo,

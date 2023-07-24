@@ -148,7 +148,8 @@ export function DrugCounter({ params }: ParamsProps) {
                                             firstDesc={item?.firstDesc}
                                             styleFirstDesc={{
                                                 color: item?.color,
-                                                marginBottom: item?.marginBottom
+                                                marginBottom: item?.marginBottom,
+                                                fontWeight: item?.fontWeightFirstDesc
                                             }}
                                             styleName={{
                                                 fontSize: item?.fontSize,

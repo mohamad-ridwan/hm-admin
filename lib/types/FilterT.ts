@@ -3,15 +3,16 @@ export type DataOptionT = {
     title: string
 }[]
 
-type DataTableConfirmation = {
+type AdditionalDataT = {
     fontWeightName?: string
     filterRoom?: boolean
     queueNumber?: string
     treatmentHours?: string
     confirmHour?: string
+    fontWeightFirstDesc?: string
 }
 
-export type DataOnDataTableContentT = DataTableConfirmation &  {
+export type DataOnDataTableContentT = AdditionalDataT &  {
     firstDesc?: string,
     color?: string,
     colorName?: string,

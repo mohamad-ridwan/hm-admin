@@ -7,10 +7,6 @@ import { ActionsDataT } from "lib/types/TableT.type"
 import { Menu } from "components/navbar/dropMenu/Menu"
 
 type ActionProps = {
-    clickEdit?: () => void
-    clickDelete?: () => void
-    clickDownload?: () => void
-    clickSend?: () => void
     clickMenu?: () => void
 }
 
@@ -30,14 +26,6 @@ type Props = IconProps & ActionProps & {
     styleHeadTop?: CSSProperties
     titleRight?: string
     styleHeadRight?: CSSProperties
-    classEditBtn?: string
-    classDeleteBtn?: string
-    classLoadingEdit?: string
-    classLoadingDelete?: string,
-    classDownloadBtn?: string,
-    classLoadingDownload?: string
-    classSendIcon?: string
-    classLoadingSend?: string
     actionsData?: ActionsDataT[]
     classWrappMenu?: string
 }
@@ -51,22 +39,6 @@ export function HeadInfo({
     iconRight,
     titleRight,
     styleHeadRight,
-    classEditBtn,
-    classDeleteBtn,
-    editIcon,
-    deleteIcon,
-    downloadIcon,
-    sendIcon,
-    classLoadingEdit,
-    classLoadingDelete,
-    classDownloadBtn,
-    classLoadingDownload,
-    classSendIcon,
-    classLoadingSend,
-    clickEdit,
-    clickDelete,
-    clickDownload,
-    clickSend,
     actionsData,
     classWrappMenu,
     clickMenu
@@ -115,46 +87,6 @@ export function HeadInfo({
             <div
                 className="flex flex-col my-8 relative"
             >
-                {/* <div
-                    className="flex flex-wrap justify-end"
-                >
-                    {typeof clickEdit !== 'undefined' && (
-                        <EditBtn
-                            icon={editIcon}
-                            classBtn={classEditBtn}
-                            classLoading={classLoadingEdit}
-                            clickBtn={clickEdit}
-                        />
-                    )}
-
-                    {typeof clickDownload !== 'undefined' && (
-                        <EditBtn
-                            icon={downloadIcon}
-                            classBtn={classDownloadBtn}
-                            classLoading={classLoadingDownload}
-                            clickBtn={clickDownload}
-                        />
-                    )}
-
-                    {typeof clickSend !== 'undefined' && (
-                        <EditBtn
-                            icon={sendIcon}
-                            classBtn={classSendIcon}
-                            classLoading={classLoadingSend}
-                            clickBtn={clickSend}
-                        />
-                    )}
-
-                    {typeof clickDelete !== 'undefined' && (
-                        <EditBtn
-                            icon={deleteIcon}
-                            classBtn={classDeleteBtn}
-                            classLoading={classLoadingDelete}
-                            clickBtn={clickDelete}
-                        />
-                    )}
-                </div> */}
-
                 <WrappMenu
                     classWrapp={`${classWrappMenu} bg-white shadow-lg`}
                 >

@@ -52,6 +52,7 @@ type IsConfirmDrugCounterT = {
         paymentMethod: 'cash' | 'BPJS'
         bpjsNumber: string
         totalCost: string
+        message?: string
     }
 }
 
@@ -114,4 +115,27 @@ export type ConfirmInfoPDFT = {
         email: string
         name: string
     }
+}
+
+type PaymentInfoTreatmentPDFT = {
+    message: string
+    paymentMethod: string
+    totalCost: string
+    counterName: string
+    dateConfirm: string
+    confirmHour: string
+}
+
+export type TreatmentResultsPDFT = {
+    doctorName: string
+    doctorSpecialist: string
+    doctorRoom: string
+    patientName: string
+    patientId: string
+    patientEmail: string
+    adminInfo: {
+        adminName: string
+        adminEmail: string
+    }
+    paymentInfo: PaymentInfoTreatmentPDFT
 }

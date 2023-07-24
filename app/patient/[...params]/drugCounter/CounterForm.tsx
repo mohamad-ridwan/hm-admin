@@ -160,7 +160,6 @@ export function CounterForm({ params }: { params: string }) {
                 styleHeadTop={{
                     padding: '0'
                 }}
-                classDeleteBtn="hidden"
                 actionsData={actionsMenu}
                 classWrappMenu={`${isActiveMenu ? 'flex' : 'hidden'} right-9`}
                 clickMenu={clickMenu}

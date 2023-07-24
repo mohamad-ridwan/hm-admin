@@ -235,13 +235,13 @@ export function UseForm({
     function clickDownloadPdf(): void {
         setIsActiveMenu(!isActiveMenu)
         setOnPopupSetting({
-            title: 'Download PDF?',
+            title: 'Download Queue Number PDF?',
             classIcon: 'text-font-color-2',
             classBtnNext: 'hover:bg-white',
             iconPopup: faDownload,
             nameBtnNext: 'Yes',
             patientId: '',
-            categoryAction: 'download-pdf'
+            categoryAction: 'download-queue-number-pdf'
         })
     }
 
@@ -303,6 +303,24 @@ export function UseForm({
         }
     }
 
+    function clickTreatmentResultPDF():void{
+        setIsActiveMenu(!isActiveMenu)
+        setOnPopupSetting({
+            title: 'Download Treatment Result PDF?',
+            classIcon: 'text-font-color-2',
+            classBtnNext: 'hover:bg-white',
+            iconPopup: faDownload,
+            nameBtnNext: 'Yes',
+            patientId: '',
+            categoryAction: 'download-treatment-result-pdf'
+        })
+    }
+
+    function confirmDownloadTRPdf():void{
+        setOnPopupSetting({} as PopupSetting)
+        window.open(`/patient-registration-information/${params[4]}/${params[3]}/treatment-results/download/pdf`)
+    }
+
     return {
         value,
         setValue,
@@ -327,6 +345,8 @@ export function UseForm({
         cancelOnMsgCancelPatient,
         handleCancelMsg,
         inputMsgCancelPatient,
-        submitCancelTreatment
+        submitCancelTreatment,
+        clickTreatmentResultPDF,
+        confirmDownloadTRPdf
     }
 }

@@ -6,6 +6,7 @@ export const UsePDF = (
     patientName: string,
     format: FormatPDFT,
     unit: UnitPDFT,
+    fileName?: string
 )=>{
     const doc = new JsPDF({
         format: format,
@@ -18,7 +19,7 @@ export const UsePDF = (
 
     doc.html(element, {
         callback: function(doc){
-            doc.save(`patient-registration-information-${patientName}.pdf`)
+            doc.save(`${fileName}-${patientName}.pdf`)
         }
     })
 

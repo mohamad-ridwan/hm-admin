@@ -5,6 +5,7 @@ import { LoadPDF } from "./LoadPDF"
 import { RegistrationInfo } from "app/patient-registration-information/[...params]/RegistrationInfo"
 import { ConfirmInfo } from "app/patient-registration-information/[...params]/ConfirmInfo"
 import { CounterInfo } from "./CounterInfo"
+import { TreatmentResults } from "./TreatmentResults"
 
 export function PatientPDF({ params }: { params: { params: string } }) {
     const {
@@ -19,7 +20,7 @@ export function PatientPDF({ params }: { params: { params: string } }) {
             {patientRegis?.id && (
                 <div
                     id="patientPDF" style={
-                        currentRoute === 'registration' ? PdfStyle.page : PdfStyle.pageCounter
+                        currentRoute === 'registration' || currentRoute === 'treatment-results' ? PdfStyle.page : PdfStyle.pageCounter
                     }
                 >
                     {currentRoute === 'registration' && (
@@ -44,7 +45,13 @@ export function PatientPDF({ params }: { params: { params: string } }) {
 
                     {currentRoute === 'drug-counter' && (
                         <CounterInfo
-                        bodyCounter={bodyCounter.bodyCounter}
+                            bodyCounter={bodyCounter.bodyCounter}
+                        />
+                    )}
+
+                    {currentRoute === 'treatment-results' && (
+                        <TreatmentResults
+                            patientRegis={patientRegis}
                         />
                     )}
                 </div>

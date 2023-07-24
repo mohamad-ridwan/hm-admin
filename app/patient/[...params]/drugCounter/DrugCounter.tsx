@@ -13,6 +13,8 @@ import { ActionsDataT } from "lib/types/TableT.type"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import Button from "components/Button"
+import { ConfirmInfo } from "./ConfirmInfo"
+import { RenderTextHTML } from "lib/pdf/RenderTextHTML"
 
 export function DrugCounter({ params }: { params: string }) {
     const {
@@ -37,14 +39,6 @@ export function DrugCounter({ params }: { params: string }) {
     const classTitle = drugCounterPatient?.isConfirm?.confirmState ? '' : 'text-orange-young'
     const titleRight = drugCounterPatient?.queueNumber
     const iconRight = faListOl
-
-    function RenderTextHTML({ textInfo }: { textInfo: string }) {
-        const checkList = textInfo?.replace('<ol', '<ol class="list-decimal list-inside"')
-
-        return <div
-            dangerouslySetInnerHTML={{ __html: checkList }}
-        ></div>
-    }
 
     const status = drugCounterPatient?.isConfirm?.confirmState === false && drugCounterPatient?.submissionDate?.submissionDate === createDateFormat(new Date()) ? 'WAITING' : drugCounterPatient?.isConfirm?.confirmState ? 'ALREADY CONFIRMED' : drugCounterPatient?.isConfirm?.confirmState === false && drugCounterPatient?.submissionDate?.submissionDate < createDateFormat(new Date()) ? 'EXPIRED' : 'NULL'
 
@@ -84,7 +78,7 @@ export function DrugCounter({ params }: { params: string }) {
 
     const actionsMenu: ActionsDataT[] = [
         {
-            name: 'Download PDF',
+            name: 'Queue Number PDF',
             classWrapp: 'cursor-pointer',
             click: () => clickDownloadPdf()
         },
@@ -125,7 +119,7 @@ export function DrugCounter({ params }: { params: string }) {
                                             marginTop: '0.5rem'
                                         }}
                                         clickBtn={() => {
-                                            if (onPopupSetting.categoryAction === 'download-pdf') {
+                                            if (onPopupSetting.categoryAction === 'download-queue-number-pdf') {
                                                 confirmDownloadPdf()
                                             }
                                         }}
@@ -185,6 +179,9 @@ export function DrugCounter({ params }: { params: string }) {
 
                     {!dataPatientFinishTreatment?.id && (
                         <CounterForm params={params} />
+                    )}
+                    {drugCounterPatient?.isConfirm?.confirmState && (
+                        <ConfirmInfo params={params}/>
                     )}
                 </Container>
             )}

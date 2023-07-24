@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation'
 import { UsePDF } from 'lib/pdf/UsePDF';
 import ServicingHours from 'lib/actions/ServicingHours';
-import { ConfirmInfoPDFT } from 'lib/types/PatientT.types';
+import { ConfirmInfoPDFT, TreatmentResultsPDFT } from 'lib/types/PatientT.types';
 import { navigationStore } from 'lib/useZustand/navigation';
 import { FormatPDFT, UnitPDFT } from 'lib/types/InputT.type'
 
@@ -52,6 +52,7 @@ export function LoadPDF({
         dataRooms,
         doctors,
         dataService,
+        loadDataDoctors,
         pushTriggedErr
     } = ServicingHours()
 
@@ -78,6 +79,21 @@ export function LoadPDF({
             name: admin?.name as string,
         }
     } : {} as ConfirmInfoPDFT
+
+    // const treatmentResultInfoPDF: TreatmentResultsPDFT = 
+    // !loadDataService &&
+    // patientRegis ?
+    // {
+    //     doctorName: doctor?.name,
+    //     doctorSpecialist: doctor?.deskripsi,
+    //     doctorRoom: room?.room,
+    //     patientName: patientRegis.patientName,
+    //     patientId: patientRegis.id,
+    //     patientEmail: patientRegis.emailAddress,
+    //     adminInfo: {
+    //         adminName: admin?.name,
+    //     }
+    // } : {} as TreatmentResultsPDFT
 
     if (
         !loadDataService &&
@@ -128,6 +144,11 @@ export function LoadPDF({
             if (element) {
                 const formatForCurrentPDF: FormatPDFT = currentRoute === 'registration' || currentRoute === 'treatment-results' ? 'a4' : currentRoute === 'drug-counter' ? [100, 150] : undefined
                 const unitCurrentPDF: UnitPDFT = currentRoute === 'registration' || currentRoute === 'treatment-results' ? 'px' : currentRoute === 'drug-counter' ? 'mm' : undefined
+                const fileName:
+                    'patient-registration-information' |
+                    'queue-number' |
+                    'treatment-result'
+                    = currentRoute === 'registration' ? 'patient-registration-information' : currentRoute === 'drug-counter' ? 'queue-number' : 'treatment-result'
                 if (Array.isArray(formatForCurrentPDF)) {
                     createCounterURL()
                 }
@@ -137,6 +158,7 @@ export function LoadPDF({
                         patientRegis.patientName,
                         formatForCurrentPDF,
                         unitCurrentPDF,
+                        fileName
                     )
                 }, 500);
             }

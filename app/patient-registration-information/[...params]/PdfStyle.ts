@@ -16,6 +16,7 @@ type StyleType = {
     titleCounter: CSSProperties
     pageCounter: CSSProperties
     QRCode: CSSProperties
+    titleTreatment: CSSProperties
 }
 
 export const PdfStyle: StyleType = {
@@ -108,5 +109,13 @@ export const PdfStyle: StyleType = {
         maxWidth: "100%", 
         width: "10mm", 
         marginTop: '3mm'
+    },
+    titleTreatment:{
+        fontSize: '18px',
+        whiteSpace: 'normal',
+        letterSpacing: '0',
+        fontWeight: 'bold',
+        marginBottom: '5px',
+        color: '#555'
     }
 }

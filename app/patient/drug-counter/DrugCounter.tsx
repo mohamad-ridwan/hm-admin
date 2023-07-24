@@ -8,6 +8,8 @@ import { CardInfo } from "components/dataInformation/CardInfo";
 import Button from "components/Button";
 import ErrorInput from "components/input/ErrorInput";
 import { QRScanner } from "./QRScanner";
+import { ContainerPopup } from "components/popup/ContainerPopup";
+import { SettingPopup } from "components/popup/SettingPopup";
 
 export function DrugCounter() {
     const {
@@ -20,6 +22,12 @@ export function DrugCounter() {
         clickViewPage,
         viewScanner,
         onScanner,
+        clickPassPatient,
+        onPopupSetting,
+        cancelPopup,
+        confirmPassPatient,
+        currentPatientCall,
+        loadingPassPatient
     } = UseCounter()
 
     function OffDisplayScan() {
@@ -32,6 +40,46 @@ export function DrugCounter() {
 
     return (
         <>
+            {onPopupSetting?.title && (
+                <ContainerPopup
+                    className='flex justify-center items-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        clickClose={cancelPopup}
+                        title={onPopupSetting.title}
+                        classIcon='text-font-color-2'
+                        iconPopup={onPopupSetting.iconPopup}
+                    >
+                        <Button
+                            nameBtn={onPopupSetting.nameBtnNext}
+                            classBtn="hover:bg-white"
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginRight: '0.6rem',
+                                marginTop: '0.5rem'
+                            }}
+                            clickBtn={() => {
+                                if (onPopupSetting.categoryAction === 'pass-patient') {
+                                    confirmPassPatient()
+                                }
+                            }}
+                        />
+
+                        <Button
+                            nameBtn="Cancel"
+                            classBtn="bg-white border-none"
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginTop: '0.5rem',
+                                color: '#495057'
+                            }}
+                            clickBtn={cancelPopup}
+                        />
+                    </SettingPopup>
+                </ContainerPopup>
+            )}
 
             <h1
                 className="font-bold text-[1.3rem] mb-8"
@@ -106,14 +154,16 @@ export function DrugCounter() {
 
                     <h1
                         className="font-bold text-[6rem]"
-                    >20</h1>
+                    >{currentPatientCall.queueNumber}</h1>
 
-                    <Button
-                        nameBtn="Pass Patient"
-                        classBtn="hover:bg-white mt-8"
-                        classLoading="hidden"
-                        // clickBtn={onScanner}
-                    />
+                    {currentPatientCall.patientId && (
+                        <Button
+                            nameBtn="Pass Patient"
+                            classBtn={`${loadingPassPatient ? 'hover:bg-color-default hover:text-white cursor-not-allowed' : 'hover:bg-white'} mt-8`}
+                            classLoading={loadingPassPatient ? 'flex' : 'hidden'}
+                            clickBtn={clickPassPatient}
+                        />
+                    )}
                 </CardInfo>
             </div>
         </>

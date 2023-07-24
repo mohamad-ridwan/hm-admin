@@ -68,7 +68,10 @@ export type DrugCounterT = {
         submitHours: string
     }
     queueNumber: string
-    isConfirm: {confirmState: boolean} & IsConfirmDrugCounterT
+    isConfirm: {
+        confirmState: boolean
+        isSkipped?: boolean
+    } & IsConfirmDrugCounterT
 }
 
 // finished treatment

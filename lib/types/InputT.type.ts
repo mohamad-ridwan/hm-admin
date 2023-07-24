@@ -109,12 +109,13 @@ type PaymentInfo = {
 export type SubmitConfirmDrugCounterT = SubmitDrugCounterT & {
     isConfirm: {
         confirmState: boolean
-        dateConfirm: {
+        dateConfirm?: {
             dateConfirm: string
             confirmHour: string
         }
-        adminInfo: {adminId: string}
-        paymentInfo: PaymentInfo
+        adminInfo?: {adminId: string}
+        paymentInfo?: PaymentInfo
+        isSkipped?: boolean
     }
 }
 

@@ -1,5 +1,5 @@
 type Props = {
-    data: { title: string, total: number }[]
+    data: { title: string, total: number | string }[]
 }
 
 export function TotalPatient({

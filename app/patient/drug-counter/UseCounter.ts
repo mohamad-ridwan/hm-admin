@@ -117,7 +117,7 @@ export function UseCounter() {
         loadDataCounter()
     }, [dataLoket])
 
-    function getPatientsAtCounter():void{
+    function getPatientsAtCounter(): void {
         patientsAtCounter()
 
         if (currentCounter.id === 'Choose Counter') {
@@ -138,7 +138,7 @@ export function UseCounter() {
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         getPatientsAtCounter()
     }, [currentCounter, dataDrugCounter, dataFinishTreatment])
 
@@ -203,17 +203,26 @@ export function UseCounter() {
     ): void {
         if (patient.length > 0) {
             const patientNotCallYet = patient.filter(patientData => !patientData.isConfirm?.isSkipped)
-            const sort = patientNotCallYet.sort((a, b) =>
-                Number(a.queueNumber) - Number(b.queueNumber)
-            )
-            const firstPatient = sort[0]
-            setCurrentPatientCall({
-                documentId: firstPatient.id,
-                patientId: firstPatient.patientId,
-                queueNumber: Number(firstPatient.queueNumber)
-            })
+            if (patientNotCallYet.length > 0) {
+                const sort = patientNotCallYet.sort((a, b) =>
+                    Number(a.queueNumber) - Number(b.queueNumber)
+                )
+                const firstPatient = sort[0]
+                setCurrentPatientCall({
+                    documentId: firstPatient.id,
+                    patientId: firstPatient.patientId,
+                    queueNumber: Number(firstPatient.queueNumber)
+                })
 
-            return
+                return
+            } else {
+                setCurrentPatientCall({
+                    documentId: null,
+                    patientId: null,
+                    queueNumber: 0
+                })
+                return
+            }
         }
 
         setCurrentPatientCall({
@@ -230,7 +239,8 @@ export function UseCounter() {
             )?.loketName === currentCounter.id
 
             const checkFinishTreatment = dataFinishTreatment?.find(finishP =>
-                finishP?.patientId === patient?.patientId
+                finishP?.patientId === patient?.patientId &&
+                !finishP?.isCanceled
             )
             const checkSubmitDate = patient?.submissionDate?.submissionDate === createDateFormat(new Date())
 

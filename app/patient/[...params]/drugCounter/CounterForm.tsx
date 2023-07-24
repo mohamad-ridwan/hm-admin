@@ -1,6 +1,6 @@
 'use client'
 
-import { CSSProperties, useState } from "react"
+import { CSSProperties } from "react"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
@@ -12,9 +12,10 @@ import ErrorInput from "components/input/ErrorInput"
 import { InputSelect } from "components/input/InputSelect"
 import Input from "components/input/Input"
 import Button from "components/Button"
-import { ActionsDataT, PopupSetting } from "lib/types/TableT.type"
+import { ActionsDataT} from "lib/types/TableT.type"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
+import { FormPopup } from "components/popup/FormPopup"
 
 export function CounterForm({ params }: { params: string }) {
     const {
@@ -31,7 +32,15 @@ export function CounterForm({ params }: { params: string }) {
         isActiveMenu,
         clickMenu,
         onPopupSetting,
-        cancelPopupSetting
+        cancelPopupSetting,
+        clickCancelTreatment,
+        loadingCancelTreatment,
+        clickYesForCancelTreatment,
+        onMsgCancelTreatment,
+        cancelOnMsgCancelPatient,
+        handleCancelMsg,
+        inputMsgCancelPatient,
+        submitCancelTreatment
     } = UseForm({ params })
 
     const styleError: { style: CSSProperties } = {
@@ -43,15 +52,8 @@ export function CounterForm({ params }: { params: string }) {
     const actionsMenu: ActionsDataT[] = [
         {
             name: 'Cancel Treatment',
-            // classWrapp: loadingCancelTreatment ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' :  'cursor-pointer text-pink-old',
-            classWrapp: 'text-pink-old cursor-pointer',
-            click: () => {
-                // if(loadingCancelTreatment === false){
-                //     clickCancelTreatment()
-                //     setIsMenuActive(false)
-                // }
-                return
-            }
+            classWrapp: loadingCancelTreatment ? 'hover:bg-white cursor-not-allowed text-not-allowed hover:text-not-allowed' : 'cursor-pointer text-pink-old',
+            click: () => clickCancelTreatment()
         },
     ]
 
@@ -83,6 +85,8 @@ export function CounterForm({ params }: { params: string }) {
                             clickBtn={() => {
                                 if (onPopupSetting.categoryAction === 'confirm-payment') {
                                     confirmSubmit()
+                                } else if (onPopupSetting.categoryAction === 'cancel-treatment') {
+                                    clickYesForCancelTreatment()
                                 }
                             }}
                         />
@@ -101,9 +105,57 @@ export function CounterForm({ params }: { params: string }) {
                 </ContainerPopup>
             )}
 
+            {onMsgCancelTreatment && (
+                <ContainerPopup
+                    className='flex justify-center overflow-y-auto'
+                >
+                    <FormPopup
+                        tag="div"
+                        clickClose={cancelOnMsgCancelPatient}
+                        title="Messages for canceled patients"
+                    >
+                        <TitleInput title='Message' />
+                        <Input
+                            type='text'
+                            nameInput='messageCancelled'
+                            changeInput={handleCancelMsg}
+                            valueInput={inputMsgCancelPatient}
+                        />
+                        <ErrorInput
+                            error={inputMsgCancelPatient.length === 0 ? 'Must be required' : ''}
+                        />
+
+                        <div
+                            className="flex flex-wrap justify-end"
+                        >
+                            <Button
+                                nameBtn="Confirm"
+                                classBtn="hover:bg-white"
+                                classLoading="hidden"
+                                styleBtn={{
+                                    padding: '0.5rem',
+                                    marginTop: '0.5rem',
+                                }}
+                                clickBtn={submitCancelTreatment}
+                            />
+                            <Button
+                                nameBtn="Cancel"
+                                classBtn="bg-white border-none"
+                                classLoading="hidden"
+                                styleBtn={{
+                                    padding: '0.5rem',
+                                    marginTop: '0.5rem',
+                                    color: '#495057'
+                                }}
+                                clickBtn={cancelOnMsgCancelPatient}
+                            />
+                        </div>
+                    </FormPopup>
+                </ContainerPopup>
+            )}
+
             <HeadInfo
                 titleInfo="Form Confirmation"
-                // classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange ${loadingCancelTreatment && 'cursor-not-allowed'}`}
                 classTitle="border-none"
                 styleHeadTop={{
                     padding: '0'

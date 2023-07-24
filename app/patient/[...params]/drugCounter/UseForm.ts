@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
 import { InputConfirmDrugCounterT, SubmitConfirmDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { PopupSetting } from "lib/types/TableT.type"
-import { faCircleCheck, faDownload } from "@fortawesome/free-solid-svg-icons"
+import { faBan, faCircleCheck, faDownload } from "@fortawesome/free-solid-svg-icons"
 import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { createHourFormat } from "lib/dates/createHourFormat"
@@ -36,7 +36,10 @@ export function UseForm({
     const [errInput, setErrInput] = useState<ErrorInput>({} as ErrorInput)
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
     const [isActiveMenu, setIsActiveMenu] = useState<boolean>(false)
+    const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
     const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+    const [loadingCancelTreatment, setLoadingCancelTreatment] = useState<boolean>(false)
+    const [inputMsgCancelPatient, setInputMsgCancelPatient] = useState<string>('')
     const [paymentOptions, setPaymentOptions] = useState<DataOptionT>([
         {
             id: 'Select Payment Method',
@@ -242,9 +245,62 @@ export function UseForm({
         })
     }
 
-    function confirmDownloadPdf():void{
+    function confirmDownloadPdf(): void {
         setOnPopupSetting({} as PopupSetting)
         window.open(`/patient-registration-information/${params[4]}/${params[3]}/drug-counter/download/pdf`)
+    }
+
+    function clickCancelTreatment(): void {
+        if (loadingCancelTreatment === false) {
+            setOnPopupSetting({
+                title: 'Cancel Treatment',
+                classIcon: 'text-font-color-2',
+                classBtnNext: 'hover:bg-white',
+                iconPopup: faBan,
+                nameBtnNext: 'Yes',
+                patientId: '',
+                categoryAction: 'cancel-treatment'
+            })
+            setIsActiveMenu(false)
+        }
+    }
+
+    function clickYesForCancelTreatment():void{
+        setOnMsgCancelTreatment(true)
+    }
+
+    function cancelOnMsgCancelPatient():void{
+        setOnMsgCancelTreatment(false)
+    }
+
+    function handleCancelMsg(e?: ChangeEvent<HTMLInputElement>):void{
+        setInputMsgCancelPatient(e?.target.value as string)
+    }
+
+    function submitCancelTreatment():void{
+        if(inputMsgCancelPatient.length > 0){
+            setOnMsgCancelTreatment(false)
+            setOnPopupSetting({} as PopupSetting)
+            const data: SubmitFinishedTreatmentT = {
+                patientId: params[4],
+                confirmedTime: {
+                    dateConfirm: createDateFormat(new Date()),
+                    confirmHour: createHourFormat(new Date())
+                },
+                adminInfo: {adminId: user.user?.id as string},
+                isCanceled: true,
+                messageCancelled: inputMsgCancelPatient
+            }
+            API().APIPostPatientData(
+                'finished-treatment',
+                data,
+            )
+            .then(res=>{
+                alert('Successfully cancel patient registration')
+                setLoadingCancelTreatment(false)
+            })
+            .catch(err=>pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
+        }
     }
 
     return {
@@ -263,6 +319,14 @@ export function UseForm({
         onPopupSetting,
         cancelPopupSetting,
         clickDownloadPdf,
-        confirmDownloadPdf
+        confirmDownloadPdf,
+        clickCancelTreatment,
+        loadingCancelTreatment,
+        clickYesForCancelTreatment,
+        onMsgCancelTreatment,
+        cancelOnMsgCancelPatient,
+        handleCancelMsg,
+        inputMsgCancelPatient,
+        submitCancelTreatment
     }
 }

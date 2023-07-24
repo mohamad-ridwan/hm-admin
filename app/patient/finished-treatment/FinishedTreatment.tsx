@@ -1,6 +1,7 @@
 'use client'
 
 import { ContainerTableBody } from "components/table/ContainerTableBody"
+import {useRouter} from 'next/navigation'
 import { TableBody } from "components/table/TableBody"
 import { FilterTable } from "./FilterTable"
 import { TableHead } from "components/table/TableHead"
@@ -33,8 +34,10 @@ export function FinishedTreatment() {
         lastPage,
         maxLength,
         currentPage,
-        setCurrentPage
+        setCurrentPage,
     } = FilterTable()
+
+    const router = useRouter()
 
     return (
         <>
@@ -118,7 +121,7 @@ export function FinishedTreatment() {
                         return (
                             <TableColumns
                                 key={index}
-                                clickBtn={() => ''}
+                                clickBtn={() => router.push(patient.url as string)}
                                 actionsData={actionsData}
                                 classWrappMenu="hidden"
                             >

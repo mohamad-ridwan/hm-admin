@@ -4,7 +4,7 @@ import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { HeadDataTableT } from "lib/types/TableT.type"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import ServicingHours from "lib/actions/ServicingHours"
-import { PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
+import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
@@ -86,7 +86,9 @@ export function FilterTable() {
 
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,
-        dataFinishTreatment: PatientFinishTreatmentT[] | undefined
+        dataFinishTreatment: PatientFinishTreatmentT[] | undefined,
+        dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
+        dataDrugCounter: DrugCounterT[] | undefined,
     ): void {
         if (
             !loadDataService &&
@@ -109,8 +111,23 @@ export function FilterTable() {
                     const status: 'Canceled' | 'Completed' = patientFT?.isCanceled ? 'Canceled' : 'Completed'
                     const statusColor = status === 'Completed' ? '#288bbc' : '#ff296d'
 
+                    // find url to patient detail
+                    const confirmPatient = dataConfirmationPatients?.find(confirmPatient =>
+                        confirmPatient.patientId === patient.id
+                    )
+                    const counterPatient = dataDrugCounter?.find(counterP =>
+                        counterP.patientId === patient.id
+                    )
+                    const currentCounter = dataLoket?.find(counter=>counter.id === counterPatient?.loketInfo?.loketId)
+                    const patientName = patient.patientName?.replace(specialCharacter, '')?.replace(spaceString, '')
+                    const confirmPatientUrl = `/patient/patient-registration/personal-data/${confirmPatient ? 'confirmed' : 'not-yet-confirmed'}/${patientName}/${patient.id}`
+                    const confirmAndCounterUrl = `${confirmPatientUrl}/counter/${currentCounter?.loketName}/${counterPatient?.isConfirm?.confirmState ? 'confirmed' : 'not-yet-confirmed'}/${counterPatient?.queueNumber}`
+
+                    const currentURL: string = !counterPatient ? confirmPatientUrl : confirmAndCounterUrl
+
                     return {
                         id: patient.id,
+                        url: currentURL,
                         data: [
                             {
                                 name: patient.patientName
@@ -167,7 +184,9 @@ export function FilterTable() {
     useEffect(() => {
         findDataRegistration(
             dataPatientRegis,
-            dataFinishTreatment
+            dataFinishTreatment,
+            dataConfirmationPatients,
+            dataDrugCounter,
         )
     }, [loadDataService, dataService])
 
@@ -348,10 +367,10 @@ export function FilterTable() {
                 return name
             })
             return search
-        }else if(
+        } else if (
             currentFilterBy === 'Confirmation Date'
-        ){
-            const search = resultSortByConfirmDate.filter(patient=>{
+        ) {
+            const search = resultSortByConfirmDate.filter(patient => {
                 const name = patient.data.find(data =>
                     data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()) ||
                     data?.firstDesc?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
@@ -361,7 +380,7 @@ export function FilterTable() {
             return search
         }
 
-        const search = dataColumns.filter(patient=>{
+        const search = dataColumns.filter(patient => {
             const name = patient.data.find(data =>
                 data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()) ||
                 data?.firstDesc?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
@@ -385,7 +404,7 @@ export function FilterTable() {
     const lastPage: number = filterText().length < 5 ? 1 : Math.ceil(filterText().length / pageSize)
     const maxLength: number = 7
 
-    const changeTableStyle = (dataColumnsBody: DataTableContentT[]):void => {
+    const changeTableStyle = (dataColumnsBody: DataTableContentT[]): void => {
         if (dataColumnsBody?.length > 0) {
             let elementTData = document.getElementById('tData00') as HTMLElement
             if (elementTData !== null) {
@@ -465,6 +484,6 @@ export function FilterTable() {
         lastPage,
         maxLength,
         currentPage,
-        setCurrentPage
+        setCurrentPage,
     }
 }

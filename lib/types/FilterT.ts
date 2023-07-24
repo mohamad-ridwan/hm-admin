@@ -26,5 +26,6 @@ export type DataOnDataTableContentT = AdditionalDataT &  {
 
 export type DataTableContentT = {
     id: string
+    url?: string
     data: DataOnDataTableContentT[]
 }

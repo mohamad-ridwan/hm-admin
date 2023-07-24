@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import { HeadDataTableT } from "lib/types/TableT.type"
 import ServicingHours from "lib/actions/ServicingHours"
-import { DrugCounterT, InfoLoketT, PatientRegistrationT } from "lib/types/PatientT.types"
+import { DrugCounterT, InfoLoketT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/dates/createDateFormat"
 import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
@@ -98,6 +98,7 @@ export function FilterTable({ params }: ParamsProps) {
         dataService,
         dataPatientRegis,
         dataDrugCounter,
+        dataFinishTreatment,
         dataLoket,
         loadDataService,
     } = ServicingHours()
@@ -120,7 +121,8 @@ export function FilterTable({ params }: ParamsProps) {
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,
         dataDrugCounter: DrugCounterT[] | undefined,
-        dataLoket: InfoLoketT[] | undefined
+        dataLoket: InfoLoketT[] | undefined,
+        dataFinishTreatment: PatientFinishTreatmentT[] | undefined
     ): void {
         if (
             !loadDataService &&
@@ -128,6 +130,10 @@ export function FilterTable({ params }: ParamsProps) {
             dataPatientRegis.length > 0
         ) {
             const patientWaiting = dataPatientRegis.filter((patient => {
+                // finished treatment
+                const findPatientFT = dataFinishTreatment?.find(patientFT =>
+                    patientFT.patientId === patient.id
+                )
                 // patient counter
                 const findPatientCounter = dataDrugCounter?.find(patientC =>
                     patientC?.patientId === patient.id &&
@@ -135,7 +141,7 @@ export function FilterTable({ params }: ParamsProps) {
                     patientC?.isConfirm?.confirmState === false &&
                     patientC?.submissionDate?.submissionDate === createDateFormat(new Date())
                 )
-                return findPatientCounter
+                return findPatientCounter && !findPatientFT
             }))
             const patientAlreadyConfirmed = dataPatientRegis.filter((patient => {
                 const loket = dataLoket?.find(loket => loket.loketName === params.counterName)
@@ -245,6 +251,7 @@ export function FilterTable({ params }: ParamsProps) {
             dataPatientRegis,
             dataDrugCounter,
             dataLoket,
+            dataFinishTreatment,
         )
     }, [loadDataService, dataService])
 

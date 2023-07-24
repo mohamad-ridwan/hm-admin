@@ -131,43 +131,6 @@ export function DeletePatient({
             })
     }
 
-    // function onLoadingDelete(): void {
-    //     if (
-    //         dataColumns.length > 0
-    //     ) {
-    //         dataColumns.forEach(patient => {
-    //             const deleteIconEl = document.getElementById(`iconDelete${patient.id}`) as HTMLElement
-    //             const loadingIconEl = document.getElementById(`loadDelete${patient.id}`) as HTMLElement
-
-    //             if (
-    //                 deleteIconEl &&
-    //                 loadingIconEl
-    //             ) {
-    //                 deleteIconEl.style.display = 'flex'
-    //                 loadingIconEl.style.display = 'none'
-    //             }
-
-    //             idLoadingDeletePatient.forEach(id => {
-    //                 const deleteIconEl = document.getElementById(`iconDelete${id}`) as HTMLElement
-    //                 const loadingIconEl = document.getElementById(`loadDelete${id}`) as HTMLElement
-
-    //                 if (
-    //                     deleteIconEl &&
-    //                     loadingIconEl
-    //                 ) {
-    //                     deleteIconEl.style.display = 'none'
-    //                     loadingIconEl.style.display = 'flex'
-    //                 }
-    //             })
-    //         })
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     onLoadingDelete()
-    // }, [idLoadingDeletePatient, dataColumns])
-
-
     // action cancel treatment
     function clickCancelTreatment(id: string, name: string):void{
         const findId = idLoadingCancelTreatment.find(patientId => patientId === id)
@@ -223,8 +186,6 @@ export function DeletePatient({
                 preloadFetch(endpoint.getServicingHours())
                     .then((res) => {
                         if (res?.data) {
-                            // preloadDataRegistration(res, finishedRes?.id as string, 'cancel')
-
                             alert('Successfully cancel patient registration')
                             const findPatientRegis = dataPatientRegis?.find(patient=>patient.id === finishedRes?.patientId)
                             const getName = findPatientRegis?.patientName?.replace(specialCharacter, '')?.replace(spaceString, '')
@@ -243,41 +204,6 @@ export function DeletePatient({
         })
         .catch(err=>pushTriggedErr('a server error occurred while canceling the patient. please try again'))
     }
-
-    // function onLoadingCancelTreatment():void{
-    //     if(dataColumns.length > 0){
-    //         dataColumns.forEach(patient => {
-    //             const cancelIconEl = document.getElementById(`iconCancel${patient.id}`) as HTMLElement
-    //             const loadingIconEl = document.getElementById(`loadingCancel${patient.id}`) as HTMLElement
-
-    //             if (
-    //                 cancelIconEl &&
-    //                 loadingIconEl
-    //             ) {
-    //                 cancelIconEl.style.display = 'flex'
-    //                 loadingIconEl.style.display = 'none'
-    //             }
-
-    //             idLoadingCancelTreatment.forEach(id => {
-    //                 const cancelIconEl = document.getElementById(`iconCancel${id}`) as HTMLElement
-    //                 const loadingIconEl = document.getElementById(`loadingCancel${id}`) as HTMLElement
-
-    //                 if (
-    //                     cancelIconEl &&
-    //                     loadingIconEl
-    //                 ) {
-    //                     cancelIconEl.style.display = 'none'
-    //                     loadingIconEl.style.display = 'flex'
-    //                 }
-    //             })
-    //         })
-    //     }
-    // }
-
-    // useEffect(()=>{
-    //     onLoadingCancelTreatment()
-    // }, [idLoadingCancelTreatment, dataColumns])
-    // end action cancel treatment
 
     return {
         clickDelete,

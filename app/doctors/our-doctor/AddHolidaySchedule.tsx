@@ -7,7 +7,7 @@ import { FormPopup } from "components/popup/FormPopup";
 import { HolidaySchedule } from "lib/types/DoctorsT.types";
 import { InputSearch } from "components/input/InputSearch";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
-import { renderCustomHeader } from "lib/dates/renderCustomHeader";
+import { renderCustomHeader } from "lib/datePicker/renderCustomHeader";
 import Button from "components/Button";
 
 type ActionProps = {

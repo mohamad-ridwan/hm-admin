@@ -11,7 +11,7 @@ import { TableData } from "components/table/TableData";
 import { TableFilter } from "components/table/TableFilter";
 import { InputSearch } from "components/input/InputSearch";
 import { faCalendarDays, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { renderCustomHeader } from "lib/dates/renderCustomHeader";
+import { renderCustomHeader } from "lib/datePicker/renderCustomHeader";
 import { InputSelect } from "components/input/InputSelect";
 import { specialCharacter } from "lib/regex/specialCharacter";
 import { spaceString } from "lib/regex/spaceString";

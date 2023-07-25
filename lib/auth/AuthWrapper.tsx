@@ -1,17 +1,10 @@
 'use client'
 
 import { authStore, userIdAuthStore} from "lib/useZustand/auth"
-import { ReactNode, useEffect } from "react"
 import { useRouter, usePathname } from 'next/navigation'
 import { navigationStore } from "lib/useZustand/navigation"
 
-type AuthProps = {
-    children: ReactNode
-}
-
-export function AuthWrapper({
-    children
-}: AuthProps) {
+export function AuthWrapper() {
     // zustand store
     const { loginSession } = userIdAuthStore()
     // auth
@@ -54,9 +47,7 @@ export function AuthWrapper({
         }
     }
 
-    useEffect(() => {
-        redirectPage()
-    }, [user, loginSession, isNotFound, loadingAuth])
-
-    return children
+    return {
+        redirectPage
+    }
 }

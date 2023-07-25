@@ -11,7 +11,7 @@ import ErrorInput from 'components/input/ErrorInput'
 import Link from 'next/link'
 import Button from 'components/Button'
 import { AuthRequiredError } from 'lib/errorHandling/exceptions'
-import { sessionDateFormat } from 'lib/dates/sessionDateFormat'
+import { sessionDateFormat } from 'lib/formats/sessionDateFormat'
 
 type StateInput = {
     email: string

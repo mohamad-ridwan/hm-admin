@@ -1,11 +1,11 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 import { useRouter } from 'next/navigation'
 import { API } from "lib/api"
-import { createDateFormat } from "lib/dates/createDateFormat"
-import { createHourFormat } from "lib/dates/createHourFormat"
+import { createDateFormat } from "lib/formats/createDateFormat"
+import { createHourFormat } from "lib/formats/createHourFormat"
 import { spaceString } from "lib/regex/spaceString"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"

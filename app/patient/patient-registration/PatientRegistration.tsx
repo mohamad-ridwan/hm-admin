@@ -14,7 +14,7 @@ import { InputSearch } from 'components/input/InputSearch'
 import { InputSelect } from 'components/input/InputSelect'
 import { spaceString } from 'lib/regex/spaceString'
 import { specialCharacter } from 'lib/regex/specialCharacter'
-import { renderCustomHeader } from "lib/dates/renderCustomHeader"
+import { renderCustomHeader } from "lib/datePicker/renderCustomHeader"
 import EditPatientRegistration from 'app/patient/patient-registration/EditPatientRegistration'
 import FormPatientRegistration from 'app/patient/patient-registration/FormPatientRegistration'
 import { FilterTable } from './FilterTable'

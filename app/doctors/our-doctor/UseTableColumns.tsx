@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { DataTableContentT } from "lib/types/FilterT"
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
 import { specialCharacter } from "lib/regex/specialCharacter"

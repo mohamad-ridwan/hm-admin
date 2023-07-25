@@ -1,5 +1,5 @@
 import { Container } from "components/Container"
-import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { ConfirmInfoPDFT } from "lib/types/PatientT.types"
 import { PdfStyle } from "./PdfStyle"
 import { CardInfo } from "components/dataInformation/CardInfo"

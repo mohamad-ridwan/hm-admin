@@ -4,10 +4,10 @@ import { IconDefinition, faCalendarDays, faCheck, faClock, faDownload, faListOl,
 import { Container } from "components/Container";
 import { CardInfo } from "components/dataInformation/CardInfo";
 import { HeadInfo } from "components/dataInformation/HeadInfo";
-import ServicingHours from "lib/actions/ServicingHours";
-import { UsePatientData } from "lib/actions/dataInformation/UsePatientData";
-import { createDateFormat } from "lib/dates/createDateFormat";
-import { createDateNormalFormat } from "lib/dates/createDateNormalFormat";
+import ServicingHours from "lib/dataInformation/ServicingHours";
+import { UsePatientData } from "lib/dataInformation/UsePatientData";
+import { createDateFormat } from "lib/formats/createDateFormat";
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat";
 import { spaceString } from "lib/regex/spaceString";
 import { FormConfirmation } from "./FormConfirmation";
 import { UseForm } from "./UseForm";

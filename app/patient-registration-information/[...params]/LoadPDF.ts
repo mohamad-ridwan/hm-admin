@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation'
 import { UsePDF } from 'lib/pdf/UsePDF';
-import ServicingHours from 'lib/actions/ServicingHours';
+import ServicingHours from 'lib/dataInformation/ServicingHours';
 import { ConfirmInfoPDFT, TreatmentResultsPDFT } from 'lib/types/PatientT.types';
 import { navigationStore } from 'lib/useZustand/navigation';
 import { FormatPDFT, UnitPDFT } from 'lib/types/InputT.type'

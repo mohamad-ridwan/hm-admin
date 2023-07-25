@@ -5,10 +5,10 @@ import { faCalendarDays, faClock, faUserCheck, faUserXmark } from "@fortawesome/
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
-import ServicingHours from "lib/actions/ServicingHours"
-import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
-import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
-import { createHourFormat } from "lib/dates/createHourFormat"
+import ServicingHours from "lib/dataInformation/ServicingHours"
+import { UsePatientData } from "lib/dataInformation/UsePatientData"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
+import { createHourFormat } from "lib/formats/createHourFormat"
 
 export function FinishedTreatment({ params }: { params: string }) {
     const {

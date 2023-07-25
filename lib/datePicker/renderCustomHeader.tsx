@@ -5,7 +5,7 @@ import getYear from 'date-fns/getYear'
 import getMonth from 'date-fns/getMonth'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons"
-import { monthDetailNames } from "lib/namesOfCalendar/monthDetailNames"
+import { monthDetailNames } from "lib/formats/monthDetailNames"
 import { RenderCustomHeaderT } from "lib/types/DatePicker.type"
 
 export function renderCustomHeader({

@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useCallback, useState } from "react"
 import { DataOptionT } from "lib/types/FilterT"
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 
 function UseTableFilter() {
     const [searchText, setSearchText] = useState<string>('')

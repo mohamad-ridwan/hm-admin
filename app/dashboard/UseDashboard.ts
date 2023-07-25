@@ -3,7 +3,7 @@
 import {CSSProperties, useState} from 'react'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import { faChartLine, faCoins, faHospitalUser, faIdCard, faUserCheck, faUserXmark } from '@fortawesome/free-solid-svg-icons'
-import ServicingHours from 'lib/actions/ServicingHours'
+import ServicingHours from 'lib/dataInformation/ServicingHours'
 
 export function UseDashboard(){
     const [overview, setOverview] = useState<{

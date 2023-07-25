@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { ConfirmInfoPDFT, PatientRegistrationT } from "lib/types/PatientT.types"
 import logo from 'images/logo.png'
 import { PdfStyle } from "./PdfStyle"

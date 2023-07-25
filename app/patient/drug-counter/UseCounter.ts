@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 import { DataOptionT } from "lib/types/FilterT"
-import { createDateFormat } from "lib/dates/createDateFormat"
+import { createDateFormat } from "lib/formats/createDateFormat"
 import { DrugCounterT } from "lib/types/PatientT.types"
 import { spaceString } from "lib/regex/spaceString"
 import { PopupSetting } from "lib/types/TableT.type"

@@ -16,7 +16,7 @@ import { storage } from "lib/firebase/firebase"
 import { uploadImg } from "lib/firebase/uploadImg"
 import { sendEmail } from "lib/emailJS/sendEmail"
 import Link from "next/link"
-import { getImgValue } from "lib/actions/getImgValue"
+import { getImgValue } from "lib/firebase/getImgValue"
 
 type InputT = {
     name: string

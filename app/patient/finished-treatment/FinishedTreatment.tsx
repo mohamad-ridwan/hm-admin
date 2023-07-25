@@ -11,7 +11,7 @@ import { TableFilter } from "components/table/TableFilter"
 import { InputSearch } from "components/input/InputSearch"
 import { faCalendarDays, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons"
 import { InputSelect } from "components/input/InputSelect"
-import { renderCustomHeader } from "lib/dates/renderCustomHeader"
+import { renderCustomHeader } from "lib/datePicker/renderCustomHeader"
 import Pagination from "components/pagination/Pagination"
 import { ActionsDataT } from "lib/types/TableT.type"
 

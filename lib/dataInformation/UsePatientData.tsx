@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 
 export function UsePatientData({ params }: { params?: string }) {
     const [detailDataPatientRegis, setDetailDataPatientRegis] = useState<PatientRegistrationT>({} as PatientRegistrationT)

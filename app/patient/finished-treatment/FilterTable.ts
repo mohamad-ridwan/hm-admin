@@ -3,10 +3,10 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { HeadDataTableT } from "lib/types/TableT.type"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
-import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
-import { createDateFormat } from "lib/dates/createDateFormat"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
+import { createDateFormat } from "lib/formats/createDateFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 

@@ -1,26 +1,20 @@
 'use client'
 
-import { ReactNode, useEffect } from "react"
 import { endpoint } from "lib/api/endpoint"
 import { useSwr } from "lib/useFetch/useSwr"
 import { authStore, userIdAuthStore } from "lib/useZustand/auth"
-import { sessionDateFormat } from "lib/dates/sessionDateFormat"
-
-type IsLoggedInProps = {
-    children: ReactNode
-}
+import { sessionDateFormat } from "lib/formats/sessionDateFormat"
 
 type ObjString = { [key: string]: any }
 
-export function IsLoggedIn({
-    children,
-}: IsLoggedInProps) {
+export function IsLoggedIn() {
     const { data, error, isLoading } = useSwr(endpoint.getAdmin())
     const { userId, setUserId, loginSession, setLoginSession } = userIdAuthStore()
     const { setUser, setLoadingAuth } = authStore()
 
     function findAdmin(): void {
-        if (!isLoading &&
+        if (
+            !isLoading &&
             typeof data === 'object'
         ) {
             const newData: ObjString = {}
@@ -55,9 +49,7 @@ export function IsLoggedIn({
         }
     }
 
-    useEffect(() => {
-        findAdmin()
-    }, [data, error, userId, loginSession])
-
-    return children
+    return {
+        findAdmin
+    }
 }

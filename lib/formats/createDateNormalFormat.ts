@@ -1,7 +1,7 @@
-import { dayNamesEng } from "lib/namesOfCalendar/dayNamesEng"
-import { dayNamesInd } from "lib/namesOfCalendar/dayNamesInd"
-import { monthNames } from "lib/namesOfCalendar/monthNames"
-import { monthNamesInd } from "lib/namesOfCalendar/monthNamesInd"
+import { dayNamesEng } from "lib/formats/dayNamesEng"
+import { dayNamesInd } from "lib/formats/dayNamesInd"
+import { monthNames } from "lib/formats/monthNames"
+import { monthNamesInd } from "lib/formats/monthNamesInd"
 
 export const createDateNormalFormat = ((date: string, offDays?: boolean): string => {
     const getDate = `${new Date(date)}`

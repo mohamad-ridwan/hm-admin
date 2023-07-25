@@ -1,9 +1,7 @@
 import { Metadata } from 'next'
 import './globals.css'
 import { Mulish } from 'next/font/google'
-import { firstLogo } from 'lib/logoweb/firstlogo'
-import { AuthWrapper } from 'components/AuthWrapper'
-import { IsLoggedIn } from 'components/IsLoggedIn'
+import { firstLogo } from 'lib/firebase/firstlogo'
 import { Navbar } from 'components/navbar/Navbar'
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
@@ -19,8 +17,6 @@ const mulish = Mulish({
 })
 
 export const metadata: Metadata = {
-  // title: 'Hospice Medical Admin',
-  // description: 'dashboard hospice medical admin',
   icons: {
     icon: [{ url: firstLogo }, new URL(firstLogo)],
     shortcut: firstLogo,
@@ -48,14 +44,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${mulish.variable} font-mulish`}>
       <body className="bg-bgp-default">
-        <IsLoggedIn>
-          <AuthWrapper>
-            <Navbar />
-            <NavLeft />
-            <NavLeftMobile/>
-            {children}
-          </AuthWrapper>
-        </IsLoggedIn>
+        <Navbar />
+        <NavLeft />
+        <NavLeftMobile />
+        {children}
       </body>
     </html>
   )

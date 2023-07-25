@@ -3,10 +3,10 @@
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
 import { useRouter } from 'next/navigation'
 import { API } from "lib/api"
-import { UsePatientData } from "lib/actions/dataInformation/UsePatientData"
+import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
-import { createDateFormat } from "lib/dates/createDateFormat"
-import { createHourFormat } from "lib/dates/createHourFormat"
+import { createDateFormat } from "lib/formats/createDateFormat"
+import { createHourFormat } from "lib/formats/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
 import { PopupSetting } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"

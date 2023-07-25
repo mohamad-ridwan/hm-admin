@@ -4,9 +4,9 @@ import logo from 'images/logo.png'
 import { PatientRegistrationT, TreatmentResultsPDFT } from "lib/types/PatientT.types"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
-import { currencyFormat } from "lib/currencyFormat"
+import { currencyFormat } from "lib/formats/currencyFormat"
 import { RenderTextHTML } from "lib/pdf/RenderTextHTML"
-import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 
 type Props = {
     patientRegis: PatientRegistrationT | undefined

@@ -3,9 +3,9 @@
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
 import { InputEditPatientRegistrationT } from "lib/types/InputT.type"
 import { mailRegex } from "lib/regex/mailRegex"
-import { createDateFormat } from "lib/dates/createDateFormat"
+import { createDateFormat } from "lib/formats/createDateFormat"
 import { API } from "lib/api"
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 import { faPencil } from "@fortawesome/free-solid-svg-icons"
 import { PopupSetting } from "lib/types/TableT.type"
 

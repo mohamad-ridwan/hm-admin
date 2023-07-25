@@ -4,10 +4,10 @@ import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
 import { notFound } from 'next/navigation'
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import { HeadDataTableT } from "lib/types/TableT.type"
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 import { DrugCounterT, InfoLoketT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
-import { createDateFormat } from "lib/dates/createDateFormat"
-import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { createDateFormat } from "lib/formats/createDateFormat"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 

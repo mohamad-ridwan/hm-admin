@@ -2,13 +2,13 @@
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
-import { createDateFormat } from "lib/dates/createDateFormat"
+import { createDateFormat } from "lib/formats/createDateFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { HeadDataTableT } from "lib/types/TableT.type"
-import ServicingHours from "lib/actions/ServicingHours"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
-import { createDateNormalFormat } from "lib/dates/createDateNormalFormat"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 
 export function FilterTable() {
     const [head] = useState<HeadDataTableT>([

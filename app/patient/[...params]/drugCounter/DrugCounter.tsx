@@ -40,7 +40,14 @@ export function DrugCounter({ params }: { params: string }) {
     const titleRight = drugCounterPatient?.queueNumber
     const iconRight = faListOl
 
-    const status = drugCounterPatient?.isConfirm?.confirmState === false && drugCounterPatient?.submissionDate?.submissionDate === createDateFormat(new Date()) ? 'WAITING' : drugCounterPatient?.isConfirm?.confirmState ? 'ALREADY CONFIRMED' : drugCounterPatient?.isConfirm?.confirmState === false && drugCounterPatient?.submissionDate?.submissionDate < createDateFormat(new Date()) ? 'EXPIRED' : 'NULL'
+    const status =
+        drugCounterPatient?.isConfirm?.confirmState === false && dataPatientFinishTreatment?.id ?
+            'CANCELED' :
+            drugCounterPatient?.isConfirm?.confirmState === false && drugCounterPatient?.submissionDate?.submissionDate === createDateFormat(new Date()) ?
+                'WAITING' : drugCounterPatient?.isConfirm?.confirmState ? 'ALREADY CONFIRMED' :
+                    drugCounterPatient?.isConfirm?.confirmState === false && drugCounterPatient?.submissionDate?.submissionDate < createDateFormat(new Date()) ?
+                        'EXPIRED' :
+                        'NULL'
 
     const detailData: {
         title: string
@@ -59,11 +66,11 @@ export function DrugCounter({ params }: { params: string }) {
                     textInfo: drugCounterPatient.queueNumber,
                     icon: faListOl
                 },
-                {
-                    title: 'Status',
-                    textInfo: status,
-                    icon: faClock
-                },
+                // {
+                //     title: 'Status',
+                //     textInfo: status,
+                //     icon: faClock
+                // },
                 {
                     title: 'Hours Submitted',
                     textInfo: drugCounterPatient.submissionDate.submitHours,
@@ -174,6 +181,25 @@ export function DrugCounter({ params }: { params: string }) {
                                     />
                                 )
                             })}
+                            {
+                                drugCounterPatient?.submissionDate?.submissionDate === createDateFormat(new Date()) ?
+                                    (
+                                        <CardInfo
+                                            title="Status (Today)"
+                                            textInfo={status}
+                                            icon={faClock}
+                                        />
+                                    ) :
+                                    drugCounterPatient?.isConfirm?.confirmState === false &&
+                                    !dataPatientFinishTreatment?.id &&
+                                    drugCounterPatient?.submissionDate?.submissionDate < createDateFormat(new Date()) && (
+                                        <CardInfo
+                                            title="Status (Today)"
+                                            textInfo={status}
+                                            icon={faClock}
+                                        />
+                                    )
+                            }
                         </div>
                     </Container>
 
@@ -181,7 +207,7 @@ export function DrugCounter({ params }: { params: string }) {
                         <CounterForm params={params} />
                     )}
                     {drugCounterPatient?.isConfirm?.confirmState && (
-                        <ConfirmInfo params={params}/>
+                        <ConfirmInfo params={params} />
                     )}
                 </Container>
             )}

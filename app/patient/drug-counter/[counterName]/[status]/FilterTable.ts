@@ -156,6 +156,10 @@ export function FilterTable({ params }: ParamsProps) {
             }))
 
             const patientExpired = dataPatientRegis.filter((patient => {
+                // finished treatment
+                const findPatientFT = dataFinishTreatment?.find(patientFT =>
+                    patientFT.patientId === patient.id
+                )
                 const loket = dataLoket?.find(loket => loket.loketName === params.counterName)
                 // patient counter
                 const findPatientCounter = dataDrugCounter?.find(patientC =>
@@ -164,7 +168,7 @@ export function FilterTable({ params }: ParamsProps) {
                     patientC?.isConfirm?.confirmState === false &&
                     patientC?.submissionDate?.submissionDate < createDateFormat(new Date())
                 )
-                return findPatientCounter
+                return findPatientCounter && !findPatientFT
             }))
 
             if (params.status === 'waiting-patient') {

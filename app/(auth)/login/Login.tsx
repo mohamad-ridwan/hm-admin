@@ -11,6 +11,7 @@ import ErrorInput from 'components/input/ErrorInput'
 import Link from 'next/link'
 import Button from 'components/Button'
 import { AuthRequiredError } from 'lib/errorHandling/exceptions'
+import { sessionDateFormat } from 'lib/dates/sessionDateFormat'
 
 type StateInput = {
     email: string
@@ -28,7 +29,7 @@ export function Login() {
 
     // zustand
     // userId auth
-    const {setUserId} = userIdAuthStore()
+    const {setUserId, setLoginSession} = userIdAuthStore()
 
     if(triggedErr){
         throw new AuthRequiredError('A server error has occurred. Please try again')
@@ -85,6 +86,7 @@ export function Login() {
     
                         if (typeof findAdmin === 'object') {
                             setUserId(findAdmin.id as string)
+                            setLoginSession(sessionDateFormat(5))
                             router.push('/')
                             setLoadingSubmit(false)
                         } else {

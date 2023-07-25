@@ -1,6 +1,6 @@
 'use client'
 
-import { authStore} from "lib/useZustand/auth"
+import { authStore, userIdAuthStore} from "lib/useZustand/auth"
 import { ReactNode, useEffect } from "react"
 import { useRouter, usePathname } from 'next/navigation'
 import { navigationStore } from "lib/useZustand/navigation"
@@ -13,6 +13,7 @@ export function AuthWrapper({
     children
 }: AuthProps) {
     // zustand store
+    const { loginSession } = userIdAuthStore()
     // auth
     const { loadingAuth, user } = authStore()
     // navigation
@@ -23,19 +24,29 @@ export function AuthWrapper({
 
     function redirectPage(): void {
         if (isNotFound === false && user) {
-            if (user.user === null &&
+            if (
                 loadingAuth === false &&
+                user.user === null &&
+                !loginSession &&
                 !pathname.includes('forgot-password') &&
                 !pathname.includes('register')
                 ) {
                 router.push('/login')
 
                 return
-            }else if(pathname === '/login' && user.user?.id){
+            }else if(
+                pathname === '/login' && 
+                user.user?.id &&
+                loginSession
+                ){
                 router.push('/')
 
                 return
-            }else if(pathname === '/register' && user.user?.id){
+            }else if(
+                pathname === '/register' && 
+                user.user?.id &&
+                loginSession
+                ){
                 router.push('/')
 
                 return
@@ -45,7 +56,7 @@ export function AuthWrapper({
 
     useEffect(() => {
         redirectPage()
-    }, [user, isNotFound, loadingAuth])
+    }, [user, loginSession, isNotFound, loadingAuth])
 
     return children
 }

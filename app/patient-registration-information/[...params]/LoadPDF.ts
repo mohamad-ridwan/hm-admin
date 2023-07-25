@@ -65,6 +65,7 @@ export function LoadPDF({
     const room = dataRooms?.find(room => room.id === confirmPatient?.roomInfo?.roomId)
     const doctor = doctors?.find(docs => docs.id === confirmPatient?.doctorInfo?.doctorId)
     const admin = dataAdmin?.find(admins => admins.id === confirmPatient?.adminInfo?.adminId)
+    const adminDrugCounter = dataAdmin?.find(admins => admins.id === patientCounter?.adminInfo?.adminId)
 
     const confirmDataInfoPDF: ConfirmInfoPDFT = !loadDataService && confirmPatient ? {
         queueNumber: confirmPatient.roomInfo.queueNumber,
@@ -80,20 +81,26 @@ export function LoadPDF({
         }
     } : {} as ConfirmInfoPDFT
 
-    // const treatmentResultInfoPDF: TreatmentResultsPDFT = 
-    // !loadDataService &&
-    // patientRegis ?
-    // {
-    //     doctorName: doctor?.name,
-    //     doctorSpecialist: doctor?.deskripsi,
-    //     doctorRoom: room?.room,
-    //     patientName: patientRegis.patientName,
-    //     patientId: patientRegis.id,
-    //     patientEmail: patientRegis.emailAddress,
-    //     adminInfo: {
-    //         adminName: admin?.name,
-    //     }
-    // } : {} as TreatmentResultsPDFT
+    const treatmentResultInfoPDF: TreatmentResultsPDFT = {
+        doctorName: doctor?.name as string,
+        doctorSpecialist: doctor?.deskripsi as string,
+        doctorRoom: room?.room as string,
+        patientName: patientRegis?.patientName as string,
+        patientId: patientRegis?.id as string,
+        patientEmail: patientRegis?.emailAddress as string,
+        adminInfo: {
+            adminName: adminDrugCounter?.name as string,
+            adminEmail: adminDrugCounter?.email as string
+        },
+        paymentInfo: {
+            message: patientCounter?.isConfirm.paymentInfo.message as string,
+            paymentMethod: patientCounter?.isConfirm.paymentInfo.paymentMethod as string,
+            totalCost: patientCounter?.isConfirm.paymentInfo.totalCost as string,
+            counterName: patientCounterOn?.loketName as string,
+            dateConfirm: patientCounter?.isConfirm.dateConfirm.dateConfirm as string,
+            confirmHour: patientCounter?.isConfirm.dateConfirm.confirmHour as string
+        }
+    }
 
     if (
         !loadDataService &&
@@ -137,6 +144,7 @@ export function LoadPDF({
     function downloadPdf(): void {
         if (
             !loadDataService &&
+            !loadDataDoctors &&
             patientRegis &&
             confirmPatient
         ) {
@@ -182,13 +190,16 @@ export function LoadPDF({
         setTimeout(() => {
             downloadPdf()
         }, 500)
-    }, [loadDataService, dataService])
+    }, [loadDataService, loadDataDoctors, dataService])
 
     return {
         patientRegis,
         confirmDataInfoPDF,
         patientCounter,
         currentRoute,
-        bodyCounter
+        bodyCounter,
+        treatmentResultInfoPDF,
+        loadDataService,
+        loadDataDoctors
     }
 }

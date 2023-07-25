@@ -4,6 +4,7 @@ import { ReactNode, useEffect } from "react"
 import { endpoint } from "lib/api/endpoint"
 import { useSwr } from "lib/useFetch/useSwr"
 import { authStore, userIdAuthStore } from "lib/useZustand/auth"
+import { sessionDateFormat } from "lib/dates/sessionDateFormat"
 
 type IsLoggedInProps = {
     children: ReactNode
@@ -15,7 +16,7 @@ export function IsLoggedIn({
     children,
 }: IsLoggedInProps) {
     const { data, error, isLoading } = useSwr(endpoint.getAdmin())
-    const { userId, setUserId } = userIdAuthStore()
+    const { userId, setUserId, loginSession, setLoginSession } = userIdAuthStore()
     const { setUser, setLoadingAuth } = authStore()
 
     function findAdmin(): void {
@@ -24,23 +25,29 @@ export function IsLoggedIn({
         ) {
             const newData: ObjString = {}
             newData.data = data
+            const isLoginExpired = loginSession !== null ? new Date(loginSession).valueOf() > sessionDateFormat(0).valueOf() ? true : false : false
+
+            const notLoggedIn = () => {
+                setUser({ user: null })
+                setUserId(null)
+                setLoginSession(null)
+                setLoadingAuth(false)
+            }
 
             setTimeout(() => {
                 if (Array.isArray(newData.data?.data) && newData.data.data.length > 0) {
                     const findUser = newData.data.data.find((admin: ObjString) => admin.id === userId && admin.isVerification)
                     if (!findUser) {
-                        setUser({user: null})
-                        setUserId(null)
+                        notLoggedIn()
+                    } else if (isLoginExpired) {
+                        setUser({ user: findUser })
                         setLoadingAuth(false)
                     } else {
-                        setUser({user: findUser})
-                        setLoadingAuth(false)
+                        notLoggedIn()
                     }
                 } else {
                     console.log('no one the admin found it')
-                    setUser({user: null})
-                    setUserId(null)
-                    setLoadingAuth(false)
+                    notLoggedIn()
                 }
             }, 0)
         } else if (isLoading === false && error) {
@@ -50,7 +57,7 @@ export function IsLoggedIn({
 
     useEffect(() => {
         findAdmin()
-    }, [data, error, userId])
+    }, [data, error, userId, loginSession])
 
     return children
 }

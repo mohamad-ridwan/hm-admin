@@ -17,10 +17,12 @@ type AuthStore = ActionAuthStore
 
 type StateUserIdAuthStore = {
     userId: string | null
+    loginSession: Date | null
 }
 
 type ActionLoadingAuthStore = StateUserIdAuthStore & {
     setUserId: (id: string | null)=>void
+    setLoginSession: (date: Date | null)=>void
 }
 
 type UserIdStore = ActionLoadingAuthStore
@@ -28,7 +30,9 @@ type UserIdStore = ActionLoadingAuthStore
 export const userIdAuthStore = create<UserIdStore>()(
     persist((set, get) => ({
         userId: null,
-        setUserId: (id: string | null)=>set({userId: id})
+        loginSession: null,
+        setUserId: (id)=>set({userId: id}),
+        setLoginSession: (date)=>set({loginSession: date})
     }), {
         name: cookieAdminId
     })
@@ -39,6 +43,6 @@ export const authStore = create<AuthStore>()((set) => ({
     user: {
         user: null
     },
-    setUser: (userData: UserT) => set(({ user: userData })),
-    setLoadingAuth: (param: boolean) => set({ loadingAuth: param })
+    setUser: (userData) => set(({ user: userData })),
+    setLoadingAuth: (param) => set({ loadingAuth: param })
 }))

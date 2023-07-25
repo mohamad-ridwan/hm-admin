@@ -563,6 +563,11 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
+"@kurkle/color@^0.3.0":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@kurkle/color/-/color-0.3.2.tgz#5acd38242e8bde4f9986e7913c8fdf49d3aa199f"
+  integrity sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==
+
 "@next/env@13.4.5":
   version "13.4.5"
   resolved "https://registry.npmjs.org/@next/env/-/env-13.4.5.tgz"
@@ -835,14 +840,14 @@
 
 "@yudiel/react-qr-scanner@^1.1.9":
   version "1.1.9"
-  resolved "https://registry.yarnpkg.com/@yudiel/react-qr-scanner/-/react-qr-scanner-1.1.9.tgz#34f0e39f4983c9f5ed670c0a196c91c1078f77c0"
+  resolved "https://registry.npmjs.org/@yudiel/react-qr-scanner/-/react-qr-scanner-1.1.9.tgz"
   integrity sha512-yJkSMEPE5vqirSMz6NKtK0wvjyRun2BTcstEuVyieKKNdGMtCf7o5PudWeILfRevpBhFmFlqeCEviuow13yuLw==
   dependencies:
     "@zxing/library" "^0.20.0"
 
 "@zxing/library@^0.20.0":
   version "0.20.0"
-  resolved "https://registry.yarnpkg.com/@zxing/library/-/library-0.20.0.tgz#11bc411b87693015389555c589da61532879be7b"
+  resolved "https://registry.npmjs.org/@zxing/library/-/library-0.20.0.tgz"
   integrity sha512-6Ev6rcqVjMakZFIDvbUf0dtpPGeZMTfyxYg4HkVWioWeN7cRcnUWT3bU6sdohc82O1nPXcjq6WiGfXX2Pnit6A==
   dependencies:
     ts-custom-error "^3.2.1"
@@ -851,7 +856,7 @@
 
 "@zxing/text-encoding@~0.9.0":
   version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@zxing/text-encoding/-/text-encoding-0.9.0.tgz#fb50ffabc6c7c66a0c96b4c03e3d9be74864b70b"
+  resolved "https://registry.npmjs.org/@zxing/text-encoding/-/text-encoding-0.9.0.tgz"
   integrity sha512-U/4aVJ2mxI0aDNI8Uq0wEhMgY+u4CNtEb0om3+y3+niDAsoTCOB33UF0sxpzqzdqXLqmvc+vZyAt4O8pPdfkwA==
 
 acorn-jsx@^5.3.2:
@@ -1150,6 +1155,13 @@ chalk@^4.0.0:
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
+
+chart.js@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-4.3.1.tgz#b83ea014ff9f45e43bfd98ef2bdaba2a9aed8a16"
+  integrity sha512-QHuISG3hTJ0ftq0I0f5jqH9mNVO9bqG8P+zvMOVslgKajQVvFEX7QAhYNJ+QEmw+uYTwo8XpTimaB82oeTWjxw==
+  dependencies:
+    "@kurkle/color" "^0.3.0"
 
 chokidar@^3.5.3:
   version "3.5.3"
@@ -2899,6 +2911,11 @@ raf@^3.4.1:
   dependencies:
     performance-now "^2.1.0"
 
+react-chartjs-2@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/react-chartjs-2/-/react-chartjs-2-5.2.0.tgz#43c1e3549071c00a1a083ecbd26c1ad34d385f5d"
+  integrity sha512-98iN5aguJyVSxp5U3CblRLH67J8gkfyGNbiK3c+l1QI/G4irHMPQw44aEPmjVag+YKTyQ260NcF82GTQ3bdscA==
+
 react-datepicker@^4.14.1:
   version "4.14.1"
   resolved "https://registry.npmjs.org/react-datepicker/-/react-datepicker-4.14.1.tgz"
@@ -3345,7 +3362,7 @@ tr46@~0.0.3:
 
 ts-custom-error@^3.2.1:
   version "3.3.1"
-  resolved "https://registry.yarnpkg.com/ts-custom-error/-/ts-custom-error-3.3.1.tgz#8bd3c8fc6b8dc8e1cb329267c45200f1e17a65d1"
+  resolved "https://registry.npmjs.org/ts-custom-error/-/ts-custom-error-3.3.1.tgz"
   integrity sha512-5OX1tzOjxWEgsr/YEUWSuPrQ00deKLh6D7OTWcvNHm12/7QPyRh8SYpyWvA4IZv8H/+GQWQEh/kwo95Q9OVW1A==
 
 ts-interface-checker@^0.1.9:

@@ -12,7 +12,10 @@ export function PatientPDF({ params }: { params: { params: string } }) {
         patientRegis,
         confirmDataInfoPDF,
         currentRoute,
-        bodyCounter
+        bodyCounter,
+        treatmentResultInfoPDF,
+        loadDataService,
+        loadDataDoctors
     } = LoadPDF({ params })
 
     return (
@@ -37,6 +40,7 @@ export function PatientPDF({ params }: { params: { params: string } }) {
                             <p>&nbsp;</p>
                             <p>&nbsp;</p>
                             <p>&nbsp;</p>
+                            <p>&nbsp;</p>
                             <ConfirmInfo
                                 confirmDataInfoPDF={confirmDataInfoPDF}
                             />
@@ -49,9 +53,14 @@ export function PatientPDF({ params }: { params: { params: string } }) {
                         />
                     )}
 
-                    {currentRoute === 'treatment-results' && (
+                    {
+                    currentRoute === 'treatment-results' &&
+                    !loadDataService &&
+                    !loadDataDoctors &&
+                    (
                         <TreatmentResults
                             patientRegis={patientRegis}
+                            treatmentResultInfoPDF={treatmentResultInfoPDF}
                         />
                     )}
                 </div>

@@ -23,7 +23,7 @@ export const PdfStyle: StyleType = {
     page: {
         display: 'flex',
         flexDirection: 'column',
-        width: '400px',
+        width: '410px',
         overflowX: 'auto',
         margin: '1rem'
     },
@@ -59,7 +59,7 @@ export const PdfStyle: StyleType = {
         fontWeight: 'bold'
     },
     cardInfo: {
-        margin: '5px 0 5px 0',
+        margin: '0px 0 0px 0',
         width: '45%'
     },
     titleInfo: {
@@ -70,7 +70,8 @@ export const PdfStyle: StyleType = {
     textInfo: {
         fontSize: '11px',
         whiteSpace: 'normal',
-        letterSpacing: '0'
+        letterSpacing: '0',
+        marginTop: '1px'
     },
     styleHead: {
         display: 'none'

@@ -37,12 +37,12 @@ export function OverviewCard({
                             className="flex flex-col"
                         >
                             <h1
-                                className="text-font-color-2 text-start"
+                                className="text-[#777] text-start text-sm"
                             >
                                 {item.title}
                             </h1>
                             <span
-                                className="text-2xl text-color-default-old mt-2 font-semibold text-start"
+                                className="text-xl text-[#187BCD] font-bold text-start"
                             >{item.value}</span>
                         </div>
                     </div>

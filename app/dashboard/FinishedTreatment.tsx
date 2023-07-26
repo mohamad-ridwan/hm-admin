@@ -57,7 +57,7 @@ export function FinishedTreatment() {
                 className='flex flex-wrap max-lg:flex-col justify-between'
             >
                 <div
-                    className="flex justify-center w-[35%] max-lg:w-full py-4 px-4 my-8 bg-white rounded-sm shadow-md mx-1"
+                    className="flex justify-center w-[35%] max-lg:w-full py-4 px-4 my-8 bg-white rounded-sm shadow-sm mx-1"
                 >
                     <PolarArea
                         className='max-h-[400px]'
@@ -66,7 +66,7 @@ export function FinishedTreatment() {
                     />
                 </div>
                 <div
-                    className="flex justify-center w-[62%] max-lg:w-full py-4 px-4 my-8 bg-white rounded-sm shadow-md mx-1"
+                    className="flex justify-center w-[62%] max-lg:w-full py-4 px-4 my-8 bg-white rounded-sm shadow-sm mx-1"
                 >
                     <Bar
                         className='max-h-[400px]'

@@ -3,6 +3,7 @@ import { Container } from "components/Container";
 import { OverView } from "./OverView";
 import { FinishedTreatment } from "./FinishedTreatment";
 import { PaymentInfo } from "./PaymentInfo";
+import { Earnings } from "./Earnings";
 
 export default function DashboardPage() {
   return (
@@ -31,6 +32,14 @@ export default function DashboardPage() {
           maxWidth="auto w-full"
         >
           <PaymentInfo />
+        </Container>
+        <Container
+          isNavleft={false}
+          overflow="overflow-x-hidden"
+          title="Earnings"
+          maxWidth="auto w-full"
+        >
+          <Earnings />
         </Container>
       </Container>
     </Template>

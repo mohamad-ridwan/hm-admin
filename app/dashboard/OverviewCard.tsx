@@ -24,7 +24,7 @@ export function OverviewCard({
                 return (
                     <div
                         key={index}
-                        className="flex items-center bg-white rounded-md shadow-md py-2 px-4"
+                        className="flex items-center bg-white rounded-md shadow-sm py-2 px-4"
                     >
                         <div
                             className={`${classIcon} flex h-11 w-11 justify-center items-center text-white rounded-md mr-6 p`}

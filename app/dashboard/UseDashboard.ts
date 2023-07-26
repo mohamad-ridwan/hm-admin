@@ -75,6 +75,7 @@ export function UseDashboard() {
     ])
     const [yearsOnFinishTreatment, setYearsOnFinishTreatment] = useState<string>(`${new Date().getFullYear()}`)
     const [yearsOnPaymentInfo, setYearsOnPaymentInfo] = useState<string>(`${new Date().getFullYear()}`)
+    const [yearsOnEarnings, setYearsOnEarnings] = useState<string>(`${new Date().getFullYear()}`)
 
     const {
         loadDataService,
@@ -311,10 +312,10 @@ export function UseDashboard() {
     }
 
     function loopPatientFTOnMonth(month: number): number {
-        const patientFTInMonthJan = barPatientFTOnYears(yearsOnFinishTreatment)?.length > 0 ?
+        const patientFTInEveryMonth = barPatientFTOnYears(yearsOnFinishTreatment)?.length > 0 ?
             barPatientFTOnYears(yearsOnFinishTreatment).filter(item => checkDateConfirmFT(item) === month) :
             []
-        return patientFTInMonthJan.length
+        return patientFTInEveryMonth.length
     }
     const resultPatientFTOnMonth = monthDetailNames.map((v, i) => (loopPatientFTOnMonth(i)))
 
@@ -342,10 +343,10 @@ export function UseDashboard() {
         month: number,
         isCanceled: boolean
     ): number {
-        const patientFTInMonthJan = barPatientCompletedOrCancelled(yearsOnFinishTreatment, isCanceled)?.length > 0 ?
+        const patientCompletedInEveryMonth = barPatientCompletedOrCancelled(yearsOnFinishTreatment, isCanceled)?.length > 0 ?
             barPatientCompletedOrCancelled(yearsOnFinishTreatment, isCanceled).filter(item => checkDateConfirmFT(item) === month) :
             []
-        return patientFTInMonthJan.length
+        return patientCompletedInEveryMonth.length
     }
     const resultPatientCompletedOnMonth = monthDetailNames.map((v, i) => (loopPatientCompletedOnMonth(i, false)))
     const resultPatientCanceledOnMonth = monthDetailNames.map((v, i) => (loopPatientCompletedOnMonth(i, true)))
@@ -471,25 +472,25 @@ export function UseDashboard() {
         month: number,
         paymentMethod: 'cash' | 'BPJS'
     ): number {
-        const patientFTInMonthJan = totalCashOrBPJSPMOnMonth(dataFinishTreatment, paymentMethod)?.length > 0 ?
+        const cashOrBPJSPMInEveryMonth = totalCashOrBPJSPMOnMonth(dataFinishTreatment, paymentMethod)?.length > 0 ?
             totalCashOrBPJSPMOnMonth(dataFinishTreatment, paymentMethod).filter(item => checkDateConfirmFT(item) === month) :
             []
-        return patientFTInMonthJan.length
+        return cashOrBPJSPMInEveryMonth.length
     }
     const resultCashPMethodOnMonth = monthDetailNames.map((v, i) => (loopCashOrBPJSPMethodOnMonth(i, 'cash')))
     const resultBPJSPMethodOnMonth = monthDetailNames.map((v, i) => (loopCashOrBPJSPMethodOnMonth(i, 'BPJS')))
 
     const optionsBarPaymentInfo = {
         responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top' as const,
-                },
-                title: {
-                    display: true,
-                    text: `Payment method this year (${yearsOnPaymentInfo})`,
-                },
+        plugins: {
+            legend: {
+                position: 'top' as const,
             },
+            title: {
+                display: true,
+                text: `Payment method this year (${yearsOnPaymentInfo})`,
+            },
+        },
     }
 
     const dataBarPaymentInfo = {
@@ -509,6 +510,92 @@ export function UseDashboard() {
     }
     // end bar chart (payment information)
 
+    // bar chart (earnings)
+    function totalEarningsOnYears(): DrugCounterT[] {
+        if (
+            !loadDataService &&
+            Array.isArray(dataFinishTreatment) &&
+            dataFinishTreatment.length > 0 &&
+            Array.isArray(dataDrugCounter) &&
+            dataDrugCounter.length > 0
+        ) {
+            const cashPM = dataDrugCounter.filter(patient => {
+                const findPatientFT = dataFinishTreatment.find(patientFT =>
+                    patientFT.patientId === patient.patientId &&
+                    patient.isConfirm.confirmState &&
+                    patient.isConfirm.paymentInfo.paymentMethod === 'cash'
+                )
+                const year = patient.isConfirm?.dateConfirm?.dateConfirm.split('/')[2]
+
+                return findPatientFT && year === yearsOnEarnings
+            })
+            return cashPM
+        }
+
+        return []
+    }
+
+    const totalCostOnYears: string[] = totalEarningsOnYears().length > 0 ? 
+    totalEarningsOnYears().map(item=>(item.isConfirm?.paymentInfo?.totalCost)): 
+    ['0']
+    const resultEarningOnYears = currencyFormat(Number(eval(totalCostOnYears.join('+'))), 'id-ID', 'IDR')
+
+    function loopTotalEarnings(month: number): number {
+        const earningOnEveryMonth = totalEarningsOnYears().length > 0 ?
+            totalEarningsOnYears().filter(item => checkDateConfirmEarnings(item) === month) :
+            []
+        const totalCost = earningOnEveryMonth.length > 0 ?
+            earningOnEveryMonth.map(item => (item.isConfirm.paymentInfo.totalCost)) : []
+        const total = totalCost.length > 0 ? eval(totalCost.join('+')) as number : 0
+        return total
+    }
+
+    function checkDateConfirmEarnings(item: DrugCounterT): number {
+        const monthOfConfirm = item.isConfirm?.dateConfirm?.dateConfirm.split('/')[0]
+        const checkMonth = monthOfConfirm.substr(0, 1) === '0' ? monthOfConfirm.substr(1) : monthOfConfirm
+
+        return Number(checkMonth)
+    }
+    const resultTotalEarnings = monthDetailNames.map((v, i) => (loopTotalEarnings(i)))
+
+    const optionsBarEarnings = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: `Earning this year (${yearsOnEarnings})`,
+            },
+        },
+    }
+
+    const dataBarEarnings = {
+        labels,
+        datasets: [
+            {
+                label: 'Earning',
+                data: resultTotalEarnings,
+                backgroundColor: '#FF296D'
+            },
+        ]
+    }
+
+    function handleYearsOnEarnings(): void {
+        const elem = document.getElementById('yearEarnings') as HTMLSelectElement
+        const value = elem?.options[elem.selectedIndex].value
+        setYearsOnEarnings(value)
+    }
+
+    useEffect(() => {
+        const elem = document.getElementById('yearEarnings') as HTMLSelectElement
+        if (elem) {
+            elem.value = `${new Date().getFullYear()}`
+        }
+    }, [])
+    // end bar chart (earnings)
+
     return {
         overview,
         optionsBarFT,
@@ -521,6 +608,11 @@ export function UseDashboard() {
         optionsPolarChartPaymentInfo,
         dataPolarChartPaymentInfo,
         optionsBarPaymentInfo,
-        dataBarPaymentInfo
+        dataBarPaymentInfo,
+        handleYearsOnEarnings,
+        optionsBarEarnings,
+        dataBarEarnings,
+        yearsOnEarnings,
+        resultEarningOnYears
     }
 }

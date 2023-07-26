@@ -12,9 +12,9 @@ import {
     Legend,
 } from 'chart.js'
 import { Bar, PolarArea } from 'react-chartjs-2';
-import { UseDashboard } from './UseDashboard';
-import { InputSelect } from 'components/input/InputSelect';
-import { TitleInput } from 'components/input/TitleInput';
+import { InputSelect } from "components/input/InputSelect"
+import { TitleInput } from "components/input/TitleInput"
+import { UseDashboard } from "./UseDashboard"
 
 ChartJS.register(
     CategoryScale,
@@ -27,14 +27,14 @@ ChartJS.register(
     Legend
 );
 
-export function FinishedTreatment() {
+export function PaymentInfo() {
     const {
-        optionsBarFT,
-        dataBarFT,
-        dataPolarFT,
+        handleYearsOnPaymentInfo,
         yearPTOfSelectOptions,
-        handleYearsOnFinishTreatment,
-        optionsPolarChartFT
+        optionsPolarChartPaymentInfo,
+        dataPolarChartPaymentInfo,
+        optionsBarPaymentInfo,
+        dataBarPaymentInfo
     } = UseDashboard()
 
     return (
@@ -47,9 +47,9 @@ export function FinishedTreatment() {
                     className='mb-0 mr-2'
                 />
                 <InputSelect
-                    id='yearFinishTreatment'
+                    id='yearPaymentInfo'
                     data={yearPTOfSelectOptions}
-                    handleSelect={handleYearsOnFinishTreatment}
+                    handleSelect={handleYearsOnPaymentInfo}
                     classWrapp='bg-white rounded-md border-[1px] border-[#ddd]'
                 />
             </div>
@@ -61,8 +61,8 @@ export function FinishedTreatment() {
                 >
                     <PolarArea
                         className='max-h-[400px]'
-                        data={dataPolarFT}
-                        options={optionsPolarChartFT}
+                        data={dataPolarChartPaymentInfo}
+                        options={optionsPolarChartPaymentInfo}
                     />
                 </div>
                 <div
@@ -70,8 +70,8 @@ export function FinishedTreatment() {
                 >
                     <Bar
                         className='max-h-[400px]'
-                        options={optionsBarFT}
-                        data={dataBarFT}
+                        options={optionsBarPaymentInfo}
+                        data={dataBarPaymentInfo}
                     />
                 </div>
             </div>

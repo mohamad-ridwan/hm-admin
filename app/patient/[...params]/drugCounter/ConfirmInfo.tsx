@@ -29,8 +29,9 @@ export function ConfirmInfo({ params }: { params: string }) {
         confirmDownloadTRPdf
     } = UseForm({ params })
 
-    const totalCost: string = drugCounterPatient?.id &&
-        drugCounterPatient?.isConfirm?.paymentInfo?.paymentMethod === 'BPJS' ? '-' : drugCounterPatient?.isConfirm?.paymentInfo?.totalCost
+        const checkPaymentMethod: 'BPJS' | 'cash' = drugCounterPatient?.id &&
+        drugCounterPatient?.isConfirm?.paymentInfo?.paymentMethod === 'BPJS' ? 'BPJS' : 'cash'
+        const totalCost: string = checkPaymentMethod === 'cash' ? currencyFormat(Number(drugCounterPatient?.isConfirm?.paymentInfo?.totalCost), 'id-ID', 'IDR') : '-'
 
     const detailData: {
         title: string
@@ -50,7 +51,7 @@ export function ConfirmInfo({ params }: { params: string }) {
                 },
                 {
                     title: 'Total Cost',
-                    textInfo: currencyFormat(Number(totalCost), 'id-ID', 'IDR'),
+                    textInfo: totalCost,
                 },
                 {
                     title: 'Confirmation hour',

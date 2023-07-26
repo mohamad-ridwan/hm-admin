@@ -2,7 +2,7 @@
 
 import { CSSProperties, useState, useEffect } from 'react'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import { faChartLine, faCoins, faHospitalUser, faIdCard, faUserCheck, faUserXmark } from '@fortawesome/free-solid-svg-icons'
+import { faCoins, faHospitalUser, faIdCard, faMoneyBill, faUserCheck, faUserXmark } from '@fortawesome/free-solid-svg-icons'
 import ServicingHours from 'lib/dataInformation/ServicingHours'
 import { range } from 'lodash'
 import getYear from 'date-fns/getYear'
@@ -65,7 +65,7 @@ export function UseDashboard() {
         },
         {
             id: 6,
-            icon: faChartLine,
+            icon: faMoneyBill,
             title: 'Earning',
             value: 0,
             styleIcon: {
@@ -74,6 +74,7 @@ export function UseDashboard() {
         },
     ])
     const [yearsOnFinishTreatment, setYearsOnFinishTreatment] = useState<string>(`${new Date().getFullYear()}`)
+    const [yearsOnPaymentInfo, setYearsOnPaymentInfo] = useState<string>(`${new Date().getFullYear()}`)
 
     const {
         loadDataService,
@@ -90,7 +91,7 @@ export function UseDashboard() {
             Array.isArray(dataDrugCounter) &&
             dataDrugCounter.length > 0
         ) {
-            setOverview((current) => [
+            setOverview([
                 {
                     id: 1,
                     icon: faHospitalUser,
@@ -122,7 +123,7 @@ export function UseDashboard() {
                     id: 4,
                     icon: faCoins,
                     title: 'Cash Payment Method',
-                    value: totalCashPaymentMethod(dataFinishTreatment),
+                    value: totalCashOrBPJSPMethod(dataFinishTreatment, 'cash'),
                     styleIcon: {
                         background: '#F85084'
                     }
@@ -131,14 +132,14 @@ export function UseDashboard() {
                     id: 5,
                     icon: faIdCard,
                     title: 'BPJS Payment Method',
-                    value: totalBPJSPaymentMethod(dataFinishTreatment),
+                    value: totalCashOrBPJSPMethod(dataFinishTreatment, 'BPJS'),
                     styleIcon: {
                         background: '#0AB110'
                     }
                 },
                 {
                     id: 6,
-                    icon: faChartLine,
+                    icon: faMoneyBill,
                     title: 'Earning',
                     value: totalEarning(dataFinishTreatment, dataDrugCounter),
                     styleIcon: {
@@ -158,23 +159,15 @@ export function UseDashboard() {
     function totalPatientCancelled(value: PatientFinishTreatmentT[]): number {
         return value.filter(patient => patient?.isCanceled).length
     }
-    function totalCashPaymentMethod(value: PatientFinishTreatmentT[]): number {
+    function totalCashOrBPJSPMethod(
+        value: PatientFinishTreatmentT[],
+        paymentMethod: 'cash' | 'BPJS'
+    ): number {
         return value.filter(patient => {
             const findCounter = dataDrugCounter?.find(patientC =>
-                patient.patientId === patient.patientId &&
+                patientC.patientId === patient.patientId &&
                 patientC.isConfirm.confirmState &&
-                patientC.isConfirm.paymentInfo.paymentMethod === 'cash'
-            )
-
-            return findCounter
-        }).length
-    }
-    function totalBPJSPaymentMethod(value: PatientFinishTreatmentT[]): number {
-        return value.filter(patient => {
-            const findCounter = dataDrugCounter?.find(patientC =>
-                patient.patientId === patient.patientId &&
-                patientC.isConfirm.confirmState &&
-                patientC.isConfirm.paymentInfo.paymentMethod === 'BPJS'
+                patientC.isConfirm.paymentInfo.paymentMethod === paymentMethod
             )
 
             return findCounter
@@ -202,37 +195,11 @@ export function UseDashboard() {
         getFinishTreatment()
     }, [loadDataService, dataFinishTreatment, dataDrugCounter])
 
-    // bar area chart (finished treatment)
-    const optionsBarFT = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top' as const,
-            },
-            title: {
-                display: true,
-                text: 'Chart.js Bar Chart',
-            },
-        },
-    }
-
-    const labels = monthDetailNames
-
-    const dataBarFT = {
-        labels,
-        datasets: [
-            {
-                label: 'data1',
-                data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                backgroundColor: '#3face4'
-            }
-        ]
-    }
-
-    const getYearPTOfSelectOptions = range(1900, getYear(new Date()) + 1, 1)
+    const getYearPTOfSelectOptions = range(2020, getYear(new Date()) + 1, 1)
     const yearPTOfSelectOptions = getYearPTOfSelectOptions?.length > 0 ? getYearPTOfSelectOptions.map((year: number) => ({ id: year, title: year })) : []
 
     // polar area chart (finished treatment)
+    // finished treatment on current years
     const totalFTOnYears: number =
         Array.isArray(dataFinishTreatment) &&
             dataFinishTreatment.length > 0 ?
@@ -241,13 +208,34 @@ export function UseDashboard() {
                 return checkYear
             }).length
             : 0
+    // patient completed or cancelled on current years
+    function totalCompletedOrCancelled(
+        isCanceled: boolean
+    ): number {
+        const total: number =
+            Array.isArray(dataFinishTreatment) &&
+                dataFinishTreatment.length > 0 ?
+                dataFinishTreatment.filter(patient => {
+                    const checkYear =
+                        patient.confirmedTime.dateConfirm.split('/')[2] === yearsOnFinishTreatment &&
+                        patient?.isCanceled === isCanceled
+                    return checkYear
+                }).length
+                : 0
+
+        return total
+    }
 
     const dataPolarFT = {
         labels: ['Finished Treatment', 'Patient Completed', 'Patient Cancelled'],
         datasets: [
             {
                 label: 'total',
-                data: [totalFTOnYears, 19, 3],
+                data: [
+                    totalFTOnYears,
+                    totalCompletedOrCancelled(false),
+                    totalCompletedOrCancelled(true)
+                ],
                 backgroundColor: [
                     '#7600BC',
                     '#288bbc',
@@ -258,17 +246,268 @@ export function UseDashboard() {
         ],
     }
 
-    function handleYearsOnFinishTreatment():void{
+    const optionsPolarChartFT = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: `Total number of patients treated this year (${yearsOnFinishTreatment})`,
+            },
+        },
+    }
+
+    function handleYearsOnFinishTreatment(): void {
         const elem = document.getElementById('yearFinishTreatment') as HTMLSelectElement
         const value = elem?.options[elem.selectedIndex].value
         setYearsOnFinishTreatment(value)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         const elem = document.getElementById('yearFinishTreatment') as HTMLSelectElement
-        elem.value = `${new Date().getFullYear()}`
+        if (elem) {
+            elem.value = `${new Date().getFullYear()}`
+        }
     }, [])
     // end polar area chart (finished treatment)
+
+    // bar area chart (finished treatment)
+    const optionsBarFT = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: `Patient treated this year (${yearsOnFinishTreatment})`,
+            },
+        },
+    }
+
+    function barPatientFTOnYears(years: string): PatientFinishTreatmentT[] {
+        if (
+            !loadDataService &&
+            !Array.isArray(dataFinishTreatment) ||
+            dataFinishTreatment?.length === 0
+        ) {
+            return []
+        }
+        const checkPatientOnDate = dataFinishTreatment?.filter(patient => {
+            const yearOfConfirm = patient.confirmedTime.dateConfirm.split('/')[2] === years
+            return yearOfConfirm
+        })
+
+        return checkPatientOnDate as PatientFinishTreatmentT[]
+    }
+
+    function checkDateConfirmFT(item: PatientFinishTreatmentT): number {
+        const monthOfConfirm = item.confirmedTime.dateConfirm.split('/')[0]
+        const checkMonth = monthOfConfirm.substr(0, 1) === '0' ? monthOfConfirm.substr(1) : monthOfConfirm
+
+        return Number(checkMonth)
+    }
+
+    function loopPatientFTOnMonth(month: number): number {
+        const patientFTInMonthJan = barPatientFTOnYears(yearsOnFinishTreatment)?.length > 0 ?
+            barPatientFTOnYears(yearsOnFinishTreatment).filter(item => checkDateConfirmFT(item) === month) :
+            []
+        return patientFTInMonthJan.length
+    }
+    const resultPatientFTOnMonth = monthDetailNames.map((v, i) => (loopPatientFTOnMonth(i)))
+
+    function barPatientCompletedOrCancelled(
+        years: string,
+        isCanceled: boolean
+    ): PatientFinishTreatmentT[] {
+        if (
+            !loadDataService &&
+            !Array.isArray(dataFinishTreatment) ||
+            dataFinishTreatment?.length === 0
+        ) {
+            return []
+        }
+
+        const checkPatientOnDate = dataFinishTreatment?.filter(patient => {
+            const yearOfConfirm = patient.confirmedTime.dateConfirm.split('/')[2] === years
+            return yearOfConfirm && patient.isCanceled === isCanceled
+        })
+
+        return checkPatientOnDate as PatientFinishTreatmentT[]
+    }
+
+    function loopPatientCompletedOnMonth(
+        month: number,
+        isCanceled: boolean
+    ): number {
+        const patientFTInMonthJan = barPatientCompletedOrCancelled(yearsOnFinishTreatment, isCanceled)?.length > 0 ?
+            barPatientCompletedOrCancelled(yearsOnFinishTreatment, isCanceled).filter(item => checkDateConfirmFT(item) === month) :
+            []
+        return patientFTInMonthJan.length
+    }
+    const resultPatientCompletedOnMonth = monthDetailNames.map((v, i) => (loopPatientCompletedOnMonth(i, false)))
+    const resultPatientCanceledOnMonth = monthDetailNames.map((v, i) => (loopPatientCompletedOnMonth(i, true)))
+
+    const labels = monthDetailNames
+
+    const dataBarFT = {
+        labels,
+        datasets: [
+            {
+                label: 'Finished treatment',
+                data: resultPatientFTOnMonth,
+                backgroundColor: '#7600BC'
+            },
+            {
+                label: 'Patient Completed',
+                data: resultPatientCompletedOnMonth,
+                backgroundColor: '#288bbc'
+            },
+            {
+                label: 'Patient Cancelled',
+                data: resultPatientCanceledOnMonth,
+                backgroundColor: '#FF0000'
+            },
+        ]
+    }
+    // end bar area chart (finished treatment)
+
+    // polar area chart (payment information)
+    function totalCashOrBPJSPaymentInfo(
+        value: PatientFinishTreatmentT[] | undefined,
+        paymentMethod: 'cash' | 'BPJS'
+    ): number {
+        if (
+            !loadDataService &&
+            Array.isArray(value) &&
+            value.length > 0
+        ) {
+            return value.filter(patient => {
+                const findCounter = dataDrugCounter?.find(patientC =>
+                    patientC.patientId === patient.patientId &&
+                    patientC.isConfirm.confirmState &&
+                    patientC.isConfirm.paymentInfo.paymentMethod === paymentMethod
+                )
+
+                const years = patient.confirmedTime.dateConfirm.split('/')[2]
+                return findCounter && years === yearsOnPaymentInfo
+            }).length
+        }
+        return 0
+    }
+
+    const optionsPolarChartPaymentInfo = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: `Payment method this year (${yearsOnPaymentInfo})`,
+            },
+        },
+    }
+
+    const dataPolarChartPaymentInfo = {
+        labels: ['Cash', 'BPJS'],
+        datasets: [
+            {
+                label: 'total',
+                data: [
+                    totalCashOrBPJSPaymentInfo(dataFinishTreatment, 'cash'),
+                    totalCashOrBPJSPaymentInfo(dataFinishTreatment, 'BPJS'),
+                ],
+                backgroundColor: [
+                    '#F85084',
+                    '#0AB110',
+                ],
+                borderWidth: 1,
+            },
+        ],
+    }
+
+    function handleYearsOnPaymentInfo(): void {
+        const elem = document.getElementById('yearPaymentInfo') as HTMLSelectElement
+        const value = elem?.options[elem.selectedIndex].value
+        setYearsOnPaymentInfo(value)
+    }
+
+    useEffect(() => {
+        const elem = document.getElementById('yearPaymentInfo') as HTMLSelectElement
+        if (elem) {
+            elem.value = `${new Date().getFullYear()}`
+        }
+    }, [])
+    // end polar area chart (payment information)
+
+    // bar chart (payment information)
+    function totalCashOrBPJSPMOnMonth(
+        value: PatientFinishTreatmentT[] | undefined,
+        paymentMethod: 'cash' | 'BPJS'
+    ): PatientFinishTreatmentT[] {
+        if (
+            !loadDataService &&
+            Array.isArray(value) &&
+            value.length > 0
+        ) {
+            return value.filter(patient => {
+                const findCounter = dataDrugCounter?.find(patientC =>
+                    patientC.patientId === patient.patientId &&
+                    patientC.isConfirm.confirmState &&
+                    patientC.isConfirm.paymentInfo.paymentMethod === paymentMethod
+                )
+
+                const years = patient.confirmedTime.dateConfirm.split('/')[2]
+                return findCounter && years === yearsOnPaymentInfo
+            })
+        }
+        return []
+    }
+
+    function loopCashOrBPJSPMethodOnMonth(
+        month: number,
+        paymentMethod: 'cash' | 'BPJS'
+    ): number {
+        const patientFTInMonthJan = totalCashOrBPJSPMOnMonth(dataFinishTreatment, paymentMethod)?.length > 0 ?
+            totalCashOrBPJSPMOnMonth(dataFinishTreatment, paymentMethod).filter(item => checkDateConfirmFT(item) === month) :
+            []
+        return patientFTInMonthJan.length
+    }
+    const resultCashPMethodOnMonth = monthDetailNames.map((v, i) => (loopCashOrBPJSPMethodOnMonth(i, 'cash')))
+    const resultBPJSPMethodOnMonth = monthDetailNames.map((v, i) => (loopCashOrBPJSPMethodOnMonth(i, 'BPJS')))
+
+    const optionsBarPaymentInfo = {
+        responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top' as const,
+                },
+                title: {
+                    display: true,
+                    text: `Payment method this year (${yearsOnPaymentInfo})`,
+                },
+            },
+    }
+
+    const dataBarPaymentInfo = {
+        labels,
+        datasets: [
+            {
+                label: 'Cash',
+                data: resultCashPMethodOnMonth,
+                backgroundColor: '#F85084'
+            },
+            {
+                label: 'BPJS',
+                data: resultBPJSPMethodOnMonth,
+                backgroundColor: '#0AB110'
+            },
+        ]
+    }
+    // end bar chart (payment information)
 
     return {
         overview,
@@ -276,6 +515,12 @@ export function UseDashboard() {
         dataBarFT,
         dataPolarFT,
         yearPTOfSelectOptions,
-        handleYearsOnFinishTreatment
+        handleYearsOnFinishTreatment,
+        optionsPolarChartFT,
+        handleYearsOnPaymentInfo,
+        optionsPolarChartPaymentInfo,
+        dataPolarChartPaymentInfo,
+        optionsBarPaymentInfo,
+        dataBarPaymentInfo
     }
 }

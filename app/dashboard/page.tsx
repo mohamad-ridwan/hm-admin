@@ -1,6 +1,7 @@
 import Template from "app/template";
 import { Container } from "components/Container";
 import { OverView } from "./OverView";
+import { FinishedTreatment } from "./FinishedTreatment";
 
 export default function DashboardPage() {
   return (
@@ -13,7 +14,15 @@ export default function DashboardPage() {
         overflow="overflow-x-auto"
         title="Overview"
       >
-        <OverView/>
+        <OverView />
+        <Container
+          isNavleft={false}
+          overflow="overflow-x-auto"
+          title="Finished Treatment"
+          maxWidth="auto w-full"
+        >
+          <FinishedTreatment />
+        </Container>
       </Container>
     </Template>
   )

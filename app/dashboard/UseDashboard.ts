@@ -4,8 +4,11 @@ import { CSSProperties, useState, useEffect } from 'react'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import { faChartLine, faCoins, faHospitalUser, faIdCard, faUserCheck, faUserXmark } from '@fortawesome/free-solid-svg-icons'
 import ServicingHours from 'lib/dataInformation/ServicingHours'
+import { range } from 'lodash'
+import getYear from 'date-fns/getYear'
 import { DrugCounterT, PatientFinishTreatmentT } from 'lib/types/PatientT.types'
 import { currencyFormat } from 'lib/formats/currencyFormat'
+import { monthDetailNames } from 'lib/formats/monthDetailNames'
 
 export function UseDashboard() {
     const [overview, setOverview] = useState<{
@@ -70,6 +73,7 @@ export function UseDashboard() {
             }
         },
     ])
+    const [yearsOnFinishTreatment, setYearsOnFinishTreatment] = useState<string>(`${new Date().getFullYear()}`)
 
     const {
         loadDataService,
@@ -189,7 +193,7 @@ export function UseDashboard() {
 
             return findPatientFT
         })
-        const earning = cashPM.map(patient=>(patient.isConfirm.paymentInfo.totalCost))
+        const earning = cashPM.map(patient => (patient.isConfirm.paymentInfo.totalCost))
         const earningStr = currencyFormat(eval(earning.join('+')), 'id-ID', 'IDR')
         return earningStr
     }
@@ -198,7 +202,80 @@ export function UseDashboard() {
         getFinishTreatment()
     }, [loadDataService, dataFinishTreatment, dataDrugCounter])
 
+    // bar area chart (finished treatment)
+    const optionsBarFT = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: 'Chart.js Bar Chart',
+            },
+        },
+    }
+
+    const labels = monthDetailNames
+
+    const dataBarFT = {
+        labels,
+        datasets: [
+            {
+                label: 'data1',
+                data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                backgroundColor: '#3face4'
+            }
+        ]
+    }
+
+    const getYearPTOfSelectOptions = range(1900, getYear(new Date()) + 1, 1)
+    const yearPTOfSelectOptions = getYearPTOfSelectOptions?.length > 0 ? getYearPTOfSelectOptions.map((year: number) => ({ id: year, title: year })) : []
+
+    // polar area chart (finished treatment)
+    const totalFTOnYears: number =
+        Array.isArray(dataFinishTreatment) &&
+            dataFinishTreatment.length > 0 ?
+            dataFinishTreatment.filter(patient => {
+                const checkYear = patient.confirmedTime.dateConfirm.split('/')[2] === yearsOnFinishTreatment
+                return checkYear
+            }).length
+            : 0
+
+    const dataPolarFT = {
+        labels: ['Finished Treatment', 'Patient Completed', 'Patient Cancelled'],
+        datasets: [
+            {
+                label: 'total',
+                data: [totalFTOnYears, 19, 3],
+                backgroundColor: [
+                    '#7600BC',
+                    '#288bbc',
+                    '#FF0000',
+                ],
+                borderWidth: 1,
+            },
+        ],
+    }
+
+    function handleYearsOnFinishTreatment():void{
+        const elem = document.getElementById('yearFinishTreatment') as HTMLSelectElement
+        const value = elem?.options[elem.selectedIndex].value
+        setYearsOnFinishTreatment(value)
+    }
+
+    useEffect(()=>{
+        const elem = document.getElementById('yearFinishTreatment') as HTMLSelectElement
+        elem.value = `${new Date().getFullYear()}`
+    }, [])
+    // end polar area chart (finished treatment)
+
     return {
-        overview
+        overview,
+        optionsBarFT,
+        dataBarFT,
+        dataPolarFT,
+        yearPTOfSelectOptions,
+        handleYearsOnFinishTreatment
     }
 }

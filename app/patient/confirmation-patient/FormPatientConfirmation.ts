@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
 import { InputEditConfirmPatientT, SubmitEditConfirmPatientT } from "lib/types/InputT.type"
 import { DataOptionT } from "lib/types/FilterT"
 import ServicingHours from "lib/dataInformation/ServicingHours"
@@ -9,15 +9,19 @@ import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/formats/createDateFormat"
-import { PopupSetting } from "lib/types/TableT.type"
-import { faPencil } from "@fortawesome/free-solid-svg-icons"
+import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
+import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
+    setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
+    setOnPopupEdit?: Dispatch<SetStateAction<boolean>>
 }
 
 function FormPatientConfirmation({
-    setOnPopupSetting
+    setOnPopupSetting,
+    setOnModalSettings,
+    setOnPopupEdit
 }: Props) {
     const [nameEditConfirmPatient, setNameEditConfirmPatient] = useState<string>('')
     const [editActiveManualQueue, setEditActiveManualQueue] = useState<boolean>(true)
@@ -220,26 +224,59 @@ function FormPatientConfirmation({
         if (!isLoading) {
             validateEditConfirmPatient()
                 .then(res => {
-                    if (typeof setOnPopupSetting !== 'undefined') {
-                        setOnPopupSetting({
+                    if (typeof setOnModalSettings !== 'undefined') {
+                        setOnModalSettings({
+                            clickClose: () => setOnModalSettings({} as PopupSettings),
                             title: `Update confirmation data from patient "${nameEditConfirmPatient}"?`,
                             classIcon: 'text-color-default',
-                            classBtnNext: 'hover:bg-white',
                             iconPopup: faPencil,
-                            nameBtnNext: 'Save',
-                            patientId: idPatientToEditConfirmPatient as string,
-                            categoryAction: 'edit-confirm-patient'
+                            actionsData: [
+                                {
+                                    nameBtn: 'Save',
+                                    classBtn: 'hover:bg-white',
+                                    classLoading: 'hidden',
+                                    clickBtn: () => nextSubmitEditConfirmPatient(),
+                                    styleBtn: {
+                                        padding: '0.5rem',
+                                        marginRight: '0.6rem',
+                                        marginTop: '0.5rem'
+                                    }
+                                },
+                                {
+                                    nameBtn: 'Cancel',
+                                    classBtn: 'bg-white border-none',
+                                    classLoading: 'hidden',
+                                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                                    styleBtn: {
+                                        padding: '0.5rem',
+                                        marginRight: '0.5rem',
+                                        marginTop: '0.5rem',
+                                        color: '#495057',
+                                    }
+                                },
+                            ]
                         })
                     }
+                    // if (typeof setOnPopupSetting !== 'undefined') {
+                    //     setOnPopupSetting({
+                    //         title: `Update confirmation data from patient "${nameEditConfirmPatient}"?`,
+                    //         classIcon: 'text-color-default',
+                    //         classBtnNext: 'hover:bg-white',
+                    //         iconPopup: faPencil,
+                    //         nameBtnNext: 'Save',
+                    //         patientId: idPatientToEditConfirmPatient as string,
+                    //         categoryAction: 'edit-confirm-patient'
+                    //     })
+                    // }
                 })
         }
     }
 
-    function nextSubmitEditConfirmPatient():void{
+    function nextSubmitEditConfirmPatient(): void {
         setErrEditInputConfirmPatient({} as InputEditConfirmPatientT)
         pushToUpdateConfirmPatient()
-        if (typeof setOnPopupSetting !== 'undefined') {
-            setOnPopupSetting({} as PopupSetting)
+        if (typeof setOnModalSettings !== 'undefined') {
+            setOnModalSettings({} as PopupSettings)
         }
     }
 
@@ -385,7 +422,8 @@ function FormPatientConfirmation({
 
     function clickEditToConfirmPatient(
         id: string,
-        name: string
+        name: string,
+        cb?: () => void
     ): void {
         const findPatient = dataConfirmationPatients?.find(patient => patient.patientId === id)
         if (findPatient) {
@@ -424,6 +462,9 @@ function FormPatientConfirmation({
                 loadDataSpecialist()
                 loadDataDoctor(findDoctor?.deskripsi as string)
                 loadDataRoom()
+                if (typeof cb === 'function') {
+                    cb()
+                }
             }, 0)
         } else {
             alert('an error occurred, please try again or reload the page')
@@ -522,17 +563,74 @@ function FormPatientConfirmation({
         setOnPopupSettings(false)
         setEditActiveManualQueue(true)
         setEditActiveAutoQueue(false)
+    }
 
+    useEffect(() => {
         setTimeout(() => {
             activeSelectEmailAdmin()
             activeSelectSpecialist()
             activeSelectDoctor()
             activeSelectRoom()
         }, 500);
-    }
+    }, [onPopupEditConfirmPatient, valueInputEditConfirmPatient, selectEmailAdmin])
 
     function closePopupEditConfirmPatient(): void {
         setOnPopupEditConfirmPatient(false)
+    }
+
+    function openPopupEdit(): void {
+        if (typeof setOnModalSettings !== 'undefined') {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: 'What do you want to edit?',
+                classIcon: 'text-color-default',
+                iconPopup: faPenToSquare,
+                actionsData: [
+                    {
+                        nameBtn: 'Edit patient detail',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => {
+                            if (typeof setOnPopupEdit !== 'undefined') {
+                                setOnPopupEdit(true)
+                                setOnModalSettings({} as PopupSettings)
+                            }
+                        },
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Edit confirmation data',
+                        classBtn: 'bg-orange border-orange hover:border-orange hover:bg-white hover:text-orange',
+                        classLoading: 'hidden',
+                        clickBtn: () => {
+                            clickOnEditConfirmPatient()
+                            setOnModalSettings({} as PopupSettings)
+                        },
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
+            })
+        }
     }
 
     return {
@@ -561,7 +659,8 @@ function FormPatientConfirmation({
         idLoadingEditConfirmPatient,
         submitEditConfirmPatient,
         clickOnEditConfirmPatient,
-        nextSubmitEditConfirmPatient
+        nextSubmitEditConfirmPatient,
+        openPopupEdit
     }
 }
 

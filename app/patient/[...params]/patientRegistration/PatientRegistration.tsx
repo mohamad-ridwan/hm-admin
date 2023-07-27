@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react"
-import { IconDefinition, faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock, faClockFour, faPencil, faTrash, faTriangleExclamation, faUserXmark } from "@fortawesome/free-solid-svg-icons"
+import { IconDefinition, faCalendarDays, faCheckToSlot, faCircleCheck, faCircleExclamation, faClock, faClockFour, faTrash, faUserXmark } from "@fortawesome/free-solid-svg-icons"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { HeadInfo } from "components/dataInformation/HeadInfo"
@@ -16,10 +16,10 @@ import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import Button from "components/Button"
-import { ActionsDataT, PopupSetting } from "lib/types/TableT.type"
+import { ActionsDataT, PopupSettings } from "lib/types/TableT.type"
 
 export function PatientRegistration({ params }: { params: string }) {
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+    const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
 
     // Form edit patient registration
     const {
@@ -35,8 +35,7 @@ export function PatientRegistration({ params }: { params: string }) {
         setOnPopupEdit,
         idPatientToEdit,
         idLoadingEdit,
-        nextSubmitUpdate
-    } = FormPatientRegistration({ setOnPopupSetting })
+    } = FormPatientRegistration({ setOnModalSettings })
 
     const {
         detailDataPatientRegis,
@@ -105,14 +104,38 @@ export function PatientRegistration({ params }: { params: string }) {
 
     function onDeletePatient(): void {
         if (loadingDelete === false) {
-            setOnPopupSetting({
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `Delete all data from patient "${detailDataPatientRegis?.patientName}"?`,
                 classIcon: 'text-font-color-2',
-                classBtnNext: 'hover:bg-white',
                 iconPopup: faTrash,
-                nameBtnNext: 'Yes',
-                patientId: detailDataPatientRegis?.id,
-                categoryAction: 'delete-patient'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => {
+                            clickDelete(detailDataPatientRegis?.id)
+                            setOnModalSettings({} as PopupSettings)
+                        },
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    },
+                ]
             })
         }
     }
@@ -130,9 +153,9 @@ export function PatientRegistration({ params }: { params: string }) {
         {
             name: 'Delete',
             classWrapp: loadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'text-red-default cursor-pointer',
-            click: ()=>{
+            click: () => {
                 onDeletePatient()
-                if(loadingDelete === false){
+                if (loadingDelete === false) {
                     clickMenu()
                 }
             }
@@ -156,47 +179,28 @@ export function PatientRegistration({ params }: { params: string }) {
                 />
             )}
 
-            {/* popup delete */}
-            {onPopupSetting?.title && (
+            {onModalSettings?.title && (
                 <ContainerPopup
                     className='flex justify-center items-center overflow-y-auto'
                 >
                     <SettingPopup
-                        clickClose={() => setOnPopupSetting({} as PopupSetting)}
-                        title={onPopupSetting.title}
-                        classIcon='text-font-color-2'
-                        iconPopup={faTriangleExclamation}
+                        clickClose={onModalSettings.clickClose}
+                        title={onModalSettings.title}
+                        classIcon={onModalSettings.classIcon}
+                        iconPopup={onModalSettings.iconPopup}
                     >
-                        <Button
-                            nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn="hover:bg-white"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
-                            }}
-                            clickBtn={() => {
-                                if (onPopupSetting.categoryAction === 'edit-patient') {
-                                    nextSubmitUpdate()
-                                }
-                                if (onPopupSetting.categoryAction === 'delete-patient') {
-                                    clickDelete(detailDataPatientRegis?.id)
-                                    setOnPopupSetting({} as PopupSetting)
-                                }
-                            }}
-                        />
-                        <Button
-                            nameBtn="Cancel"
-                            classBtn="bg-white border-none"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057'
-                            }}
-                            clickBtn={() => setOnPopupSetting({} as PopupSetting)}
-                        />
+                        {onModalSettings.actionsData.length > 0 && onModalSettings.actionsData.map((btn, idx) => {
+                            return (
+                                <Button
+                                    key={idx}
+                                    nameBtn={btn.nameBtn}
+                                    classBtn={btn.classBtn}
+                                    classLoading={btn.classLoading}
+                                    clickBtn={btn.clickBtn}
+                                    styleBtn={btn.styleBtn}
+                                />
+                            )
+                        })}
                     </SettingPopup>
                 </ContainerPopup>
             )}
@@ -239,16 +243,6 @@ export function PatientRegistration({ params }: { params: string }) {
                         titleInfo="Patient Information"
                         icon={!dataConfirmPatient?.id ? faCircleExclamation : faCircleCheck}
                         classTitle={!dataConfirmPatient?.id ? 'text-orange-young' : ''}
-                        // editIcon={faPencil}
-                        // deleteIcon={loadingDelete ? undefined : faTrash}
-                        // classEditBtn="mr-1 hover:bg-color-default-old hover:text-white"
-                        // classDeleteBtn={`${loadingDelete ? 'cursor-not-allowed ' : 'cursor-pointer'} bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white`}
-                        // classLoadingDelete={loadingDelete ? 'flex' : 'hidden'}
-                        // clickEdit={() => {
-                        //     clickEdit(detailDataPatientRegis?.id, detailDataPatientRegis?.patientName)
-                        //     setOnPopupEdit(true)
-                        // }}
-                        // clickDelete={onDeletePatient}
                         actionsData={actionsMenu}
                         clickMenu={clickMenu}
                         classWrappMenu={`${isMenuActive ? 'flex' : 'hidden'} right-9`}

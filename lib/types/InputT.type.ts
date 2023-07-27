@@ -66,6 +66,16 @@ export type SubmitFormPatientRegisT = {
     roomInfo: RoomInfo
 }
 
+export type InputEditPatientCounter = {
+    patientId: string
+    loketName: string
+    message: string
+    adminEmail: string
+    submissionDate: string
+    submitHour: string
+    queueNumber: string
+}
+
 export type SubmitFinishedTreatmentT = {
     patientId: string
     confirmedTime: ConfirmedTime

@@ -16,10 +16,10 @@ import { DeletePatient } from "./DeletePatient"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import { FormPopup } from "components/popup/FormPopup"
-import { ActionsDataT, PopupSetting } from "lib/types/TableT.type"
+import { ActionsDataT, PopupSettings } from "lib/types/TableT.type"
 
 function FormRegistrationData({ params }: { params: string }) {
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+    const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
 
     const {
         optionsSpecialist,
@@ -31,9 +31,8 @@ function FormRegistrationData({ params }: { params: string }) {
         inputValue,
         clickToggleAutoRoom,
         loadingSubmit,
-        nextSubmitConfirmation
     } = HandleFormRegistration(
-        { params, setOnPopupSetting }
+        { params, setOnModalSettings }
     )
 
     const {
@@ -46,16 +45,7 @@ function FormRegistrationData({ params }: { params: string }) {
         submitCancelTreatment,
         isMenuActive,
         clickMenu
-    } = DeletePatient({ params, setOnPopupSetting })
-
-    function cancelPopupSetting(): void {
-        setOnPopupSetting({} as PopupSetting)
-    }
-
-    function clickYes(): void {
-        setOnMsgCancelTreatment(true)
-        setOnPopupSetting({} as PopupSetting)
-    }
+    } = DeletePatient({ params, setOnModalSettings })
 
     function cancelOnMsgCancelPatient(): void {
         setOnMsgCancelTreatment(false)
@@ -64,9 +54,9 @@ function FormRegistrationData({ params }: { params: string }) {
     const actionsMenu: ActionsDataT[] = [
         {
             name: 'Cancel Treatment',
-            classWrapp: loadingCancelTreatment ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' :  'cursor-pointer text-pink-old',
+            classWrapp: loadingCancelTreatment ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' : 'cursor-pointer text-pink-old',
             click: () => {
-                if(loadingCancelTreatment === false){
+                if (loadingCancelTreatment === false) {
                     clickCancelTreatment()
                     clickMenu()
                 }
@@ -80,44 +70,28 @@ function FormRegistrationData({ params }: { params: string }) {
             classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
             maxWidth="auto"
         >
-            {onPopupSetting?.title && (
+            {onModalSettings?.title && (
                 <ContainerPopup
                     className='flex justify-center items-center overflow-y-auto'
                 >
                     <SettingPopup
-                        clickClose={cancelPopupSetting}
-                        title={onPopupSetting.title}
-                        classIcon='text-font-color-2'
-                        iconPopup={onPopupSetting.iconPopup}
+                        clickClose={onModalSettings.clickClose}
+                        title={onModalSettings.title}
+                        classIcon={onModalSettings.classIcon}
+                        iconPopup={onModalSettings.iconPopup}
                     >
-                        <Button
-                            nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn="hover:bg-white"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
-                            }}
-                            clickBtn={()=>{
-                                if(onPopupSetting.categoryAction === 'cancel-treatment'){
-                                    clickYes()
-                                }else if(onPopupSetting.categoryAction === 'confirm-registration'){
-                                    nextSubmitConfirmation()
-                                }
-                            }}
-                        />
-                        <Button
-                            nameBtn="Cancel"
-                            classBtn="bg-white border-none"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057'
-                            }}
-                            clickBtn={cancelPopupSetting}
-                        />
+                        {onModalSettings.actionsData.length > 0 && onModalSettings.actionsData.map((btn, idx) => {
+                            return (
+                                <Button
+                                    key={idx}
+                                    nameBtn={btn.nameBtn}
+                                    classBtn={btn.classBtn}
+                                    classLoading={btn.classLoading}
+                                    clickBtn={btn.clickBtn}
+                                    styleBtn={btn.styleBtn}
+                                />
+                            )
+                        })}
                     </SettingPopup>
                 </ContainerPopup>
             )}
@@ -173,15 +147,10 @@ function FormRegistrationData({ params }: { params: string }) {
 
             <HeadInfo
                 titleInfo="Form Confirmation"
-                // classEditBtn={`bg-orange-young border-orange-young hover:bg-orange hover:border-orange hover:text-white ${loadingCancelTreatment && 'cursor-not-allowed'}`}
                 classTitle="border-none"
                 styleHeadTop={{
                     padding: '0'
                 }}
-                // classDeleteBtn="hidden"
-                // editIcon={loadingCancelTreatment ? undefined : faBan}
-                // classLoadingEdit={loadingCancelTreatment ? 'flex' : 'hidden'}
-                // clickEdit={clickCancelTreatment}
                 actionsData={actionsMenu}
                 clickMenu={clickMenu}
                 classWrappMenu={`${isMenuActive ? 'flex' : 'hidden'} right-9`}

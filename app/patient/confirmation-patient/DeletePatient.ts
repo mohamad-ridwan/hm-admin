@@ -10,19 +10,23 @@ import { spaceString } from "lib/regex/spaceString"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { UserT } from "lib/types/ZustandT.types"
-import { PopupSetting } from "lib/types/TableT.type"
+import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     user: UserT
     setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
     onPopupSetting?: PopupSetting
+    setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
+    onModalSettings?: PopupSettings
 }
 
 export function DeletePatient({
     user,
     setOnPopupSetting,
-    onPopupSetting
+    onPopupSetting,
+    setOnModalSettings,
+    onModalSettings
 }: Props) {
     const [loadingIdPatientsDelete, setLoadingIdPatientsDelete] = useState<string[]>([])
     const [idLoadingCancelTreatment, setIdLoadingCancelTreatment] = useState<string[]>([])
@@ -48,7 +52,51 @@ export function DeletePatient({
         if (!findId) {
             setNamePatientToDelete(patientName)
             setIdPatientToDelete(patientId)
-            setOnPopupChooseDelete(true)
+            if (typeof setOnModalSettings !== 'undefined') {
+                setOnModalSettings({
+                    clickClose: () => setOnModalSettings({} as PopupSettings),
+                    title: 'What do you want to delete?',
+                    classIcon: 'text-font-color-2',
+                    iconPopup: faBan,
+                    actionsData: [
+                        {
+                            nameBtn: 'All Data',
+                            classBtn: 'bg-orange hover:bg-white border-orange hover:border-orange hover:text-orange',
+                            classLoading: 'hidden',
+                            clickBtn: () => clickDeleteDetailAndConfirmData(patientId, patientName),
+                            styleBtn: {
+                                padding: '0.5rem',
+                                marginRight: '0.5rem',
+                                marginTop: '0.5rem'
+                            }
+                        },
+                        {
+                            nameBtn: 'Confirmation data',
+                            classBtn: 'bg-pink-old hover:bg-white border-pink-old hover:border-pink-old hover:text-pink-old',
+                            classLoading: 'hidden',
+                            clickBtn: () => clickDeleteConfirmationData(patientId, patientName),
+                            styleBtn: {
+                                padding: '0.5rem',
+                                marginRight: '0.5rem',
+                                marginTop: '0.5rem'
+                            }
+                        },
+                        {
+                            nameBtn: 'Cancel',
+                            classBtn: 'bg-white border-none',
+                            classLoading: 'hidden',
+                            clickBtn: () => setOnModalSettings({} as PopupSettings),
+                            styleBtn: {
+                                padding: '0.5rem',
+                                marginRight: '0.5rem',
+                                marginTop: '0.5rem',
+                                color: '#495057',
+                            }
+                        },
+                    ]
+                })
+            }
+            // setOnPopupChooseDelete(true)
         }
     }
 
@@ -87,78 +135,148 @@ export function DeletePatient({
     }
 
     // click delete detail and confirm data
-    function clickDeleteDetailAndConfirmData(): void {
-        if (typeof setOnPopupSetting !== 'undefined') {
-            setOnPopupSetting({
-                title: `Delete details and confirmation data from patient "${namePatientToDelete}"?`,
+    function clickDeleteDetailAndConfirmData(
+        patientId: string,
+        patientName: string
+    ): void {
+        if (typeof setOnModalSettings !== 'undefined') {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Delete details and confirmation data from patient "${patientName}"?`,
                 classIcon: 'text-font-color-2',
-                classBtnNext: 'hover:bg-white',
                 iconPopup: faBan,
-                nameBtnNext: 'Yes',
-                patientId: idPatientToDelete,
-                categoryAction: 'delete-detail-and-confirmation'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: ()=>nextDeleteDetailAndConfirmData(patientId),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
             })
+            // setOnPopupSetting({
+            //     title: `Delete details and confirmation data from patient "${namePatientToDelete}"?`,
+            //     classIcon: 'text-font-color-2',
+            //     classBtnNext: 'hover:bg-white',
+            //     iconPopup: faBan,
+            //     nameBtnNext: 'Yes',
+            //     patientId: idPatientToDelete,
+            //     categoryAction: 'delete-detail-and-confirmation'
+            // })
         }
     }
 
-    function nextDeleteDetailAndConfirmData():void{
-        setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
-        setOnPopupChooseDelete(false)
+    function nextDeleteDetailAndConfirmData(patientId: string): void {
+        setLoadingIdPatientsDelete((current) => [...current, patientId])
+        // setOnPopupChooseDelete(false)
 
-        const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
+        const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === patientId)
         deleteActionCallback(
             'confirmation-patients',
             findIdConfirmData?.id as string,
-            idPatientToDelete,
+            patientId,
             '',
             'There was an error deleting patient data details and confirmation',
             false,
             () => deleteActionCallback(
                 'patient-registration',
-                idPatientToDelete,
-                idPatientToDelete,
+                patientId,
+                patientId,
                 'delete successfully',
                 'There was an error deleting patient data details and confirmation',
                 true
             )
         )
 
-        if (typeof setOnPopupSetting !== 'undefined') {
-            setOnPopupSetting({} as PopupSetting)
+        if (typeof setOnModalSettings !== 'undefined') {
+            setOnModalSettings({} as PopupSettings)
         }
     }
 
-    function clickDeleteConfirmationData(): void {
-        if (typeof setOnPopupSetting !== 'undefined') {
-            setOnPopupSetting({
-                title: `Delete confirmation data from "${namePatientToDelete}" patient`,
+    function clickDeleteConfirmationData(
+        patientId: string,
+        patientName: string
+    ): void {
+        if (typeof setOnModalSettings !== 'undefined') {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Delete confirmation data from "${patientName}" patient`,
                 classIcon: 'text-font-color-2',
-                classBtnNext: 'hover:bg-white',
                 iconPopup: faBan,
-                nameBtnNext: 'Yes',
-                patientId: idPatientToDelete,
-                categoryAction: 'delete-confirmation'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => nextDeleteConfirmationData(patientId),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
             })
+            // setOnPopupSetting({
+            //     title: `Delete confirmation data from "${namePatientToDelete}" patient`,
+            //     classIcon: 'text-font-color-2',
+            //     classBtnNext: 'hover:bg-white',
+            //     iconPopup: faBan,
+            //     nameBtnNext: 'Yes',
+            //     patientId: idPatientToDelete,
+            //     categoryAction: 'delete-confirmation'
+            // })
         }
     }
 
-    function nextDeleteConfirmationData(): void {
-        setLoadingIdPatientsDelete((current) => [...current, idPatientToDelete])
-        setOnPopupChooseDelete(false)
+    function nextDeleteConfirmationData(
+        patientId: string
+    ): void {
+        setLoadingIdPatientsDelete((current) => [...current, patientId])
+        // setOnPopupChooseDelete(false)
 
-        const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === idPatientToDelete)
+        const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === patientId)
 
         deleteActionCallback(
             'confirmation-patients',
             findIdConfirmData?.id as string,
-            idPatientToDelete,
+            patientId,
             'delete successfully',
             'There was an error deleting patient confirmation data',
             true
         )
 
-        if (typeof setOnPopupSetting !== 'undefined') {
-            setOnPopupSetting({} as PopupSetting)
+        if (typeof setOnModalSettings !== 'undefined') {
+            setOnModalSettings({} as PopupSettings)
         }
     }
 
@@ -166,16 +284,50 @@ export function DeletePatient({
     function clickCancelTreatment(id: string, name: string): void {
         const findId = idLoadingCancelTreatment.find(patientId => patientId === id)
         if (!findId) {
-            if (typeof setOnPopupSetting !== 'undefined') {
-                setOnPopupSetting({
+            if (typeof setOnModalSettings !== 'undefined') {
+                setOnModalSettings({
+                    clickClose: () => setOnModalSettings({} as PopupSettings),
                     title: `cancel treatment from patient "${name}"?`,
                     classIcon: 'text-font-color-2',
-                    classBtnNext: 'hover:bg-white',
                     iconPopup: faBan,
-                    nameBtnNext: 'Yes',
                     patientId: id,
-                    categoryAction: 'cancel-treatment'
+                    actionsData: [
+                        {
+                            nameBtn: 'Yes',
+                            classBtn: 'hover:bg-white',
+                            classLoading: 'hidden',
+                            clickBtn: () => {
+                                nextCancelTreatment()
+                            },
+                            styleBtn: {
+                                padding: '0.5rem',
+                                marginRight: '0.6rem',
+                                marginTop: '0.5rem'
+                            }
+                        },
+                        {
+                            nameBtn: 'Cancel',
+                            classBtn: 'bg-white border-none',
+                            classLoading: 'hidden',
+                            clickBtn: () => setOnModalSettings({} as PopupSettings),
+                            styleBtn: {
+                                padding: '0.5rem',
+                                marginRight: '0.5rem',
+                                marginTop: '0.5rem',
+                                color: '#495057',
+                            }
+                        },
+                    ]
                 })
+                // setOnPopupSetting({
+                //     title: `cancel treatment from patient "${name}"?`,
+                //     classIcon: 'text-font-color-2',
+                //     classBtnNext: 'hover:bg-white',
+                //     iconPopup: faBan,
+                //     nameBtnNext: 'Yes',
+                //     patientId: id,
+                //     categoryAction: 'cancel-treatment'
+                // })
             }
         }
     }
@@ -184,16 +336,16 @@ export function DeletePatient({
         setOnMsgCancelTreatment(true)
     }
 
-    function handleCancelMsg(e: ChangeEvent<HTMLInputElement>):void{
+    function handleCancelMsg(e: ChangeEvent<HTMLInputElement>): void {
         setInputMsgCancelPatient(e.target.value)
     }
 
-    function submitCancelTreatment():void{
-        if(inputMsgCancelPatient.length > 0){
-            setIdLoadingCancelTreatment((current) => [...current, onPopupSetting?.patientId as string])
-            pushCancelTreatment(onPopupSetting?.patientId as string)
-            if (typeof setOnPopupSetting !== 'undefined') {
-                setOnPopupSetting({} as PopupSetting)
+    function submitCancelTreatment(): void {
+        if (inputMsgCancelPatient.length > 0) {
+            setIdLoadingCancelTreatment((current) => [...current, onModalSettings?.patientId as string])
+            pushCancelTreatment(onModalSettings?.patientId as string)
+            if (typeof setOnModalSettings !== 'undefined') {
+                setOnModalSettings({} as PopupSettings)
             }
             setOnMsgCancelTreatment(false)
         }

@@ -15,8 +15,7 @@ export function Menu({
 }: Props){
     return <div 
     id={id}
-    className={`${classWrapp} rounded-md text-[0.85rem] text-start text-font-color-3 hover:bg-color-default
-    py-2 px-4 hover:text-white transition`} 
+    className={`${classWrapp} rounded-md text-[0.85rem] text-start py-2 px-4 transition`} 
     onClick={(e)=>{
         if(typeof click === 'function'){
             click(e as MouseEvent<HTMLDivElement>)

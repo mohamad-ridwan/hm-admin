@@ -25,7 +25,7 @@ import { FilterTable } from './FilterTable'
 import { DeletePatient } from './DeletePatient'
 import { specialCharacter } from 'lib/regex/specialCharacter'
 import { spaceString } from 'lib/regex/spaceString'
-import { ActionsDataT, PopupSetting } from 'lib/types/TableT.type'
+import { ActionsDataT, PopupSetting, PopupSettings } from 'lib/types/TableT.type'
 import { FormPopup } from 'components/popup/FormPopup'
 import { TitleInput } from 'components/input/TitleInput'
 import Input from 'components/input/Input'
@@ -33,6 +33,8 @@ import ErrorInput from 'components/input/ErrorInput'
 
 export function ConfirmationPatient() {
     const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+    const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
+
     // Form edit patient registration
     const {
         clickEdit,
@@ -48,7 +50,7 @@ export function ConfirmationPatient() {
         idPatientToEdit,
         idLoadingEdit,
         nextSubmitUpdate
-    } = FormPatientRegistration({ setOnPopupSetting })
+    } = FormPatientRegistration({ setOnModalSettings })
 
     // form edit confirm patient
     const {
@@ -77,8 +79,9 @@ export function ConfirmationPatient() {
         submitEditConfirmPatient,
         clickOnEditConfirmPatient,
         idLoadingEditConfirmPatient,
-        nextSubmitEditConfirmPatient
-    } = FormPatientConfirmation({ setOnPopupSetting })
+        nextSubmitEditConfirmPatient,
+        openPopupEdit
+    } = FormPatientConfirmation({ setOnPopupSetting, setOnModalSettings, setOnPopupEdit })
 
     const {
         head,
@@ -127,7 +130,7 @@ export function ConfirmationPatient() {
         inputMsgCancelPatient,
         idLoadingCancelTreatment,
         loadingIdPatientsDelete
-    } = DeletePatient({ user, setOnPopupSetting, onPopupSetting })
+    } = DeletePatient({ user, setOnPopupSetting, onPopupSetting, setOnModalSettings, onModalSettings })
 
     const router = useRouter()
 
@@ -135,15 +138,15 @@ export function ConfirmationPatient() {
         router.push(path)
     }
 
-    function closePopupSetting(e?: MouseEvent): void {
-        setOnPopupSettings(false)
-        e?.stopPropagation
-    }
+    // function closePopupSetting(e?: MouseEvent): void {
+    //     setOnPopupSettings(false)
+    //     e?.stopPropagation
+    // }
 
-    function clickOnEditDetailPatient(): void {
-        setOnPopupEdit(true)
-        setOnPopupSettings(false)
-    }
+    // function clickOnEditDetailPatient(): void {
+    //     setOnPopupEdit(true)
+    //     setOnPopupSettings(false)
+    // }
 
     function cancelOnMsgCancelPatient(): void {
         setOnMsgCancelTreatment(false)
@@ -194,151 +197,28 @@ export function ConfirmationPatient() {
             )}
             {/* end popup edit confirmation patient */}
 
-            {/* popup choose update */}
-            {onPopupSettings && (
+            {onModalSettings?.title && (
                 <ContainerPopup
                     className='flex justify-center items-center overflow-y-auto'
                 >
                     <SettingPopup
-                        clickClose={closePopupSetting}
-                        title='What do you want to edit?'
-                        classIcon='text-color-default'
-                        iconPopup={faPenToSquare}
+                        clickClose={onModalSettings.clickClose}
+                        title={onModalSettings.title}
+                        classIcon={onModalSettings.classIcon}
+                        iconPopup={onModalSettings.iconPopup}
                     >
-                        <Button
-                            nameBtn="Edit patient detail"
-                            classBtn='hover:bg-white'
-                            classLoading='hidden'
-                            clickBtn={clickOnEditDetailPatient}
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.5rem',
-                                marginTop: '0.5rem'
-                            }}
-                        />
-                        <Button
-                            nameBtn="Edit confirmation data"
-                            classBtn='bg-orange border-orange hover:border-orange hover:bg-white hover:text-orange'
-                            classLoading='hidden'
-                            clickBtn={clickOnEditConfirmPatient}
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.5rem',
-                                marginTop: '0.5rem'
-                            }}
-                        />
-                        <Button
-                            nameBtn="Cancel"
-                            classLoading='hidden'
-                            classBtn='bg-white border-none'
-                            clickBtn={closePopupSetting}
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057',
-                            }}
-                        />
-                    </SettingPopup>
-                </ContainerPopup>
-            )}
-
-            {/* popup choose delete */}
-            {onPopupChooseDelete && (
-                <ContainerPopup
-                    className='flex justify-center items-center overflow-y-auto'
-                >
-                    <SettingPopup
-                        title='What do you want to delete?'
-                        classIcon='text-red-default'
-                        desc={`${namePatientToDelete} - patient`}
-                        clickClose={closePopupChooseDelete}
-                        iconPopup={faBan}
-                    >
-                        <Button
-                            nameBtn="All data"
-                            classBtn='bg-orange hover:bg-white border-orange hover:border-orange hover:text-orange'
-                            classLoading='hidden'
-                            clickBtn={clickDeleteDetailAndConfirmData}
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.5rem',
-                                marginTop: '0.5rem'
-                            }}
-                        />
-                        <Button
-                            nameBtn="Confirmation data"
-                            classBtn='bg-pink-old hover:bg-white border-pink-old hover:border-pink-old hover:text-pink-old'
-                            classLoading='hidden'
-                            clickBtn={clickDeleteConfirmationData}
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.5rem',
-                                marginTop: '0.5rem'
-                            }}
-                        />
-                        <Button
-                            nameBtn="Cancel"
-                            classLoading='hidden'
-                            classBtn='bg-white border-none'
-                            clickBtn={closePopupChooseDelete}
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057',
-                            }}
-                        />
-                    </SettingPopup>
-                </ContainerPopup>
-            )}
-
-            {/* popup next / cancel actions */}
-            {onPopupSetting?.title && (
-                <ContainerPopup
-                    className='flex justify-center items-center overflow-y-auto'
-                >
-                    <SettingPopup
-                        clickClose={() => setOnPopupSetting({} as PopupSetting)}
-                        title={onPopupSetting.title}
-                        classIcon={onPopupSetting.classIcon}
-                        iconPopup={onPopupSetting.iconPopup}
-                    >
-                        <Button
-                            nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn={onPopupSetting?.classBtnNext}
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
-                            }}
-                            clickBtn={() => {
-                                if (onPopupSetting.categoryAction === 'edit-patient') {
-                                    nextSubmitUpdate()
-                                } else if (onPopupSetting.categoryAction === 'edit-confirm-patient') {
-                                    nextSubmitEditConfirmPatient()
-                                } else if (onPopupSetting.categoryAction === 'cancel-treatment') {
-                                    nextCancelTreatment()
-                                } else if (onPopupSetting.categoryAction === 'delete-confirmation') {
-                                    nextDeleteConfirmationData()
-                                } else if (onPopupSetting.categoryAction === 'delete-detail-and-confirmation') {
-                                    nextDeleteDetailAndConfirmData()
-                                }
-                            }}
-                        />
-                        <Button
-                            nameBtn="Cancel"
-                            classBtn="bg-white border-none"
-                            colorBtnTxt="text-orange-young"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057'
-                            }}
-                            clickBtn={() => setOnPopupSetting({} as PopupSetting)}
-                        />
+                        {onModalSettings.actionsData.length > 0 && onModalSettings.actionsData.map((btn, idx) => {
+                            return (
+                                <Button
+                                    key={idx}
+                                    nameBtn={btn.nameBtn}
+                                    classBtn={btn.classBtn}
+                                    classLoading={btn.classLoading}
+                                    clickBtn={btn.clickBtn}
+                                    styleBtn={btn.styleBtn}
+                                />
+                            )
+                        })}
                     </SettingPopup>
                 </ContainerPopup>
             )}
@@ -485,7 +365,8 @@ export function ConfirmationPatient() {
                                 click: (e?: MouseEvent)=>{
                                     clickEdit(patient.id, patient.data[0]?.name)
                                     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
-                                    setOnPopupSettings(true)
+                                    // setOnPopupSettings(true)
+                                    openPopupEdit()
                                     setIndexActiveTableMenu(null)
                                     e?.stopPropagation()
                                 }
@@ -510,8 +391,7 @@ export function ConfirmationPatient() {
                                     e?.stopPropagation()
                                 }
                             }
-                        ] 
-
+                        ]
 
                         return (
                             <TableColumns

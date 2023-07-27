@@ -1,20 +1,23 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
+import { useParams, useRouter } from 'next/navigation'
 import { InputEditPatientRegistrationT } from "lib/types/InputT.type"
 import { mailRegex } from "lib/regex/mailRegex"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { API } from "lib/api"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { faPencil } from "@fortawesome/free-solid-svg-icons"
-import { PopupSetting } from "lib/types/TableT.type"
+import { PopupSettings } from "lib/types/TableT.type"
+import { specialCharacter } from "lib/regex/specialCharacter"
+import { spaceString } from "lib/regex/spaceString"
 
 type Props = {
-    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
+    setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
 }
 
 function FormPatientRegistration({
-    setOnPopupSetting
+    setOnModalSettings
 }: Props) {
     const [patientName, setPatientName] = useState<string | null>(null)
     const [valueInputEditDetailPatient, setValueInputEditDetailPatient] = useState<InputEditPatientRegistrationT>({
@@ -39,6 +42,9 @@ function FormPatientRegistration({
         dataPatientRegis,
         pushTriggedErr,
     } = ServicingHours()
+
+    const params = useParams()
+    const router = useRouter()
 
     function changeEditDetailPatient(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
         setValueInputEditDetailPatient({
@@ -86,28 +92,48 @@ function FormPatientRegistration({
         if (!findIdLoading) {
             validateSubmitUpdate()
                 .then(res => {
-                    if(typeof setOnPopupSetting !== 'undefined'){
-                        setOnPopupSetting({
+                    if (typeof setOnModalSettings !== 'undefined') {
+                        setOnModalSettings({
+                            clickClose: () => setOnModalSettings({} as PopupSettings),
                             title: `Update patient "${patientName}"?`,
                             classIcon: 'text-color-default',
-                            classBtnNext: 'hover:bg-white',
                             iconPopup: faPencil,
-                            nameBtnNext: 'Save',
-                            patientId: idPatientToEdit as string,
-                            categoryAction: 'edit-patient'
+                            actionsData: [
+                                {
+                                    nameBtn: 'Save',
+                                    classBtn: 'hover:bg-white',
+                                    classLoading: 'hidden',
+                                    clickBtn: () => {
+                                        nextSubmitUpdate()
+                                        setOnModalSettings({} as PopupSettings)
+                                    },
+                                    styleBtn: {
+                                        padding: '0.5rem',
+                                        marginRight: '0.6rem',
+                                        marginTop: '0.5rem'
+                                    }
+                                },
+                                {
+                                    nameBtn: 'Cancel',
+                                    classBtn: 'bg-white border-none',
+                                    classLoading: 'hidden',
+                                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                                    styleBtn: {
+                                        padding: '0.5rem',
+                                        marginTop: '0.5rem',
+                                        color: '#495057'
+                                    }
+                                }
+                            ]
                         })
                     }
-                    
                 })
         }
     }
 
-    function nextSubmitUpdate():void{
+    function nextSubmitUpdate(): void {
         setErrEditInputDetailPatient({} as InputEditPatientRegistrationT)
         pushToUpdatePatient()
-        if(typeof setOnPopupSetting !== 'undefined'){
-            setOnPopupSetting({} as PopupSetting)
-        }
     }
 
     async function validateSubmitUpdate(): Promise<{ message: string }> {
@@ -187,9 +213,16 @@ function FormPatientRegistration({
             data
         )
             .then((res) => {
-                const removeLoadingId = idLoadingEdit.filter(id=> id !== res?.id)
+                const removeLoadingId = idLoadingEdit.filter(id => id !== res?.id)
                 setIdLoadingEdit(removeLoadingId)
-                alert(`Patient data from "${patientName}" updated successfully`)
+                const isRoutePersonalData = params?.params?.includes('personal-data')
+                const currentRoute = params?.params?.split('/')
+                const newName = patientName.replace(specialCharacter, '').replace(spaceString, '')
+                const newRoute = params?.params?.replace(currentRoute[3], newName)
+                if (isRoutePersonalData) {
+                    router.push(`/patient/${newRoute}`)
+                }
+                alert('Updated successfully')
             })
             .catch((err) => {
                 pushTriggedErr('a server error occurred. please try again later')

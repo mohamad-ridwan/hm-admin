@@ -1,30 +1,70 @@
 'use client'
 
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react"
 import { notFound } from 'next/navigation'
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
-import { HeadDataTableT } from "lib/types/TableT.type"
+import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { DrugCounterT, InfoLoketT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
+import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
+import { InputEditPatientCounter } from "lib/types/InputT.type"
 
 type ParamsProps = {
     params: {
         counterName: string
         status: string
     }
+    setOnPopupEdit?: Dispatch<SetStateAction<boolean>>
+    setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
+    onModalSettings: PopupSettings
 }
 
-export function FilterTable({ params }: ParamsProps) {
+export function UseDrugCounter({
+    params,
+    setOnModalSettings,
+    onModalSettings,
+    setOnPopupEdit
+}: ParamsProps) {
     const currentDataStatus = useRef<PatientRegistrationT[]>([])
     const [dataColumns, setDataColumns] = useState<DataTableContentT[]>([])
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [searchText, setSearchText] = useState<string>('')
     const [displayOnCalendar, setDisplayOnCalendar] = useState<boolean>(false)
+    const [indexActiveTableMenu, setIndexActiveTableMenu] = useState<number | null>(null)
+    const [idLoadingCancelTreatment, setIdLoadingCancelTreatment] = useState<string[]>([])
+    const [loadingIdPatientsDelete, setLoadingIdPatientsDelete] = useState<string[]>([])
+    const [nameEditPatientCounter, setNameEditPatientCounter] = useState<string>('')
+    const [idToEditPatientCounter, setIdToEditPatientCounter] = useState<string | null>(null)
+    const [loadingIdSubmitEditPatientC, setLoadingIdSubmitEditPatientC] = useState<string[]>([])
+    const [inputValueEditPatientC, setInputValueEditPatientC] = useState<InputEditPatientCounter>({
+        patientId: '',
+        loketName: '',
+        message: '',
+        adminEmail: '',
+        queueNumber: '',
+        submissionDate: '',
+        submitHour: ''
+    })
+    const [value,setValue] = useState<string>('')
+    const [errInputValueEditPatientC, setErrInputValueEditPatientC] = useState<InputEditPatientCounter>({} as InputEditPatientCounter)
+    const [onPopupEditPatientCounter, setOnpopupEditPatientCounter] = useState<boolean>(false)
+    const [selectEmailAdmin, setSelectEmailAdmin] = useState<DataOptionT>([
+        {
+            id: 'Select Admin',
+            title: 'Select Admin'
+        }
+    ])
+    const [selectCounter, setSelectCounter] = useState<DataOptionT>([
+        {
+            id: 'Select Counter',
+            title: 'Select Counter'
+        }
+    ])
     const [currentFilterBy, setCurrentFilterBy] = useState<{
         id: string
         title: string
@@ -101,6 +141,7 @@ export function FilterTable({ params }: ParamsProps) {
         dataFinishTreatment,
         dataLoket,
         loadDataService,
+        dataAdmin,
     } = ServicingHours()
 
     const loket = dataLoket?.find(loket => loket?.loketName === params?.counterName)
@@ -459,6 +500,290 @@ export function FilterTable({ params }: ParamsProps) {
         })
     }
 
+    function clickColumnMenu(index: number): void {
+        if (index === indexActiveTableMenu) {
+            setIndexActiveTableMenu(null)
+        } else {
+            setIndexActiveTableMenu(index)
+        }
+    }
+
+    function clickEditPatientCounter(
+        patientId: string,
+        patientName: string
+    ): void {
+        const findPatient = dataDrugCounter?.find(patient => patient.patientId === patientId)
+        if (findPatient) {
+            const {
+                patientId,
+                loketInfo,
+                message,
+                adminInfo,
+                submissionDate
+            } = findPatient
+
+            const loket = dataLoket?.find(lokets => lokets.id === loketInfo.loketId)
+            const admin = dataAdmin?.find(admins => admins.id === adminInfo.adminId)
+            setInputValueEditPatientC({
+                patientId,
+                loketName: loket?.loketName as string,
+                message,
+                adminEmail: admin?.email as string,
+                submissionDate: submissionDate.submissionDate,
+                submitHour: submissionDate.submitHours,
+                queueNumber: findPatient.queueNumber
+            })
+            setValue(message)
+            setNameEditPatientCounter(patientName)
+            setIdToEditPatientCounter(patientId)
+
+            setTimeout(() => {
+                loadDataAdmin()
+                loadDataCounter()
+            }, 0);
+        } else {
+            alert('an error occurred, please try again or reload the page')
+        }
+    }
+
+    useEffect(()=>{
+        setInputValueEditPatientC({
+            ...inputValueEditPatientC,
+            message: value
+        })
+    }, [value])
+
+    function loadDataAdmin(): void {
+        if (Array.isArray(dataAdmin) && dataAdmin.length > 0) {
+            const newSelectAdmin = dataAdmin.map(admin => ({
+                id: admin.email,
+                title: admin.email
+            }))
+            setSelectEmailAdmin([
+                {
+                    id: 'Select Admin',
+                    title: 'Select Admin'
+                },
+                ...newSelectAdmin
+            ])
+        } else {
+            alert('no admin data found. please try again')
+        }
+    }
+
+    function loadDataCounter(): void {
+        if (Array.isArray(dataLoket) && dataLoket.length > 0) {
+            const newSelectLoket = dataLoket?.map(loket => ({
+                id: loket.loketName,
+                title: loket.loketName
+            }))
+            setSelectCounter([
+                {
+                    id: 'Select Counter',
+                    title: 'Select Counter'
+                },
+                ...newSelectLoket
+            ])
+        }
+    }
+
+    function openPopupEdit(): void {
+        setOnModalSettings({
+            clickClose: () => setOnModalSettings({} as PopupSettings),
+            title: 'What do you want to edit?',
+            classIcon: 'text-color-default',
+            iconPopup: faPenToSquare,
+            actionsData: [
+                {
+                    nameBtn: 'Edit patient detail',
+                    classBtn: 'hover:bg-white',
+                    classLoading: 'hidden',
+                    clickBtn: () => {
+                        if (typeof setOnPopupEdit !== 'undefined') {
+                            setOnPopupEdit(true)
+                        }
+                        setOnModalSettings({} as PopupSettings)
+                    },
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Edit Counter',
+                    classBtn: 'bg-orange border-orange hover:border-orange hover:bg-white hover:text-orange',
+                    classLoading: 'hidden',
+                    clickBtn: () => { 
+                        setOnpopupEditPatientCounter(true)
+                        setOnModalSettings({} as PopupSettings)
+                    },
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Cancel',
+                    classBtn: 'bg-white border-none',
+                    classLoading: 'hidden',
+                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem',
+                        color: '#495057',
+                    }
+                },
+            ]
+        })
+    }
+
+    function closePopupEditPatientC():void{
+        setOnpopupEditPatientCounter(!onPopupEditPatientCounter)
+    }
+
+    function changeEditPatientC(e: ChangeEvent<HTMLInputElement>):void{
+        setInputValueEditPatientC({
+            ...inputValueEditPatientC,
+            [e.target.name]: e.target.value
+        })
+
+        setErrInputValueEditPatientC({
+            ...errInputValueEditPatientC,
+            [e.target.name]: ''
+        })
+    }
+
+    function handleSelectCounter(
+        idElement: 'selectCounterEdit' | 'selectAdminCounter',
+        nameInput: 'loketName' | 'adminEmail'
+    ):void{
+        const elem = document.getElementById(idElement) as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        setInputValueEditPatientC({
+            ...inputValueEditPatientC,
+            [nameInput]: value
+        })
+    }
+
+    function handleChangeDate(
+        e: ChangeEvent<HTMLInputElement> | Date | undefined, 
+        inputName: "submissionDate"
+    ):void{
+        if(!e){
+            return
+        }
+        setInputValueEditPatientC({
+            ...inputValueEditPatientC,
+            [inputName]: `${createDateFormat(e as Date)}`
+        })
+    }
+
+    function activeSelectEditCounter(
+        idElement: 'selectCounterEdit' | 'selectAdminCounter',
+        indexActive: number
+    ):void{
+        const element = document.getElementById(idElement) as HTMLSelectElement
+        if (element && indexActive !== -1) {
+            element.selectedIndex = indexActive
+        }
+    }
+
+    function activeSelectCounter():void{
+        if(selectCounter.length > 0){
+            const findIndexCounter = selectCounter.findIndex(counter=>counter.id === inputValueEditPatientC.loketName)
+            activeSelectEditCounter('selectCounterEdit', findIndexCounter)
+        }
+    }
+
+    function activeSelectAdmin():void{
+        if(selectEmailAdmin.length > 0){
+            const findIndexAdmin = selectEmailAdmin.findIndex(admins=>admins.id === inputValueEditPatientC.adminEmail)
+            activeSelectEditCounter('selectAdminCounter', findIndexAdmin)
+        }
+    }
+
+    useEffect(()=>{
+        setTimeout(() => {
+            activeSelectCounter()
+            activeSelectAdmin()
+        }, 500);
+    }, [onPopupEditPatientCounter, inputValueEditPatientC, selectEmailAdmin])
+
+    function submitEditPatientCounter():void{
+        const findLoadingId = loadingIdSubmitEditPatientC.find(id=> id === idToEditPatientCounter)
+        if(!findLoadingId && validateFormEdit()){
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `update patient counter data "${nameEditPatientCounter}"?`,
+                classIcon: 'text-color-default',
+                iconPopup: faPencil,
+                actionsData: [
+                    {
+                        nameBtn: 'Save',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn:()=>nextSubmitEditPatientCounter(),
+                        styleBtn:{
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
+            })
+        }
+    }
+
+    function validateFormEdit():string | undefined{
+        let err = {} as InputEditPatientCounter
+
+        if(!inputValueEditPatientC.patientId.trim()){
+            err.patientId = 'Must be required'
+        }
+        if(!inputValueEditPatientC.loketName.trim()){
+            err.loketName = 'Must be required'
+        }
+        if(!inputValueEditPatientC.message.trim()){
+            err.message = 'Must be required'
+        }
+        if(!inputValueEditPatientC.adminEmail.trim()){
+            err.adminEmail = 'Must be required'
+        }
+        if(!inputValueEditPatientC.submissionDate.trim()){
+            err.submissionDate = 'Must be required'
+        }
+        if(!inputValueEditPatientC.submitHour.trim()){
+            err.submitHour = 'Must be required'
+        }
+
+        if(Object.keys(err).length !== 0){
+            setErrInputValueEditPatientC(err)
+            return
+        }
+
+        return 'success'
+    }
+
+    function nextSubmitEditPatientCounter():void{
+        setOnModalSettings({} as PopupSettings)
+        console.log(inputValueEditPatientC)
+    }
+
     return {
         head,
         currentPage,
@@ -477,6 +802,29 @@ export function FilterTable({ params }: ParamsProps) {
         handleFilterBy,
         currentFilterBy,
         dataSortByFilter,
-        handleSortCategory
+        handleSortCategory,
+        clickColumnMenu,
+        indexActiveTableMenu,
+        setIndexActiveTableMenu,
+        idLoadingCancelTreatment,
+        loadingIdPatientsDelete,
+        onModalSettings,
+        openPopupEdit,
+        setOnModalSettings,
+        clickEditPatientCounter,
+        closePopupEditPatientC,
+        onPopupEditPatientCounter,
+        changeEditPatientC,
+        handleSelectCounter,
+        handleChangeDate,
+        inputValueEditPatientC,
+        errInputValueEditPatientC,
+        selectCounter,
+        selectEmailAdmin,
+        setValue,
+        value,
+        submitEditPatientCounter,
+        idToEditPatientCounter,
+        loadingIdSubmitEditPatientC
     }
 }

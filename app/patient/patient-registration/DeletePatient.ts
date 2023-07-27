@@ -1,13 +1,12 @@
 'use client'
 
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
-import {useRouter} from 'next/navigation'
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
+import { useRouter } from 'next/navigation'
 import { API } from "lib/api"
 import { preloadFetch } from 'lib/useFetch/preloadFetch'
 import { endpoint } from "lib/api/endpoint"
 import { ConfirmationPatientsT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import ServicingHours from "lib/dataInformation/ServicingHours"
-import { DataTableContentT } from "lib/types/FilterT"
 import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
@@ -15,7 +14,7 @@ import { authStore } from "lib/useZustand/auth"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { faBan, faTrash } from "@fortawesome/free-solid-svg-icons"
-import { PopupSetting } from "lib/types/TableT.type"
+import { PopupSettings } from "lib/types/TableT.type"
 
 type Props = {
     findDataRegistration: (
@@ -23,14 +22,14 @@ type Props = {
         dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
         dataFinishTreatment: PatientFinishTreatmentT[] | undefined
     ) => void
-    setOnPopupSetting: Dispatch<SetStateAction<PopupSetting>>
-    onPopupSetting?: PopupSetting
+    setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
+    onModalSettings?: PopupSettings
 }
 
 export function DeletePatient({
     findDataRegistration,
-    setOnPopupSetting,
-    onPopupSetting
+    setOnModalSettings,
+    onModalSettings
 }: Props) {
     const [idLoadingDeletePatient, setIdLoadingDeletePatient] = useState<string[]>([])
     const [idLoadingCancelTreatment, setIdLoadingCancelTreatment] = useState<string[]>([])
@@ -41,8 +40,8 @@ export function DeletePatient({
         dataPatientRegis,
         pushTriggedErr
     } = ServicingHours()
-    
-    const {user} = authStore()
+
+    const { user } = authStore()
     const router = useRouter()
 
     function preloadDataRegistration(
@@ -70,11 +69,11 @@ export function DeletePatient({
             )
 
             setTimeout(() => {
-                if(actionFor === 'delete'){
-                    const removeIdLoading = idLoadingDeletePatient.filter(id=> id !== patientId)
+                if (actionFor === 'delete') {
+                    const removeIdLoading = idLoadingDeletePatient.filter(id => id !== patientId)
                     setIdLoadingDeletePatient(removeIdLoading)
-                }else if(actionFor === 'cancel'){
-                    const removeIdLoading = idLoadingCancelTreatment.filter(id=> id !== patientId)
+                } else if (actionFor === 'cancel') {
+                    const removeIdLoading = idLoadingCancelTreatment.filter(id => id !== patientId)
                     setIdLoadingCancelTreatment(removeIdLoading)
                 }
             }, 0);
@@ -87,22 +86,43 @@ export function DeletePatient({
     ): void {
         const findId = idLoadingDeletePatient.find(patientId => patientId === id)
         if (!findId) {
-            setOnPopupSetting({
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `Delete patient of "${name}"`,
                 classIcon: 'text-pink-old',
-                classBtnNext: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
                 iconPopup: faTrash,
-                nameBtnNext: 'Yes',
-                patientId: id,
-                categoryAction: 'delete-patient'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
+                        classLoading: 'hidden',
+                        clickBtn: () => nextConfirmDelete(id),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    },
+                ]
             })
         }
     }
 
-    function nextConfirmDelete(id: string):void{
+    function nextConfirmDelete(id: string): void {
         setIdLoadingDeletePatient((current) => [...current, id])
         deleteDataPersonalPatient(id)
-        setOnPopupSetting({} as PopupSetting)
+        setOnModalSettings({} as PopupSettings)
     }
 
     function deleteDataPersonalPatient(id: string): void {
@@ -115,7 +135,7 @@ export function DeletePatient({
                 preloadFetch(endpoint.getServicingHours())
                     .then((res) => {
                         if (res?.data) {
-                            let newId: {[key: string]: any} = deleteResult as {[key: string]: any}
+                            let newId: { [key: string]: any } = deleteResult as { [key: string]: any }
                             preloadDataRegistration(res, newId?.id as string, 'delete')
                             alert(`Successfully deleted data patient`)
                         } else {
@@ -132,39 +152,61 @@ export function DeletePatient({
     }
 
     // action cancel treatment
-    function clickCancelTreatment(id: string, name: string):void{
+    function clickCancelTreatment(id: string, name: string): void {
         const findId = idLoadingCancelTreatment.find(patientId => patientId === id)
-        if(!findId){
-                setOnPopupSetting({
-                    title: `Cancel patient registration "${name}"?`,
-                    classIcon: 'text-red-default',
-                    classBtnNext: 'bg-red border-red-default hover:bg-white hover:text-red-default hover:border-red-default',
-                    iconPopup: faBan,
-                    nameBtnNext: 'Yes',
-                    patientId: id,
-                    categoryAction: 'cancel-treatment'
-                })
+        if (!findId) {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Cancel patient registration "${name}"?`,
+                classIcon: 'text-red-default',
+                iconPopup: faBan,
+                patientId: id,
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'bg-red border-red-default hover:bg-white hover:text-red-default hover:border-red-default',
+                        classLoading: 'hidden',
+                        clickBtn: () => nextCancelTreatment(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    },
+                ]
+            })
         }
     }
 
-    function nextCancelTreatment():void{
+    function nextCancelTreatment(): void {
         setOnMsgCancelTreatment(true)
     }
-    
-    function handleCancelMsg(e: ChangeEvent<HTMLInputElement>):void{
+
+    function handleCancelMsg(e: ChangeEvent<HTMLInputElement>): void {
         setInputMsgCancelPatient(e.target.value)
     }
 
-    function submitCancelTreatment():void{
-        if(inputMsgCancelPatient.length > 0){
-            setIdLoadingCancelTreatment((current)=>[...current, onPopupSetting?.patientId as string])
-            pushCancelTreatment(onPopupSetting?.patientId as string)
-            setOnPopupSetting({} as PopupSetting)
+    function submitCancelTreatment(): void {
+        if (inputMsgCancelPatient.length > 0) {
+            setIdLoadingCancelTreatment((current) => [...current, onModalSettings?.patientId as string])
+            pushCancelTreatment(onModalSettings?.patientId as string)
+            setOnModalSettings({} as PopupSettings)
             setOnMsgCancelTreatment(false)
         }
     }
 
-    function pushCancelTreatment(patientId: string):void{
+    function pushCancelTreatment(patientId: string): void {
         const data: SubmitFinishedTreatmentT = {
             patientId: patientId,
             confirmedTime: {
@@ -181,30 +223,30 @@ export function DeletePatient({
             'finished-treatment',
             data
         )
-        .then(finishedRes=>{
-            if(finishedRes?.patientId){
-                preloadFetch(endpoint.getServicingHours())
-                    .then((res) => {
-                        if (res?.data) {
-                            alert('Successfully cancel patient registration')
-                            const findPatientRegis = dataPatientRegis?.find(patient=>patient.id === finishedRes?.patientId)
-                            const getName = findPatientRegis?.patientName?.replace(specialCharacter, '')?.replace(spaceString, '')
+            .then(finishedRes => {
+                if (finishedRes?.patientId) {
+                    preloadFetch(endpoint.getServicingHours())
+                        .then((res) => {
+                            if (res?.data) {
+                                alert('Successfully cancel patient registration')
+                                const findPatientRegis = dataPatientRegis?.find(patient => patient.id === finishedRes?.patientId)
+                                const getName = findPatientRegis?.patientName?.replace(specialCharacter, '')?.replace(spaceString, '')
 
-                            setTimeout(() => {
-                                router.push(`patient-registration/personal-data/not-yet-confirmed/${getName}/${findPatientRegis?.id}`) 
-                            }, 0)
-                        } else {
-                            pushTriggedErr('error preload data service. no property "data" found')
-                        }
-                    })
-                    .catch(err => {
-                        pushTriggedErr('error preload data service')
-                    })
-            }
-        })
-        .catch(err=>pushTriggedErr('a server error occurred while canceling the patient. please try again'))
+                                setTimeout(() => {
+                                    router.push(`patient-registration/personal-data/not-yet-confirmed/${getName}/${findPatientRegis?.id}`)
+                                }, 0)
+                            } else {
+                                pushTriggedErr('error preload data service. no property "data" found')
+                            }
+                        })
+                        .catch(err => {
+                            pushTriggedErr('error preload data service')
+                        })
+                }
+            })
+            .catch(err => pushTriggedErr('a server error occurred while canceling the patient. please try again'))
     }
-
+    
     return {
         clickDelete,
         clickCancelTreatment,

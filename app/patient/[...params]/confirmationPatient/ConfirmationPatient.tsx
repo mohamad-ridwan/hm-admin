@@ -1,6 +1,6 @@
 'use client'
 
-import { IconDefinition, faCalendarDays, faCheck, faClock, faDownload, faListOl, faPaperPlane, faPencil, faTrash, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { IconDefinition, faCalendarDays, faCheck, faClock, faListOl, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { Container } from "components/Container";
 import { CardInfo } from "components/dataInformation/CardInfo";
 import { HeadInfo } from "components/dataInformation/HeadInfo";
@@ -10,11 +10,13 @@ import { createDateFormat } from "lib/formats/createDateFormat";
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat";
 import { spaceString } from "lib/regex/spaceString";
 import { FormConfirmation } from "./FormConfirmation";
-import { UseForm } from "./UseForm";
+import { UseForm } from "./UseConfirmation";
 import { ContainerPopup } from "components/popup/ContainerPopup";
 import { SettingPopup } from "components/popup/SettingPopup";
 import Button from "components/Button";
 import { ActionsDataT } from "lib/types/TableT.type";
+import EditPatientConfirmation from "app/patient/confirmation-patient/EditPatientConfirmation";
+import FormPatientConfirmation from "app/patient/confirmation-patient/FormPatientConfirmation";
 
 export function ConfirmationPatient({ params }: { params: string }) {
     const {
@@ -32,6 +34,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
 
     const {
         onPopupSetting,
+        setOnPopupSetting,
         clickDownload,
         cancelPopupFormConfirm,
         confirmForDownloadPdf,
@@ -39,8 +42,40 @@ export function ConfirmationPatient({ params }: { params: string }) {
         confirmSendEmail,
         loadingSendEmail,
         clickMenu,
-        isMenuActive
+        isMenuActive,
+        clickDelete,
+        confirmDeletePatient,
+        loadingDelete,
+        setOnModalSettings,
+        onModalSettings
     } = UseForm()
+
+    const {
+        onPopupEditConfirmPatient,
+        clickEditToConfirmPatient,
+        valueInputEditConfirmPatient,
+        nameEditConfirmPatient,
+        errEditInputConfirmPatient,
+        closePopupEditConfirmPatient,
+        changeEditConfirmPatient,
+        selectEmailAdmin,
+        handleInputSelectConfirmPatient,
+        changeDateConfirm,
+        selectDoctorSpecialist,
+        loadDataDoctor,
+        loadDataRoom,
+        selectDoctor,
+        selectRoom,
+        editActiveManualQueue,
+        toggleChangeManualQueue,
+        toggleSetAutoQueue,
+        // selectPresence,
+        idPatientToEditConfirmPatient,
+        submitEditConfirmPatient,
+        clickOnEditConfirmPatient,
+        idLoadingEditConfirmPatient,
+        nextSubmitEditConfirmPatient
+    } = FormPatientConfirmation({ setOnPopupSetting, setOnModalSettings })
 
     const findCurrentRoom = dataRooms?.find(room => room.id === dataConfirmPatient?.roomInfo?.roomId)
     const findCurrentDoctor = doctors?.find(doctor => doctor.id === dataConfirmPatient?.doctorInfo?.doctorId)
@@ -110,24 +145,28 @@ export function ConfirmationPatient({ params }: { params: string }) {
             name: 'Edit',
             classWrapp: 'cursor-pointer',
             click: () => {
-                return
+                clickEditToConfirmPatient(detailDataPatientRegis.id, detailDataPatientRegis.patientName)
+                clickOnEditConfirmPatient()
+                clickMenu()
             }
         },
         {
             name: 'Download PDF',
             classWrapp: 'cursor-pointer',
-            click: ()=>clickDownload()
+            click: () => clickDownload()
         },
         {
             name: 'Send Confirmation',
-            classWrapp: loadingSendEmail ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' :  'cursor-pointer',
-            click: ()=>clickSend()
+            classWrapp: loadingSendEmail ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' : 'cursor-pointer',
+            click: () => clickSend()
         },
         {
             name: 'Delete',
-            classWrapp: 'text-red-default cursor-pointer',
-            click: ()=>{
-                return
+            classWrapp: loadingDelete || params.length > 5 ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
+            click: () => {
+                if (params.length <= 5) {
+                    clickDelete(detailDataPatientRegis.patientName, detailDataPatientRegis.id, dataConfirmPatient.id)
+                }
             }
         }
     ]
@@ -144,7 +183,58 @@ export function ConfirmationPatient({ params }: { params: string }) {
                         classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
                         maxWidth="auto"
                     >
-                        {onPopupSetting?.title && (
+                        {onPopupEditConfirmPatient && (
+                            <EditPatientConfirmation
+                                valueInputEditConfirmPatient={valueInputEditConfirmPatient}
+                                nameEditConfirmPatient={nameEditConfirmPatient}
+                                errEditInputConfirmPatient={errEditInputConfirmPatient}
+                                closePopupEditConfirmPatient={closePopupEditConfirmPatient}
+                                changeEditConfirmPatient={changeEditConfirmPatient}
+                                selectEmailAdmin={selectEmailAdmin}
+                                handleInputSelectConfirmPatient={handleInputSelectConfirmPatient}
+                                changeDateConfirm={changeDateConfirm}
+                                selectDoctorSpecialist={selectDoctorSpecialist}
+                                loadDataDoctor={loadDataDoctor}
+                                loadDataRoom={loadDataRoom}
+                                selectDoctor={selectDoctor}
+                                selectRoom={selectRoom}
+                                editActiveManualQueue={editActiveManualQueue}
+                                toggleChangeManualQueue={toggleChangeManualQueue}
+                                toggleSetAutoQueue={toggleSetAutoQueue}
+                                // selectPresence={selectPresence}
+                                idPatientToEditConfirmPatient={idPatientToEditConfirmPatient}
+                                idLoadingEditConfirmPatient={idLoadingEditConfirmPatient}
+                                submitEditConfirmPatient={submitEditConfirmPatient}
+                            />
+                        )}
+
+                        {onModalSettings?.title && (
+                            <ContainerPopup
+                                className='flex justify-center items-center overflow-y-auto'
+                            >
+                                <SettingPopup
+                                    clickClose={onModalSettings.clickClose}
+                                    title={onModalSettings.title}
+                                    classIcon={onModalSettings.classIcon}
+                                    iconPopup={onModalSettings.iconPopup}
+                                >
+                                    {onModalSettings.actionsData.length > 0 && onModalSettings.actionsData.map((btn, idx) => {
+                                        return (
+                                            <Button
+                                                key={idx}
+                                                nameBtn={btn.nameBtn}
+                                                classBtn={btn.classBtn}
+                                                classLoading={btn.classLoading}
+                                                clickBtn={btn.clickBtn}
+                                                styleBtn={btn.styleBtn}
+                                            />
+                                        )
+                                    })}
+                                </SettingPopup>
+                            </ContainerPopup>
+                        )}
+
+                        {/* {onPopupSetting?.title && (
                             <ContainerPopup
                                 className='flex justify-center items-center overflow-y-auto'
                             >
@@ -168,6 +258,10 @@ export function ConfirmationPatient({ params }: { params: string }) {
                                                 confirmForDownloadPdf()
                                             } else if (onPopupSetting.categoryAction === 'send-email') {
                                                 confirmSendEmail()
+                                            } else if (onPopupSetting.categoryAction === 'edit-confirm-patient') {
+                                                nextSubmitEditConfirmPatient()
+                                            }else if(onPopupSetting.categoryAction === 'delete-confirmation'){
+                                                confirmDeletePatient(dataConfirmPatient.id)
                                             }
                                         }}
                                     />
@@ -185,7 +279,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
                                     />
                                 </SettingPopup>
                             </ContainerPopup>
-                        )}
+                        )} */}
 
                         <HeadInfo
                             title={dataConfirmPatient?.roomInfo?.queueNumber}
@@ -193,19 +287,6 @@ export function ConfirmationPatient({ params }: { params: string }) {
                             icon={faListOl}
                             iconRight={doctorIsAvailable ? faCheck : faTriangleExclamation}
                             titleRight={doctorIsAvailable ? 'Doctor available' : 'Doctor is not available'}
-                            // deleteIcon={faTrash}
-                            // editIcon={faPencil}
-                            // downloadIcon={faDownload}
-                            // sendIcon={loadingSendEmail ? undefined : faPaperPlane}
-                            // clickSend={clickSend}
-                            // clickDownload={clickDownload}
-                            // clickEdit={() => { return }}
-                            // clickDelete={() => { return }}
-                            // classEditBtn="mr-1 hover:text-white"
-                            // classDownloadBtn="mr-1 hover:text-white bg-color-default-old"
-                            // classSendIcon={`${loadingSendEmail ? 'cursor-not-allowed' : 'cursor-pointer'} mr-1 hover:text-white bg-orange-young border-orange-young hover:border-orange-young`}
-                            // classLoadingSend={loadingSendEmail ? 'flex' : 'hidden'}
-                            // classDeleteBtn="bg-pink border-pink hover:border-pink-old hover:bg-pink-old hover:text-white"
                             styleHeadTop={{
                                 justifyContent: 'space-between'
                             }}

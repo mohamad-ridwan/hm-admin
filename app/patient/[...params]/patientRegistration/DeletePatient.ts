@@ -8,17 +8,17 @@ import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
-import { PopupSetting } from "lib/types/TableT.type"
+import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     params?: string
-    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
+    setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
 }
 
 export function DeletePatient({
     params,
-    setOnPopupSetting
+    setOnModalSettings
 }: Props) {
     const [loadingDelete, setLoadingDelete] = useState<boolean>(false)
     const [loadingCancelTreatment, setLoadingCancelTreatment] = useState<boolean>(false)
@@ -34,7 +34,7 @@ export function DeletePatient({
         pushTriggedErr
     } = UsePatientData({ params })
 
-    const {user} = authStore()
+    const { user } = authStore()
 
     const router = useRouter()
 
@@ -111,22 +111,46 @@ export function DeletePatient({
     }
 
     // action cancel treatment
-    function clickCancelTreatment():void{
-        if(loadingCancelTreatment === false && typeof setOnPopupSetting !== 'undefined'){
-            setOnPopupSetting({
+    function clickCancelTreatment(): void {
+        if (loadingCancelTreatment === false && typeof setOnModalSettings !== 'undefined') {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: 'Cancel patient registration?',
                 classIcon: 'text-font-color-2',
-                classBtnNext: 'hover:bg-white',
                 iconPopup: faBan,
-                nameBtnNext: 'Yes',
-                patientId: detailDataPatientRegis?.id,
-                categoryAction: 'cancel-treatment'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => {
+                            setOnMsgCancelTreatment(true)
+                            setOnModalSettings({} as PopupSettings)
+                        },
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    },
+                ]
             })
         }
     }
 
-    function submitCancelTreatment():void{
-        if(inputMsgCancelPatient.length > 0){
+    function submitCancelTreatment(): void {
+        if (inputMsgCancelPatient.length > 0) {
             setLoadingCancelTreatment(true)
             setOnMsgCancelTreatment(false)
             const data: SubmitFinishedTreatmentT = {
@@ -135,7 +159,7 @@ export function DeletePatient({
                     dateConfirm: createDateFormat(new Date()),
                     confirmHour: createHourFormat(new Date())
                 },
-                adminInfo: {adminId: user.user?.id as string},
+                adminInfo: { adminId: user.user?.id as string },
                 isCanceled: true,
                 messageCancelled: inputMsgCancelPatient
             }
@@ -143,20 +167,20 @@ export function DeletePatient({
                 'finished-treatment',
                 data,
             )
-            .then(res=>{
-                alert('Successfully cancel patient registration')
-                setLoadingCancelTreatment(false)
-            })
-            .catch(err=>pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
+                .then(res => {
+                    alert('Successfully cancel patient registration')
+                    setLoadingCancelTreatment(false)
+                })
+                .catch(err => pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
         }
     }
 
-    function handleCancelMsg(e?: ChangeEvent<HTMLInputElement>):void{
+    function handleCancelMsg(e?: ChangeEvent<HTMLInputElement>): void {
         setInputMsgCancelPatient(e?.target.value as string)
     }
     // end action cancel treatment
 
-    function clickMenu():void{
+    function clickMenu(): void {
         setIsMenuActive(!isMenuActive)
     }
 
@@ -165,7 +189,7 @@ export function DeletePatient({
         loadingDelete,
         loadingCancelTreatment,
         clickCancelTreatment,
-        onMsgCancelTreatment, 
+        onMsgCancelTreatment,
         setOnMsgCancelTreatment,
         handleCancelMsg,
         inputMsgCancelPatient,

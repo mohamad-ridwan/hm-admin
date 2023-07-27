@@ -88,9 +88,7 @@ export function UseDashboard() {
         if (
             !loadDataService &&
             Array.isArray(dataFinishTreatment) &&
-            dataFinishTreatment.length > 0 &&
-            Array.isArray(dataDrugCounter) &&
-            dataDrugCounter.length > 0
+            Array.isArray(dataDrugCounter)
         ) {
             setOverview([
                 {
@@ -187,7 +185,7 @@ export function UseDashboard() {
 
             return findPatientFT
         })
-        const earning = cashPM.map(patient => (patient.isConfirm.paymentInfo.totalCost))
+        const earning: string[] = cashPM.length > 0 ? cashPM.map(patient => (patient.isConfirm.paymentInfo.totalCost)) : ['0']
         const earningStr = currencyFormat(eval(earning.join('+')), 'id-ID', 'IDR')
         return earningStr
     }

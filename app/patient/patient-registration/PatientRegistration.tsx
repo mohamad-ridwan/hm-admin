@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import {faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
 import { TableHead } from 'components/table/TableHead'
@@ -22,14 +22,14 @@ import { DeletePatient } from './DeletePatient'
 import { ContainerPopup } from 'components/popup/ContainerPopup'
 import { SettingPopup } from 'components/popup/SettingPopup'
 import Button from 'components/Button'
-import { ActionsDataT, PopupSetting } from 'lib/types/TableT.type'
+import { ActionsDataT, PopupSettings } from 'lib/types/TableT.type'
 import { FormPopup } from 'components/popup/FormPopup'
 import { TitleInput } from 'components/input/TitleInput'
 import ErrorInput from 'components/input/ErrorInput'
 import Input from 'components/input/Input'
 
 export function PatientRegistration() {
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+    const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
     const router = useRouter()
 
     // Form edit patient registration
@@ -46,8 +46,7 @@ export function PatientRegistration() {
         setOnPopupEdit,
         idPatientToEdit,
         idLoadingEdit,
-        nextSubmitUpdate
-    } = FormPatientRegistration({ setOnPopupSetting })
+    } = FormPatientRegistration({ setOnModalSettings })
 
     const {
         head,
@@ -77,8 +76,6 @@ export function PatientRegistration() {
     const {
         clickDelete,
         clickCancelTreatment,
-        nextCancelTreatment,
-        nextConfirmDelete,
         onMsgCancelTreatment,
         submitCancelTreatment,
         setOnMsgCancelTreatment,
@@ -86,7 +83,7 @@ export function PatientRegistration() {
         inputMsgCancelPatient,
         idLoadingCancelTreatment,
         idLoadingDeletePatient
-    } = DeletePatient({ findDataRegistration, setOnPopupSetting, onPopupSetting })
+    } = DeletePatient({ findDataRegistration, setOnModalSettings, onModalSettings })
 
     function toPage(path: string): void {
         router.push(path)
@@ -113,48 +110,28 @@ export function PatientRegistration() {
                 />
             )}
 
-            {/* popup next / cancel actions */}
-            {onPopupSetting?.title && (
+            {onModalSettings?.title && (
                 <ContainerPopup
                     className='flex justify-center items-center overflow-y-auto'
                 >
                     <SettingPopup
-                        clickClose={() => setOnPopupSetting({} as PopupSetting)}
-                        title={onPopupSetting.title}
-                        classIcon='text-font-color-2'
-                        iconPopup={onPopupSetting.iconPopup}
+                        clickClose={onModalSettings.clickClose}
+                        title={onModalSettings.title}
+                        classIcon={onModalSettings.classIcon}
+                        iconPopup={onModalSettings.iconPopup}
                     >
-                        <Button
-                            nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn="hover:bg-white"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
-                            }}
-                            clickBtn={() => {
-                                if (onPopupSetting.categoryAction === 'edit-patient') {
-                                    nextSubmitUpdate()
-                                } else if (onPopupSetting.categoryAction === 'cancel-treatment') {
-                                    nextCancelTreatment()
-                                } else if (onPopupSetting.categoryAction === 'delete-patient') {
-                                    nextConfirmDelete(onPopupSetting.patientId as string)
-                                }
-                            }}
-                        />
-                        <Button
-                            nameBtn="Cancel"
-                            classBtn="bg-white border-none"
-                            colorBtnTxt="text-orange-young"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057'
-                            }}
-                            clickBtn={() => setOnPopupSetting({} as PopupSetting)}
-                        />
+                        {onModalSettings.actionsData.length > 0 && onModalSettings.actionsData.map((btn, idx) => {
+                            return (
+                                <Button
+                                    key={idx}
+                                    nameBtn={btn.nameBtn}
+                                    classBtn={btn.classBtn}
+                                    classLoading={btn.classLoading}
+                                    clickBtn={btn.clickBtn}
+                                    styleBtn={btn.styleBtn}
+                                />
+                            )
+                        })}
                     </SettingPopup>
                 </ContainerPopup>
             )}
@@ -281,8 +258,8 @@ export function PatientRegistration() {
 
                         const pathUrlToDataDetail: string = `/patient/patient-registration/personal-data/not-yet-confirmed/${namePatient}/${patient.id}`
 
-                        const findIdLoadingCancelT = idLoadingCancelTreatment.find(id=>id === patient.id)
-                        const findIdLoadingDelete = idLoadingDeletePatient.find(id=>id === patient.id)
+                        const findIdLoadingCancelT = idLoadingCancelTreatment.find(id => id === patient.id)
+                        const findIdLoadingDelete = idLoadingDeletePatient.find(id => id === patient.id)
 
                         const actionsData: ActionsDataT[] = [
                             {

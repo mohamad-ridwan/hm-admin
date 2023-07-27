@@ -1,5 +1,3 @@
-'use client'
-
 import { CSSProperties, ChangeEvent } from "react"
 import ErrorInput from "components/input/ErrorInput"
 import Input from "components/input/Input"
@@ -214,18 +212,6 @@ function EditPatientConfirmation({
                     {...styleError}
                     error={errEditInputConfirmPatient?.treatmentHours}
                 />
-
-                {/* <TitleInput title='Presence' />
-                <InputSelect
-                    id='selectPresence'
-                    classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
-                    data={selectPresence}
-                    handleSelect={() => handleInputSelectConfirmPatient('selectPresence', 'presence')}
-                />
-                <ErrorInput
-                    {...styleError}
-                    error={errEditInputConfirmPatient?.presence}
-                /> */}
 
                 <Button
                     nameBtn="UPDATE"

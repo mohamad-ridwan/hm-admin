@@ -12,17 +12,17 @@ import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
-import { PopupSetting } from "lib/types/TableT.type"
+import { PopupSettings } from "lib/types/TableT.type"
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     params: string
-    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
+    setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
 }
 
 export function HandleFormRegistration({
     params,
-    setOnPopupSetting
+    setOnModalSettings
 }: Props) {
     const [inputValue, setInputValue] = useState<InputPatientRegistrationT>({
         specialist: 'Select Specialist',
@@ -319,16 +319,37 @@ export function HandleFormRegistration({
         if (
             loadingSubmit === false &&
             validateSubmit() &&
-            typeof setOnPopupSetting !== 'undefined'
+            typeof setOnModalSettings !== 'undefined'
         ) {
-            setOnPopupSetting({
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: 'Confirm patient?',
                 classIcon: 'text-font-color-2',
-                classBtnNext: 'hover:bg-white',
                 iconPopup: faCircleCheck,
-                nameBtnNext: 'Yes',
-                patientId: '',
-                categoryAction: 'confirm-registration'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: ()=>nextSubmitConfirmation(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    },
+                ]
             })
         }
     }
@@ -337,8 +358,8 @@ export function HandleFormRegistration({
         setLoadingSubmit(true)
         setErrInputValue({} as InputPatientRegistrationT)
         pushToConfirm()
-        if(typeof setOnPopupSetting !== 'undefined'){
-            setOnPopupSetting({} as PopupSetting)
+        if(typeof setOnModalSettings !== 'undefined'){
+            setOnModalSettings({} as PopupSettings)
         }
     }
 

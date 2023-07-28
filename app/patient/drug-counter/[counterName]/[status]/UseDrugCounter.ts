@@ -1,7 +1,7 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react"
-import { notFound } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
@@ -10,9 +10,11 @@ import { createDateFormat } from "lib/formats/createDateFormat"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
-import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
-import { InputEditPatientCounter, SubmitConfirmDrugCounterT, SubmitDrugCounterT } from "lib/types/InputT.type"
+import { faBan, faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
+import { InputEditPatientCounter, SubmitConfirmDrugCounterT, SubmitDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { API } from "lib/api"
+import { createHourFormat } from "lib/formats/createHourFormat"
+import { authStore } from "lib/useZustand/auth"
 
 type ParamsProps = {
     params: {
@@ -54,7 +56,9 @@ export function UseDrugCounter({
     const [value, setValue] = useState<string>('')
     const [editActiveManualQueue, setEditActiveManualQueue] = useState<boolean>(true)
     const [editActiveAutoQueue, setEditActiveAutoQueue] = useState<boolean>(false)
-    const [isExpiredPatient, setIsExpiredPatient] = useState<boolean>(false)
+    const [disableUpdtQueue, setDisableUpdtQueue] = useState<string>('')
+    const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
+    const [inputMsgCancelPatient, setInputMsgCancelPatient] = useState<string>('')
     const [errInputValueEditPatientC, setErrInputValueEditPatientC] = useState<InputEditPatientCounter>({} as InputEditPatientCounter)
     const [onPopupEditPatientCounter, setOnpopupEditPatientCounter] = useState<boolean>(false)
     const [selectEmailAdmin, setSelectEmailAdmin] = useState<DataOptionT>([
@@ -143,11 +147,15 @@ export function UseDrugCounter({
         dataPatientRegis,
         dataDrugCounter,
         dataFinishTreatment,
+        dataConfirmationPatients,
         dataLoket,
         loadDataService,
         dataAdmin,
         pushTriggedErr
     } = ServicingHours()
+
+    const { user } = authStore()
+    const router = useRouter()
 
     const loket = dataLoket?.find(loket => loket?.loketName === params?.counterName)
     const statusURL: ['waiting-patient', 'already-confirmed', 'expired-patient'] = [
@@ -543,7 +551,11 @@ export function UseDrugCounter({
             setIdToEditPatientCounter(patientId)
 
             const checkExpiredPatient: boolean = (new Date(findPatient?.submissionDate?.submissionDate)).valueOf() < (new Date(createDateFormat(new Date()))).valueOf()
-            setIsExpiredPatient(checkExpiredPatient)
+            if (checkExpiredPatient) {
+                setDisableUpdtQueue(`Can't update queue number because it expired`)
+            } else if (findPatient.isConfirm.confirmState) {
+                setDisableUpdtQueue('Can not update the number because the treatment process has been completed')
+            }
 
             setTimeout(() => {
                 loadDataAdmin()
@@ -801,7 +813,7 @@ export function UseDrugCounter({
             dataSubmitEditPatientC()
         )
             .then(res => {
-                const findLoadingId = loadingIdSubmitEditPatientC.filter(id=>id !== res?.patientId)
+                const findLoadingId = loadingIdSubmitEditPatientC.filter(id => id !== res?.patientId)
                 setLoadingIdSubmitEditPatientC(findLoadingId)
                 alert('Update patient counter successfully')
             })
@@ -880,6 +892,378 @@ export function UseDrugCounter({
         })
     }
 
+    function clickCancelTreatment(
+        patientId: string,
+        patientName: string
+    ): void {
+        const findLoadingId = idLoadingCancelTreatment.find(id => id === patientId)
+        if (!findLoadingId) {
+            setIndexActiveTableMenu(null)
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Cancel treatment from "${patientName}"?`,
+                classIcon: 'text-font-color-2',
+                iconPopup: faBan,
+                patientId: patientId,
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => nextCancelTreatment(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
+            })
+        }
+    }
+
+    function nextCancelTreatment(): void {
+        setOnMsgCancelTreatment(true)
+    }
+
+    function cancelOnMsgCancelPatient(): void {
+        setOnMsgCancelTreatment(false)
+    }
+
+    function handleCancelMsg(e: ChangeEvent<HTMLInputElement>): void {
+        setInputMsgCancelPatient(e.target.value)
+    }
+
+    function submitCancelTreatment(): void {
+        if (inputMsgCancelPatient.length > 0) {
+            setIdLoadingCancelTreatment((current) => [onModalSettings?.patientId as string, ...current])
+            setOnModalSettings({} as PopupSettings)
+            setOnMsgCancelTreatment(false)
+            pushCancelTreatment()
+        }
+    }
+
+    function pushCancelTreatment(): void {
+        const data: SubmitFinishedTreatmentT = {
+            patientId: onModalSettings?.patientId as string,
+            confirmedTime: {
+                dateConfirm: createDateFormat(new Date),
+                confirmHour: createHourFormat(new Date())
+            },
+            adminInfo: {
+                adminId: user.user?.id as string
+            },
+            isCanceled: true,
+            messageCancelled: inputMsgCancelPatient
+        }
+
+        API().APIPostPatientData(
+            'finished-treatment',
+            data
+        )
+            .then(res => {
+                const removeIdLoading = idLoadingCancelTreatment.filter(id => id !== res?.patientId)
+                setIdLoadingCancelTreatment(removeIdLoading)
+
+                const findPatientRegis = dataPatientRegis?.find(patient => patient.id === res?.patientId)
+                const getName = findPatientRegis?.patientName?.replace(specialCharacter, '')?.replace(spaceString, '')
+                const queueNumber = dataDrugCounter?.find(patient => patient.patientId === res?.patientId)?.queueNumber
+
+                setTimeout(() => {
+                    router.push(`/patient/patient-registration/personal-data/confirmed/${getName}/${findPatientRegis?.id}/counter/${params.counterName}/not-yet-confirmed/${queueNumber}`)
+                }, 0)
+            })
+            .catch(err => pushTriggedErr('a server error occurred while canceling the patient. please try again'))
+    }
+
+    function clickDeletePatient(
+        patientId: string,
+        patientName: string
+    ): void {
+        const findLoadingId = loadingIdPatientsDelete.find(id => id === patientId)
+        if (!findLoadingId) {
+            setIndexActiveTableMenu(null)
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: 'What do you want to delete?',
+                classIcon: 'text-font-color-2',
+                iconPopup: faBan,
+                actionsData: [
+                    {
+                        nameBtn: 'All data',
+                        classBtn: 'bg-orange hover:bg-white border-orange hover:border-orange hover:text-orange',
+                        classLoading: 'hidden',
+                        clickBtn: () => clickDeleteAllData(patientId, patientName),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: params.status !== 'already-confirmed' ? 'Patient counter' : 'Patient treatment data',
+                        classBtn: 'bg-pink-old hover:bg-white border-pink-old hover:border-pink-old hover:text-pink-old',
+                        classLoading: 'hidden',
+                        clickBtn: () => {
+                            if (params.status !== 'already-confirmed') {
+                                clickDeletePatientCounter(patientId, patientName)
+                                return
+                            }
+                            clickDeleteFinishedTreatment(patientId, patientName)
+                        },
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
+            })
+        }
+    }
+
+    function clickDeleteAllData(
+        patientId: string,
+        patientName: string
+    ): void {
+        setOnModalSettings({
+            clickClose: () => setOnModalSettings({} as PopupSettings),
+            title: `Delete all data from patient "${patientName}"?`,
+            classIcon: 'text-font-color-2',
+            iconPopup: faBan,
+            actionsData: [
+                {
+                    nameBtn: 'Yes',
+                    classBtn: 'hover:bg-white',
+                    classLoading: 'hidden',
+                    clickBtn: () => confirmDeleteAllData(patientId),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Cancel',
+                    classBtn: 'bg-white border-none',
+                    classLoading: 'hidden',
+                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem',
+                        color: '#495057',
+                    }
+                },
+            ]
+        })
+    }
+
+    function confirmDeleteAllData(patientId: string): void {
+        setOnModalSettings({} as PopupSettings)
+        setLoadingIdPatientsDelete((current) => [patientId, ...current])
+        const idDocumentCounter = dataDrugCounter?.find(patient => patient.patientId === patientId)?.id
+        const idDocumentConfirmPatient = dataConfirmationPatients?.find(patient => patient.patientId === patientId)?.id
+
+        API().APIDeletePatientData(
+            'drug-counter',
+            idDocumentCounter as string,
+            patientId
+        )
+            .then(res => {
+                return API().APIDeletePatientData(
+                    'confirmation-patients',
+                    idDocumentConfirmPatient as string,
+                    patientId
+                )
+            })
+            .then(res => {
+                return API().APIDeletePatientData(
+                    'patient-registration',
+                    patientId,
+                    patientId
+                )
+            })
+            .then(res => {
+                const newRes = res as { [key: string]: any }
+                const removeIdLoading = loadingIdPatientsDelete.filter(id => id !== newRes?.patientId)
+                setLoadingIdPatientsDelete(removeIdLoading)
+                alert('Successfully deleted patient data')
+            })
+            .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient counter data. please try again`))
+    }
+
+    function clickDeletePatientCounter(
+        patientId: string,
+        patientName: string
+    ): void {
+        setOnModalSettings({
+            clickClose: () => setOnModalSettings({} as PopupSettings),
+            title: `Delete counter data from patient "${patientName}"?`,
+            classIcon: 'text-font-color-2',
+            iconPopup: faBan,
+            actionsData: [
+                {
+                    nameBtn: 'Yes',
+                    classBtn: 'hover:bg-white',
+                    classLoading: 'hidden',
+                    clickBtn: () => confirmDeletePatientCounter(patientId),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Cancel',
+                    classBtn: 'bg-white border-none',
+                    classLoading: 'hidden',
+                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem',
+                        color: '#495057',
+                    }
+                },
+            ]
+        })
+    }
+
+    function confirmDeletePatientCounter(patientId: string): void {
+        setOnModalSettings({} as PopupSettings)
+        setLoadingIdPatientsDelete((current) => [patientId, ...current])
+        const idDocumentCounter = dataDrugCounter?.find(patient => patient.patientId === patientId)?.id
+
+        API().APIDeletePatientData(
+            'drug-counter',
+            idDocumentCounter as string,
+            patientId
+        )
+            .then(res => {
+                const newRes = res as { [key: string]: any }
+                const removeIdLoading = loadingIdPatientsDelete.filter(id => id !== newRes?.patientId)
+                setLoadingIdPatientsDelete(removeIdLoading)
+                alert('Successfully deleted patient data')
+            })
+            .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient counter data. please try again`))
+    }
+
+    function clickDeleteFinishedTreatment(
+        patientId: string,
+        patientName: string
+    ): void {
+        setOnModalSettings({
+            clickClose: () => setOnModalSettings({} as PopupSettings),
+            title: `Delete treatment data from patient "${patientName}"?`,
+            classIcon: 'text-font-color-2',
+            iconPopup: faBan,
+            actionsData: [
+                {
+                    nameBtn: 'Yes',
+                    classBtn: 'hover:bg-white',
+                    classLoading: 'hidden',
+                    clickBtn: () => confirmDeletePatientTreatment(patientId),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Cancel',
+                    classBtn: 'bg-white border-none',
+                    classLoading: 'hidden',
+                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem',
+                        color: '#495057',
+                    }
+                },
+            ]
+        })
+    }
+
+    function confirmDeletePatientTreatment(patientId: string): void {
+        setOnModalSettings({} as PopupSettings)
+        setLoadingIdPatientsDelete((current) => [patientId, ...current])
+        const idDocumentFinishTreatment = dataFinishTreatment?.find(patient => patient.patientId === patientId)?.id
+        const currentPatientC = dataDrugCounter?.find(patient=>patient.patientId === patientId)
+
+        API().APIDeletePatientData(
+            'finished-treatment',
+            idDocumentFinishTreatment as string,
+            patientId
+        )
+            .then(res => {
+                if(!currentPatientC){
+                    pushTriggedErr(`Not found patient counter with id "${patientId}"`)
+                    return
+                }
+                return API().APIPutPatientData(
+                    'drug-counter',
+                    currentPatientC?.id as string,
+                    dataEditPatientCounter(currentPatientC as DrugCounterT)
+                )
+            })
+            .then(res=>{
+                const removeIdLoading = loadingIdPatientsDelete.filter(id => id !== res?.patientId)
+                setLoadingIdPatientsDelete(removeIdLoading)
+                alert('Successfully deleted patient data')
+            })
+            .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient treatment data. please try again`))
+    }
+
+    function dataEditPatientCounter(patientCounter: DrugCounterT):SubmitConfirmDrugCounterT{
+        const {
+            patientId,
+            loketInfo,
+            message,
+            adminInfo,
+            submissionDate,
+            queueNumber,
+            isConfirm
+        } = patientCounter
+        return {
+            patientId,
+            loketInfo,
+            message,
+            adminInfo,
+            submissionDate,
+            queueNumber,
+            isConfirm:{
+                confirmState: false,
+                isSkipped: typeof isConfirm?.isSkipped !== 'undefined' ? isConfirm?.isSkipped : false
+            }
+        }
+    }
+
     return {
         head,
         currentPage,
@@ -925,7 +1309,14 @@ export function UseDrugCounter({
         editActiveManualQueue,
         toggleChangeManualQueue,
         toggleSetAutoQueue,
-        isExpiredPatient,
-        nameEditPatientCounter
+        disableUpdtQueue,
+        nameEditPatientCounter,
+        clickCancelTreatment,
+        onMsgCancelTreatment,
+        cancelOnMsgCancelPatient,
+        handleCancelMsg,
+        submitCancelTreatment,
+        inputMsgCancelPatient,
+        clickDeletePatient
     }
 }

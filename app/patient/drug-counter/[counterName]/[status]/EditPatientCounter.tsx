@@ -40,7 +40,7 @@ type Props = ActionProps & {
     idToEditPatientCounter: string | null,
     loadingIdSubmitEditPatientC: string[]
     editActiveManualQueue: boolean
-    isExpiredPatient: boolean
+    disableUpdtQueue: string
 }
 
 export function EditPatientCounter({
@@ -61,7 +61,7 @@ export function EditPatientCounter({
     editActiveManualQueue,
     toggleChangeManualQueue,
     toggleSetAutoQueue,
-    isExpiredPatient,
+    disableUpdtQueue
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -167,7 +167,7 @@ export function EditPatientCounter({
                     error={errInputValueEditPatientC?.queueNumber}
                 />
                 {/* options */}
-                {isExpiredPatient === false ? (
+                {!disableUpdtQueue ? (
                     <div
                         className='flex flex-wrap justify-end items-center mb-4'
                     >
@@ -185,7 +185,7 @@ export function EditPatientCounter({
                 ) : (
                     <ErrorInput
                         {...styleError}
-                        error={`Can't update queue number because it expired`}
+                        error={disableUpdtQueue}
                     />
                 )}
 

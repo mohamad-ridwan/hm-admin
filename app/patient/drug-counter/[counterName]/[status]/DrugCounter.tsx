@@ -23,6 +23,10 @@ import Button from "components/Button";
 import FormPatientRegistration from "app/patient/patient-registration/FormPatientRegistration";
 import EditPatientRegistration from "app/patient/patient-registration/EditPatientRegistration";
 import { EditPatientCounter } from "./EditPatientCounter";
+import { FormPopup } from "components/popup/FormPopup";
+import { TitleInput } from "components/input/TitleInput";
+import Input from "components/input/Input";
+import ErrorInput from "components/input/ErrorInput";
 
 type ParamsProps = {
     params: {
@@ -93,8 +97,15 @@ export function DrugCounter({ params }: ParamsProps) {
         editActiveManualQueue,
         toggleChangeManualQueue,
         toggleSetAutoQueue,
-        isExpiredPatient,
-        nameEditPatientCounter
+        disableUpdtQueue,
+        nameEditPatientCounter,
+        clickCancelTreatment,
+        onMsgCancelTreatment,
+        cancelOnMsgCancelPatient,
+        handleCancelMsg,
+        submitCancelTreatment,
+        inputMsgCancelPatient,
+        clickDeletePatient
     } = UseDrugCounter({ params, setOnModalSettings, onModalSettings, setOnPopupEdit })
 
     return (
@@ -131,7 +142,7 @@ export function DrugCounter({ params }: ParamsProps) {
                     editActiveManualQueue={editActiveManualQueue}
                     toggleChangeManualQueue={toggleChangeManualQueue}
                     toggleSetAutoQueue={toggleSetAutoQueue}
-                    isExpiredPatient={isExpiredPatient}
+                    disableUpdtQueue={disableUpdtQueue}
                 />
             )}
 
@@ -158,6 +169,55 @@ export function DrugCounter({ params }: ParamsProps) {
                             )
                         })}
                     </SettingPopup>
+                </ContainerPopup>
+            )}
+
+            {onMsgCancelTreatment && (
+                <ContainerPopup
+                    className='flex justify-center overflow-y-auto'
+                >
+                    <FormPopup
+                        tag="div"
+                        clickClose={cancelOnMsgCancelPatient}
+                        title="Messages for canceled patients"
+                    >
+                        <TitleInput title='Message' />
+                        <Input
+                            type='text'
+                            nameInput='messageCancelled'
+                            changeInput={handleCancelMsg}
+                            valueInput={inputMsgCancelPatient}
+                        />
+                        <ErrorInput
+                            error={inputMsgCancelPatient.length === 0 ? 'Must be required' : ''}
+                        />
+
+                        <div
+                            className="flex flex-wrap justify-end"
+                        >
+                            <Button
+                                nameBtn="Confirm"
+                                classBtn="hover:bg-white"
+                                classLoading="hidden"
+                                styleBtn={{
+                                    padding: '0.5rem',
+                                    marginTop: '0.5rem',
+                                }}
+                                clickBtn={submitCancelTreatment}
+                            />
+                            <Button
+                                nameBtn="Cancel"
+                                classBtn="bg-white border-none"
+                                classLoading="hidden"
+                                styleBtn={{
+                                    padding: '0.5rem',
+                                    marginTop: '0.5rem',
+                                    color: '#495057'
+                                }}
+                                clickBtn={cancelOnMsgCancelPatient}
+                            />
+                        </div>
+                    </FormPopup>
                 </ContainerPopup>
             )}
 
@@ -244,8 +304,11 @@ export function DrugCounter({ params }: ParamsProps) {
                             },
                             {
                                 name: 'Cancel Treatment',
-                                classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-pink-old',
+                                classWrapp: findIdLoadingCancelT || params.status === 'already-confirmed' ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-pink-old',
                                 click: (e?: MouseEvent) => {
+                                    if(params.status !== 'already-confirmed'){
+                                        clickCancelTreatment(patient.id, patient.data[0].name)
+                                    }
                                     e?.stopPropagation()
                                 }
                             },
@@ -253,6 +316,7 @@ export function DrugCounter({ params }: ParamsProps) {
                                 name: 'Delete',
                                 classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-red-default',
                                 click: (e?: MouseEvent) => {
+                                    clickDeletePatient(patient.id, patient.data[0].name)
                                     e?.stopPropagation()
                                 }
                             }

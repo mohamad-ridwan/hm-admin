@@ -11,7 +11,8 @@ import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
-import { InputEditPatientCounter } from "lib/types/InputT.type"
+import { InputEditPatientCounter, SubmitConfirmDrugCounterT, SubmitDrugCounterT } from "lib/types/InputT.type"
+import { API } from "lib/api"
 
 type ParamsProps = {
     params: {
@@ -50,7 +51,10 @@ export function UseDrugCounter({
         submissionDate: '',
         submitHour: ''
     })
-    const [value,setValue] = useState<string>('')
+    const [value, setValue] = useState<string>('')
+    const [editActiveManualQueue, setEditActiveManualQueue] = useState<boolean>(true)
+    const [editActiveAutoQueue, setEditActiveAutoQueue] = useState<boolean>(false)
+    const [isExpiredPatient, setIsExpiredPatient] = useState<boolean>(false)
     const [errInputValueEditPatientC, setErrInputValueEditPatientC] = useState<InputEditPatientCounter>({} as InputEditPatientCounter)
     const [onPopupEditPatientCounter, setOnpopupEditPatientCounter] = useState<boolean>(false)
     const [selectEmailAdmin, setSelectEmailAdmin] = useState<DataOptionT>([
@@ -142,6 +146,7 @@ export function UseDrugCounter({
         dataLoket,
         loadDataService,
         dataAdmin,
+        pushTriggedErr
     } = ServicingHours()
 
     const loket = dataLoket?.find(loket => loket?.loketName === params?.counterName)
@@ -537,6 +542,9 @@ export function UseDrugCounter({
             setNameEditPatientCounter(patientName)
             setIdToEditPatientCounter(patientId)
 
+            const checkExpiredPatient: boolean = (new Date(findPatient?.submissionDate?.submissionDate)).valueOf() < (new Date(createDateFormat(new Date()))).valueOf()
+            setIsExpiredPatient(checkExpiredPatient)
+
             setTimeout(() => {
                 loadDataAdmin()
                 loadDataCounter()
@@ -546,7 +554,7 @@ export function UseDrugCounter({
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         setInputValueEditPatientC({
             ...inputValueEditPatientC,
             message: value
@@ -614,7 +622,7 @@ export function UseDrugCounter({
                     nameBtn: 'Edit Counter',
                     classBtn: 'bg-orange border-orange hover:border-orange hover:bg-white hover:text-orange',
                     classLoading: 'hidden',
-                    clickBtn: () => { 
+                    clickBtn: () => {
                         setOnpopupEditPatientCounter(true)
                         setOnModalSettings({} as PopupSettings)
                     },
@@ -640,11 +648,11 @@ export function UseDrugCounter({
         })
     }
 
-    function closePopupEditPatientC():void{
+    function closePopupEditPatientC(): void {
         setOnpopupEditPatientCounter(!onPopupEditPatientCounter)
     }
 
-    function changeEditPatientC(e: ChangeEvent<HTMLInputElement>):void{
+    function changeEditPatientC(e: ChangeEvent<HTMLInputElement>): void {
         setInputValueEditPatientC({
             ...inputValueEditPatientC,
             [e.target.name]: e.target.value
@@ -659,7 +667,7 @@ export function UseDrugCounter({
     function handleSelectCounter(
         idElement: 'selectCounterEdit' | 'selectAdminCounter',
         nameInput: 'loketName' | 'adminEmail'
-    ):void{
+    ): void {
         const elem = document.getElementById(idElement) as HTMLSelectElement
         const value = elem.options[elem.selectedIndex].value
         setInputValueEditPatientC({
@@ -669,10 +677,10 @@ export function UseDrugCounter({
     }
 
     function handleChangeDate(
-        e: ChangeEvent<HTMLInputElement> | Date | undefined, 
+        e: ChangeEvent<HTMLInputElement> | Date | undefined,
         inputName: "submissionDate"
-    ):void{
-        if(!e){
+    ): void {
+        if (!e) {
             return
         }
         setInputValueEditPatientC({
@@ -684,37 +692,37 @@ export function UseDrugCounter({
     function activeSelectEditCounter(
         idElement: 'selectCounterEdit' | 'selectAdminCounter',
         indexActive: number
-    ):void{
+    ): void {
         const element = document.getElementById(idElement) as HTMLSelectElement
         if (element && indexActive !== -1) {
             element.selectedIndex = indexActive
         }
     }
 
-    function activeSelectCounter():void{
-        if(selectCounter.length > 0){
-            const findIndexCounter = selectCounter.findIndex(counter=>counter.id === inputValueEditPatientC.loketName)
+    function activeSelectCounter(): void {
+        if (selectCounter.length > 0) {
+            const findIndexCounter = selectCounter.findIndex(counter => counter.id === inputValueEditPatientC.loketName)
             activeSelectEditCounter('selectCounterEdit', findIndexCounter)
         }
     }
 
-    function activeSelectAdmin():void{
-        if(selectEmailAdmin.length > 0){
-            const findIndexAdmin = selectEmailAdmin.findIndex(admins=>admins.id === inputValueEditPatientC.adminEmail)
+    function activeSelectAdmin(): void {
+        if (selectEmailAdmin.length > 0) {
+            const findIndexAdmin = selectEmailAdmin.findIndex(admins => admins.id === inputValueEditPatientC.adminEmail)
             activeSelectEditCounter('selectAdminCounter', findIndexAdmin)
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         setTimeout(() => {
             activeSelectCounter()
             activeSelectAdmin()
         }, 500);
     }, [onPopupEditPatientCounter, inputValueEditPatientC, selectEmailAdmin])
 
-    function submitEditPatientCounter():void{
-        const findLoadingId = loadingIdSubmitEditPatientC.find(id=> id === idToEditPatientCounter)
-        if(!findLoadingId && validateFormEdit()){
+    function submitEditPatientCounter(): void {
+        const findLoadingId = loadingIdSubmitEditPatientC.find(id => id === idToEditPatientCounter)
+        if (!findLoadingId && validateFormEdit()) {
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `update patient counter data "${nameEditPatientCounter}"?`,
@@ -725,8 +733,8 @@ export function UseDrugCounter({
                         nameBtn: 'Save',
                         classBtn: 'hover:bg-white',
                         classLoading: 'hidden',
-                        clickBtn:()=>nextSubmitEditPatientCounter(),
-                        styleBtn:{
+                        clickBtn: () => nextSubmitEditPatientCounter(),
+                        styleBtn: {
                             padding: '0.5rem',
                             marginRight: '0.5rem',
                             marginTop: '0.5rem'
@@ -749,29 +757,32 @@ export function UseDrugCounter({
         }
     }
 
-    function validateFormEdit():string | undefined{
+    function validateFormEdit(): string | undefined {
         let err = {} as InputEditPatientCounter
 
-        if(!inputValueEditPatientC.patientId.trim()){
+        if (!inputValueEditPatientC.patientId.trim()) {
             err.patientId = 'Must be required'
         }
-        if(!inputValueEditPatientC.loketName.trim()){
+        if (!inputValueEditPatientC.loketName.trim()) {
             err.loketName = 'Must be required'
         }
-        if(!inputValueEditPatientC.message.trim()){
+        if (!inputValueEditPatientC.message.trim()) {
             err.message = 'Must be required'
         }
-        if(!inputValueEditPatientC.adminEmail.trim()){
+        if (!inputValueEditPatientC.adminEmail.trim()) {
             err.adminEmail = 'Must be required'
         }
-        if(!inputValueEditPatientC.submissionDate.trim()){
+        if (!inputValueEditPatientC.submissionDate.trim()) {
             err.submissionDate = 'Must be required'
         }
-        if(!inputValueEditPatientC.submitHour.trim()){
+        if (!inputValueEditPatientC.submitHour.trim()) {
             err.submitHour = 'Must be required'
         }
+        if (!inputValueEditPatientC.queueNumber.trim()) {
+            err.queueNumber = 'Must be required'
+        }
 
-        if(Object.keys(err).length !== 0){
+        if (Object.keys(err).length !== 0) {
             setErrInputValueEditPatientC(err)
             return
         }
@@ -779,9 +790,94 @@ export function UseDrugCounter({
         return 'success'
     }
 
-    function nextSubmitEditPatientCounter():void{
+    function nextSubmitEditPatientCounter(): void {
         setOnModalSettings({} as PopupSettings)
-        console.log(inputValueEditPatientC)
+        const currentPatientC = dataDrugCounter?.find(patient => patient.patientId === idToEditPatientCounter)
+        setLoadingIdSubmitEditPatientC((current) => [idToEditPatientCounter as string, ...current])
+
+        API().APIPutPatientData(
+            'drug-counter',
+            currentPatientC?.id as string,
+            dataSubmitEditPatientC()
+        )
+            .then(res => {
+                const findLoadingId = loadingIdSubmitEditPatientC.filter(id=>id !== res?.patientId)
+                setLoadingIdSubmitEditPatientC(findLoadingId)
+                alert('Update patient counter successfully')
+            })
+            .catch(err => pushTriggedErr(`A server error occurred. occurs when updating patient counter data. please try again`))
+    }
+
+    function dataSubmitEditPatientC(): SubmitConfirmDrugCounterT {
+        const loket = dataLoket?.find(lokets => lokets.loketName === inputValueEditPatientC.loketName)
+        const admin = dataAdmin?.find(admins => admins.email === inputValueEditPatientC.adminEmail)
+        const currentPatientC = dataDrugCounter?.find(patient => patient.patientId === idToEditPatientCounter)
+
+        const findPatientToday = dataDrugCounter?.filter(patient => {
+            const date = patient.submissionDate.submissionDate === createDateFormat(new Date())
+            return date &&
+                patient.loketInfo.loketId === loket?.id &&
+                patient.patientId !== currentPatientC?.patientId
+        })
+        const sortQueueNumber: DrugCounterT[] | null =
+            Array.isArray(findPatientToday) &&
+                findPatientToday.length > 0 ? findPatientToday.sort((a, b) => Number(b.queueNumber) - Number(a.queueNumber)) : null
+
+        const queueNumber: string =
+            editActiveAutoQueue ?
+                Array.isArray(sortQueueNumber) &&
+                    sortQueueNumber.length > 0
+                    ? `${Number(sortQueueNumber[0].queueNumber) + 1}` : '1' : inputValueEditPatientC.queueNumber
+
+        const data: SubmitConfirmDrugCounterT = {
+            patientId: inputValueEditPatientC.patientId,
+            loketInfo: { loketId: loket?.id as string },
+            message: inputValueEditPatientC.message,
+            adminInfo: { adminId: admin?.id as string },
+            submissionDate: {
+                submissionDate: inputValueEditPatientC.submissionDate,
+                submitHours: inputValueEditPatientC.submitHour
+            },
+            queueNumber: queueNumber,
+            isConfirm: {
+                confirmState: currentPatientC?.isConfirm?.confirmState as boolean,
+                isSkipped: typeof currentPatientC?.isConfirm?.isSkipped !== 'undefined' ? currentPatientC?.isConfirm?.isSkipped : false
+            }
+        }
+        return data
+    }
+
+    function toggleChangeManualQueue(): void {
+        setEditActiveManualQueue(!editActiveManualQueue)
+        setEditActiveAutoQueue(false)
+
+        changeActiveToggle('setAutoNumberC', false)
+
+        const findPatient = dataDrugCounter?.find(patient => patient.patientId === idToEditPatientCounter)
+        setInputValueEditPatientC({
+            ...inputValueEditPatientC,
+            queueNumber: findPatient?.queueNumber as string
+        })
+    }
+
+    function changeActiveToggle(idElement: string, checked: boolean): void {
+        const toggleManual = document.getElementById(idElement) as HTMLInputElement
+        if (toggleManual) {
+            toggleManual.checked = checked
+        }
+    }
+
+    function toggleSetAutoQueue(): void {
+        setEditActiveManualQueue(true)
+        setEditActiveAutoQueue(!editActiveAutoQueue)
+
+        changeActiveToggle('toggle', false)
+
+        const findPatient = dataDrugCounter?.find(patient => patient.patientId === idToEditPatientCounter)
+        setInputValueEditPatientC({
+            ...inputValueEditPatientC,
+            queueNumber: findPatient?.queueNumber as string
+        })
     }
 
     return {
@@ -825,6 +921,11 @@ export function UseDrugCounter({
         value,
         submitEditPatientCounter,
         idToEditPatientCounter,
-        loadingIdSubmitEditPatientC
+        loadingIdSubmitEditPatientC,
+        editActiveManualQueue,
+        toggleChangeManualQueue,
+        toggleSetAutoQueue,
+        isExpiredPatient,
+        nameEditPatientCounter
     }
 }

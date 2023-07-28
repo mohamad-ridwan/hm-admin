@@ -89,7 +89,12 @@ export function DrugCounter({ params }: ParamsProps) {
         value,
         submitEditPatientCounter,
         idToEditPatientCounter,
-        loadingIdSubmitEditPatientC
+        loadingIdSubmitEditPatientC,
+        editActiveManualQueue,
+        toggleChangeManualQueue,
+        toggleSetAutoQueue,
+        isExpiredPatient,
+        nameEditPatientCounter
     } = UseDrugCounter({ params, setOnModalSettings, onModalSettings, setOnPopupEdit })
 
     return (
@@ -109,7 +114,7 @@ export function DrugCounter({ params }: ParamsProps) {
             )}
             {onPopupEditPatientCounter && (
                 <EditPatientCounter
-                    namePatient={'ridwan'}
+                    namePatient={nameEditPatientCounter}
                     closePopupEditPatientC={closePopupEditPatientC}
                     changeEditPatientC={changeEditPatientC}
                     inputValueEditPatientC={inputValueEditPatientC}
@@ -123,6 +128,10 @@ export function DrugCounter({ params }: ParamsProps) {
                     submitEditPatientCounter={submitEditPatientCounter}
                     idToEditPatientCounter={idToEditPatientCounter}
                     loadingIdSubmitEditPatientC={loadingIdSubmitEditPatientC}
+                    editActiveManualQueue={editActiveManualQueue}
+                    toggleChangeManualQueue={toggleChangeManualQueue}
+                    toggleSetAutoQueue={toggleSetAutoQueue}
+                    isExpiredPatient={isExpiredPatient}
                 />
             )}
 

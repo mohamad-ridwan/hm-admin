@@ -12,6 +12,7 @@ import { InputSearch } from "components/input/InputSearch";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import { renderCustomHeader } from "lib/datePicker/renderCustomHeader";
 import Button from "components/Button";
+import { Toggle } from "components/toggle/Toggle";
 
 type ActionProps = {
     closePopupEditPatientC: () => void
@@ -25,6 +26,8 @@ type ActionProps = {
         e: ChangeEvent<HTMLInputElement> | Date | undefined, inputName: 'submissionDate'
     ) => void
     submitEditPatientCounter: () => void
+    toggleChangeManualQueue: () => void
+    toggleSetAutoQueue: () => void
 }
 
 type Props = ActionProps & {
@@ -36,6 +39,8 @@ type Props = ActionProps & {
     value: string
     idToEditPatientCounter: string | null,
     loadingIdSubmitEditPatientC: string[]
+    editActiveManualQueue: boolean
+    isExpiredPatient: boolean
 }
 
 export function EditPatientCounter({
@@ -52,7 +57,11 @@ export function EditPatientCounter({
     value,
     submitEditPatientCounter,
     idToEditPatientCounter,
-    loadingIdSubmitEditPatientC
+    loadingIdSubmitEditPatientC,
+    editActiveManualQueue,
+    toggleChangeManualQueue,
+    toggleSetAutoQueue,
+    isExpiredPatient,
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -144,6 +153,41 @@ export function EditPatientCounter({
                     {...styleError}
                     error={errInputValueEditPatientC?.submitHour}
                 />
+
+                <TitleInput title='Queue Number' />
+                <Input
+                    type='number'
+                    nameInput='queueNumber'
+                    changeInput={changeEditPatientC}
+                    valueInput={inputValueEditPatientC.queueNumber}
+                    readonly={editActiveManualQueue}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputValueEditPatientC?.queueNumber}
+                />
+                {/* options */}
+                {isExpiredPatient === false ? (
+                    <div
+                        className='flex flex-wrap justify-end items-center mb-4'
+                    >
+                        <Toggle
+                            labelText='Change manually'
+                            clickToggle={toggleChangeManualQueue}
+                        />
+                        <Toggle
+                            labelText='Set auto number'
+                            classWrapp='ml-2'
+                            idToggle='setAutoNumberC'
+                            clickToggle={toggleSetAutoQueue}
+                        />
+                    </div>
+                ) : (
+                    <ErrorInput
+                        {...styleError}
+                        error={`Can't update queue number because it expired`}
+                    />
+                )}
 
                 <Button
                     nameBtn="UPDATE"

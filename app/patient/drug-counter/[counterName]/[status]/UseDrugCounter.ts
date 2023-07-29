@@ -849,13 +849,15 @@ export function UseDrugCounter({
             return dataNotConfirmYet(
                 admin,
                 queueNumber,
-                currentPatientC
+                currentPatientC,
+                loket
             )
         }else {
             return dataAlreadyConfirm(
                 admin,
                 queueNumber,
-                currentPatientC
+                currentPatientC,
+                loket
             )
         }
     }
@@ -863,7 +865,8 @@ export function UseDrugCounter({
     function dataNotConfirmYet(
         admin: AdminT | undefined,
         queueNumber: string,
-        currentPatientC: DrugCounterT | undefined
+        currentPatientC: DrugCounterT | undefined,
+        loket: InfoLoketT | undefined
     ): SubmitConfirmDrugCounterT {
         return {
             patientId: inputValueEditPatientC.patientId,
@@ -885,7 +888,8 @@ export function UseDrugCounter({
     function dataAlreadyConfirm(
         admin: AdminT | undefined,
         queueNumber: string,
-        currentPatientC: DrugCounterT | undefined
+        currentPatientC: DrugCounterT | undefined,
+        loket: InfoLoketT | undefined
     ):SubmitConfirmDrugCounterT{
         return {
             patientId: inputValueEditPatientC.patientId,

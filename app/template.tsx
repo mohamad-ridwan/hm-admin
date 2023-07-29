@@ -37,6 +37,7 @@ export default function Template({
     const {
         redirectPage
     } = AuthWrapper()
+
     const { loginSession, userId } = userIdAuthStore()
     const { loadingAuth, user } = authStore()
     const { isNotFound, setNavigate } = navigationStore()

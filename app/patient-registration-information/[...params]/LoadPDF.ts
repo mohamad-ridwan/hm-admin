@@ -93,12 +93,12 @@ export function LoadPDF({
             adminEmail: adminDrugCounter?.email as string
         },
         paymentInfo: {
-            message: patientCounter?.isConfirm.paymentInfo.message as string,
-            paymentMethod: patientCounter?.isConfirm.paymentInfo.paymentMethod as string,
-            totalCost: patientCounter?.isConfirm.paymentInfo.totalCost as string,
+            message: patientCounter?.isConfirm?.paymentInfo?.message as string,
+            paymentMethod: patientCounter?.isConfirm?.paymentInfo?.paymentMethod as string,
+            totalCost: patientCounter?.isConfirm?.paymentInfo?.totalCost as string,
             counterName: patientCounterOn?.loketName as string,
-            dateConfirm: patientCounter?.isConfirm.dateConfirm.dateConfirm as string,
-            confirmHour: patientCounter?.isConfirm.dateConfirm.confirmHour as string
+            dateConfirm: patientCounter?.isConfirm?.dateConfirm?.dateConfirm as string,
+            confirmHour: patientCounter?.isConfirm?.dateConfirm?.confirmHour as string
         }
     }
 

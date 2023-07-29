@@ -1,7 +1,7 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react"
-import { notFound, useRouter } from 'next/navigation'
+import { notFound, useRouter, useParams } from 'next/navigation'
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
@@ -156,6 +156,7 @@ export function UseDrugCounter({
 
     const { user } = authStore()
     const router = useRouter()
+    const paramsRegistration = useParams()
 
     const loket = dataLoket?.find(loket => loket?.loketName === params?.counterName)
     const statusURL: ['waiting-patient', 'already-confirmed', 'expired-patient'] = [
@@ -165,11 +166,13 @@ export function UseDrugCounter({
     ]
     const checkStatusUrl = statusURL?.find(status => status === params?.status)
 
-    if (!loadDataService && !loket) {
-        notFound()
-    }
-    if (!checkStatusUrl) {
-        notFound()
+    if(!paramsRegistration?.params?.includes('/personal-data')){
+        if (!loadDataService && !loket) {
+            notFound()
+        }
+        if (!checkStatusUrl) {
+            notFound()
+        }
     }
 
     function findDataRegistration(
@@ -1317,6 +1320,7 @@ export function UseDrugCounter({
         handleCancelMsg,
         submitCancelTreatment,
         inputMsgCancelPatient,
-        clickDeletePatient
+        clickDeletePatient,
+        setOnpopupEditPatientCounter
     }
 }

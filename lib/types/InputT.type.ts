@@ -76,6 +76,16 @@ export type InputEditPatientCounter = {
     queueNumber: string
 }
 
+export type InputEditConfirmPatientCounter = {
+    dateConfirm: string
+    confirmHour: string
+    adminEmail: string
+    paymentMethod: 'cash' | 'BPJS' | null
+    bpjsNumber: string
+    totalCost: string
+    message: string
+}
+
 export type SubmitFinishedTreatmentT = {
     patientId: string
     confirmedTime: ConfirmedTime

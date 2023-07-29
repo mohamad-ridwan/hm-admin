@@ -1,16 +1,17 @@
 'use client'
 
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
-import { InputConfirmDrugCounterT, SubmitConfirmDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
-import { PopupSetting } from "lib/types/TableT.type"
+import { InputConfirmDrugCounterT, InputEditConfirmPatientCounter, SubmitConfirmDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
+import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
 import { faBan, faCircleCheck, faDownload } from "@fortawesome/free-solid-svg-icons"
 import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
 import { API } from "lib/api"
+import ServicingHours from "lib/dataInformation/ServicingHours"
 
 type ErrorInput = {
     paymentMethod: string
@@ -21,10 +22,12 @@ type ErrorInput = {
 
 type Props = {
     params: string
+    setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
 }
 
 export function UseForm({
-    params
+    params,
+    setOnModalSettings,
 }: Props) {
     const [value, setValue] = useState<string>('')
     const [inputForm, setInputForm] = useState<InputConfirmDrugCounterT>({
@@ -39,7 +42,17 @@ export function UseForm({
     const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
     const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
     const [loadingCancelTreatment, setLoadingCancelTreatment] = useState<boolean>(false)
+    const [loadingDelete, setLoadingDelete] = useState<boolean>(false)
     const [inputMsgCancelPatient, setInputMsgCancelPatient] = useState<string>('')
+    const [inputValueEditCounterConfirmP, setInputValueEditCounterConfirmP] = useState<InputEditConfirmPatientCounter>({
+        dateConfirm: '',
+        confirmHour: '',
+        adminEmail: '',
+        paymentMethod: null,
+        bpjsNumber: '',
+        totalCost: '',
+        message: ''
+    })
     const [paymentOptions, setPaymentOptions] = useState<DataOptionT>([
         {
             id: 'Select Payment Method',
@@ -59,6 +72,11 @@ export function UseForm({
         drugCounterPatient,
         pushTriggedErr,
     } = UsePatientData({ params })
+
+    const {
+        dataDrugCounter,
+        dataAdmin
+    } = ServicingHours()
 
     const { user } = authStore()
     const router = useRouter()
@@ -97,18 +115,48 @@ export function UseForm({
     function submitForm(e?: MouseEvent): void {
         if (
             loadingSubmit === false &&
-            validateForm() &&
-            typeof setOnPopupSetting !== 'undefined'
+            validateForm()
         ) {
-            setOnPopupSetting({
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: 'Confirm Payment?',
                 classIcon: 'text-font-color-2',
-                classBtnNext: 'hover:bg-white',
                 iconPopup: faCircleCheck,
-                nameBtnNext: 'Yes',
-                patientId: '',
-                categoryAction: 'confirm-payment'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmSubmit(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
             })
+            // setOnPopupSetting({
+            //     title: 'Confirm Payment?',
+            //     classIcon: 'text-font-color-2',
+            //     classBtnNext: 'hover:bg-white',
+            //     iconPopup: faCircleCheck,
+            //     nameBtnNext: 'Yes',
+            //     patientId: '',
+            //     categoryAction: 'confirm-payment'
+            // })
         }
         e?.preventDefault()
     }
@@ -145,9 +193,7 @@ export function UseForm({
 
     function confirmSubmit(): void {
         setLoadingSubmit(true)
-        if (typeof setOnPopupSetting !== 'undefined') {
-            setOnPopupSetting({} as PopupSetting)
-        }
+        setOnModalSettings({} as PopupSettings)
 
         API().APIPutPatientData(
             'drug-counter',
@@ -233,61 +279,123 @@ export function UseForm({
     }
 
     function clickDownloadPdf(): void {
-        setIsActiveMenu(!isActiveMenu)
-        setOnPopupSetting({
+        clickMenu()
+        setOnModalSettings({
+            clickClose: () => setOnModalSettings({} as PopupSettings),
             title: 'Download Queue Number PDF?',
             classIcon: 'text-font-color-2',
-            classBtnNext: 'hover:bg-white',
             iconPopup: faDownload,
-            nameBtnNext: 'Yes',
-            patientId: '',
-            categoryAction: 'download-queue-number-pdf'
+            actionsData: [
+                {
+                    nameBtn: 'Yes',
+                    classBtn: 'hover:bg-white',
+                    classLoading: 'hidden',
+                    clickBtn: () => confirmDownloadPdf(),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.6rem',
+                        marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Cancel',
+                    classBtn: 'bg-white border-none',
+                    classLoading: 'hidden',
+                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem',
+                        color: '#495057',
+                    }
+                },
+            ]
         })
+        // setOnPopupSetting({
+        //     title: 'Download Queue Number PDF?',
+        //     classIcon: 'text-font-color-2',
+        //     classBtnNext: 'hover:bg-white',
+        //     iconPopup: faDownload,
+        //     nameBtnNext: 'Yes',
+        //     patientId: '',
+        //     categoryAction: 'download-queue-number-pdf'
+        // })
     }
 
     function confirmDownloadPdf(): void {
-        setOnPopupSetting({} as PopupSetting)
+        setOnModalSettings({} as PopupSettings)
         window.open(`/patient-registration-information/${params[4]}/${params[3]}/drug-counter/download/pdf`)
     }
 
     function clickCancelTreatment(): void {
         if (loadingCancelTreatment === false) {
-            setOnPopupSetting({
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: 'Cancel Treatment',
                 classIcon: 'text-font-color-2',
-                classBtnNext: 'hover:bg-white',
                 iconPopup: faBan,
-                nameBtnNext: 'Yes',
-                patientId: '',
-                categoryAction: 'cancel-treatment'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => clickYesForCancelTreatment(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
             })
+            // setOnPopupSetting({
+            //     title: 'Cancel Treatment',
+            //     classIcon: 'text-font-color-2',
+            //     classBtnNext: 'hover:bg-white',
+            //     iconPopup: faBan,
+            //     nameBtnNext: 'Yes',
+            //     patientId: '',
+            //     categoryAction: 'cancel-treatment'
+            // })
             setIsActiveMenu(false)
         }
     }
 
-    function clickYesForCancelTreatment():void{
+    function clickYesForCancelTreatment(): void {
         setOnMsgCancelTreatment(true)
     }
 
-    function cancelOnMsgCancelPatient():void{
+    function cancelOnMsgCancelPatient(): void {
         setOnMsgCancelTreatment(false)
     }
 
-    function handleCancelMsg(e?: ChangeEvent<HTMLInputElement>):void{
+    function handleCancelMsg(e?: ChangeEvent<HTMLInputElement>): void {
         setInputMsgCancelPatient(e?.target.value as string)
     }
 
-    function submitCancelTreatment():void{
-        if(inputMsgCancelPatient.length > 0){
+    function submitCancelTreatment(): void {
+        if (inputMsgCancelPatient.length > 0) {
             setOnMsgCancelTreatment(false)
-            setOnPopupSetting({} as PopupSetting)
+            setOnModalSettings({} as PopupSettings)
             const data: SubmitFinishedTreatmentT = {
                 patientId: params[4],
                 confirmedTime: {
                     dateConfirm: createDateFormat(new Date()),
                     confirmHour: createHourFormat(new Date())
                 },
-                adminInfo: {adminId: user.user?.id as string},
+                adminInfo: { adminId: user.user?.id as string },
                 isCanceled: true,
                 messageCancelled: inputMsgCancelPatient
             }
@@ -295,30 +403,142 @@ export function UseForm({
                 'finished-treatment',
                 data,
             )
-            .then(res=>{
-                alert('Successfully cancel patient registration')
-                setLoadingCancelTreatment(false)
-            })
-            .catch(err=>pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
+                .then(res => {
+                    alert('Successfully cancel patient registration')
+                    setLoadingCancelTreatment(false)
+                })
+                .catch(err => pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
         }
     }
 
-    function clickTreatmentResultPDF():void{
+    function clickTreatmentResultPDF(): void {
         setIsActiveMenu(!isActiveMenu)
-        setOnPopupSetting({
+        setOnModalSettings({
+            clickClose: () => setOnModalSettings({} as PopupSettings),
             title: 'Download Treatment Result PDF?',
             classIcon: 'text-font-color-2',
-            classBtnNext: 'hover:bg-white',
             iconPopup: faDownload,
-            nameBtnNext: 'Yes',
-            patientId: '',
-            categoryAction: 'download-treatment-result-pdf'
+            actionsData: [
+                {
+                    nameBtn: 'Yes',
+                    classBtn: 'hover:bg-white',
+                    classLoading: 'hidden',
+                    clickBtn: ()=>confirmDownloadTRPdf(),
+                    styleBtn: {
+                        padding: '0.5rem',
+                                marginRight: '0.6rem',
+                                marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Cancel',
+                    classBtn: 'bg-white border-none',
+                    classLoading: 'hidden',
+                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem',
+                        color: '#495057',
+                    }
+                },
+            ]
         })
+        // setOnPopupSetting({
+        //     title: 'Download Treatment Result PDF?',
+        //     classIcon: 'text-font-color-2',
+        //     classBtnNext: 'hover:bg-white',
+        //     iconPopup: faDownload,
+        //     nameBtnNext: 'Yes',
+        //     patientId: '',
+        //     categoryAction: 'download-treatment-result-pdf'
+        // })
     }
 
-    function confirmDownloadTRPdf():void{
-        setOnPopupSetting({} as PopupSetting)
+    function confirmDownloadTRPdf(): void {
+        setOnModalSettings({} as PopupSettings)
         window.open(`/patient-registration-information/${params[4]}/${params[3]}/treatment-results/download/pdf`)
+    }
+
+    function clickDelete(): void {
+        if (loadingDelete === false) {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: 'Delete patient counter?',
+                classIcon: 'text-font-color-2',
+                iconPopup: faBan,
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmDeletePatient(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
+            })
+            setIsActiveMenu(false)
+        }
+    }
+
+    function confirmDeletePatient(): void {
+        setOnModalSettings({} as PopupSettings)
+        API().APIDeletePatientData(
+            'drug-counter',
+            drugCounterPatient?.id,
+            drugCounterPatient?.patientId
+        )
+            .then(res => {
+                setLoadingDelete(false)
+                alert('Successfully delete patient counter data')
+                const currentRouteStr: string = params.slice(0, 5).toString()
+                const newRoute = currentRouteStr.split(',').join('/')
+                const urlOrigin = window.location.origin
+                window.location.replace(`${urlOrigin}/patient/${newRoute}`)
+            })
+            .catch(err => pushTriggedErr('There was an error deleting patient counter data. please try again'))
+    }
+
+    function clickEditCounterConfirmP(
+        patientId: string,
+        patientName: string
+    ):void{
+        const findPatient = dataDrugCounter?.find(patient=>patient.patientId === patientId)
+        if(findPatient){
+            const {
+                isConfirm
+            } = findPatient
+
+            const admin = dataAdmin?.find(admins => admins.id === isConfirm.adminInfo.adminId)
+
+            setInputValueEditCounterConfirmP({
+                dateConfirm: isConfirm.dateConfirm.dateConfirm,
+                confirmHour: isConfirm.dateConfirm.confirmHour,
+                adminEmail: admin?.email as string,
+                paymentMethod: isConfirm.paymentInfo.paymentMethod,
+                bpjsNumber: isConfirm.paymentInfo.bpjsNumber,
+                totalCost: isConfirm.paymentInfo.totalCost,
+                message: isConfirm.paymentInfo.message as string
+            })
+        }else{
+            alert(`No counter patient found with id "${patientId}"`)
+        }
     }
 
     return {
@@ -347,6 +567,9 @@ export function UseForm({
         inputMsgCancelPatient,
         submitCancelTreatment,
         clickTreatmentResultPDF,
-        confirmDownloadTRPdf
+        confirmDownloadTRPdf,
+        setIsActiveMenu,
+        clickDelete,
+        loadingDelete
     }
 }

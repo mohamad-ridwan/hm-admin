@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react"
 import { IconDefinition, faCalendarDays, faCircleCheck, faCircleExclamation, faClock, faListOl } from "@fortawesome/free-solid-svg-icons"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
@@ -9,15 +10,20 @@ import { createDateFormat } from "lib/formats/createDateFormat"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { CounterForm } from "./CounterForm"
 import { UseForm } from "./UseForm"
-import { ActionsDataT } from "lib/types/TableT.type"
+import { ActionsDataT, PopupSettings } from "lib/types/TableT.type"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import Button from "components/Button"
 import { ConfirmInfo } from "./ConfirmInfo"
 import { RenderTextHTML } from "lib/pdf/RenderTextHTML"
+import { EditPatientCounter } from "app/patient/drug-counter/[counterName]/[status]/EditPatientCounter"
+import { UseDrugCounter } from "app/patient/drug-counter/[counterName]/[status]/UseDrugCounter"
 
 export function DrugCounter({ params }: { params: string }) {
+    const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
+
     const {
+        detailDataPatientRegis,
         drugCounterPatient,
         dataPatientFinishTreatment,
         dataLoket
@@ -29,8 +35,35 @@ export function DrugCounter({ params }: { params: string }) {
         clickDownloadPdf,
         onPopupSetting,
         cancelPopupSetting,
-        confirmDownloadPdf
-    } = UseForm({ params })
+        confirmDownloadPdf,
+        setIsActiveMenu,
+        clickDelete,
+        loadingDelete
+    } = UseForm({ params, setOnModalSettings })
+
+    const {
+        closePopupEditPatientC,
+        onPopupEditPatientCounter,
+        changeEditPatientC,
+        handleSelectCounter,
+        handleChangeDate,
+        inputValueEditPatientC,
+        errInputValueEditPatientC,
+        selectCounter,
+        selectEmailAdmin,
+        setValue,
+        value,
+        submitEditPatientCounter,
+        idToEditPatientCounter,
+        loadingIdSubmitEditPatientC,
+        editActiveManualQueue,
+        toggleChangeManualQueue,
+        toggleSetAutoQueue,
+        disableUpdtQueue,
+        nameEditPatientCounter,
+        clickEditPatientCounter,
+        setOnpopupEditPatientCounter
+    } = UseDrugCounter({ params: { counterName: '', status: '' }, setOnModalSettings, onModalSettings })
 
     const loketName = dataLoket?.find(loket => loket.id === drugCounterPatient?.loketInfo?.loketId)
 
@@ -85,9 +118,27 @@ export function DrugCounter({ params }: { params: string }) {
 
     const actionsMenu: ActionsDataT[] = [
         {
+            name: 'Edit',
+            classWrapp: 'cursor-pointer',
+            click: () => {
+                clickEditPatientCounter(drugCounterPatient?.patientId, detailDataPatientRegis?.patientName)
+                setOnpopupEditPatientCounter(true)
+                setIsActiveMenu(false)
+            }
+        },
+        {
             name: 'Queue Number PDF',
             classWrapp: 'cursor-pointer',
             click: () => clickDownloadPdf()
+        },
+        {
+            name: 'Delete',
+            classWrapp: loadingDelete || dataPatientFinishTreatment?.id ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
+            click: () => {
+                if(!dataPatientFinishTreatment?.id){
+                    clickDelete()
+                }
+            }
         },
     ]
 
@@ -106,7 +157,56 @@ export function DrugCounter({ params }: { params: string }) {
                         classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
                         maxWidth="auto"
                     >
-                        {onPopupSetting?.title && (
+                        {onPopupEditPatientCounter && (
+                            <EditPatientCounter
+                                namePatient={nameEditPatientCounter}
+                                closePopupEditPatientC={closePopupEditPatientC}
+                                changeEditPatientC={changeEditPatientC}
+                                inputValueEditPatientC={inputValueEditPatientC}
+                                errInputValueEditPatientC={errInputValueEditPatientC}
+                                selectCounter={selectCounter}
+                                selectEmailAdmin={selectEmailAdmin}
+                                handleSelectCounter={handleSelectCounter}
+                                setValue={setValue}
+                                value={value}
+                                handleChangeDate={handleChangeDate}
+                                submitEditPatientCounter={submitEditPatientCounter}
+                                idToEditPatientCounter={idToEditPatientCounter}
+                                loadingIdSubmitEditPatientC={loadingIdSubmitEditPatientC}
+                                editActiveManualQueue={editActiveManualQueue}
+                                toggleChangeManualQueue={toggleChangeManualQueue}
+                                toggleSetAutoQueue={toggleSetAutoQueue}
+                                disableUpdtQueue={disableUpdtQueue}
+                            />
+                        )}
+
+                        {onModalSettings?.title && (
+                            <ContainerPopup
+                                className='flex justify-center items-center overflow-y-auto'
+                            >
+                                <SettingPopup
+                                    clickClose={onModalSettings.clickClose}
+                                    title={onModalSettings.title}
+                                    classIcon={onModalSettings.classIcon}
+                                    iconPopup={onModalSettings.iconPopup}
+                                >
+                                    {onModalSettings.actionsData.length > 0 && onModalSettings.actionsData.map((btn, idx) => {
+                                        return (
+                                            <Button
+                                                key={idx}
+                                                nameBtn={btn.nameBtn}
+                                                classBtn={btn.classBtn}
+                                                classLoading={btn.classLoading}
+                                                clickBtn={btn.clickBtn}
+                                                styleBtn={btn.styleBtn}
+                                            />
+                                        )
+                                    })}
+                                </SettingPopup>
+                            </ContainerPopup>
+                        )}
+
+                        {/* {onPopupSetting?.title && (
                             <ContainerPopup
                                 className='flex justify-center items-center overflow-y-auto'
                             >
@@ -145,7 +245,7 @@ export function DrugCounter({ params }: { params: string }) {
                                     />
                                 </SettingPopup>
                             </ContainerPopup>
-                        )}
+                        )} */}
 
                         <HeadInfo
                             title={title}

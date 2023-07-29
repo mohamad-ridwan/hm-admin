@@ -1,7 +1,7 @@
 'use client'
 
-import { ChangeEvent, useEffect, useMemo, useState } from "react"
-import { HeadDataTableT } from "lib/types/TableT.type"
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from "react"
+import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
@@ -9,8 +9,19 @@ import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
+import { InputEditFinishTreatmentT, SubmitConfirmDrugCounterT, SubmitEditFinishTreatmentT } from "lib/types/InputT.type"
+import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
+import { API } from "lib/api"
 
-export function FilterTable() {
+type Props = {
+    setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
+    setOnPopupEdit?: Dispatch<SetStateAction<boolean>>
+}
+
+export function UseFinishTreatment({
+    setOnModalSettings,
+    setOnPopupEdit
+}: Props) {
     const [dataColumns, setDataColumns] = useState<DataTableContentT[]>([])
     const [searchText, setSearchText] = useState<string>('')
     const [currentPage, setCurrentPage] = useState<number>(1)
@@ -18,6 +29,26 @@ export function FilterTable() {
     const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [currentFilterBy, setCurrentFilterBy] = useState<string>('Filter By')
     const [currentSortBy, setCurrentSortBy] = useState<string>('Sort By')
+    const [inputEditFinishTreatment, setInputEditFinishTreatment] = useState<InputEditFinishTreatmentT>({
+        patientId: '',
+        dateConfirm: '',
+        confirmHour: '',
+        adminEmail: '',
+        messageCancelled: ''
+    })
+    const [errInputEditFinishTreatment, setErrInputEditFinishTreatment] = useState<InputEditFinishTreatmentT>({} as InputEditFinishTreatmentT)
+    const [onPopupEditFinishTreatment, setOnPopupEditFinishTreatment] = useState<boolean>(false)
+    const [patientNameEditFT, setPatientNameEditFT] = useState<string>('')
+    const [idPatientEditFT, setIdPatientEditFT] = useState<string | null>(null)
+    const [loadingIdSubmitEditFT, setLoadingIdSubmitEditFT] = useState<string[]>([])
+    const [isPatientCanceled, setIsPatientCanceled] = useState<boolean>(false)
+    const [optionsAdminEmail, setOptionsAdminEmail] = useState<DataOptionT>([
+        {
+            id: 'Select Email',
+            title: 'Select Email'
+        }
+    ])
+    const [indexActiveTableMenu, setIndexActiveTableMenu] = useState<number | null>(null)
     const [filterBy] = useState<DataOptionT>([
         {
             id: 'Filter By',
@@ -82,6 +113,8 @@ export function FilterTable() {
         dataFinishTreatment,
         dataLoket,
         loadDataService,
+        dataAdmin,
+        pushTriggedErr
     } = ServicingHours()
 
     function findDataRegistration(
@@ -118,7 +151,7 @@ export function FilterTable() {
                     const counterPatient = dataDrugCounter?.find(counterP =>
                         counterP.patientId === patient.id
                     )
-                    const currentCounter = dataLoket?.find(counter=>counter.id === counterPatient?.loketInfo?.loketId)
+                    const currentCounter = dataLoket?.find(counter => counter.id === counterPatient?.loketInfo?.loketId)
                     const patientName = patient.patientName?.replace(specialCharacter, '')?.replace(spaceString, '')
                     const confirmPatientUrl = `/patient/patient-registration/personal-data/${confirmPatient ? 'confirmed' : 'not-yet-confirmed'}/${patientName}/${patient.id}`
                     const confirmAndCounterUrl = `${confirmPatientUrl}/counter/${currentCounter?.loketName}/${counterPatient?.isConfirm?.confirmState ? 'confirmed' : 'not-yet-confirmed'}/${counterPatient?.queueNumber}`
@@ -466,6 +499,346 @@ export function FilterTable() {
         setSelectDate(undefined)
     }
 
+    function clickEditFinishTreatment(
+        patientId: string,
+        patientName: string
+    ): void {
+        const findPatient = dataFinishTreatment?.find(patient => patient.patientId === patientId)
+        if (findPatient) {
+            const {
+                patientId,
+                confirmedTime,
+                adminInfo,
+                isCanceled,
+                messageCancelled
+            } = findPatient
+
+            const admin = dataAdmin?.find(admins => admins.id === adminInfo.adminId)
+
+            setInputEditFinishTreatment({
+                patientId,
+                dateConfirm: confirmedTime.dateConfirm,
+                confirmHour: confirmedTime.confirmHour,
+                adminEmail: admin?.email as string,
+                messageCancelled
+            })
+            setPatientNameEditFT(patientName)
+            setIdPatientEditFT(patientId)
+            if (findPatient.isCanceled) {
+                setIsPatientCanceled(true)
+            }
+
+            loadAdminEmail()
+        } else {
+            alert(`No patient treatment data found with id "${patientId}"`)
+        }
+    }
+
+    function loadAdminEmail(): void {
+        if (
+            Array.isArray(dataAdmin) &&
+            dataAdmin.length > 0
+        ) {
+            const admins: DataOptionT = dataAdmin.map(admin => ({
+                id: admin.email,
+                title: admin.email
+            }))
+            setOptionsAdminEmail([
+                {
+                    id: 'Select Email',
+                    title: 'Select Email'
+                },
+                ...admins
+            ])
+        }
+    }
+
+    function activeSelect(
+        idElement: 'adminEmailFT',
+        index: number
+    ): void {
+        const element = document.getElementById(idElement) as HTMLSelectElement
+        if (element) {
+            element.selectedIndex = index
+        }
+    }
+
+    function activeSelectAdminEmail(): void {
+        if (optionsAdminEmail.length > 0) {
+            const findIndex = optionsAdminEmail.findIndex(admin => admin.id === inputEditFinishTreatment.adminEmail)
+            activeSelect('adminEmailFT', findIndex)
+        }
+    }
+
+    useEffect(() => {
+        activeSelectAdminEmail()
+    }, [onPopupEditFinishTreatment, optionsAdminEmail, inputEditFinishTreatment])
+
+    function clickColumnMenu(index: number): void {
+        if (index === indexActiveTableMenu) {
+            setIndexActiveTableMenu(null)
+        } else {
+            setIndexActiveTableMenu(index)
+        }
+    }
+
+    function openPopupEdit(): void {
+        setOnModalSettings({
+            clickClose: () => setOnModalSettings({} as PopupSettings),
+            title: 'What do you want to edit?',
+            classIcon: 'text-color-default',
+            iconPopup: faPenToSquare,
+            actionsData: [
+                {
+                    nameBtn: 'Edit patient detail',
+                    classBtn: 'hover:bg-white',
+                    classLoading: 'hidden',
+                    clickBtn: () => {
+                        if (typeof setOnPopupEdit !== 'undefined') {
+                            setOnPopupEdit(true)
+                            setOnModalSettings({} as PopupSettings)
+                        }
+                    },
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Edit patient treatment',
+                    classBtn: 'bg-orange border-orange hover:border-orange hover:bg-white hover:text-orange',
+                    classLoading: 'hidden',
+                    clickBtn: () => {
+                        setOnPopupEditFinishTreatment(true)
+                        setOnModalSettings({} as PopupSettings)
+                    },
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem'
+                    }
+                },
+                {
+                    nameBtn: 'Cancel',
+                    classBtn: 'bg-white border-none',
+                    classLoading: 'hidden',
+                    clickBtn: () => setOnModalSettings({} as PopupSettings),
+                    styleBtn: {
+                        padding: '0.5rem',
+                        marginRight: '0.5rem',
+                        marginTop: '0.5rem',
+                        color: '#495057',
+                    }
+                },
+            ]
+        })
+    }
+
+    function clickClosePopupEditFT(): void {
+        setOnPopupEditFinishTreatment(false)
+    }
+
+    function changeEditFT(e: ChangeEvent<HTMLInputElement>): void {
+        setInputEditFinishTreatment({
+            ...inputEditFinishTreatment,
+            [e.target.name]: e.target.value
+        })
+        setErrInputEditFinishTreatment({
+            ...errInputEditFinishTreatment,
+            [e.target.name]: ''
+        })
+    }
+
+    function changeDateEditFT(
+        e: ChangeEvent<HTMLInputElement> | Date | undefined,
+        inputName: 'dateConfirm'
+    ): void {
+        setInputEditFinishTreatment({
+            ...inputEditFinishTreatment,
+            [inputName]: !e ? '' : `${createDateFormat(e as Date)}`
+        })
+        setErrInputEditFinishTreatment({
+            ...errInputEditFinishTreatment,
+            [inputName]: ''
+        })
+    }
+
+    function handleSelectEditFT(
+        idElement: 'adminEmailFT',
+        nameInput: 'adminEmail'
+    ): void {
+        const elem = document.getElementById(idElement) as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        setInputEditFinishTreatment({
+            ...inputEditFinishTreatment,
+            [nameInput]: value
+        })
+        setErrInputEditFinishTreatment({
+            ...errInputEditFinishTreatment,
+            [nameInput]: ''
+        })
+    }
+
+    function submitEditFinishTreatment(): void {
+        const findLoadingId = loadingIdSubmitEditFT.find(id => id === idPatientEditFT)
+        if (!findLoadingId && validateFormEdit()) {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `edit medical data from patient "${patientNameEditFT}"?`,
+                classIcon: 'text-color-default',
+                iconPopup: faPencil,
+                actionsData: [
+                    {
+                        nameBtn: 'Save',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmEditFinishTreatment(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
+            })
+        }
+    }
+
+    function validateFormEdit(): string | undefined {
+        let err = {} as InputEditFinishTreatmentT
+        if (!inputEditFinishTreatment.dateConfirm.trim()) {
+            err.dateConfirm = 'Must be required'
+        }
+        if (!inputEditFinishTreatment.confirmHour.trim()) {
+            err.confirmHour = 'Must be required'
+        }
+        if (
+            !inputEditFinishTreatment.adminEmail.trim() ||
+            inputEditFinishTreatment.adminEmail === 'Select Email'
+        ) {
+            err.adminEmail = 'Must be required'
+        }
+        if (
+            isPatientCanceled &&
+            !inputEditFinishTreatment.messageCancelled.trim()
+        ) {
+            err.messageCancelled = 'Must be required'
+        }
+
+        if (Object.keys(err).length !== 0) {
+            setErrInputEditFinishTreatment(err)
+            return
+        }
+
+        return 'success'
+    }
+
+    function confirmEditFinishTreatment(): void {
+        setOnModalSettings({} as PopupSettings)
+        const currentPatientC = dataDrugCounter?.find(patient=>patient.patientId === idPatientEditFT)
+        const currentPatientFT = dataFinishTreatment?.find(patient=>patient.patientId === idPatientEditFT)
+        setLoadingIdSubmitEditFT((current)=>[idPatientEditFT as string, ...current])
+        if(currentPatientFT){
+            API().APIPutPatientData(
+                'finished-treatment',
+                currentPatientFT.id,
+                dataUpdtFinishTreatment(currentPatientFT.isCanceled)
+            )
+            .then(res=>{
+                if(currentPatientC?.isConfirm?.confirmState){
+                    return API().APIPutPatientData(
+                        'drug-counter',
+                        currentPatientC.id,
+                        dataUpdtConfirmCounterP(currentPatientC)
+                    )
+                }
+                return res
+            })
+            .then(res=>{
+                const removeIdLoading = loadingIdSubmitEditFT.filter(id=>id !== res?.patientId)
+                setLoadingIdSubmitEditFT(removeIdLoading)
+                alert('Successfully update patient treatment data')
+            })
+            .catch(err=>pushTriggedErr('An error occurred while updating patient treatment data. please try again'))
+        }
+    }
+
+    function dataUpdtFinishTreatment(
+        isCanceled: boolean
+    ):SubmitEditFinishTreatmentT{
+        const {
+            patientId,
+            dateConfirm,
+            confirmHour,
+            adminEmail,
+            messageCancelled
+        } = inputEditFinishTreatment
+        const admin = dataAdmin?.find(admins => admins.email === adminEmail)
+
+        return{
+            patientId,
+            confirmedTime: {
+                dateConfirm,
+                confirmHour,
+            },
+            adminInfo: {adminId: admin?.id as string},
+            isCanceled,
+            messageCancelled
+        }
+    }
+
+    function dataUpdtConfirmCounterP(
+        patientCounter: DrugCounterT
+    ): SubmitConfirmDrugCounterT {
+        const {
+            patientId,
+            loketInfo,
+            message,
+            adminInfo,
+            submissionDate,
+            queueNumber,
+            isConfirm,
+        } = patientCounter
+        const admin = dataAdmin?.find(admins => admins.email === inputEditFinishTreatment.adminEmail)
+        return {
+            patientId,
+            loketInfo,
+            message,
+            adminInfo,
+            submissionDate,
+            queueNumber,
+            isConfirm: {
+                confirmState: isConfirm.confirmState,
+                isSkipped: typeof isConfirm?.isSkipped !== 'undefined' ? isConfirm.isSkipped : false,
+                dateConfirm: {
+                    dateConfirm: inputEditFinishTreatment.dateConfirm,
+                    confirmHour: inputEditFinishTreatment.confirmHour
+                },
+                adminInfo: { adminId: admin?.id as string },
+                paymentInfo: {
+                    paymentMethod: isConfirm.paymentInfo.paymentMethod,
+                    bpjsNumber: isConfirm.paymentInfo.bpjsNumber,
+                    totalCost: isConfirm.paymentInfo.totalCost,
+                    message: isConfirm.paymentInfo?.message as string
+                }
+            }
+        }
+    }
+
+
     return {
         head,
         handleSearchText,
@@ -485,5 +858,23 @@ export function FilterTable() {
         maxLength,
         currentPage,
         setCurrentPage,
+        clickColumnMenu,
+        indexActiveTableMenu,
+        clickEditFinishTreatment,
+        openPopupEdit,
+        setIndexActiveTableMenu,
+        onPopupEditFinishTreatment,
+        clickClosePopupEditFT,
+        changeEditFT,
+        patientNameEditFT,
+        errInputEditFinishTreatment,
+        inputEditFinishTreatment,
+        changeDateEditFT,
+        handleSelectEditFT,
+        optionsAdminEmail,
+        isPatientCanceled,
+        submitEditFinishTreatment,
+        loadingIdSubmitEditFT,
+        idPatientEditFT
     }
 }

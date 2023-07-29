@@ -3,15 +3,16 @@
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
-import { InputConfirmDrugCounterT, InputEditConfirmPatientCounter, SubmitConfirmDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
+import { ErrInputEditConfirmPatientCounter, InputConfirmDrugCounterT, InputEditConfirmPatientCounter, SubmitConfirmDrugCounterT, SubmitEditFinishTreatmentT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
-import { faBan, faCircleCheck, faDownload } from "@fortawesome/free-solid-svg-icons"
+import { faBan, faCircleCheck, faDownload, faPencil } from "@fortawesome/free-solid-svg-icons"
 import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
 import { API } from "lib/api"
 import ServicingHours from "lib/dataInformation/ServicingHours"
+import { DrugCounterT, PatientFinishTreatmentT } from "lib/types/PatientT.types"
 
 type ErrorInput = {
     paymentMethod: string
@@ -53,6 +54,18 @@ export function UseForm({
         totalCost: '',
         message: ''
     })
+    const [idEditCounterConfirmP, setIdEditCounterConfirmP] = useState<string | null>(null)
+    const [loadingIdSubmitEditCounterConfirmP, setLoadingIdSubmitEditCounterConfirmP] = useState<string[]>([])
+    const [onPopupEditCounterConfirmP, setOnPopupEditCounterConfirmP] = useState<boolean>(false)
+    const [errInputEditCounterConfirmP, setErrInputEditCounterConfirmP] = useState<ErrInputEditConfirmPatientCounter>({} as ErrInputEditConfirmPatientCounter)
+    const [namePatientEditCounterConfP, setNamePatientEditCounterConfP] = useState<string | null>(null)
+    const [valueMsgEditCounterConfP, setValueMsgEditCounterConfP] = useState<string>('')
+    const [optionsAdminEmailEditCounterConfP, setOptionsAdminEmailEditCounterConfP] = useState<DataOptionT>([
+        {
+            id: 'Select Email',
+            title: 'Select Email'
+        }
+    ])
     const [paymentOptions, setPaymentOptions] = useState<DataOptionT>([
         {
             id: 'Select Payment Method',
@@ -74,7 +87,9 @@ export function UseForm({
     } = UsePatientData({ params })
 
     const {
+        loadGetDataAdmin,
         dataDrugCounter,
+        dataFinishTreatment,
         dataAdmin
     } = ServicingHours()
 
@@ -89,7 +104,7 @@ export function UseForm({
     }, [value])
 
     function handlePayment(): void {
-        const elem = document.getElementById('paymentMethod') as HTMLSelectElement
+        const elem = document.getElementById('paymentMethodTransac') as HTMLSelectElement
         const value = elem.options[elem.selectedIndex].value
         if (
             value === 'cash' ||
@@ -423,11 +438,11 @@ export function UseForm({
                     nameBtn: 'Yes',
                     classBtn: 'hover:bg-white',
                     classLoading: 'hidden',
-                    clickBtn: ()=>confirmDownloadTRPdf(),
+                    clickBtn: () => confirmDownloadTRPdf(),
                     styleBtn: {
                         padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
+                        marginRight: '0.6rem',
+                        marginTop: '0.5rem'
                     }
                 },
                 {
@@ -518,9 +533,9 @@ export function UseForm({
     function clickEditCounterConfirmP(
         patientId: string,
         patientName: string
-    ):void{
-        const findPatient = dataDrugCounter?.find(patient=>patient.patientId === patientId)
-        if(findPatient){
+    ): void {
+        const findPatient = dataDrugCounter?.find(patient => patient.patientId === patientId)
+        if (findPatient) {
             const {
                 isConfirm
             } = findPatient
@@ -536,8 +551,289 @@ export function UseForm({
                 totalCost: isConfirm.paymentInfo.totalCost,
                 message: isConfirm.paymentInfo.message as string
             })
-        }else{
+            setIdEditCounterConfirmP(patientId)
+            setNamePatientEditCounterConfP(patientName)
+            setOnPopupEditCounterConfirmP(true)
+            setValueMsgEditCounterConfP(isConfirm.paymentInfo?.message as string)
+
+            loadDataAdmin()
+        } else {
             alert(`No counter patient found with id "${patientId}"`)
+        }
+    }
+
+    function loadDataAdmin(): void {
+        if (
+            !loadGetDataAdmin &&
+            Array.isArray(dataAdmin) &&
+            dataAdmin.length > 0
+        ) {
+            const admins: DataOptionT = dataAdmin.map(admin => ({
+                id: admin.email,
+                title: admin.email
+            }))
+            setOptionsAdminEmailEditCounterConfP([
+                {
+                    id: 'Select Email',
+                    title: 'Select Email'
+                },
+                ...admins
+            ])
+        } else if (
+            !loadGetDataAdmin &&
+            Array.isArray(dataAdmin) &&
+            dataAdmin.length === 0
+        ) {
+            alert('Admin email not found')
+        }
+    }
+
+    function changeIndexInputElem(
+        index: number,
+        idElement: 'adminEmail' | 'paymentMethod'
+    ): void {
+        const elem = document.getElementById(idElement) as HTMLSelectElement
+        if (elem) {
+            elem.selectedIndex = index
+        }
+    }
+
+    useEffect(() => {
+        if (optionsAdminEmailEditCounterConfP.length > 0) {
+            const indexEmail = optionsAdminEmailEditCounterConfP.findIndex(item => item.id === inputValueEditCounterConfirmP.adminEmail)
+            const indexPaymentMethod = paymentOptions.findIndex(item => item.id === inputValueEditCounterConfirmP.paymentMethod)
+            changeIndexInputElem(indexEmail, 'adminEmail')
+            changeIndexInputElem(indexPaymentMethod, 'paymentMethod')
+        }
+    }, [inputValueEditCounterConfirmP, optionsAdminEmailEditCounterConfP, paymentOptions])
+
+    function closePopupEditConfirmPatientC(): void {
+        setOnPopupEditCounterConfirmP(false)
+    }
+
+    function handleChangeDate(
+        e: ChangeEvent<HTMLInputElement> | Date | undefined,
+        inputName: "dateConfirm"
+    ): void {
+        setInputValueEditCounterConfirmP({
+            ...inputValueEditCounterConfirmP,
+            [inputName]: !e ? '' : `${createDateFormat(e as Date)}`
+        })
+        setErrInputEditCounterConfirmP({
+            ...errInputEditCounterConfirmP,
+            [inputName]: ''
+        })
+    }
+
+    function changeEditConfirmPatientC(e: ChangeEvent<HTMLInputElement>): void {
+        setInputValueEditCounterConfirmP({
+            ...inputValueEditCounterConfirmP,
+            [e.target.name]: e.target.value
+        })
+        setErrInputEditCounterConfirmP({
+            ...errInputEditCounterConfirmP,
+            [e.target.name]: ''
+        })
+    }
+
+    useEffect(() => {
+        setInputValueEditCounterConfirmP({
+            ...inputValueEditCounterConfirmP,
+            message: valueMsgEditCounterConfP
+        })
+        setErrInputEditCounterConfirmP({
+            ...errInputEditCounterConfirmP,
+            message: ''
+        })
+    }, [valueMsgEditCounterConfP])
+
+    function handleSelectCounterConfirmP(
+        idElement: "adminEmail" | 'paymentMethod',
+        nameInput: "adminEmail" | 'paymentMethod'
+    ): void {
+        const elem = document.getElementById(idElement) as HTMLSelectElement
+        const value = elem?.options[elem?.selectedIndex]?.value
+        setInputValueEditCounterConfirmP({
+            ...inputValueEditCounterConfirmP,
+            [nameInput]: value
+        })
+        setErrInputEditCounterConfirmP({
+            ...errInputEditCounterConfirmP,
+            [nameInput]: ''
+        })
+    }
+
+    function submitEditCounterConfirmP(): void {
+        const findLoadingId = loadingIdSubmitEditCounterConfirmP.find(id => id === idEditCounterConfirmP)
+        if (!findLoadingId && validateFormEditCounterConfirmP()) {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `update confirmation data of "${namePatientEditCounterConfP}" patient counter?`,
+                classIcon: 'text-color-default',
+                iconPopup: faPencil,
+                actionsData: [
+                    {
+                        nameBtn: 'Save',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmSubmitEditCounterConfirmP(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    },
+                ]
+            })
+        }
+    }
+
+    function validateFormEditCounterConfirmP(): string | undefined {
+        let err = {} as ErrInputEditConfirmPatientCounter
+        if (!inputValueEditCounterConfirmP.dateConfirm.trim()) {
+            err.dateConfirm = 'Must be required'
+        }
+        if (!inputValueEditCounterConfirmP.confirmHour.trim()) {
+            err.confirmHour = 'Must be required'
+        }
+        if (
+            !inputValueEditCounterConfirmP.adminEmail.trim() ||
+            inputValueEditCounterConfirmP.adminEmail === 'Select Email'
+        ) {
+            err.adminEmail = 'Must be required'
+        }
+        if (
+            !inputValueEditCounterConfirmP.paymentMethod?.trim() ||
+            inputValueEditCounterConfirmP.paymentMethod === 'Select Payment Method'
+        ) {
+            err.paymentMethod = 'Must be required'
+        }
+        if (
+            inputValueEditCounterConfirmP.paymentMethod === 'cash' &&
+            !inputValueEditCounterConfirmP.totalCost.trim()
+        ) {
+            err.totalCost = 'Must be required'
+        }
+        if (
+            inputValueEditCounterConfirmP.paymentMethod === 'BPJS' &&
+            !inputValueEditCounterConfirmP.bpjsNumber.trim()
+        ) {
+            err.bpjsNumber = 'Must be required'
+        }
+        if (!inputValueEditCounterConfirmP.message.trim()) {
+            err.message = 'Must be required'
+        }
+
+        if (Object.keys(err).length > 0) {
+            setErrInputEditCounterConfirmP(err)
+            return
+        }
+        return 'success'
+    }
+
+    function confirmSubmitEditCounterConfirmP(): void {
+        setOnModalSettings({} as PopupSettings)
+        setLoadingIdSubmitEditCounterConfirmP((current) => [idEditCounterConfirmP as string, ...current])
+        const currentPatientC = dataDrugCounter?.find(patient => patient.patientId === idEditCounterConfirmP)
+
+        if (currentPatientC) {
+            API().APIPutPatientData(
+                'drug-counter',
+                currentPatientC?.id as string,
+                dataUpdtCounterConfirmP(currentPatientC)
+            )
+                .then(res => {
+                    const currentPatient = dataFinishTreatment?.find(patient => patient.patientId === idEditCounterConfirmP)
+
+                    if (!currentPatient) {
+                        pushTriggedErr(`No patient treatment data found with id "${idEditCounterConfirmP}"`)
+                    }
+
+                    return API().APIPutPatientData(
+                        'finished-treatment',
+                        currentPatient?.id as string,
+                        dataUpdtFinishTreatment(currentPatient as PatientFinishTreatmentT)
+                    )
+                })
+                .then(res => {
+                    const removeIdLoading = loadingIdSubmitEditCounterConfirmP.filter(id => id !== res?.patientId)
+                    setLoadingIdSubmitEditCounterConfirmP(removeIdLoading)
+                    alert('Successfully updated patient counter confirmation data')
+                })
+                .catch(err => pushTriggedErr('A server error occurred. occurs when updating patient counter confirmation data. please try again'))
+        } else {
+            pushTriggedErr(`No patient counter found with id "${idEditCounterConfirmP}"`)
+        }
+    }
+
+    function dataUpdtCounterConfirmP(
+        counterPatient: DrugCounterT
+    ): SubmitConfirmDrugCounterT {
+        const {
+            patientId,
+            loketInfo,
+            message,
+            adminInfo,
+            submissionDate,
+            queueNumber,
+            isConfirm
+        } = counterPatient
+
+        const admin = dataAdmin?.find(admins => admins.email === inputValueEditCounterConfirmP.adminEmail)
+
+        return {
+            patientId,
+            loketInfo,
+            message,
+            adminInfo,
+            submissionDate,
+            queueNumber,
+            isConfirm: {
+                confirmState: isConfirm.confirmState,
+                isSkipped: typeof isConfirm?.isSkipped !== 'undefined' ? isConfirm.isSkipped : false,
+                dateConfirm: {
+                    dateConfirm: inputValueEditCounterConfirmP.dateConfirm,
+                    confirmHour: inputValueEditCounterConfirmP.confirmHour
+                },
+                adminInfo: { adminId: admin?.id as string },
+                paymentInfo: {
+                    paymentMethod: inputValueEditCounterConfirmP.paymentMethod as 'cash',
+                    bpjsNumber: inputValueEditCounterConfirmP.paymentMethod === 'BPJS' ? inputValueEditCounterConfirmP.bpjsNumber : '',
+                    totalCost: inputValueEditCounterConfirmP.paymentMethod === 'cash' ? inputValueEditCounterConfirmP.totalCost : '-',
+                    message: inputValueEditCounterConfirmP.message
+                }
+            }
+        }
+    }
+
+    function dataUpdtFinishTreatment(currentPatient: PatientFinishTreatmentT): SubmitEditFinishTreatmentT {
+        const admin = dataAdmin?.find(admins => admins.email === inputValueEditCounterConfirmP.adminEmail)
+        const {
+            patientId,
+            isCanceled,
+            messageCancelled
+        } = currentPatient
+        return {
+            patientId,
+            confirmedTime: {
+                dateConfirm: inputValueEditCounterConfirmP.dateConfirm,
+                confirmHour: inputValueEditCounterConfirmP.confirmHour
+            },
+            adminInfo: { adminId: admin?.id as string },
+            isCanceled,
+            messageCancelled
         }
     }
 
@@ -570,6 +866,21 @@ export function UseForm({
         confirmDownloadTRPdf,
         setIsActiveMenu,
         clickDelete,
-        loadingDelete
+        loadingDelete,
+        clickEditCounterConfirmP,
+        inputValueEditCounterConfirmP,
+        namePatientEditCounterConfP,
+        errInputEditCounterConfirmP,
+        optionsAdminEmailEditCounterConfP,
+        valueMsgEditCounterConfP,
+        setValueMsgEditCounterConfP,
+        onPopupEditCounterConfirmP,
+        closePopupEditConfirmPatientC,
+        handleChangeDate,
+        changeEditConfirmPatientC,
+        handleSelectCounterConfirmP,
+        submitEditCounterConfirmP,
+        loadingIdSubmitEditCounterConfirmP,
+        idEditCounterConfirmP
     }
 }

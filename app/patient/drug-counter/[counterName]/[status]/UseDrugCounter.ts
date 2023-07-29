@@ -12,9 +12,10 @@ import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { faBan, faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
 import { InputEditPatientCounter, SubmitConfirmDrugCounterT, SubmitDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
-import { API } from "lib/api"
+import { API, DataRequest } from "lib/api"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
+import { AdminT } from "lib/types/AdminT.types"
 
 type ParamsProps = {
     params: {
@@ -166,7 +167,7 @@ export function UseDrugCounter({
     ]
     const checkStatusUrl = statusURL?.find(status => status === params?.status)
 
-    if(!paramsRegistration?.params?.includes('/personal-data')){
+    if (!paramsRegistration?.params?.includes('/personal-data')) {
         if (!loadDataService && !loket) {
             notFound()
         }
@@ -844,7 +845,27 @@ export function UseDrugCounter({
                     sortQueueNumber.length > 0
                     ? `${Number(sortQueueNumber[0].queueNumber) + 1}` : '1' : inputValueEditPatientC.queueNumber
 
-        const data: SubmitConfirmDrugCounterT = {
+        if (!currentPatientC?.isConfirm?.confirmState) {
+            return dataNotConfirmYet(
+                admin,
+                queueNumber,
+                currentPatientC
+            )
+        }else {
+            return dataAlreadyConfirm(
+                admin,
+                queueNumber,
+                currentPatientC
+            )
+        }
+    }
+
+    function dataNotConfirmYet(
+        admin: AdminT | undefined,
+        queueNumber: string,
+        currentPatientC: DrugCounterT | undefined
+    ): SubmitConfirmDrugCounterT {
+        return {
             patientId: inputValueEditPatientC.patientId,
             loketInfo: { loketId: loket?.id as string },
             message: inputValueEditPatientC.message,
@@ -859,7 +880,36 @@ export function UseDrugCounter({
                 isSkipped: typeof currentPatientC?.isConfirm?.isSkipped !== 'undefined' ? currentPatientC?.isConfirm?.isSkipped : false
             }
         }
-        return data
+    }
+
+    function dataAlreadyConfirm(
+        admin: AdminT | undefined,
+        queueNumber: string,
+        currentPatientC: DrugCounterT | undefined
+    ):SubmitConfirmDrugCounterT{
+        return {
+            patientId: inputValueEditPatientC.patientId,
+            loketInfo: { loketId: loket?.id as string },
+            message: inputValueEditPatientC.message,
+            adminInfo: { adminId: admin?.id as string },
+            submissionDate: {
+                submissionDate: inputValueEditPatientC.submissionDate,
+                submitHours: inputValueEditPatientC.submitHour
+            },
+            queueNumber: queueNumber,
+            isConfirm: {
+                confirmState: currentPatientC?.isConfirm?.confirmState as boolean,
+                isSkipped: typeof currentPatientC?.isConfirm?.isSkipped !== 'undefined' ? currentPatientC?.isConfirm?.isSkipped : false,
+                dateConfirm: currentPatientC?.isConfirm.dateConfirm,
+                adminInfo: currentPatientC?.isConfirm?.adminInfo,
+                paymentInfo: {
+                    paymentMethod: currentPatientC?.isConfirm?.paymentInfo?.paymentMethod as 'cash',
+                    bpjsNumber: currentPatientC?.isConfirm?.paymentInfo?.bpjsNumber as string,
+                    totalCost: currentPatientC?.isConfirm?.paymentInfo?.totalCost as string,
+                    message: currentPatientC?.isConfirm?.paymentInfo?.message as string
+                },
+            }
+        }
     }
 
     function toggleChangeManualQueue(): void {
@@ -1217,7 +1267,7 @@ export function UseDrugCounter({
         setOnModalSettings({} as PopupSettings)
         setLoadingIdPatientsDelete((current) => [patientId, ...current])
         const idDocumentFinishTreatment = dataFinishTreatment?.find(patient => patient.patientId === patientId)?.id
-        const currentPatientC = dataDrugCounter?.find(patient=>patient.patientId === patientId)
+        const currentPatientC = dataDrugCounter?.find(patient => patient.patientId === patientId)
 
         API().APIDeletePatientData(
             'finished-treatment',
@@ -1225,7 +1275,7 @@ export function UseDrugCounter({
             patientId
         )
             .then(res => {
-                if(!currentPatientC){
+                if (!currentPatientC) {
                     pushTriggedErr(`Not found patient counter with id "${patientId}"`)
                     return
                 }
@@ -1235,7 +1285,7 @@ export function UseDrugCounter({
                     dataEditPatientCounter(currentPatientC as DrugCounterT)
                 )
             })
-            .then(res=>{
+            .then(res => {
                 const removeIdLoading = loadingIdPatientsDelete.filter(id => id !== res?.patientId)
                 setLoadingIdPatientsDelete(removeIdLoading)
                 alert('Successfully deleted patient data')
@@ -1243,7 +1293,7 @@ export function UseDrugCounter({
             .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient treatment data. please try again`))
     }
 
-    function dataEditPatientCounter(patientCounter: DrugCounterT):SubmitConfirmDrugCounterT{
+    function dataEditPatientCounter(patientCounter: DrugCounterT): SubmitConfirmDrugCounterT {
         const {
             patientId,
             loketInfo,
@@ -1260,7 +1310,7 @@ export function UseDrugCounter({
             adminInfo,
             submissionDate,
             queueNumber,
-            isConfirm:{
+            isConfirm: {
                 confirmState: false,
                 isSkipped: typeof isConfirm?.isSkipped !== 'undefined' ? isConfirm?.isSkipped : false
             }

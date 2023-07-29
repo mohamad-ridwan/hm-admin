@@ -222,7 +222,7 @@ export function CounterForm({ params }: { params: string }) {
                         title="Select Payment Method"
                     />
                     <InputSelect
-                        id="paymentMethod"
+                        id="paymentMethodTransac"
                         classWrapp="w-fit"
                         data={paymentOptions}
                         handleSelect={handlePayment}

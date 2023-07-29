@@ -15,11 +15,13 @@ import { UseForm } from "./UseForm"
 import { SettingPopup } from "components/popup/SettingPopup"
 import Button from "components/Button"
 import { ContainerPopup } from "components/popup/ContainerPopup"
+import { EditConfirmCounterP } from "./EditConfirmCounterP"
 
 export function ConfirmInfo({ params }: { params: string }) {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
 
     const {
+        detailDataPatientRegis,
         drugCounterPatient,
     } = UsePatientData({ params })
 
@@ -29,7 +31,23 @@ export function ConfirmInfo({ params }: { params: string }) {
         isActiveMenu,
         onPopupSetting,
         cancelPopupSetting,
-        confirmDownloadTRPdf
+        confirmDownloadTRPdf,
+        clickEditCounterConfirmP,
+        inputValueEditCounterConfirmP,
+        namePatientEditCounterConfP,
+        onPopupEditCounterConfirmP,
+        closePopupEditConfirmPatientC,
+        errInputEditCounterConfirmP,
+        handleChangeDate,
+        changeEditConfirmPatientC,
+        handleSelectCounterConfirmP,
+        optionsAdminEmailEditCounterConfP,
+        setValueMsgEditCounterConfP,
+        valueMsgEditCounterConfP,
+        paymentOptions,
+        submitEditCounterConfirmP,
+        loadingIdSubmitEditCounterConfirmP,
+        idEditCounterConfirmP
     } = UseForm({ params, setOnModalSettings })
 
     const checkPaymentMethod: 'BPJS' | 'cash' = drugCounterPatient?.id &&
@@ -73,7 +91,10 @@ export function ConfirmInfo({ params }: { params: string }) {
         {
             name: 'Edit Confirmation',
             classWrapp: 'cursor-pointer',
-            click: () => {return}
+            click: () => {
+                clickEditCounterConfirmP(detailDataPatientRegis?.id, detailDataPatientRegis?.patientName)
+                clickMenu()
+            }
         },
         {
             name: 'Treatment Result PDF',
@@ -88,6 +109,24 @@ export function ConfirmInfo({ params }: { params: string }) {
             classWrapp="flex-col shadow-sm bg-white py-4 px-6 mx-1 my-8 rounded-md"
             maxWidth="auto"
         >
+            {onPopupEditCounterConfirmP && (
+                <EditConfirmCounterP
+                closePopupEditConfirmPatientC={closePopupEditConfirmPatientC}
+                namePatient={namePatientEditCounterConfP as string}
+                inputValueEditCounterConfirmP={inputValueEditCounterConfirmP}
+                errInputEditCounterConfirmP={errInputEditCounterConfirmP}
+                handleChangeDate={handleChangeDate}
+                changeEditConfirmPatientC={changeEditConfirmPatientC}
+                handleSelectCounterConfirmP={handleSelectCounterConfirmP}
+                optionsAdminEmailEditCounterConfP={optionsAdminEmailEditCounterConfP}
+                setValueMsgEditCounterConfP={setValueMsgEditCounterConfP}
+                valueMsgEditCounterConfP={valueMsgEditCounterConfP}
+                paymentOptions={paymentOptions}
+                submitEditCounterConfirmP={submitEditCounterConfirmP}
+                loadingIdSubmitEditCounterConfirmP={loadingIdSubmitEditCounterConfirmP}
+                idEditCounterConfirmP={idEditCounterConfirmP}
+                />
+            )}
             {onModalSettings?.title && (
                 <ContainerPopup
                     className='flex justify-center items-center overflow-y-auto'

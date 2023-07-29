@@ -76,14 +76,21 @@ export type InputEditPatientCounter = {
     queueNumber: string
 }
 
-export type InputEditConfirmPatientCounter = {
+type InputEditConfirmPatientCPropsT = {
     dateConfirm: string
     confirmHour: string
     adminEmail: string
-    paymentMethod: 'cash' | 'BPJS' | null
     bpjsNumber: string
     totalCost: string
     message: string
+}
+
+export type InputEditConfirmPatientCounter = InputEditConfirmPatientCPropsT & {
+    paymentMethod: 'cash' | 'BPJS' | 'Select Payment Method' | null
+}
+
+export type ErrInputEditConfirmPatientCounter = InputEditConfirmPatientCPropsT & {
+    paymentMethod: string
 }
 
 export type SubmitFinishedTreatmentT = {
@@ -137,6 +144,27 @@ export type SubmitConfirmDrugCounterT = SubmitDrugCounterT & {
         paymentInfo?: PaymentInfo
         isSkipped?: boolean
     }
+}
+
+export type InputEditFinishTreatmentT = {
+    patientId: string
+    dateConfirm: string
+    confirmHour: string
+    adminEmail: string
+    messageCancelled: string
+}
+
+export type SubmitEditFinishTreatmentT = {
+    patientId: string
+    confirmedTime: {
+        dateConfirm: string
+        confirmHour: string
+    }
+    adminInfo:{
+        adminId: string
+    }
+    isCanceled: boolean
+    messageCancelled: string
 }
 
 export type FormatPDFT = 

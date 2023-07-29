@@ -1,9 +1,10 @@
 'use client'
 
+import { useState } from "react"
 import { ContainerTableBody } from "components/table/ContainerTableBody"
-import {useRouter} from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { TableBody } from "components/table/TableBody"
-import { FilterTable } from "./FilterTable"
+import { UseFinishTreatment } from "./UseFinishTreatment"
 import { TableHead } from "components/table/TableHead"
 import { TableColumns } from "components/table/TableColumns"
 import { TableData } from "components/table/TableData"
@@ -13,9 +14,33 @@ import { faCalendarDays, faMagnifyingGlass } from "@fortawesome/free-solid-svg-i
 import { InputSelect } from "components/input/InputSelect"
 import { renderCustomHeader } from "lib/datePicker/renderCustomHeader"
 import Pagination from "components/pagination/Pagination"
-import { ActionsDataT } from "lib/types/TableT.type"
+import { ActionsDataT, PopupSettings } from "lib/types/TableT.type"
+import { ContainerPopup } from "components/popup/ContainerPopup"
+import { SettingPopup } from "components/popup/SettingPopup"
+import Button from "components/Button"
+import FormPatientRegistration from "../patient-registration/FormPatientRegistration"
+import EditPatientRegistration from "../patient-registration/EditPatientRegistration"
+import { EditFinishTreatment } from "./EditFinishTreatment"
 
 export function FinishedTreatment() {
+    const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
+
+    const {
+        clickEdit,
+        onPopupEdit,
+        valueInputEditDetailPatient,
+        clickClosePopupEdit,
+        patientName,
+        errEditInputDetailPatient,
+        changeEditDetailPatient,
+        changeDateEditDetailPatient,
+        handleSubmitUpdate,
+        setOnPopupEdit,
+        idPatientToEdit,
+        idLoadingEdit,
+        nextSubmitUpdate
+    } = FormPatientRegistration({ setOnModalSettings })
+
     const {
         head,
         searchText,
@@ -35,12 +60,86 @@ export function FinishedTreatment() {
         maxLength,
         currentPage,
         setCurrentPage,
-    } = FilterTable()
+        clickColumnMenu,
+        indexActiveTableMenu,
+        clickEditFinishTreatment,
+        openPopupEdit,
+        setIndexActiveTableMenu,
+        onPopupEditFinishTreatment,
+        clickClosePopupEditFT,
+        changeEditFT,
+        patientNameEditFT,
+        errInputEditFinishTreatment,
+        inputEditFinishTreatment,
+        changeDateEditFT,
+        handleSelectEditFT,
+        optionsAdminEmail,
+        isPatientCanceled,
+        submitEditFinishTreatment,
+        loadingIdSubmitEditFT,
+        idPatientEditFT
+    } = UseFinishTreatment({ setOnModalSettings, setOnPopupEdit })
 
     const router = useRouter()
 
     return (
         <>
+            {onPopupEdit && (
+                <EditPatientRegistration
+                    valueInputEditDetailPatient={valueInputEditDetailPatient}
+                    patientName={patientName}
+                    errEditInputDetailPatient={errEditInputDetailPatient}
+                    clickClosePopupEdit={clickClosePopupEdit}
+                    changeDateEditDetailPatient={changeDateEditDetailPatient}
+                    changeEditDetailPatient={changeEditDetailPatient}
+                    handleSubmitUpdate={handleSubmitUpdate}
+                    idPatientToEdit={idPatientToEdit}
+                    idLoadingEdit={idLoadingEdit}
+                />
+            )}
+            {onPopupEditFinishTreatment && (
+                <EditFinishTreatment
+                clickClosePopupEditFT={clickClosePopupEditFT}
+                changeEditFT={changeEditFT}
+                patientName={patientNameEditFT}
+                errInputEditFinishTreatment={errInputEditFinishTreatment}
+                inputEditFinishTreatment={inputEditFinishTreatment}
+                changeDateEditFT={changeDateEditFT}
+                handleSelectEditFT={handleSelectEditFT}
+                optionsAdminEmail={optionsAdminEmail}
+                isPatientCanceled={isPatientCanceled}
+                loadingIdSubmitEditFT={loadingIdSubmitEditFT}
+                idPatientEditFT={idPatientEditFT}
+                submitEditFinishTreatment={submitEditFinishTreatment}
+                />
+            )}
+
+            {onModalSettings?.title && (
+                <ContainerPopup
+                    className='flex justify-center items-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        clickClose={onModalSettings.clickClose}
+                        title={onModalSettings.title}
+                        classIcon={onModalSettings.classIcon}
+                        iconPopup={onModalSettings.iconPopup}
+                    >
+                        {onModalSettings.actionsData.length > 0 && onModalSettings.actionsData.map((btn, idx) => {
+                            return (
+                                <Button
+                                    key={idx}
+                                    nameBtn={btn.nameBtn}
+                                    classBtn={btn.classBtn}
+                                    classLoading={btn.classLoading}
+                                    clickBtn={btn.clickBtn}
+                                    styleBtn={btn.styleBtn}
+                                />
+                            )
+                        })}
+                    </SettingPopup>
+                </ContainerPopup>
+            )}
+
             {/* table filter */}
             <TableFilter
                 leftChild={
@@ -106,13 +205,18 @@ export function FinishedTreatment() {
                         const actionsData: ActionsDataT[] = [
                             {
                                 name: 'Edit',
-                                click: (e?: MouseEvent)=>{
+                                click: (e?: MouseEvent) => {
+                                    clickEdit(patient.id, patient.data[0].name)
+                                    clickEditFinishTreatment(patient.id, patient.data[0].name)
+                                    openPopupEdit()
+                                    setIndexActiveTableMenu(null)
                                     e?.stopPropagation()
                                 }
                             },
                             {
                                 name: 'Delete',
-                                click: (e?: MouseEvent)=>{
+                                classWrapp: 'cursor-pointer text-red-default',
+                                click: (e?: MouseEvent) => {
                                     e?.stopPropagation()
                                 }
                             }
@@ -121,9 +225,10 @@ export function FinishedTreatment() {
                         return (
                             <TableColumns
                                 key={index}
+                                classWrappMenu={indexActiveTableMenu === index ? 'flex' : 'hidden'}
                                 clickBtn={() => router.push(patient.url as string)}
                                 actionsData={actionsData}
-                                classWrappMenu="hidden"
+                                clickColumnMenu={() => clickColumnMenu(index)}
                             >
                                 {patient.data.map((item, idx) => {
                                     return (

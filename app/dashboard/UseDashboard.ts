@@ -166,7 +166,7 @@ export function UseDashboard() {
             const findCounter = dataDrugCounter?.find(patientC =>
                 patientC.patientId === patient.patientId &&
                 patientC.isConfirm.confirmState &&
-                patientC.isConfirm.paymentInfo.paymentMethod === paymentMethod
+                patientC.isConfirm?.paymentInfo?.paymentMethod === paymentMethod
             )
 
             return findCounter
@@ -180,12 +180,12 @@ export function UseDashboard() {
             const findPatientFT = valuePatientFT.find(patientFT =>
                 patientFT.patientId === patient.patientId &&
                 patient.isConfirm.confirmState &&
-                patient.isConfirm.paymentInfo.paymentMethod === 'cash'
+                patient.isConfirm?.paymentInfo?.paymentMethod === 'cash'
             )
 
             return findPatientFT
         })
-        const earning: string[] = cashPM.length > 0 ? cashPM.map(patient => (patient.isConfirm.paymentInfo.totalCost)) : ['0']
+        const earning: string[] = cashPM.length > 0 ? cashPM.map(patient => (patient.isConfirm?.paymentInfo?.totalCost)) : ['0']
         const earningStr = currencyFormat(eval(earning.join('+')), 'id-ID', 'IDR')
         return earningStr
     }
@@ -387,7 +387,7 @@ export function UseDashboard() {
                 const findCounter = dataDrugCounter?.find(patientC =>
                     patientC.patientId === patient.patientId &&
                     patientC.isConfirm.confirmState &&
-                    patientC.isConfirm.paymentInfo.paymentMethod === paymentMethod
+                    patientC.isConfirm?.paymentInfo?.paymentMethod === paymentMethod
                 )
 
                 const years = patient.confirmedTime.dateConfirm.split('/')[2]
@@ -456,7 +456,7 @@ export function UseDashboard() {
                 const findCounter = dataDrugCounter?.find(patientC =>
                     patientC.patientId === patient.patientId &&
                     patientC.isConfirm.confirmState &&
-                    patientC.isConfirm.paymentInfo.paymentMethod === paymentMethod
+                    patientC.isConfirm?.paymentInfo?.paymentMethod === paymentMethod
                 )
 
                 const years = patient.confirmedTime.dateConfirm.split('/')[2]
@@ -521,7 +521,7 @@ export function UseDashboard() {
                 const findPatientFT = dataFinishTreatment.find(patientFT =>
                     patientFT.patientId === patient.patientId &&
                     patient.isConfirm.confirmState &&
-                    patient.isConfirm.paymentInfo.paymentMethod === 'cash'
+                    patient.isConfirm?.paymentInfo?.paymentMethod === 'cash'
                 )
                 const year = patient.isConfirm?.dateConfirm?.dateConfirm.split('/')[2]
 
@@ -543,7 +543,7 @@ export function UseDashboard() {
             totalEarningsOnYears().filter(item => checkDateConfirmEarnings(item) === month) :
             []
         const totalCost = earningOnEveryMonth.length > 0 ?
-            earningOnEveryMonth.map(item => (item.isConfirm.paymentInfo.totalCost)) : []
+            earningOnEveryMonth.map(item => (item.isConfirm?.paymentInfo?.totalCost)) : []
         const total = totalCost.length > 0 ? eval(totalCost.join('+')) as number : 0
         return total
     }

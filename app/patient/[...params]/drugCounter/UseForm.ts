@@ -236,7 +236,8 @@ export function UseForm({
             message,
             adminInfo,
             submissionDate,
-            queueNumber
+            queueNumber,
+            isConfirm
         } = drugCounterPatient
         const {
             paymentMethod,
@@ -253,6 +254,7 @@ export function UseForm({
             queueNumber,
             isConfirm: {
                 confirmState: true,
+                isSkipped: typeof isConfirm?.isSkipped !== 'undefined' ? isConfirm.isSkipped : false,
                 dateConfirm: {
                     dateConfirm: createDateFormat(new Date()),
                     confirmHour: createHourFormat(new Date())

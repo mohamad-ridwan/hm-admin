@@ -77,7 +77,9 @@ export function FinishedTreatment() {
         isPatientCanceled,
         submitEditFinishTreatment,
         loadingIdSubmitEditFT,
-        idPatientEditFT
+        idPatientEditFT,
+        clickDeleteFT,
+        loadingIdDeleteFT
     } = UseFinishTreatment({ setOnModalSettings, setOnPopupEdit })
 
     const router = useRouter()
@@ -202,6 +204,8 @@ export function FinishedTreatment() {
                     />
 
                     {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                        const findIdLoadingDelete = loadingIdDeleteFT.find(id=>id === patient.id)
+
                         const actionsData: ActionsDataT[] = [
                             {
                                 name: 'Edit',
@@ -215,8 +219,12 @@ export function FinishedTreatment() {
                             },
                             {
                                 name: 'Delete',
-                                classWrapp: 'cursor-pointer text-red-default',
+                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-red-default',
                                 click: (e?: MouseEvent) => {
+                                    if(!findIdLoadingDelete){
+                                        clickDeleteFT(patient.id, patient.data[0].name)
+                                        setIndexActiveTableMenu(null)
+                                    }
                                     e?.stopPropagation()
                                 }
                             }

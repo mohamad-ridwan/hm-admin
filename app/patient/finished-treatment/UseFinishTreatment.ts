@@ -1,6 +1,7 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from "react"
+import { useParams } from 'next/navigation'
 import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import ServicingHours from "lib/dataInformation/ServicingHours"
@@ -10,7 +11,7 @@ import { createDateFormat } from "lib/formats/createDateFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { InputEditFinishTreatmentT, SubmitConfirmDrugCounterT, SubmitEditFinishTreatmentT } from "lib/types/InputT.type"
-import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
+import { faBan, faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
 import { API } from "lib/api"
 
 type Props = {
@@ -42,6 +43,7 @@ export function UseFinishTreatment({
     const [idPatientEditFT, setIdPatientEditFT] = useState<string | null>(null)
     const [loadingIdSubmitEditFT, setLoadingIdSubmitEditFT] = useState<string[]>([])
     const [isPatientCanceled, setIsPatientCanceled] = useState<boolean>(false)
+    const [loadingIdDeleteFT, setLoadingIdDeleteFT] = useState<string[]>([])
     const [optionsAdminEmail, setOptionsAdminEmail] = useState<DataOptionT>([
         {
             id: 'Select Email',
@@ -116,6 +118,8 @@ export function UseFinishTreatment({
         dataAdmin,
         pushTriggedErr
     } = ServicingHours()
+
+    const paramsPersonalData = useParams()
 
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,
@@ -748,37 +752,37 @@ export function UseFinishTreatment({
 
     function confirmEditFinishTreatment(): void {
         setOnModalSettings({} as PopupSettings)
-        const currentPatientC = dataDrugCounter?.find(patient=>patient.patientId === idPatientEditFT)
-        const currentPatientFT = dataFinishTreatment?.find(patient=>patient.patientId === idPatientEditFT)
-        setLoadingIdSubmitEditFT((current)=>[idPatientEditFT as string, ...current])
-        if(currentPatientFT){
+        const currentPatientC = dataDrugCounter?.find(patient => patient.patientId === idPatientEditFT)
+        const currentPatientFT = dataFinishTreatment?.find(patient => patient.patientId === idPatientEditFT)
+        setLoadingIdSubmitEditFT((current) => [idPatientEditFT as string, ...current])
+        if (currentPatientFT) {
             API().APIPutPatientData(
                 'finished-treatment',
                 currentPatientFT.id,
                 dataUpdtFinishTreatment(currentPatientFT.isCanceled)
             )
-            .then(res=>{
-                if(currentPatientC?.isConfirm?.confirmState){
-                    return API().APIPutPatientData(
-                        'drug-counter',
-                        currentPatientC.id,
-                        dataUpdtConfirmCounterP(currentPatientC)
-                    )
-                }
-                return res
-            })
-            .then(res=>{
-                const removeIdLoading = loadingIdSubmitEditFT.filter(id=>id !== res?.patientId)
-                setLoadingIdSubmitEditFT(removeIdLoading)
-                alert('Successfully update patient treatment data')
-            })
-            .catch(err=>pushTriggedErr('An error occurred while updating patient treatment data. please try again'))
+                .then(res => {
+                    if (currentPatientC?.isConfirm?.confirmState) {
+                        return API().APIPutPatientData(
+                            'drug-counter',
+                            currentPatientC.id,
+                            dataUpdtConfirmCounterP(currentPatientC)
+                        )
+                    }
+                    return res
+                })
+                .then(res => {
+                    const removeIdLoading = loadingIdSubmitEditFT.filter(id => id !== res?.patientId)
+                    setLoadingIdSubmitEditFT(removeIdLoading)
+                    alert('Successfully update patient treatment data')
+                })
+                .catch(err => pushTriggedErr('An error occurred while updating patient treatment data. please try again'))
         }
     }
 
     function dataUpdtFinishTreatment(
         isCanceled: boolean
-    ):SubmitEditFinishTreatmentT{
+    ): SubmitEditFinishTreatmentT {
         const {
             patientId,
             dateConfirm,
@@ -788,13 +792,13 @@ export function UseFinishTreatment({
         } = inputEditFinishTreatment
         const admin = dataAdmin?.find(admins => admins.email === adminEmail)
 
-        return{
+        return {
             patientId,
             confirmedTime: {
                 dateConfirm,
                 confirmHour,
             },
-            adminInfo: {adminId: admin?.id as string},
+            adminInfo: { adminId: admin?.id as string },
             isCanceled,
             messageCancelled
         }
@@ -838,6 +842,124 @@ export function UseFinishTreatment({
         }
     }
 
+    function clickDeleteFT(
+        patientId: string,
+        patientName: string
+    ): void {
+        const findLoadingId = loadingIdDeleteFT.find(id => id === patientId)
+        if (!findLoadingId) {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Delete patient treatment data "${patientName}"?`,
+                classIcon: 'text-font-color-2',
+                iconPopup: faBan,
+                patientId,
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmDeleteFT(patientId),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    }
+                ]
+            })
+        }
+    }
+
+    function confirmDeleteFT(patientId: string): void {
+        const finishTreatment = dataFinishTreatment?.find(patient => patient.patientId === patientId)
+        const checkDrugCounter = dataDrugCounter?.find(patient => patient.patientId === patientId)
+        setLoadingIdDeleteFT((current) => [patientId, ...current])
+        setOnModalSettings({} as PopupSettings)
+        if (finishTreatment) {
+            API().APIDeletePatientData(
+                'finished-treatment',
+                finishTreatment.id,
+                patientId
+            )
+                .then(res => {
+                    if (checkDrugCounter?.isConfirm?.confirmState) {
+                        return API().APIPutPatientData(
+                            'drug-counter',
+                            checkDrugCounter.id,
+                            dataUpdtPatientCounter(checkDrugCounter)
+                        )
+                    }
+                    return res
+                })
+                .then(res => {
+                    const newRes = res as { [key: string]: any }
+                    const removeIdLoading = loadingIdDeleteFT.filter(id => id !== newRes?.patientId)
+                    setLoadingIdDeleteFT(removeIdLoading)
+                    alert('Delete successfully')
+                    const redirectRoute: 'drug-counter' | 'registration' = checkDrugCounter?.id ? 'drug-counter' : 'registration'
+                    redirectAfterDelete(redirectRoute)
+                })
+                .catch(err => pushTriggedErr('There was an error deleting patient medication data. please try again'))
+        } else {
+            alert(`No patient treatment data found with id "${patientId}"`)
+        }
+    }
+
+    function redirectAfterDelete(
+        stepPatient: 'drug-counter' | 'registration'
+    ): void {
+        const checkRoute = paramsPersonalData?.params?.includes('/counter')
+        const urlOrigin = window.location.origin
+        if (checkRoute) {
+            if (stepPatient === 'drug-counter') {
+                const queueNumberCounter = paramsPersonalData?.params?.split('/')[8]
+                const getRoute = paramsPersonalData?.params?.split('/').filter((v, i) =>
+                    i < 7
+                )?.join('/')
+                const newRoute = `${getRoute}/not-yet-confirmed/${queueNumberCounter}`
+                window.location.replace(`${urlOrigin}/patient/${newRoute}`)
+            }
+        }else if(stepPatient){
+            window.location.reload()
+        }
+    }
+
+    function dataUpdtPatientCounter(patientCounter: DrugCounterT): SubmitConfirmDrugCounterT {
+        const {
+            patientId,
+            loketInfo,
+            message,
+            adminInfo,
+            submissionDate,
+            queueNumber,
+            isConfirm
+        } = patientCounter
+        return {
+            patientId,
+            loketInfo,
+            message,
+            adminInfo,
+            submissionDate,
+            queueNumber,
+            isConfirm: {
+                confirmState: false,
+                isSkipped: typeof isConfirm?.isSkipped !== 'undefined' ? isConfirm.isSkipped : false
+            }
+        }
+    }
 
     return {
         head,
@@ -875,6 +997,9 @@ export function UseFinishTreatment({
         isPatientCanceled,
         submitEditFinishTreatment,
         loadingIdSubmitEditFT,
-        idPatientEditFT
+        idPatientEditFT,
+        clickDeleteFT,
+        loadingIdDeleteFT,
+        setOnPopupEditFinishTreatment
     }
 }

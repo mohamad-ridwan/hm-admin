@@ -315,7 +315,7 @@ export function UseDashboard() {
             []
         return patientFTInEveryMonth.length
     }
-    const resultPatientFTOnMonth = monthDetailNames.map((v, i) => (loopPatientFTOnMonth(i)))
+    const resultPatientFTOnMonth = monthDetailNames.map((v, i) => (loopPatientFTOnMonth(i + 1)))
 
     function barPatientCompletedOrCancelled(
         years: string,
@@ -346,8 +346,8 @@ export function UseDashboard() {
             []
         return patientCompletedInEveryMonth.length
     }
-    const resultPatientCompletedOnMonth = monthDetailNames.map((v, i) => (loopPatientCompletedOnMonth(i, false)))
-    const resultPatientCanceledOnMonth = monthDetailNames.map((v, i) => (loopPatientCompletedOnMonth(i, true)))
+    const resultPatientCompletedOnMonth = monthDetailNames.map((v, i) => (loopPatientCompletedOnMonth(i + 1, false)))
+    const resultPatientCanceledOnMonth = monthDetailNames.map((v, i) => (loopPatientCompletedOnMonth(i + 1, true)))
 
     const labels = monthDetailNames
 
@@ -475,8 +475,8 @@ export function UseDashboard() {
             []
         return cashOrBPJSPMInEveryMonth.length
     }
-    const resultCashPMethodOnMonth = monthDetailNames.map((v, i) => (loopCashOrBPJSPMethodOnMonth(i, 'cash')))
-    const resultBPJSPMethodOnMonth = monthDetailNames.map((v, i) => (loopCashOrBPJSPMethodOnMonth(i, 'BPJS')))
+    const resultCashPMethodOnMonth = monthDetailNames.map((v, i) => (loopCashOrBPJSPMethodOnMonth(i + 1, 'cash')))
+    const resultBPJSPMethodOnMonth = monthDetailNames.map((v, i) => (loopCashOrBPJSPMethodOnMonth(i + 1, 'BPJS')))
 
     const optionsBarPaymentInfo = {
         responsive: true,
@@ -554,7 +554,7 @@ export function UseDashboard() {
 
         return Number(checkMonth)
     }
-    const resultTotalEarnings = monthDetailNames.map((v, i) => (loopTotalEarnings(i)))
+    const resultTotalEarnings = monthDetailNames.map((v, i) => (loopTotalEarnings(i + 1)))
 
     const optionsBarEarnings = {
         responsive: true,

@@ -5,16 +5,24 @@ import { useParams, useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { InputDrugCounterT, SubmitDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
-import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
+import { PopupSettings } from "lib/types/TableT.type"
 import { faBan, faCircleCheck, faDownload, faEnvelope } from "@fortawesome/free-solid-svg-icons"
 import { authStore } from "lib/useZustand/auth"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { API } from "lib/api"
 import { sendEmail } from "lib/emailJS/sendEmail"
+import { UsePatientData } from "lib/dataInformation/UsePatientData"
+import { spaceString } from "lib/regex/spaceString"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 
-export function UseForm() {
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+type Props = {
+    params: string
+}
+
+export function UseForm({
+    params: paramsPersonal
+}: Props) {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
     const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
     const [value, setValue] = useState<string>('')
@@ -44,8 +52,14 @@ export function UseForm() {
         dataLoket,
         dataDrugCounter,
         dataPatientRegis,
-        pushTriggedErr
+        pushTriggedErr,
+        doctors
     } = ServicingHours()
+
+    const {
+        detailDataPatientRegis,
+        dataConfirmPatient,
+    } = UsePatientData({ params: paramsPersonal })
 
     const { user } = authStore()
 
@@ -53,6 +67,15 @@ export function UseForm() {
     const params = useParams()
     const patientId = params?.params?.split('/')[4]
     const patientName = params?.params?.split('/')[3]
+
+    const findCurrentDoctor = doctors?.find(doctor => doctor.id === dataConfirmPatient?.doctorInfo?.doctorId)
+
+    const getAppointmentDate = createDateNormalFormat(detailDataPatientRegis?.appointmentDate)
+    const dayOfAppointment = getAppointmentDate?.split(',')[1]?.replace(spaceString, '')
+    const dateOfAppointment = getAppointmentDate?.split(',')[0]
+    const doctorIsHoliday = findCurrentDoctor?.holidaySchedule?.find(date => date.date === createDateFormat(dateOfAppointment))
+    const doctorIsOnCurrentDay = findCurrentDoctor?.doctorSchedule?.find(day => day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
+    const doctorIsAvailable = !doctorIsHoliday ? doctorIsOnCurrentDay ? true : false : false
 
     function loadCounter(): void {
         if (
@@ -90,7 +113,7 @@ export function UseForm() {
     }
 
     function submitForm(): void {
-        if (loadingSubmit === false) {
+        if (loadingSubmit === false && doctorIsAvailable) {
             let err = {} as InputDrugCounterT
             if (!value.trim()) {
                 err.message = 'Must be required'
@@ -135,15 +158,6 @@ export function UseForm() {
                     },
                 ]
             })
-            // setOnPopupSetting({
-            //     title: 'Confirm patient?',
-            //     classIcon: 'text-font-color-2',
-            //     classBtnNext: 'hover:bg-white',
-            //     iconPopup: faCircleCheck,
-            //     nameBtnNext: 'Yes',
-            //     patientId: '',
-            //     categoryAction: 'confirm-patient'
-            // })
             setErrInput({} as InputDrugCounterT)
         }
     }
@@ -213,10 +227,6 @@ export function UseForm() {
         } else {
             return '1'
         }
-    }
-
-    function cancelPopupFormConfirm(): void {
-        setOnPopupSetting({} as PopupSetting)
     }
 
     function clickDownload(): void {
@@ -437,10 +447,7 @@ export function UseForm() {
                         nameBtn: 'Yes',
                         classBtn: 'hover:bg-white',
                         classLoading: 'hidden',
-                        clickBtn: () =>{
-                            setOnMsgCancelTreatment(true)
-                            setOnModalSettings({} as PopupSettings)
-                        },
+                        clickBtn: () =>setOnMsgCancelTreatment(true),
                         styleBtn: {
                             padding: '0.5rem',
                             marginRight: '0.6rem',
@@ -506,9 +513,6 @@ export function UseForm() {
         confirmSubmitForm,
         handleCounter,
         loadingSubmit,
-        onPopupSetting,
-        setOnPopupSetting,
-        cancelPopupFormConfirm,
         clickDownload,
         confirmForDownloadPdf,
         clickSend,
@@ -527,6 +531,7 @@ export function UseForm() {
         cancelOnMsgCancelPatient,
         handleCancelMsg,
         inputMsgCancelPatient,
-        submitCancelTreatment
+        submitCancelTreatment,
+        doctorIsAvailable
     }
 }

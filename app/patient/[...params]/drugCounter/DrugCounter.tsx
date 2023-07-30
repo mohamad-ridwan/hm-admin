@@ -33,9 +33,6 @@ export function DrugCounter({ params }: { params: string }) {
         clickMenu,
         isActiveMenu,
         clickDownloadPdf,
-        onPopupSetting,
-        cancelPopupSetting,
-        confirmDownloadPdf,
         setIsActiveMenu,
         clickDelete,
         loadingDelete
@@ -99,11 +96,6 @@ export function DrugCounter({ params }: { params: string }) {
                     textInfo: drugCounterPatient.queueNumber,
                     icon: faListOl
                 },
-                // {
-                //     title: 'Status',
-                //     textInfo: status,
-                //     icon: faClock
-                // },
                 {
                     title: 'Hours Submitted',
                     textInfo: drugCounterPatient.submissionDate.submitHours,
@@ -133,7 +125,7 @@ export function DrugCounter({ params }: { params: string }) {
         },
         {
             name: 'Delete',
-            classWrapp: loadingDelete || dataPatientFinishTreatment?.id ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
+            classWrapp: loadingDelete || dataPatientFinishTreatment?.id ? 'text-not-allowed hover:text-[#8f8f8f] hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
             click: () => {
                 if(!dataPatientFinishTreatment?.id){
                     clickDelete()
@@ -205,47 +197,6 @@ export function DrugCounter({ params }: { params: string }) {
                                 </SettingPopup>
                             </ContainerPopup>
                         )}
-
-                        {/* {onPopupSetting?.title && (
-                            <ContainerPopup
-                                className='flex justify-center items-center overflow-y-auto'
-                            >
-                                <SettingPopup
-                                    clickClose={cancelPopupSetting}
-                                    title={onPopupSetting.title}
-                                    classIcon='text-font-color-2'
-                                    iconPopup={onPopupSetting.iconPopup}
-                                >
-                                    <Button
-                                        nameBtn={onPopupSetting.nameBtnNext}
-                                        classBtn="hover:bg-white"
-                                        classLoading="hidden"
-                                        styleBtn={{
-                                            padding: '0.5rem',
-                                            marginRight: '0.6rem',
-                                            marginTop: '0.5rem'
-                                        }}
-                                        clickBtn={() => {
-                                            if (onPopupSetting.categoryAction === 'download-queue-number-pdf') {
-                                                confirmDownloadPdf()
-                                            }
-                                        }}
-                                    />
-
-                                    <Button
-                                        nameBtn="Cancel"
-                                        classBtn="bg-white border-none"
-                                        classLoading="hidden"
-                                        styleBtn={{
-                                            padding: '0.5rem',
-                                            marginTop: '0.5rem',
-                                            color: '#495057'
-                                        }}
-                                        clickBtn={cancelPopupSetting}
-                                    />
-                                </SettingPopup>
-                            </ContainerPopup>
-                        )} */}
 
                         <HeadInfo
                             title={title}

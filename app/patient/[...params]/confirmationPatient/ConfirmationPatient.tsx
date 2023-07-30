@@ -6,9 +6,7 @@ import { CardInfo } from "components/dataInformation/CardInfo";
 import { HeadInfo } from "components/dataInformation/HeadInfo";
 import ServicingHours from "lib/dataInformation/ServicingHours";
 import { UsePatientData } from "lib/dataInformation/UsePatientData";
-import { createDateFormat } from "lib/formats/createDateFormat";
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat";
-import { spaceString } from "lib/regex/spaceString";
 import { FormConfirmation } from "./FormConfirmation";
 import { UseForm } from "./UseConfirmation";
 import { ContainerPopup } from "components/popup/ContainerPopup";
@@ -23,6 +21,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
         detailDataPatientRegis,
         dataConfirmPatient,
         drugCounterPatient,
+        dataPatientFinishTreatment,
         doctors,
         dataRooms,
     } = UsePatientData({ params })
@@ -33,22 +32,17 @@ export function ConfirmationPatient({ params }: { params: string }) {
     } = ServicingHours()
 
     const {
-        onPopupSetting,
-        setOnPopupSetting,
         clickDownload,
-        cancelPopupFormConfirm,
-        confirmForDownloadPdf,
         clickSend,
-        confirmSendEmail,
         loadingSendEmail,
         clickMenu,
         isMenuActive,
         clickDelete,
-        confirmDeletePatient,
         loadingDelete,
         setOnModalSettings,
-        onModalSettings
-    } = UseForm()
+        onModalSettings,
+        doctorIsAvailable
+    } = UseForm({params})
 
     const {
         onPopupEditConfirmPatient,
@@ -69,23 +63,15 @@ export function ConfirmationPatient({ params }: { params: string }) {
         editActiveManualQueue,
         toggleChangeManualQueue,
         toggleSetAutoQueue,
-        // selectPresence,
         idPatientToEditConfirmPatient,
         submitEditConfirmPatient,
         clickOnEditConfirmPatient,
         idLoadingEditConfirmPatient,
-        nextSubmitEditConfirmPatient
-    } = FormPatientConfirmation({ setOnPopupSetting, setOnModalSettings })
+        disableToggleQueue
+    } = FormPatientConfirmation({ setOnModalSettings })
 
     const findCurrentRoom = dataRooms?.find(room => room.id === dataConfirmPatient?.roomInfo?.roomId)
     const findCurrentDoctor = doctors?.find(doctor => doctor.id === dataConfirmPatient?.doctorInfo?.doctorId)
-
-    const getAppointmentDate = createDateNormalFormat(detailDataPatientRegis?.appointmentDate)
-    const dayOfAppointment = getAppointmentDate?.split(',')[1]?.replace(spaceString, '')
-    const dateOfAppointment = getAppointmentDate?.split(',')[0]
-    const doctorIsHoliday = findCurrentDoctor?.holidaySchedule?.find(date => date.date === createDateFormat(dateOfAppointment))
-    const doctorIsOnCurrentDay = findCurrentDoctor?.doctorSchedule?.find(day => day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
-    const doctorIsAvailable = !doctorIsHoliday ? doctorIsOnCurrentDay ? true : false : false
 
     const findAdmin = !loadGetDataAdmin && typeof dataAdmin !== 'undefined' ? dataAdmin.find(admin => admin.id === dataConfirmPatient?.adminInfo?.adminId) : null
 
@@ -162,9 +148,12 @@ export function ConfirmationPatient({ params }: { params: string }) {
         },
         {
             name: 'Delete',
-            classWrapp: loadingDelete || params.length > 5 ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
+            classWrapp: loadingDelete || dataPatientFinishTreatment?.id || params.length > 5 ? 'text-not-allowed hover:bg-white cursor-not-allowed hover:text-[#8f8f8f]' : 'text-red-default cursor-pointer',
             click: () => {
-                if (params.length <= 5) {
+                if (dataPatientFinishTreatment?.id || drugCounterPatient?.id) {
+                    return
+                }
+                if(params.length <= 5){
                     clickDelete(detailDataPatientRegis.patientName, detailDataPatientRegis.id, dataConfirmPatient.id)
                 }
             }
@@ -201,10 +190,10 @@ export function ConfirmationPatient({ params }: { params: string }) {
                                 editActiveManualQueue={editActiveManualQueue}
                                 toggleChangeManualQueue={toggleChangeManualQueue}
                                 toggleSetAutoQueue={toggleSetAutoQueue}
-                                // selectPresence={selectPresence}
                                 idPatientToEditConfirmPatient={idPatientToEditConfirmPatient}
                                 idLoadingEditConfirmPatient={idLoadingEditConfirmPatient}
                                 submitEditConfirmPatient={submitEditConfirmPatient}
+                                disableToggleQueue={disableToggleQueue}
                             />
                         )}
 
@@ -234,53 +223,6 @@ export function ConfirmationPatient({ params }: { params: string }) {
                             </ContainerPopup>
                         )}
 
-                        {/* {onPopupSetting?.title && (
-                            <ContainerPopup
-                                className='flex justify-center items-center overflow-y-auto'
-                            >
-                                <SettingPopup
-                                    clickClose={cancelPopupFormConfirm}
-                                    title={onPopupSetting.title}
-                                    classIcon='text-font-color-2'
-                                    iconPopup={onPopupSetting.iconPopup}
-                                >
-                                    <Button
-                                        nameBtn={onPopupSetting.nameBtnNext}
-                                        classBtn="hover:bg-white"
-                                        classLoading="hidden"
-                                        styleBtn={{
-                                            padding: '0.5rem',
-                                            marginRight: '0.6rem',
-                                            marginTop: '0.5rem'
-                                        }}
-                                        clickBtn={() => {
-                                            if (onPopupSetting.categoryAction === 'download-pdf') {
-                                                confirmForDownloadPdf()
-                                            } else if (onPopupSetting.categoryAction === 'send-email') {
-                                                confirmSendEmail()
-                                            } else if (onPopupSetting.categoryAction === 'edit-confirm-patient') {
-                                                nextSubmitEditConfirmPatient()
-                                            }else if(onPopupSetting.categoryAction === 'delete-confirmation'){
-                                                confirmDeletePatient(dataConfirmPatient.id)
-                                            }
-                                        }}
-                                    />
-
-                                    <Button
-                                        nameBtn="Cancel"
-                                        classBtn="bg-white border-none"
-                                        classLoading="hidden"
-                                        styleBtn={{
-                                            padding: '0.5rem',
-                                            marginTop: '0.5rem',
-                                            color: '#495057'
-                                        }}
-                                        clickBtn={cancelPopupFormConfirm}
-                                    />
-                                </SettingPopup>
-                            </ContainerPopup>
-                        )} */}
-
                         <HeadInfo
                             title={dataConfirmPatient?.roomInfo?.queueNumber}
                             titleInfo="Confirmation Data Information"
@@ -291,6 +233,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
                                 justifyContent: 'space-between'
                             }}
                             styleHeadRight={{
+                                display: drugCounterPatient?.id || dataPatientFinishTreatment?.id ? 'none' : 'flex',
                                 color: doctorIsAvailable ? '#288bbc' : '#ff296d'
                             }}
                             actionsData={actionsMenu}
@@ -314,8 +257,13 @@ export function ConfirmationPatient({ params }: { params: string }) {
                     </Container>
 
                     {/* form confirm patient to counter */}
-                    {!drugCounterPatient?.id && (
-                        <FormConfirmation />
+                    {
+                    !drugCounterPatient?.id &&
+                    !dataPatientFinishTreatment?.id &&
+                    (
+                        <FormConfirmation 
+                        params={params}
+                        />
                     )}
                 </Container>
             )}

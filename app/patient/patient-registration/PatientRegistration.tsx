@@ -272,7 +272,7 @@ export function PatientRegistration() {
                                 }
                             },
                             {
-                                classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-pink-old',
+                                classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-pink-old',
                                 name: 'Cancel Treatment',
                                 click: (e?: MouseEvent) => {
                                     clickCancelTreatment(patient.id, patient.data[0]?.name)
@@ -281,7 +281,7 @@ export function PatientRegistration() {
                                 }
                             },
                             {
-                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-red-default',
+                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
                                 name: 'Delete',
                                 click: (e?: MouseEvent) => {
                                     clickDelete(patient.id, patient.data[0]?.name)

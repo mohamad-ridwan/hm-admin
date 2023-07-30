@@ -16,18 +16,15 @@ import { ActionsDataT } from "lib/types/TableT.type";
 import { FormPopup } from "components/popup/FormPopup";
 import Input from "components/input/Input";
 
-export function FormConfirmation() {
+export function FormConfirmation({params}: {params: string}) {
     const {
         counterOptions,
         value,
         setValue,
         submitForm,
         errInput,
-        confirmSubmitForm,
         handleCounter,
         loadingSubmit,
-        onPopupSetting,
-        cancelPopupFormConfirm,
         isMenuActive,
         clickMenu,
         clickCancelTreatment,
@@ -37,8 +34,9 @@ export function FormConfirmation() {
         cancelOnMsgCancelPatient,
         handleCancelMsg,
         inputMsgCancelPatient,
-        submitCancelTreatment
-    } = UseForm()
+        submitCancelTreatment,
+        doctorIsAvailable
+    } = UseForm({params})
 
     const actionsMenu: ActionsDataT[] = [
         {
@@ -82,7 +80,7 @@ export function FormConfirmation() {
 
             {onMsgCancelTreatment && (
                 <ContainerPopup
-                    className='flex justify-center overflow-y-auto'
+                    className='flex justify-center items-center overflow-y-auto'
                 >
                     <FormPopup
                         tag="div"
@@ -183,7 +181,7 @@ export function FormConfirmation() {
             >
                 <Button
                     nameBtn="Confirm at the counter"
-                    classBtn={loadingSubmit ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
+                    classBtn={loadingSubmit || !doctorIsAvailable ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
                     classLoading={loadingSubmit ? 'flex' : 'hidden'}
                     clickBtn={submitForm}
                 />

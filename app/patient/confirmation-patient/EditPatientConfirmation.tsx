@@ -41,9 +41,9 @@ type Props = ActionProps & {
     selectDoctor: DataOptionT
     selectRoom: DataOptionT
     editActiveManualQueue: boolean
-    // selectPresence: DataOptionT
     idPatientToEditConfirmPatient: string | null
     idLoadingEditConfirmPatient: string[]
+    disableToggleQueue: boolean
 }
 
 function EditPatientConfirmation({
@@ -66,7 +66,8 @@ function EditPatientConfirmation({
     // selectPresence,
     idPatientToEditConfirmPatient,
     idLoadingEditConfirmPatient,
-    submitEditConfirmPatient
+    submitEditConfirmPatient,
+    disableToggleQueue
 }: Props) {
 
     const styleError: { style: CSSProperties } = {
@@ -93,6 +94,10 @@ function EditPatientConfirmation({
                     nameInput='patientId'
                     changeInput={changeEditConfirmPatient}
                     valueInput={valueInputEditConfirmPatient?.patientId}
+                    readonly={true}
+                    styles={{
+                        background: '#f9f9f9'
+                    }}
                 />
                 <ErrorInput
                     {...styleError}
@@ -181,12 +186,16 @@ function EditPatientConfirmation({
                     changeInput={changeEditConfirmPatient}
                     valueInput={valueInputEditConfirmPatient?.queueNumber}
                     readonly={editActiveManualQueue}
+                    styles={{
+                        background: editActiveManualQueue ? '#f9f9f9' : 'transparent'
+                    }}
                 />
                 <ErrorInput
                     error={errEditInputConfirmPatient?.queueNumber}
                 />
                 {/* options */}
-                <div
+                {disableToggleQueue === false && (
+                    <div
                     className='flex flex-wrap justify-end items-center mb-4'
                 >
                     <Toggle
@@ -200,6 +209,7 @@ function EditPatientConfirmation({
                         clickToggle={toggleSetAutoQueue}
                     />
                 </div>
+                )}
 
                 <TitleInput title='Treatment Hours (08:00 - 12:00)' />
                 <Input

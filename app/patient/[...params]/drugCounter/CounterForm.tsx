@@ -30,14 +30,10 @@ export function CounterForm({ params }: { params: string }) {
         handleInputTxt,
         submitForm,
         loadingSubmit,
-        confirmSubmit,
         isActiveMenu,
         clickMenu,
-        onPopupSetting,
-        cancelPopupSetting,
         clickCancelTreatment,
         loadingCancelTreatment,
-        clickYesForCancelTreatment,
         onMsgCancelTreatment,
         cancelOnMsgCancelPatient,
         handleCancelMsg,
@@ -54,7 +50,7 @@ export function CounterForm({ params }: { params: string }) {
     const actionsMenu: ActionsDataT[] = [
         {
             name: 'Cancel Treatment',
-            classWrapp: loadingCancelTreatment ? 'hover:bg-white cursor-not-allowed text-not-allowed hover:text-not-allowed' : 'cursor-pointer text-pink-old',
+            classWrapp: loadingCancelTreatment ? 'hover:bg-white cursor-not-allowed text-not-allowed hover:text-[#8f8f8f]' : 'cursor-pointer text-pink-old',
             click: () => clickCancelTreatment()
         },
     ]
@@ -91,51 +87,9 @@ export function CounterForm({ params }: { params: string }) {
                 </ContainerPopup>
             )}
 
-            {/* {onPopupSetting?.title && (
-                <ContainerPopup
-                    className='flex justify-center items-center overflow-y-auto'
-                >
-                    <SettingPopup
-                        clickClose={cancelPopupSetting}
-                        title={onPopupSetting.title}
-                        classIcon='text-font-color-2'
-                        iconPopup={onPopupSetting.iconPopup}
-                    >
-                        <Button
-                            nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn="hover:bg-white"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
-                            }}
-                            clickBtn={() => {
-                                if (onPopupSetting.categoryAction === 'confirm-payment') {
-                                    confirmSubmit()
-                                } else if (onPopupSetting.categoryAction === 'cancel-treatment') {
-                                    clickYesForCancelTreatment()
-                                }
-                            }}
-                        />
-                        <Button
-                            nameBtn="Cancel"
-                            classBtn="bg-white border-none"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057'
-                            }}
-                            clickBtn={cancelPopupSetting}
-                        />
-                    </SettingPopup>
-                </ContainerPopup>
-            )} */}
-
             {onMsgCancelTreatment && (
                 <ContainerPopup
-                    className='flex justify-center overflow-y-auto'
+                    className='flex justify-center items-center overflow-y-auto'
                 >
                     <FormPopup
                         tag="div"

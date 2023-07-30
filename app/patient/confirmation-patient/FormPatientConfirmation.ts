@@ -9,24 +9,21 @@ import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/formats/createDateFormat"
-import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
+import { PopupSettings } from "lib/types/TableT.type"
 import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
-    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
     setOnPopupEdit?: Dispatch<SetStateAction<boolean>>
 }
 
 function FormPatientConfirmation({
-    setOnPopupSetting,
     setOnModalSettings,
     setOnPopupEdit
 }: Props) {
     const [nameEditConfirmPatient, setNameEditConfirmPatient] = useState<string>('')
     const [editActiveManualQueue, setEditActiveManualQueue] = useState<boolean>(true)
     const [editActiveAutoQueue, setEditActiveAutoQueue] = useState<boolean>(false)
-    const [onPopupSettings, setOnPopupSettings] = useState<boolean>(false)
     const [onPopupEditConfirmPatient, setOnPopupEditConfirmPatient] = useState<boolean>(false)
     const [idPatientToEditConfirmPatient, setIdPatientToEditConfirmPatient] = useState<string | null>(null)
     const [idLoadingEditConfirmPatient, setIdLoadingEditConfirmPatient] = useState<string[]>([])
@@ -41,6 +38,7 @@ function FormPatientConfirmation({
         roomName: '',
         queueNumber: '',
     })
+    const [disableToggleQueue, setDisableToggleQueue] = useState<boolean>(false)
     const [selectDoctorSpecialist, setSelectDoctorSpecialist] = useState<DataOptionT>([
         {
             id: 'Select Specialist',
@@ -75,7 +73,8 @@ function FormPatientConfirmation({
         doctors,
         dataAdmin,
         dataRooms,
-        dataConfirmationPatients
+        dataConfirmationPatients,
+        dataFinishTreatment
     } = ServicingHours()
 
     function changeEditConfirmPatient(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
@@ -228,7 +227,7 @@ function FormPatientConfirmation({
                         setOnModalSettings({
                             clickClose: () => setOnModalSettings({} as PopupSettings),
                             title: `Update confirmation data from patient "${nameEditConfirmPatient}"?`,
-                            classIcon: 'text-color-default',
+                            classIcon: 'text-font-color-2',
                             iconPopup: faPencil,
                             actionsData: [
                                 {
@@ -257,17 +256,6 @@ function FormPatientConfirmation({
                             ]
                         })
                     }
-                    // if (typeof setOnPopupSetting !== 'undefined') {
-                    //     setOnPopupSetting({
-                    //         title: `Update confirmation data from patient "${nameEditConfirmPatient}"?`,
-                    //         classIcon: 'text-color-default',
-                    //         classBtnNext: 'hover:bg-white',
-                    //         iconPopup: faPencil,
-                    //         nameBtnNext: 'Save',
-                    //         patientId: idPatientToEditConfirmPatient as string,
-                    //         categoryAction: 'edit-confirm-patient'
-                    //     })
-                    // }
                 })
         }
     }
@@ -323,9 +311,6 @@ function FormPatientConfirmation({
         if (!queueNumber.trim()) {
             err.queueNumber = 'Please select attendance'
         }
-        // if (presence === 'Select Presence') {
-        //     err.presence = 'Please select attendance'
-        // }
 
         return await new Promise((resolve, reject) => {
             if (Object.keys(err).length === 0) {
@@ -423,7 +408,6 @@ function FormPatientConfirmation({
     function clickEditToConfirmPatient(
         id: string,
         name: string,
-        cb?: () => void
     ): void {
         const findPatient = dataConfirmationPatients?.find(patient => patient.patientId === id)
         if (findPatient) {
@@ -454,17 +438,20 @@ function FormPatientConfirmation({
                 doctorSpecialist: findDoctor?.deskripsi as string,
                 roomName: findRoom?.room as string,
                 queueNumber: roomInfo?.queueNumber,
-                // presence: roomInfo?.presence
             })
+
+            const patientFT = dataFinishTreatment?.find(patient=>patient.patientId === id)
+            if(patientFT){
+                setDisableToggleQueue(true)
+            }else{
+                setDisableToggleQueue(false)
+            }
 
             setTimeout(() => {
                 loadDataAdmin()
                 loadDataSpecialist()
                 loadDataDoctor(findDoctor?.deskripsi as string)
                 loadDataRoom()
-                if (typeof cb === 'function') {
-                    cb()
-                }
             }, 0)
         } else {
             alert('an error occurred, please try again or reload the page')
@@ -560,7 +547,6 @@ function FormPatientConfirmation({
 
     function clickOnEditConfirmPatient(): void {
         setOnPopupEditConfirmPatient(true)
-        setOnPopupSettings(false)
         setEditActiveManualQueue(true)
         setEditActiveAutoQueue(false)
     }
@@ -583,7 +569,7 @@ function FormPatientConfirmation({
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: 'What do you want to edit?',
-                classIcon: 'text-color-default',
+                classIcon: 'text-font-color-2',
                 iconPopup: faPenToSquare,
                 actionsData: [
                     {
@@ -639,8 +625,6 @@ function FormPatientConfirmation({
         valueInputEditConfirmPatient,
         nameEditConfirmPatient,
         errEditInputConfirmPatient,
-        onPopupSettings,
-        setOnPopupSettings,
         closePopupEditConfirmPatient,
         changeEditConfirmPatient,
         selectEmailAdmin,
@@ -654,13 +638,13 @@ function FormPatientConfirmation({
         editActiveManualQueue,
         toggleChangeManualQueue,
         toggleSetAutoQueue,
-        // selectPresence,
         idPatientToEditConfirmPatient,
         idLoadingEditConfirmPatient,
         submitEditConfirmPatient,
         clickOnEditConfirmPatient,
         nextSubmitEditConfirmPatient,
-        openPopupEdit
+        openPopupEdit,
+        disableToggleQueue
     }
 }
 

@@ -106,7 +106,7 @@ export function FinishedTreatment({ params }: { params: string }) {
         },
         {
             name: 'Delete',
-            classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-red-default',
+            classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
             click: ()=>{
                 if(!findIdLoadingDelete){
                     clickDeleteFT(params[4], detailDataPatientRegis?.patientName)

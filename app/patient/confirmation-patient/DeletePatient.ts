@@ -10,21 +10,17 @@ import { spaceString } from "lib/regex/spaceString"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { UserT } from "lib/types/ZustandT.types"
-import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
+import { PopupSettings } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     user: UserT
-    setOnPopupSetting?: Dispatch<SetStateAction<PopupSetting>>
-    onPopupSetting?: PopupSetting
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
     onModalSettings?: PopupSettings
 }
 
 export function DeletePatient({
     user,
-    setOnPopupSetting,
-    onPopupSetting,
     setOnModalSettings,
     onModalSettings
 }: Props) {
@@ -96,7 +92,6 @@ export function DeletePatient({
                     ]
                 })
             }
-            // setOnPopupChooseDelete(true)
         }
     }
 
@@ -171,15 +166,6 @@ export function DeletePatient({
                     },
                 ]
             })
-            // setOnPopupSetting({
-            //     title: `Delete details and confirmation data from patient "${namePatientToDelete}"?`,
-            //     classIcon: 'text-font-color-2',
-            //     classBtnNext: 'hover:bg-white',
-            //     iconPopup: faBan,
-            //     nameBtnNext: 'Yes',
-            //     patientId: idPatientToDelete,
-            //     categoryAction: 'delete-detail-and-confirmation'
-            // })
         }
     }
 
@@ -246,15 +232,6 @@ export function DeletePatient({
                     },
                 ]
             })
-            // setOnPopupSetting({
-            //     title: `Delete confirmation data from "${namePatientToDelete}" patient`,
-            //     classIcon: 'text-font-color-2',
-            //     classBtnNext: 'hover:bg-white',
-            //     iconPopup: faBan,
-            //     nameBtnNext: 'Yes',
-            //     patientId: idPatientToDelete,
-            //     categoryAction: 'delete-confirmation'
-            // })
         }
     }
 
@@ -262,8 +239,6 @@ export function DeletePatient({
         patientId: string
     ): void {
         setLoadingIdPatientsDelete((current) => [...current, patientId])
-        // setOnPopupChooseDelete(false)
-
         const findIdConfirmData = dataConfirmationPatients?.find(patient => patient.patientId === patientId)
 
         deleteActionCallback(
@@ -287,7 +262,7 @@ export function DeletePatient({
             if (typeof setOnModalSettings !== 'undefined') {
                 setOnModalSettings({
                     clickClose: () => setOnModalSettings({} as PopupSettings),
-                    title: `cancel treatment from patient "${name}"?`,
+                    title: `Cancel treatment from patient "${name}"?`,
                     classIcon: 'text-font-color-2',
                     iconPopup: faBan,
                     patientId: id,
@@ -319,15 +294,6 @@ export function DeletePatient({
                         },
                     ]
                 })
-                // setOnPopupSetting({
-                //     title: `cancel treatment from patient "${name}"?`,
-                //     classIcon: 'text-font-color-2',
-                //     classBtnNext: 'hover:bg-white',
-                //     iconPopup: faBan,
-                //     nameBtnNext: 'Yes',
-                //     patientId: id,
-                //     categoryAction: 'cancel-treatment'
-                // })
             }
         }
     }

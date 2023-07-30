@@ -174,7 +174,7 @@ export function DrugCounter({ params }: ParamsProps) {
 
             {onMsgCancelTreatment && (
                 <ContainerPopup
-                    className='flex justify-center overflow-y-auto'
+                    className='flex justify-center items-center overflow-y-auto'
                 >
                     <FormPopup
                         tag="div"
@@ -304,7 +304,7 @@ export function DrugCounter({ params }: ParamsProps) {
                             },
                             {
                                 name: 'Cancel Treatment',
-                                classWrapp: findIdLoadingCancelT || params.status === 'already-confirmed' ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-pink-old',
+                                classWrapp: findIdLoadingCancelT || params.status === 'already-confirmed' ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-pink-old',
                                 click: (e?: MouseEvent) => {
                                     if(params.status !== 'already-confirmed'){
                                         clickCancelTreatment(patient.id, patient.data[0].name)
@@ -314,7 +314,7 @@ export function DrugCounter({ params }: ParamsProps) {
                             },
                             {
                                 name: 'Delete',
-                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-red-default',
+                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
                                 click: (e?: MouseEvent) => {
                                     clickDeletePatient(patient.id, patient.data[0].name)
                                     e?.stopPropagation()

@@ -96,7 +96,7 @@ function FormPatientRegistration({
                         setOnModalSettings({
                             clickClose: () => setOnModalSettings({} as PopupSettings),
                             title: `Update patient "${patientName}"?`,
-                            classIcon: 'text-color-default',
+                            classIcon: 'text-font-color-2',
                             iconPopup: faPencil,
                             actionsData: [
                                 {

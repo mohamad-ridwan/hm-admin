@@ -590,7 +590,7 @@ export function UseFinishTreatment({
         setOnModalSettings({
             clickClose: () => setOnModalSettings({} as PopupSettings),
             title: 'What do you want to edit?',
-            classIcon: 'text-color-default',
+            classIcon: 'text-font-color-2',
             iconPopup: faPenToSquare,
             actionsData: [
                 {
@@ -689,8 +689,8 @@ export function UseFinishTreatment({
         if (!findLoadingId && validateFormEdit()) {
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
-                title: `edit medical data from patient "${patientNameEditFT}"?`,
-                classIcon: 'text-color-default',
+                title: `Edit medical data from patient "${patientNameEditFT}"?`,
+                classIcon: 'text-font-color-2',
                 iconPopup: faPencil,
                 actionsData: [
                     {

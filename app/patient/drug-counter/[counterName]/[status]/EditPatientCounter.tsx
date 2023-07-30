@@ -87,6 +87,10 @@ export function EditPatientCounter({
                     nameInput='patientId'
                     changeInput={changeEditPatientC}
                     valueInput={inputValueEditPatientC.patientId}
+                    readonly={true}
+                    styles={{
+                        background: '#f9f9f9'
+                    }}
                 />
                 <ErrorInput
                     {...styleError}

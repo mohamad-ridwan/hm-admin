@@ -4,7 +4,7 @@ import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "reac
 import { useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
 import { ErrInputEditConfirmPatientCounter, InputConfirmDrugCounterT, InputEditConfirmPatientCounter, SubmitConfirmDrugCounterT, SubmitEditFinishTreatmentT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
-import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
+import { PopupSettings } from "lib/types/TableT.type"
 import { faBan, faCircleCheck, faDownload, faPencil } from "@fortawesome/free-solid-svg-icons"
 import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { createDateFormat } from "lib/formats/createDateFormat"
@@ -41,7 +41,6 @@ export function UseForm({
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
     const [isActiveMenu, setIsActiveMenu] = useState<boolean>(false)
     const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
     const [loadingCancelTreatment, setLoadingCancelTreatment] = useState<boolean>(false)
     const [loadingDelete, setLoadingDelete] = useState<boolean>(false)
     const [inputMsgCancelPatient, setInputMsgCancelPatient] = useState<string>('')
@@ -163,15 +162,6 @@ export function UseForm({
                     },
                 ]
             })
-            // setOnPopupSetting({
-            //     title: 'Confirm Payment?',
-            //     classIcon: 'text-font-color-2',
-            //     classBtnNext: 'hover:bg-white',
-            //     iconPopup: faCircleCheck,
-            //     nameBtnNext: 'Yes',
-            //     patientId: '',
-            //     categoryAction: 'confirm-payment'
-            // })
         }
         e?.preventDefault()
     }
@@ -289,10 +279,6 @@ export function UseForm({
 
     function clickMenu(): void {
         setIsActiveMenu(!isActiveMenu)
-    }
-
-    function cancelPopupSetting(): void {
-        setOnPopupSetting({} as PopupSetting)
     }
 
     function clickDownloadPdf(): void {
@@ -852,8 +838,6 @@ export function UseForm({
         confirmSubmit,
         isActiveMenu,
         clickMenu,
-        onPopupSetting,
-        cancelPopupSetting,
         clickDownloadPdf,
         confirmDownloadPdf,
         clickCancelTreatment,

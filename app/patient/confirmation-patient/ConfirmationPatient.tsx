@@ -7,7 +7,7 @@ import { TableBody } from "components/table/TableBody"
 import { TableHead } from "components/table/TableHead"
 import { TableFilter } from 'components/table/TableFilter'
 import { InputSearch } from 'components/input/InputSearch'
-import { faBan, faCalendarDays, faMagnifyingGlass, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { InputSelect } from 'components/input/InputSelect'
 import { renderCustomHeader } from 'lib/datePicker/renderCustomHeader'
 import Pagination from 'components/pagination/Pagination'
@@ -25,14 +25,13 @@ import { FilterTable } from './FilterTable'
 import { DeletePatient } from './DeletePatient'
 import { specialCharacter } from 'lib/regex/specialCharacter'
 import { spaceString } from 'lib/regex/spaceString'
-import { ActionsDataT, PopupSetting, PopupSettings } from 'lib/types/TableT.type'
+import { ActionsDataT, PopupSettings } from 'lib/types/TableT.type'
 import { FormPopup } from 'components/popup/FormPopup'
 import { TitleInput } from 'components/input/TitleInput'
 import Input from 'components/input/Input'
 import ErrorInput from 'components/input/ErrorInput'
 
 export function ConfirmationPatient() {
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
 
     // Form edit patient registration
@@ -49,7 +48,6 @@ export function ConfirmationPatient() {
         setOnPopupEdit,
         idPatientToEdit,
         idLoadingEdit,
-        nextSubmitUpdate
     } = FormPatientRegistration({ setOnModalSettings })
 
     // form edit confirm patient
@@ -60,8 +58,6 @@ export function ConfirmationPatient() {
         nameEditConfirmPatient,
         errEditInputConfirmPatient,
         closePopupEditConfirmPatient,
-        onPopupSettings,
-        setOnPopupSettings,
         changeEditConfirmPatient,
         selectEmailAdmin,
         handleInputSelectConfirmPatient,
@@ -74,14 +70,12 @@ export function ConfirmationPatient() {
         editActiveManualQueue,
         toggleChangeManualQueue,
         toggleSetAutoQueue,
-        // selectPresence,
         idPatientToEditConfirmPatient,
         submitEditConfirmPatient,
-        clickOnEditConfirmPatient,
         idLoadingEditConfirmPatient,
-        nextSubmitEditConfirmPatient,
-        openPopupEdit
-    } = FormPatientConfirmation({ setOnPopupSetting, setOnModalSettings, setOnPopupEdit })
+        openPopupEdit,
+        disableToggleQueue
+    } = FormPatientConfirmation({ setOnModalSettings, setOnPopupEdit })
 
     const {
         head,
@@ -114,15 +108,7 @@ export function ConfirmationPatient() {
 
     const {
         clickDeleteIcon,
-        namePatientToDelete,
-        onPopupChooseDelete,
-        closePopupChooseDelete,
-        clickDeleteDetailAndConfirmData,
-        clickDeleteConfirmationData,
         clickCancelTreatment,
-        nextCancelTreatment,
-        nextDeleteConfirmationData,
-        nextDeleteDetailAndConfirmData,
         handleCancelMsg,
         submitCancelTreatment,
         onMsgCancelTreatment,
@@ -130,23 +116,13 @@ export function ConfirmationPatient() {
         inputMsgCancelPatient,
         idLoadingCancelTreatment,
         loadingIdPatientsDelete
-    } = DeletePatient({ user, setOnPopupSetting, onPopupSetting, setOnModalSettings, onModalSettings })
+    } = DeletePatient({ user, setOnModalSettings, onModalSettings })
 
     const router = useRouter()
 
     function toPage(path: string): void {
         router.push(path)
     }
-
-    // function closePopupSetting(e?: MouseEvent): void {
-    //     setOnPopupSettings(false)
-    //     e?.stopPropagation
-    // }
-
-    // function clickOnEditDetailPatient(): void {
-    //     setOnPopupEdit(true)
-    //     setOnPopupSettings(false)
-    // }
 
     function cancelOnMsgCancelPatient(): void {
         setOnMsgCancelTreatment(false)
@@ -189,10 +165,10 @@ export function ConfirmationPatient() {
                     editActiveManualQueue={editActiveManualQueue}
                     toggleChangeManualQueue={toggleChangeManualQueue}
                     toggleSetAutoQueue={toggleSetAutoQueue}
-                    // selectPresence={selectPresence}
                     idPatientToEditConfirmPatient={idPatientToEditConfirmPatient}
                     idLoadingEditConfirmPatient={idLoadingEditConfirmPatient}
                     submitEditConfirmPatient={submitEditConfirmPatient}
+                    disableToggleQueue={disableToggleQueue}
                 />
             )}
             {/* end popup edit confirmation patient */}
@@ -226,7 +202,7 @@ export function ConfirmationPatient() {
             {/* form message cancel patient */}
             {onMsgCancelTreatment && (
                 <ContainerPopup
-                    className='flex justify-center overflow-y-auto'
+                    className='flex justify-center items-center overflow-y-auto'
                 >
                     <FormPopup
                         tag="div"
@@ -365,7 +341,6 @@ export function ConfirmationPatient() {
                                 click: (e?: MouseEvent)=>{
                                     clickEdit(patient.id, patient.data[0]?.name)
                                     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
-                                    // setOnPopupSettings(true)
                                     openPopupEdit()
                                     setIndexActiveTableMenu(null)
                                     e?.stopPropagation()
@@ -373,7 +348,7 @@ export function ConfirmationPatient() {
                             },
                             {
                                 name: 'Cancel Treatment',
-                                classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-pink-old',
+                                classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-pink-old',
                                 click: (e?: MouseEvent)=>{
                                     clickCancelTreatment(patient.id, patient.data[0]?.name)
                                     if(!findIdLoadingCancelT){
@@ -384,7 +359,7 @@ export function ConfirmationPatient() {
                             },
                             {
                                 name: 'Delete',
-                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-not-allowed cursor-not-allowed' : 'cursor-pointer text-red-default',
+                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
                                 click: (e?: MouseEvent)=>{
                                     clickDeleteIcon(patient.id, patient.data[0]?.name)
                                     setIndexActiveTableMenu(null)

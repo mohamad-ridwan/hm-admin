@@ -554,10 +554,12 @@ export function UseDrugCounter({
             setNameEditPatientCounter(patientName)
             setIdToEditPatientCounter(patientId)
 
+            const patientFT = dataFinishTreatment?.find(patient => patient.patientId === patientId)
+
             const checkExpiredPatient: boolean = (new Date(findPatient?.submissionDate?.submissionDate)).valueOf() < (new Date(createDateFormat(new Date()))).valueOf()
-            if (checkExpiredPatient) {
+            if (!patientFT && checkExpiredPatient) {
                 setDisableUpdtQueue(`Can't update queue number because it expired`)
-            } else if (findPatient.isConfirm.confirmState) {
+            } else if (patientFT) {
                 setDisableUpdtQueue('Can not update the number because the treatment process has been completed')
             }
 
@@ -615,7 +617,7 @@ export function UseDrugCounter({
         setOnModalSettings({
             clickClose: () => setOnModalSettings({} as PopupSettings),
             title: 'What do you want to edit?',
-            classIcon: 'text-color-default',
+            classIcon: 'text-font-color-2',
             iconPopup: faPenToSquare,
             actionsData: [
                 {
@@ -742,7 +744,7 @@ export function UseDrugCounter({
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `update patient counter data "${nameEditPatientCounter}"?`,
-                classIcon: 'text-color-default',
+                classIcon: 'text-font-color-2',
                 iconPopup: faPencil,
                 actionsData: [
                     {
@@ -852,7 +854,7 @@ export function UseDrugCounter({
                 currentPatientC,
                 loket
             )
-        }else {
+        } else {
             return dataAlreadyConfirm(
                 admin,
                 queueNumber,
@@ -890,7 +892,7 @@ export function UseDrugCounter({
         queueNumber: string,
         currentPatientC: DrugCounterT | undefined,
         loket: InfoLoketT | undefined
-    ):SubmitConfirmDrugCounterT{
+    ): SubmitConfirmDrugCounterT {
         return {
             patientId: inputValueEditPatientC.patientId,
             loketInfo: { loketId: loket?.id as string },

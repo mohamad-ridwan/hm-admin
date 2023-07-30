@@ -1,0 +1,162 @@
+import { CSSProperties, ChangeEvent } from "react";
+import Input from "components/input/Input";
+import { TitleInput } from "components/input/TitleInput";
+import { ContainerPopup } from "components/popup/ContainerPopup";
+import { FormPopup } from "components/popup/FormPopup";
+import { InputAddPatientT } from "lib/types/InputT.type";
+import ErrorInput from "components/input/ErrorInput";
+import { InputSearch } from "components/input/InputSearch";
+import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { renderCustomHeader } from "lib/datePicker/renderCustomHeader";
+import { InputSelect } from "components/input/InputSelect";
+import { DataOptionT } from "lib/types/FilterT";
+import { InputArea } from "components/input/InputArea";
+
+type ActionProps = {
+    clickCloseAddPatient: () => void
+    changeInputAddPatient: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    changeDateAddPatient: (
+        e: ChangeEvent<HTMLInputElement> | Date | undefined,
+        inputName: 'dateOfBirth' | 'appointmentDate'
+    ) => void
+    handleSelectAddPatient: (
+        idElement: 'dayAddPatient',
+        nameInput: 'selectDay'
+    ) => void
+}
+
+type Props = ActionProps & {
+    inputAddPatient: InputAddPatientT
+    errInputAddDoctor: InputAddPatientT
+    optionsDay: DataOptionT
+}
+
+export function AddPatient({
+    clickCloseAddPatient,
+    changeInputAddPatient,
+    inputAddPatient,
+    errInputAddDoctor,
+    changeDateAddPatient,
+    handleSelectAddPatient,
+    optionsDay
+}: Props) {
+    const styleError: { style: CSSProperties } = {
+        style: {
+            marginBottom: '1rem'
+        }
+    }
+
+    return (
+        <ContainerPopup
+            className='flex justify-center overflow-y-auto'
+        >
+            <FormPopup
+                tag="div"
+                clickClose={clickCloseAddPatient}
+                title="Add Patient"
+            >
+                <TitleInput title='Patient Name' />
+                <Input
+                    type='text'
+                    nameInput='patientName'
+                    placeholder="Someone.."
+                    changeInput={changeInputAddPatient}
+                    valueInput={inputAddPatient.patientName}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.patientName}
+                />
+
+                <TitleInput title='Phone' />
+                <Input
+                    type='number'
+                    nameInput='phone'
+                    placeholder="081.."
+                    changeInput={changeInputAddPatient}
+                    valueInput={inputAddPatient.phone}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.phone}
+                />
+
+                <TitleInput title='Email' />
+                <Input
+                    type='email'
+                    nameInput='emailAddress'
+                    placeholder="someone@gmail.com"
+                    changeInput={changeInputAddPatient}
+                    valueInput={inputAddPatient.emailAddress}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.emailAddress}
+                />
+
+                <TitleInput title='Date of Birth' />
+                <InputSearch
+                    icon={faCalendarDays}
+                    selected={!inputAddPatient.dateOfBirth ? undefined : new Date(inputAddPatient.dateOfBirth)}
+                    renderCustomHeader={renderCustomHeader}
+                    changeInput={(e) => changeDateAddPatient(e, 'dateOfBirth')}
+                    onCalendar={true}
+                    classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
+                    classDate='text-[#000] text-sm'
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.dateOfBirth}
+                />
+
+                <TitleInput title='Select Day' />
+                <InputSelect
+                    id="dayAddPatient"
+                    data={optionsDay}
+                    handleSelect={() => handleSelectAddPatient('dayAddPatient', 'selectDay')}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.selectDay}
+                />
+
+                <TitleInput title='Appointment Date' />
+                <InputSearch
+                    icon={faCalendarDays}
+                    selected={!inputAddPatient.appointmentDate ? undefined : new Date(inputAddPatient.appointmentDate)}
+                    renderCustomHeader={renderCustomHeader}
+                    changeInput={(e) => changeDateAddPatient(e, 'appointmentDate')}
+                    onCalendar={true}
+                    classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
+                    classDate='text-[#000] text-sm'
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.appointmentDate}
+                />
+
+                <TitleInput title='Patient Complaints' />
+                <InputArea
+                    nameInput="patientComplaints"
+                    changeInput={changeInputAddPatient}
+                    valueInput={inputAddPatient.patientComplaints}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.patientComplaints}
+                />
+
+                <TitleInput title='Message' />
+                <InputArea
+                    nameInput="message"
+                    changeInput={changeInputAddPatient}
+                    valueInput={inputAddPatient.message}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.message}
+                />
+            </FormPopup>
+        </ContainerPopup>
+    )
+}

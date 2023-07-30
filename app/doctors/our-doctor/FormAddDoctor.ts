@@ -12,21 +12,11 @@ import { storage } from "lib/firebase/firebase"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { DataOptionT } from "lib/types/FilterT"
 import { mailRegex } from "lib/regex/mailRegex"
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { faPencil, faUserPlus } from "@fortawesome/free-solid-svg-icons"
-
-type PopupSetting = {
-    title: string
-    classIcon?: string
-    classBtnNext?: string
-    iconPopup?: IconDefinition
-    nameBtnNext: string
-    doctorId?: string
-    categoryAction: 'delete-doctor' | 'edit-doctor' | 'add-doctor'
-}
+import { PopupSettings } from "lib/types/TableT.type"
 
 type ActionProps = {
-    setOnPopupSetting: Dispatch<SetStateAction<PopupSetting>>
+    setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
 }
 
 type PropsComponent = ActionProps
@@ -44,7 +34,7 @@ type ErrInputAddDoctor = {
 }
 
 function FormAddDoctor({
-    setOnPopupSetting
+    setOnModalSettings,
 }: PropsComponent) {
     const [onPopupAddDoctor, setOnPopupAddDoctor] = useState<boolean>(false)
     const [titleFormDoctor, setTitleFormDoctor] = useState<{
@@ -466,15 +456,36 @@ function FormAddDoctor({
         if (
             loadingSubmitAddDoctor === false &&
             validateFormAddDoctor()
-            ) {
-            setOnPopupSetting({
+        ) {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `Add "${inputValueAddDoctor.name}" as a Doctor?`,
-                classIcon: 'text-color-default',
-                classBtnNext: 'hover:bg-white',
+                classIcon: 'text-font-color-2',
                 iconPopup: faUserPlus,
-                nameBtnNext: 'Yes',
-                doctorId: idEditDoctor as string,
-                categoryAction: 'add-doctor'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => nextSubmitAddDoctor(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    }
+                ]
             })
         }
     }
@@ -483,7 +494,7 @@ function FormAddDoctor({
         setLoadingSubmitAddDoctor(true)
         pushToAddNewDoctor()
         setErrInputAddDoctor({} as ErrInputAddDoctor)
-        setOnPopupSetting({} as PopupSetting)
+        setOnModalSettings({} as PopupSettings)
     }
 
     function validateFormAddDoctor(): string | undefined {
@@ -555,6 +566,7 @@ function FormAddDoctor({
                 .then(res => {
                     alert('successfully added new doctor')
                     setLoadingSubmitAddDoctor(false)
+                    clearForm()
                 })
                 .catch(err => {
                     pushTriggedErr('a server error occurred while adding new doctor data. please try again')
@@ -571,6 +583,7 @@ function FormAddDoctor({
                         .then(res => {
                             alert('successfully added new doctor')
                             setLoadingSubmitAddDoctor(false)
+                            clearForm()
                         })
                         .catch(err => {
                             pushTriggedErr('a server error occurred while adding new doctor data. please try again')
@@ -581,6 +594,25 @@ function FormAddDoctor({
                     pushTriggedErr(err)
                     setLoadingSubmitAddDoctor(false)
                 })
+        }
+    }
+
+    function clearForm(): void {
+        setInputValueAddDoctor({
+            image: '',
+            name: '',
+            deskripsi: '',
+            email: '',
+            phone: '',
+            room: '',
+            medsos: [],
+            doctorSchedule: [],
+            holidaySchedule: []
+        })
+        setImgFile(null)
+        const setDefaultRoom = document.getElementById('selectRoom') as HTMLSelectElement
+        if(setDefaultRoom){
+            setDefaultRoom.selectedIndex = 0
         }
     }
     // end submit form add doctor
@@ -636,14 +668,35 @@ function FormAddDoctor({
             !findCurrentLoading &&
             validateFormAddDoctor()
         ) {
-            setOnPopupSetting({
-                title: `update doctor "${titleFormDoctor.peopleName}"?`,
-                classIcon: 'text-color-default',
-                classBtnNext: 'hover:bg-white',
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Update doctor "${titleFormDoctor.peopleName}"?`,
+                classIcon: 'text-font-color-2',
                 iconPopup: faPencil,
-                nameBtnNext: 'Save',
-                doctorId: idEditDoctor as string,
-                categoryAction: 'edit-doctor'
+                actionsData: [
+                    {
+                        nameBtn: 'Save',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => nextSubmitEditDoctor(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    }
+                ]
             })
         }
     }
@@ -651,6 +704,7 @@ function FormAddDoctor({
     function nextSubmitEditDoctor(): void {
         setIdLoadingEdit((current) => [...current, idEditDoctor as string])
         pushToUpdateProfileDoctor()
+        setOnModalSettings({} as PopupSettings)
     }
 
     function pushToUpdateProfileDoctor(): void {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { faCalendarDays, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarDays, faMagnifyingGlass, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
 import { TableHead } from 'components/table/TableHead'
@@ -27,6 +27,7 @@ import { FormPopup } from 'components/popup/FormPopup'
 import { TitleInput } from 'components/input/TitleInput'
 import ErrorInput from 'components/input/ErrorInput'
 import Input from 'components/input/Input'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export function PatientRegistration() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -46,6 +47,7 @@ export function PatientRegistration() {
         setOnPopupEdit,
         idPatientToEdit,
         idLoadingEdit,
+        clickAddPatient
     } = FormPatientRegistration({ setOnModalSettings })
 
     const {
@@ -185,6 +187,21 @@ export function PatientRegistration() {
                     </FormPopup>
                 </ContainerPopup>
             )}
+
+            <div
+                className="flex justify-end"
+            >
+                <Button
+                    iconLeft={<FontAwesomeIcon
+                        icon={faPlus}
+                        className="mr-2"
+                    />}
+                    nameBtn="New patient"
+                    classBtn="hover:bg-white py-[7px]"
+                    classLoading="hidden"
+                    clickBtn={clickAddPatient}
+                />
+            </div>
 
             {/* table filter */}
             <TableFilter

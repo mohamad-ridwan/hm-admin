@@ -8,7 +8,7 @@ import { TableColumns } from "components/table/TableColumns"
 import { TableData } from "components/table/TableData"
 import { TableFilter } from "components/table/TableFilter"
 import { InputSearch } from "components/input/InputSearch"
-import { IconDefinition, faBan, faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons"
+import { faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { InputSelect } from "components/input/InputSelect"
 import UseTableColumns from "./UseTableColumns"
 import UseTableFilter from "./UseTableFilter"
@@ -24,20 +24,10 @@ import Pagination from "components/pagination/Pagination"
 import profileDefault from 'images/user.png'
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
-import { ActionsDataT } from "lib/types/TableT.type"
-
-type PopupSetting = {
-    title: string
-    classIcon?: string
-    classBtnNext?: string
-    iconPopup?: IconDefinition
-    nameBtnNext: string
-    doctorId?: string
-    categoryAction: 'delete-doctor' | 'edit-doctor' | 'add-doctor'
-}
+import { ActionsDataT, PopupSettings } from "lib/types/TableT.type"
 
 export function OurDoctor() {
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+    const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
     const [head] = useState<{ name: string }[]>([
         {
             name: 'Name'
@@ -108,26 +98,24 @@ export function OurDoctor() {
         selectRoomDoctor,
         roomOptions,
         titleFormDoctor,
-        nextSubmitAddDoctor,
         // action edit doctor
         idLoadingEdit,
         idEditDoctor,
         clickEdit,
         submitEditDoctor,
-        nextSubmitEditDoctor
-    } = FormAddDoctor({setOnPopupSetting})
+    } = FormAddDoctor({ setOnModalSettings })
 
     const {
         currentTableData,
-        clickDelete,
         lastPage,
         maxLength,
         currentPage,
         setCurrentPage,
         indexActiveColumnMenu,
         setIndexActiveColumnMenu,
-        idLoadingDelete
-    } = UseTableColumns({ currentFilter, selectCurrentFilter, searchText })
+        idLoadingDelete,
+        openPopupDelete
+    } = UseTableColumns({ currentFilter, selectCurrentFilter, searchText, setOnModalSettings })
 
     return (
         <>
@@ -158,8 +146,34 @@ export function OurDoctor() {
                 />
             )}
 
+            {onModalSettings?.title && (
+                <ContainerPopup
+                    className='flex justify-center items-center overflow-y-auto'
+                >
+                    <SettingPopup
+                        clickClose={onModalSettings.clickClose}
+                        title={onModalSettings.title}
+                        classIcon={onModalSettings.classIcon}
+                        iconPopup={onModalSettings.iconPopup}
+                    >
+                        {onModalSettings.actionsData.length > 0 && onModalSettings.actionsData.map((btn, idx) => {
+                            return (
+                                <Button
+                                    key={idx}
+                                    nameBtn={btn.nameBtn}
+                                    classBtn={btn.classBtn}
+                                    classLoading={btn.classLoading}
+                                    clickBtn={btn.clickBtn}
+                                    styleBtn={btn.styleBtn}
+                                />
+                            )
+                        })}
+                    </SettingPopup>
+                </ContainerPopup>
+            )}
+
             {/* popup next / cancel */}
-            {onPopupSetting?.title && (
+            {/* {onPopupSetting?.title && (
                 <ContainerPopup
                     className='flex justify-center items-center overflow-y-auto'
                 >
@@ -178,32 +192,32 @@ export function OurDoctor() {
                                 marginRight: '0.6rem',
                                 marginTop: '0.5rem'
                             }}
-                            clickBtn={() =>{
-                                if(onPopupSetting.categoryAction === 'delete-doctor'){
+                            clickBtn={() => {
+                                if (onPopupSetting.categoryAction === 'delete-doctor') {
                                     clickDelete(onPopupSetting.doctorId as string)
                                     setOnPopupSetting({} as PopupSetting)
-                                }else if(onPopupSetting.categoryAction === 'edit-doctor'){
+                                } else if (onPopupSetting.categoryAction === 'edit-doctor') {
                                     nextSubmitEditDoctor()
                                     setOnPopupSetting({} as PopupSetting)
-                                }else if(onPopupSetting.categoryAction === 'add-doctor'){
+                                } else if (onPopupSetting.categoryAction === 'add-doctor') {
                                     nextSubmitAddDoctor()
                                 }
                             }}
                         />
                         <Button
-                        nameBtn="Cancel"
-                        classBtn="bg-white border-none"
-                        classLoading="hidden"
-                        styleBtn={{
-                            padding: '0.5rem',
-                            marginTop: '0.5rem',
-                            color: '#495057'
-                        }}
-                        clickBtn={()=>setOnPopupSetting({} as PopupSetting)}
+                            nameBtn="Cancel"
+                            classBtn="bg-white border-none"
+                            classLoading="hidden"
+                            styleBtn={{
+                                padding: '0.5rem',
+                                marginTop: '0.5rem',
+                                color: '#495057'
+                            }}
+                            clickBtn={() => setOnPopupSetting({} as PopupSetting)}
                         />
                     </SettingPopup>
                 </ContainerPopup>
-            )}
+            )} */}
 
             {/* popup add medsos */}
             {onPopupAddMedsos && (
@@ -308,7 +322,7 @@ export function OurDoctor() {
                         const actionsData: ActionsDataT[] = [
                             {
                                 name: 'Edit',
-                                click:(e?: MouseEvent)=>{
+                                click: (e?: MouseEvent) => {
                                     clickEdit(item.id)
                                     setIndexActiveColumnMenu(null)
                                     e?.stopPropagation()
@@ -316,21 +330,9 @@ export function OurDoctor() {
                             },
                             {
                                 name: 'Delete',
-                                classWrapp: findCurrentLoading ? 'text-not-allowed hover:text-not-allowed hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
-                                click: (e?: MouseEvent)=>{
-                                    const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
-                                    if(!findCurrentLoading){
-                                        setOnPopupSetting({
-                                            title: `Delete doctor ${item.data[0].name}?`,
-                                            classIcon: 'text-pink-old',
-                                            classBtnNext: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
-                                            iconPopup: faBan,
-                                            nameBtnNext: 'Yes',
-                                            doctorId: item.id,
-                                            categoryAction: 'delete-doctor'
-                                        })
-                                        setIndexActiveColumnMenu(null)
-                                    }
+                                classWrapp: findCurrentLoading ? 'text-not-allowed hover:text-[#f9f9f9] hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
+                                click: (e?: MouseEvent) => {
+                                    openPopupDelete(item.id, item.data[0].name)
                                     e?.stopPropagation()
                                 }
                             }

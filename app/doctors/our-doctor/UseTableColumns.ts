@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react"
 import { DataTableContentT } from "lib/types/FilterT"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
@@ -10,6 +10,12 @@ import { spaceString } from "lib/regex/spaceString"
 import { API } from "lib/api"
 import { preloadFetch } from "lib/useFetch/preloadFetch"
 import { endpoint } from "lib/api/endpoint"
+import { PopupSettings } from "lib/types/TableT.type"
+import { faBan } from "@fortawesome/free-solid-svg-icons"
+
+type ActionProps = {
+    setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
+}
 
 type FilterProps = {
     selectCurrentFilter: { id: string, title: string }
@@ -17,12 +23,13 @@ type FilterProps = {
     searchText: string
 }
 
-type Props = FilterProps
+type Props = FilterProps & ActionProps
 
 function UseTableColumns({
     selectCurrentFilter,
     currentFilter,
-    searchText
+    searchText,
+    setOnModalSettings,
 }: Props) {
     const [dataColumns, setDataColumns] = useState<DataTableContentT[]>([])
     const [idLoadingDelete, setIdLoadingDelete] = useState<string[]>([])
@@ -231,6 +238,7 @@ function UseTableColumns({
     // action delete
     function clickDelete(id: string): void {
         setIdLoadingDelete((current) => [...current, id])
+        setOnModalSettings({} as PopupSettings)
 
         API().APIDeleteProfileDoctor(
             'doctor',
@@ -262,6 +270,46 @@ function UseTableColumns({
         pushTriggedErr('a server error occurred while deleting doctor data. please try again')
     }
 
+    function openPopupDelete(
+        doctorId: string,
+        doctorName: string
+    ): void {
+        const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === doctorId)
+        if (!findCurrentLoading) {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Delete doctor ${doctorName}?`,
+                classIcon: 'text-font-color-2',
+                iconPopup: faBan,
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => clickDelete(doctorId),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    }
+                ]
+            })
+            setIndexActiveColumnMenu(null)
+        }
+    }
+
     return {
         currentTableData,
         clickDelete,
@@ -271,7 +319,8 @@ function UseTableColumns({
         setCurrentPage,
         indexActiveColumnMenu,
         setIndexActiveColumnMenu,
-        idLoadingDelete
+        idLoadingDelete,
+        openPopupDelete
     }
 }
 

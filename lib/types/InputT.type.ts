@@ -167,6 +167,17 @@ export type SubmitEditFinishTreatmentT = {
     messageCancelled: string
 }
 
+export type InputAddPatientT = {
+    patientName: string
+    phone: string
+    emailAddress: string
+    dateOfBirth: string
+    selectDay: string
+    appointmentDate: string
+    patientComplaints: string
+    message: string
+}
+
 export type FormatPDFT = 
 'a4' | 
 'a2' | 

@@ -35,6 +35,7 @@ function FormPatientRegistration({
     const [idPatientToEdit, setIdPatientToEdit] = useState<string | null>(null)
     const [idLoadingEdit, setIdLoadingEdit] = useState<string[]>([])
     const [errEditInputDetailPatient, setErrEditInputDetailPatient] = useState<InputEditPatientRegistrationT>({} as InputEditPatientRegistrationT)
+    const [onAddPatient, setOnAddPatient] = useState<boolean>(false)
 
     // swr fetching data
     // servicing hours
@@ -263,6 +264,10 @@ function FormPatientRegistration({
         }
     }
 
+    function clickAddPatient():void{
+        setOnAddPatient(true)
+    }
+
     return {
         patientName,
         onPopupEdit,
@@ -279,7 +284,8 @@ function FormPatientRegistration({
         idPatientToEdit,
         idLoadingEdit,
         valueInputEditDetailPatient,
-        nextSubmitUpdate
+        nextSubmitUpdate,
+        clickAddPatient
     }
 }
 

@@ -94,6 +94,7 @@ export type PatientFinishTreatmentT = {
 export type RoomTreatmentT = {
     id: string
     room: string
+    roomType?: string
 }
 
 // info loket

@@ -178,6 +178,11 @@ export type InputAddPatientT = {
     message: string
 }
 
+export type InputAddRoomT = {
+    room: string
+    roomType: string
+}
+
 export type FormatPDFT = 
 'a4' | 
 'a2' | 

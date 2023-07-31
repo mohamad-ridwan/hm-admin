@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
-import { faAngleDown, faAngleUp, faBarsProgress, faBedPulse, faChartLine, faClipboardCheck, faHospitalUser, faPeopleRoof, faSitemap, faStethoscope, faTag } from '@fortawesome/free-solid-svg-icons'
+import { faAngleDown, faAngleUp, faBarsProgress, faBedPulse, faChartLine, faClipboardCheck, faDoorClosed, faHospitalUser, faPeopleRoof, faSitemap, faStethoscope, faTag } from '@fortawesome/free-solid-svg-icons'
 import { navigationStore } from 'lib/useZustand/navigation'
 import { MenuNavLeft } from './MenuNavLeft'
 import { LeftMenuNavChild } from './LeftMenuNavChild'
@@ -20,7 +20,7 @@ type StateMenu = {
 
 export function ContainerMenuNavLeft({
     idChildMenu
-}: {idChildMenu: string}) {
+}: { idChildMenu: string }) {
     const [menu, setMenu] = useState<StateMenu>([
         {
             name: 'Dashboard',
@@ -70,7 +70,17 @@ export function ContainerMenuNavLeft({
                     icon: faPeopleRoof
                 }
             ]
-        }
+        },
+        {
+            name: 'Rooms',
+            path: '/rooms',
+            icon: faDoorClosed
+        },
+        {
+            name: 'Counters',
+            path: '/counters',
+            icon: faTag
+        },
         // {
         //     name: 'Blog',
         //     path: null,

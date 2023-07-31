@@ -115,62 +115,53 @@ export function FilterTable() {
             }))
 
             if (findRegistration.length > 0) {
-                const newData: DataTableContentT[] = []
-                const getDataColumns = (): void => {
-                    findRegistration.forEach(patient => {
-                        const dataRegis: DataTableContentT = {
-                            id: patient.id,
-                            data: [
-                                {
-                                    name: patient.patientName
-                                },
-                                {
-                                    firstDesc: createDateNormalFormat(patient.appointmentDate),
-                                    color: '#ff296d',
-                                    colorName: '#777',
-                                    marginBottom: '4.5px',
-                                    fontSize: '12px',
-                                    filterBy: 'Appointment Date',
-                                    clock: patient.submissionDate.clock,
-                                    name: patient.appointmentDate,
-                                },
-                                {
-                                    firstDesc: createDateNormalFormat(patient.submissionDate.submissionDate),
-                                    colorName: '#777',
-                                    marginBottom: '4.5px',
-                                    fontSize: '12px',
-                                    filterBy: 'Submission Date',
-                                    clock: patient.submissionDate.clock,
-                                    name: patient.submissionDate.submissionDate,
-                                },
-                                {
-                                    name: patient.submissionDate.clock
-                                },
-                                {
-                                    name: patient.emailAddress
-                                },
-                                {
-                                    firstDesc: createDateNormalFormat(patient.dateOfBirth),
-                                    colorName: '#777',
-                                    marginBottom: '4.5px',
-                                    fontSize: '12px',
-                                    filterBy: 'Date of Birth',
-                                    name: patient.dateOfBirth,
-                                },
-                                {
-                                    name: patient.phone
-                                },
-                            ]
-                        }
-
-                        newData.push(dataRegis)
-                    })
-                }
-
-                getDataColumns()
-                if (newData.length === findRegistration.length) {
-                    setDataColumns(newData)
-                }
+                const registration:DataTableContentT[] = findRegistration.map((patient, idx)=>{
+                    return{
+                        id: patient.id,
+                        data: [
+                            {
+                                name: patient.patientName
+                            },
+                            {
+                                firstDesc: createDateNormalFormat(patient.appointmentDate),
+                                color: '#ff296d',
+                                colorName: '#777',
+                                marginBottom: '4.5px',
+                                fontSize: '12px',
+                                filterBy: 'Appointment Date',
+                                clock: patient.submissionDate.clock,
+                                name: patient.appointmentDate,
+                            },
+                            {
+                                firstDesc: createDateNormalFormat(patient.submissionDate.submissionDate),
+                                colorName: '#777',
+                                marginBottom: '4.5px',
+                                fontSize: '12px',
+                                filterBy: 'Submission Date',
+                                clock: patient.submissionDate.clock,
+                                name: patient.submissionDate.submissionDate,
+                            },
+                            {
+                                name: patient.submissionDate.clock
+                            },
+                            {
+                                name: patient.emailAddress
+                            },
+                            {
+                                firstDesc: createDateNormalFormat(patient.dateOfBirth),
+                                colorName: '#777',
+                                marginBottom: '4.5px',
+                                fontSize: '12px',
+                                filterBy: 'Date of Birth',
+                                name: patient.dateOfBirth,
+                            },
+                            {
+                                name: patient.phone
+                            },
+                        ]
+                    }
+                })
+                setDataColumns(registration)
             } else {
                 setDataColumns([])
             }

@@ -11,6 +11,7 @@ import { renderCustomHeader } from "lib/datePicker/renderCustomHeader";
 import { InputSelect } from "components/input/InputSelect";
 import { DataOptionT } from "lib/types/FilterT";
 import { InputArea } from "components/input/InputArea";
+import Button from "components/Button";
 
 type ActionProps = {
     clickCloseAddPatient: () => void
@@ -23,22 +24,32 @@ type ActionProps = {
         idElement: 'dayAddPatient',
         nameInput: 'selectDay'
     ) => void
+    submitAddPatient: () => void
+    filterDate: (date: Date)=>number | boolean | undefined
 }
 
 type Props = ActionProps & {
     inputAddPatient: InputAddPatientT
-    errInputAddDoctor: InputAddPatientT
+    errInputAddPatient: InputAddPatientT
     optionsDay: DataOptionT
+    minDateFormAddP: Date | undefined,
+    maxDateFormAddP: Date | undefined
+    loadingSubmitAddPatient: boolean
 }
 
 export function AddPatient({
     clickCloseAddPatient,
     changeInputAddPatient,
     inputAddPatient,
-    errInputAddDoctor,
+    errInputAddPatient,
     changeDateAddPatient,
     handleSelectAddPatient,
-    optionsDay
+    optionsDay,
+    submitAddPatient,
+    minDateFormAddP,
+    maxDateFormAddP,
+    filterDate,
+    loadingSubmitAddPatient
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -65,7 +76,7 @@ export function AddPatient({
                 />
                 <ErrorInput
                     {...styleError}
-                    error={errInputAddDoctor?.patientName}
+                    error={errInputAddPatient?.patientName}
                 />
 
                 <TitleInput title='Phone' />
@@ -78,7 +89,7 @@ export function AddPatient({
                 />
                 <ErrorInput
                     {...styleError}
-                    error={errInputAddDoctor?.phone}
+                    error={errInputAddPatient?.phone}
                 />
 
                 <TitleInput title='Email' />
@@ -91,7 +102,7 @@ export function AddPatient({
                 />
                 <ErrorInput
                     {...styleError}
-                    error={errInputAddDoctor?.emailAddress}
+                    error={errInputAddPatient?.emailAddress}
                 />
 
                 <TitleInput title='Date of Birth' />
@@ -106,34 +117,42 @@ export function AddPatient({
                 />
                 <ErrorInput
                     {...styleError}
-                    error={errInputAddDoctor?.dateOfBirth}
+                    error={errInputAddPatient?.dateOfBirth}
                 />
 
                 <TitleInput title='Select Day' />
                 <InputSelect
                     id="dayAddPatient"
                     data={optionsDay}
+                    classWrapp="bg-transparent border-bdr-one border-color-young-gray"
                     handleSelect={() => handleSelectAddPatient('dayAddPatient', 'selectDay')}
                 />
                 <ErrorInput
                     {...styleError}
-                    error={errInputAddDoctor?.selectDay}
+                    error={errInputAddPatient?.selectDay}
                 />
 
-                <TitleInput title='Appointment Date' />
-                <InputSearch
-                    icon={faCalendarDays}
-                    selected={!inputAddPatient.appointmentDate ? undefined : new Date(inputAddPatient.appointmentDate)}
-                    renderCustomHeader={renderCustomHeader}
-                    changeInput={(e) => changeDateAddPatient(e, 'appointmentDate')}
-                    onCalendar={true}
-                    classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
-                    classDate='text-[#000] text-sm'
-                />
-                <ErrorInput
-                    {...styleError}
-                    error={errInputAddDoctor?.appointmentDate}
-                />
+                {inputAddPatient.selectDay !== 'Select Day' && (
+                    <>
+                        <TitleInput title='Appointment Date' />
+                        <InputSearch
+                            icon={faCalendarDays}
+                            selected={!inputAddPatient.appointmentDate ? undefined : new Date(inputAddPatient.appointmentDate)}
+                            renderCustomHeader={renderCustomHeader}
+                            changeInput={(e) => changeDateAddPatient(e, 'appointmentDate')}
+                            onCalendar={true}
+                            classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
+                            classDate='text-[#000] text-sm'
+                            minDate={minDateFormAddP}
+                            maxDate={maxDateFormAddP}
+                            filterDate={filterDate}
+                        />
+                        <ErrorInput
+                            {...styleError}
+                            error={errInputAddPatient?.appointmentDate}
+                        />
+                    </>
+                )}
 
                 <TitleInput title='Patient Complaints' />
                 <InputArea
@@ -143,7 +162,7 @@ export function AddPatient({
                 />
                 <ErrorInput
                     {...styleError}
-                    error={errInputAddDoctor?.patientComplaints}
+                    error={errInputAddPatient?.patientComplaints}
                 />
 
                 <TitleInput title='Message' />
@@ -154,7 +173,14 @@ export function AddPatient({
                 />
                 <ErrorInput
                     {...styleError}
-                    error={errInputAddDoctor?.message}
+                    error={errInputAddPatient?.message}
+                />
+
+                <Button
+                    nameBtn="Add Patient"
+                    classLoading={loadingSubmitAddPatient ? 'flex' : 'hidden'}
+                    classBtn={loadingSubmitAddPatient ? 'hover:bg-color-default hover:text-white cursor-not-allowed' : 'hover:bg-white'}
+                    clickBtn={submitAddPatient}
                 />
             </FormPopup>
         </ContainerPopup>

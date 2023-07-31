@@ -401,12 +401,11 @@ export function HandleFormRegistration({
             doctorData.deskripsi === specialist &&
             doctorData.name === doctor
         )
-        const getCurrentAppointmentDate = appointmentDate.split(',')[0]
         const getPatientInCurrentAppointment = dataPatientRegis?.filter(patient => {
             const checkConfirm = dataConfirmationPatients?.find(confirmPatient =>
                 confirmPatient.patientId === patient.id
             )
-            return checkConfirm && patient.appointmentDate === createDateFormat(new Date(getCurrentAppointmentDate))
+            return checkConfirm && patient.appointmentDate === detailDataPatientRegis?.appointmentDate
         })
         const getPatientInCurrentRoom = dataConfirmationPatients?.filter(confirmPatient => {
             const currentPatientRegis = getPatientInCurrentAppointment?.find(patientRegis =>
@@ -440,7 +439,6 @@ export function HandleFormRegistration({
             roomInfo: {
                 roomId: findRoom?.id as string,
                 queueNumber: `${queueNumber}`,
-                // presence: 'tidak hadir'
             }
         }
 

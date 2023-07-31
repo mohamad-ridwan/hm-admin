@@ -34,7 +34,7 @@ type DatePickerProps = {
     selected?: Date
     minDate?: Date
     maxDate?: Date
-    filterDate?: number
+    filterDate?: (date: Date)=>number | boolean | undefined
     renderCustomHeader?: ({}: RenderCustomHeaderT)=>void
     classDate?: string
     styleDate?: CSSProperties

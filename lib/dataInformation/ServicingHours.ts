@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSwr } from "lib/useFetch/useSwr"
 import { endpoint } from "../api/endpoint"
-import { ConfirmationPatientsT, DrugCounterT, InfoLoketT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
+import { ConfirmationPatientsT, DrugCounterT, InfoLoketT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT, ServicingHoursT } from "lib/types/PatientT.types"
 import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { AuthRequiredError } from "lib/errorHandling/exceptions"
@@ -13,9 +13,11 @@ function ServicingHours(){
     const [errTriggedMessages, setErrTriggedMessages] = useState<string>('')
 
     // swr fetching data
-    // servicing hours
     const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), { refreshInterval: 10000 })
     const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
+    // servicing hours
+    const getServicingHours: ServicingHoursT | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'servicing-hours')
+    // patient registration
     const getPatientRegistration: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'patient-registration')
     const dataPatientRegis: PatientRegistrationT[] | undefined = getPatientRegistration?.data
 
@@ -94,6 +96,7 @@ function ServicingHours(){
         loadDataDoctors,
         loadGetDataAdmin,
         pushTriggedErr,
+        getServicingHours
     }
 }
 

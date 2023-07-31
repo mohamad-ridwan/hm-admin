@@ -139,3 +139,18 @@ export type TreatmentResultsPDFT = {
     }
     paymentInfo: PaymentInfoTreatmentPDFT
 }
+
+type ArrDataServicingHours = {
+    id: string
+    day: string
+    time: string
+}
+
+export type ServicingHoursT = {
+    id: string
+    title: string
+    deskripsi: string
+    data: ArrDataServicingHours[]
+    minDate: string
+    maxDate: string
+}

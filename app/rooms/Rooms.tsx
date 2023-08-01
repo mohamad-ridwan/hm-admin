@@ -18,6 +18,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { AddRoom } from "./AddRoom"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
+import { EditRoom } from "./EditRoom"
 
 export function Rooms() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -44,7 +45,17 @@ export function Rooms() {
         inputAddRoom,
         errInputAddRoom,
         loadingSubmitAddRoom,
-        submitAddRoom
+        submitAddRoom,
+        onEditRoom,
+        clickCloseEditRoom,
+        changeEditRoom,
+        roomName,
+        inputEditRoom,
+        errInputEditRoom,
+        loadingIdEditRoom,
+        editIdRoom,
+        handleSubmitUpdate,
+        clickEditRoom
     } = UseRooms({ setOnModalSettings })
 
     return (
@@ -57,6 +68,19 @@ export function Rooms() {
                     errInputAddRoom={errInputAddRoom}
                     loadingSubmitAddRoom={loadingSubmitAddRoom}
                     submitAddRoom={submitAddRoom}
+                />
+            )}
+
+            {onEditRoom && (
+                <EditRoom
+                clickCloseEditRoom={clickCloseEditRoom}
+                changeEditRoom={changeEditRoom}
+                roomName={roomName}
+                inputEditRoom={inputEditRoom}
+                errInputEditRoom={errInputEditRoom}
+                loadingIdEditRoom={loadingIdEditRoom}
+                editIdRoom={editIdRoom}
+                handleSubmitUpdate={handleSubmitUpdate}
                 />
             )}
 
@@ -146,6 +170,7 @@ export function Rooms() {
                                 name: 'Edit',
                                 classWrapp: 'cursor-pointer',
                                 click: (e?: MouseEvent) => {
+                                    clickEditRoom(room.id, room.data[0].name)
                                     e?.stopPropagation()
                                 }
                             },

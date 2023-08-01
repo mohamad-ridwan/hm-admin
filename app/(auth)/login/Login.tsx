@@ -86,7 +86,7 @@ export function Login() {
     
                         if (typeof findAdmin === 'object') {
                             setUserId(findAdmin.id as string)
-                            setLoginSession(sessionDateFormat(5))
+                            setLoginSession(sessionDateFormat(1))
                             router.push('/')
                             setLoadingSubmit(false)
                         } else {

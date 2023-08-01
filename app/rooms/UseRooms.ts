@@ -8,7 +8,7 @@ import { DataTableContentT } from "lib/types/FilterT"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { InputAddRoomT } from "lib/types/InputT.type"
-import { faPlus } from "@fortawesome/free-solid-svg-icons"
+import { faPencil, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { API } from "lib/api"
 
 type Props = {
@@ -31,6 +31,15 @@ export function UseRooms({
     const [onAddRooms, setOnAddRooms] = useState<boolean>(false)
     const [errInputAddRoom, setErrInputAddRoom] = useState<InputAddRoomT>({} as InputAddRoomT)
     const [loadingSubmitAddRoom, setLoadingSubmitAddRoom] = useState<boolean>(false)
+    const [onEditRoom, setOnEditRoom] = useState<boolean>(false)
+    const [inputEditRoom, setInputEditRoom] = useState<InputAddRoomT>({
+        room: '',
+        roomType: ''
+    })
+    const [errInputEditRoom, setErrInputEditRoom] = useState<InputAddRoomT>({} as InputAddRoomT)
+    const [roomName, setRoomName] = useState<string>('')
+    const [loadingIdEditRoom, setLoadingIdEditRoom] = useState<string[]>([])
+    const [editIdRoom, setEditIdRoom] = useState<string | null>(null)
     const [head] = useState<HeadDataTableT>([
         {
             name: 'Room'
@@ -158,7 +167,7 @@ export function UseRooms({
                         nameBtn: 'Yes',
                         classBtn: 'hover:bg-white',
                         classLoading: 'hidden',
-                        clickBtn: ()=>confirmSubmitAddRoom(),
+                        clickBtn: () => confirmSubmitAddRoom(),
                         styleBtn: {
                             padding: '0.5rem',
                             marginRight: '0.6rem',
@@ -197,27 +206,151 @@ export function UseRooms({
         return 'success'
     }
 
-    function confirmSubmitAddRoom():void{
+    function confirmSubmitAddRoom(): void {
         setLoadingSubmitAddRoom(true)
-        if(typeof setOnModalSettings === 'function'){
+        if (typeof setOnModalSettings === 'function') {
             setOnModalSettings({} as PopupSettings)
         }
         API().APIPostPatientData(
             'room',
             dataSubmitRoom()
         )
-        .then(res=>{
-            setLoadingSubmitAddRoom(false)
-            alert('Successfully added treatment room')
-        })
-        .catch(err=>pushTriggedErr('A server error occurred. happened when adding a treatment room. Please try again'))
+            .then(res => {
+                setLoadingSubmitAddRoom(false)
+                alert('Successfully added treatment room')
+            })
+            .catch(err => pushTriggedErr('A server error occurred. happened when adding a treatment room. Please try again'))
     }
 
-    function dataSubmitRoom(): RoomTreatmentT{
-        return{
+    function dataSubmitRoom(): RoomTreatmentT {
+        return {
             id: `${new Date().getTime()}`,
             room: inputAddRoom.room,
             roomType: inputAddRoom.roomType
+        }
+    }
+
+    function clickEditRoom(
+        roomId: string,
+        roomName: string
+    ): void {
+        const findRoom = dataRooms?.find(room => room.id === roomId)
+        if (findRoom) {
+            setOnEditRoom(true)
+            setRoomName(roomName)
+            setEditIdRoom(roomId)
+            setIndexActiveColumnMenu(null)
+            const {
+                room,
+                roomType
+            } = findRoom
+            setInputEditRoom({
+                room,
+                roomType: typeof roomType === 'undefined' ? '' : roomType
+            })
+            setErrInputEditRoom({} as InputAddRoomT)
+        } else {
+            alert('Room not found')
+        }
+    }
+
+    function clickCloseEditRoom(): void {
+        setOnEditRoom(!onEditRoom)
+    }
+
+    function changeEditRoom(e: ChangeEvent<HTMLInputElement>): void {
+        setInputEditRoom({
+            ...inputEditRoom,
+            [e.target.name]: e.target.value
+        })
+        setErrInputEditRoom({
+            ...errInputAddRoom,
+            [e.target.name]: ''
+        })
+    }
+
+    function handleSubmitUpdate(): void {
+        const findLoadingId = loadingIdEditRoom.find(id => id === editIdRoom)
+        if (
+            !findLoadingId &&
+            validateFormEditRoom() &&
+            typeof setOnModalSettings === 'function'
+        ) {
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Edit "${roomName}" room?`,
+                classIcon: 'text-font-color-2',
+                iconPopup: faPencil,
+                actionsData: [
+                    {
+                        nameBtn: 'Save',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmSubmitEditRoom(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    }
+                ]
+            })
+        }
+    }
+
+    function validateFormEditRoom(): string | undefined {
+        let err = {} as InputAddRoomT
+        if (!inputEditRoom.room.trim()) {
+            err.room = 'Must be required'
+        }
+        if (!inputEditRoom.roomType.trim()) {
+            err.roomType = 'Must be required'
+        }
+
+        if (Object.keys(err).length !== 0) {
+            setErrInputEditRoom(err)
+            return
+        }
+        return 'success'
+    }
+
+    function confirmSubmitEditRoom():void{
+        setLoadingIdEditRoom((current)=>[editIdRoom as string, ...current])
+        API().APIPutPatientData(
+            'room',
+            editIdRoom as string,
+            dataEditSubmitRoom()
+        )
+        .then(res=>{
+            const removeLoadingId = loadingIdEditRoom.filter(id=> id !== res?.id)
+            setLoadingIdEditRoom(removeLoadingId)
+            alert('Successfully updated the room')
+        })
+        .catch(err=>pushTriggedErr('A server error occurred. Occurs when updating room data. Please try again'))
+        if(typeof setOnModalSettings === 'function'){
+            setOnModalSettings({} as PopupSettings)
+        }
+    }
+
+    function dataEditSubmitRoom():InputAddRoomT{
+        const {
+            room,
+            roomType
+        } = inputEditRoom
+        return{
+            room,
+            roomType
         }
     }
 
@@ -243,6 +376,16 @@ export function UseRooms({
         onAddRooms,
         changeInputAddRoom,
         loadingSubmitAddRoom,
-        submitAddRoom
+        submitAddRoom,
+        clickEditRoom,
+        onEditRoom,
+        clickCloseEditRoom,
+        changeEditRoom,
+        roomName,
+        inputEditRoom,
+        errInputEditRoom,
+        loadingIdEditRoom,
+        editIdRoom,
+        handleSubmitUpdate
     }
 }

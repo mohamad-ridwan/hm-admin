@@ -1,5 +1,3 @@
-'use client'
-
 import { CSSProperties, ChangeEvent} from "react";
 import { ContainerPopup } from "components/popup/ContainerPopup";
 import { FormPopup } from "components/popup/FormPopup";

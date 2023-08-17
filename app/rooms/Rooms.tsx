@@ -55,7 +55,10 @@ export function Rooms() {
         loadingIdEditRoom,
         editIdRoom,
         handleSubmitUpdate,
-        clickEditRoom
+        clickEditRoom,
+        selectRoomType,
+        roomTypeOptions,
+        editSelectRoomType
     } = UseRooms({ setOnModalSettings })
 
     return (
@@ -67,6 +70,8 @@ export function Rooms() {
                     inputAddRoom={inputAddRoom}
                     errInputAddRoom={errInputAddRoom}
                     loadingSubmitAddRoom={loadingSubmitAddRoom}
+                    roomTypeOptions={roomTypeOptions}
+                    selectRoomType={selectRoomType}
                     submitAddRoom={submitAddRoom}
                 />
             )}
@@ -80,6 +85,8 @@ export function Rooms() {
                 errInputEditRoom={errInputEditRoom}
                 loadingIdEditRoom={loadingIdEditRoom}
                 editIdRoom={editIdRoom}
+                roomTypeOptions={roomTypeOptions}
+                selectRoomType={editSelectRoomType}
                 handleSubmitUpdate={handleSubmitUpdate}
                 />
             )}

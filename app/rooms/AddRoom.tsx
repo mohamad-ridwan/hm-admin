@@ -6,17 +6,21 @@ import { FormPopup } from "components/popup/FormPopup";
 import { InputAddRoomT } from "lib/types/InputT.type";
 import ErrorInput from "components/input/ErrorInput";
 import Button from "components/Button";
+import { InputSelect } from "components/input/InputSelect";
+import { DataOptionT } from "lib/types/FilterT";
 
 type ActionProps = {
     clickCloseAddRoom: () => void
     changeInputAddRoom: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
     submitAddRoom: ()=>void
+    selectRoomType: ()=>void
 }
 
 type Props = ActionProps & {
     inputAddRoom: InputAddRoomT
     errInputAddRoom: InputAddRoomT
     loadingSubmitAddRoom: boolean
+    roomTypeOptions: DataOptionT
 }
 
 export function AddRoom({
@@ -25,7 +29,9 @@ export function AddRoom({
     inputAddRoom,
     errInputAddRoom,
     loadingSubmitAddRoom,
-    submitAddRoom
+    submitAddRoom,
+    roomTypeOptions,
+    selectRoomType
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -56,12 +62,17 @@ export function AddRoom({
                 />
 
                 <TitleInput title='Room Type' />
-                <Input
+                {/* <Input
                     type='text'
                     nameInput='roomType'
                     placeholder="Ruang Spesialis THT"
                     changeInput={changeInputAddRoom}
                     valueInput={inputAddRoom.roomType}
+                /> */}
+                <InputSelect
+                data={roomTypeOptions}
+                id="selectRoomType"
+                handleSelect={selectRoomType}
                 />
                 <ErrorInput
                     {...styleError}

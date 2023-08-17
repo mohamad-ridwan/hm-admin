@@ -6,11 +6,14 @@ import { FormPopup } from "components/popup/FormPopup";
 import { InputAddRoomT } from "lib/types/InputT.type";
 import ErrorInput from "components/input/ErrorInput";
 import Button from "components/Button";
+import { InputSelect } from "components/input/InputSelect";
+import { DataOptionT } from "lib/types/FilterT";
 
 type ActionProps = {
     clickCloseEditRoom: () => void
     changeEditRoom: (e: ChangeEvent<HTMLInputElement>) => void
-    handleSubmitUpdate: ()=>void
+    handleSubmitUpdate: () => void
+    selectRoomType: ()=>void
 }
 
 type Props = ActionProps & {
@@ -19,6 +22,7 @@ type Props = ActionProps & {
     errInputEditRoom: InputAddRoomT
     loadingIdEditRoom: string[]
     editIdRoom: string | null
+    roomTypeOptions: DataOptionT
 }
 
 export function EditRoom({
@@ -29,7 +33,9 @@ export function EditRoom({
     errInputEditRoom,
     loadingIdEditRoom,
     editIdRoom,
-    handleSubmitUpdate
+    handleSubmitUpdate,
+    roomTypeOptions,
+    selectRoomType
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -37,7 +43,7 @@ export function EditRoom({
         }
     }
 
-    const loadingEdit = loadingIdEditRoom.find(id=>id === editIdRoom)
+    const loadingEdit = loadingIdEditRoom.find(id => id === editIdRoom)
 
     return (
         <ContainerPopup
@@ -62,11 +68,16 @@ export function EditRoom({
                 />
 
                 <TitleInput title='Room Type' />
-                <Input
+                {/* <Input
                     type='text'
                     nameInput='roomType'
                     changeInput={changeEditRoom}
                     valueInput={inputEditRoom.roomType}
+                /> */}
+                <InputSelect
+                    data={roomTypeOptions}
+                    id="editSelectRoomType"
+                    handleSelect={selectRoomType}
                 />
                 <ErrorInput
                     {...styleError}

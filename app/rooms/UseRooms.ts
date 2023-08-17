@@ -4,7 +4,7 @@ import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } f
 import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
-import { DataTableContentT } from "lib/types/FilterT"
+import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { InputAddRoomT } from "lib/types/InputT.type"
@@ -26,7 +26,7 @@ export function UseRooms({
     const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
     const [inputAddRoom, setInputAddRoom] = useState<InputAddRoomT>({
         room: '',
-        roomType: ''
+        roomType: 'Select Room Type'
     })
     const [onAddRooms, setOnAddRooms] = useState<boolean>(false)
     const [errInputAddRoom, setErrInputAddRoom] = useState<InputAddRoomT>({} as InputAddRoomT)
@@ -34,7 +34,7 @@ export function UseRooms({
     const [onEditRoom, setOnEditRoom] = useState<boolean>(false)
     const [inputEditRoom, setInputEditRoom] = useState<InputAddRoomT>({
         room: '',
-        roomType: ''
+        roomType: 'Select Room Type'
     })
     const [errInputEditRoom, setErrInputEditRoom] = useState<InputAddRoomT>({} as InputAddRoomT)
     const [roomName, setRoomName] = useState<string>('')
@@ -50,6 +50,44 @@ export function UseRooms({
         {
             name: 'Id'
         }
+    ])
+    const [roomTypeOptions] = useState<DataOptionT>([
+        {
+            id: 'Select Room Type',
+            title: 'Select Room Type'
+        },
+        {
+            id: 'Spesialis Anak',
+            title: 'Spesialis Anak'
+        },
+        {
+            id: 'Spesialis Mata',
+            title: 'Spesialis Mata'
+        },
+        {
+            id: 'Spesialis Kandungan',
+            title: 'Spesialis Kandungan'
+        },
+        {
+            id: 'Spesialis Saraf',
+            title: 'Spesialis Saraf'
+        },
+        {
+            id: 'Spesialis Kedokteran Jiwa',
+            title: 'Spesialis Kedokteran Jiwa'
+        },
+        {
+            id: 'Spesialis Telinga Hidung Tenggorokan',
+            title: 'Spesialis Telinga Hidung Tenggorokan'
+        },
+        {
+            id: 'Spesialis Kulit dan Kelamin',
+            title: 'Spesialis Kulit dan Kelamin'
+        },
+        {
+            id: 'Spesialis Penyakit Dalam',
+            title: 'Spesialis Penyakit Dalam'
+        },
     ])
 
     const {
@@ -195,7 +233,7 @@ export function UseRooms({
         if (!inputAddRoom.room.trim()) {
             err.room = 'Must be required'
         }
-        if (!inputAddRoom.roomType.trim()) {
+        if (inputAddRoom.roomType === 'Select Room Type') {
             err.roomType = 'Must be required'
         }
 
@@ -230,6 +268,14 @@ export function UseRooms({
         }
     }
 
+    function activeRoomType(roomType: string):void{
+        const elem = document.getElementById('editSelectRoomType') as HTMLSelectElement
+        const roomIndex:number = roomTypeOptions.findIndex(item=>item.id === roomType)
+        if(elem){
+            elem.selectedIndex = roomIndex
+        }
+    }
+
     function clickEditRoom(
         roomId: string,
         roomName: string
@@ -249,6 +295,9 @@ export function UseRooms({
                 roomType: typeof roomType === 'undefined' ? '' : roomType
             })
             setErrInputEditRoom({} as InputAddRoomT)
+            setTimeout(() => {
+                activeRoomType(roomType as string)
+            }, 0)
         } else {
             alert('Room not found')
         }
@@ -354,6 +403,36 @@ export function UseRooms({
         }
     }
 
+    function selectRoomType():void{
+        const elem = document.getElementById('selectRoomType') as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if(value){
+            setInputAddRoom({
+                ...inputAddRoom,
+                roomType: value
+            })
+            setErrInputAddRoom({
+                ...errInputAddRoom,
+                roomType: ''
+            })
+        }
+    }
+
+    function editSelectRoomType():void{
+        const elem = document.getElementById('editSelectRoomType') as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if(value){
+            setInputEditRoom({
+                ...inputEditRoom,
+                roomType: value
+            })
+            setErrInputEditRoom({
+                ...errInputEditRoom,
+                roomType: ''
+            })
+        }
+    }
+
     return {
         head,
         searchText,
@@ -386,6 +465,9 @@ export function UseRooms({
         errInputEditRoom,
         loadingIdEditRoom,
         editIdRoom,
-        handleSubmitUpdate
+        handleSubmitUpdate,
+        selectRoomType,
+        roomTypeOptions,
+        editSelectRoomType
     }
 }

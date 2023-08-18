@@ -178,7 +178,7 @@ export function UseRooms({
         setOnAddRooms(!onAddRooms)
     }
 
-    function changeInputAddRoom(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
+    function changeInputAddRoom(e: ChangeEvent<HTMLInputElement>): void {
         setInputAddRoom({
             ...inputAddRoom,
             [e.target.name]: e.target.value

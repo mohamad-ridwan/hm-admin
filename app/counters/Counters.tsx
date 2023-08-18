@@ -1,93 +1,56 @@
 'use client'
 
-import { useState } from "react"
+import { useState } from 'react'
 import { ContainerTableBody } from "components/table/ContainerTableBody"
 import { TableBody } from "components/table/TableBody"
-import { UseRooms } from "./UseRooms"
+import { UseCounters } from "./UseCounters"
 import { TableHead } from "components/table/TableHead"
-import { TableFilter } from "components/table/TableFilter"
-import { InputSearch } from "components/input/InputSearch"
-import { faCalendarDays, faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons"
-import { renderCustomHeader } from "lib/datePicker/renderCustomHeader"
 import { TableColumns } from "components/table/TableColumns"
 import { TableData } from "components/table/TableData"
-import { ActionsDataT, PopupSettings } from "lib/types/TableT.type"
+import { TableFilter } from "components/table/TableFilter"
+import { InputSearch } from "components/input/InputSearch"
+import { faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons"
 import Pagination from "components/pagination/Pagination"
 import Button from "components/Button"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { AddRoom } from "./AddRoom"
-import { ContainerPopup } from "components/popup/ContainerPopup"
-import { SettingPopup } from "components/popup/SettingPopup"
-import { EditRoom } from "./EditRoom"
+import { AddCounter } from "./AddCounter"
+import { PopupSettings } from 'lib/types/TableT.type'
+import { ContainerPopup } from 'components/popup/ContainerPopup'
+import { SettingPopup } from 'components/popup/SettingPopup'
 
-export function Rooms() {
+export function Counters() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
 
     const {
         head,
-        searchText,
-        handleSearchText,
-        clickCloseSearchTxt,
-        displayOnCalendar,
-        handleSearchDate,
-        selectDate,
-        clickCloseSearchDate,
         currentTableData,
         lastPage,
         maxLength,
         indexActiveColumnMenu,
-        clickColumnMenu,
         currentPage,
         setCurrentPage,
-        clickNewRoom,
-        onAddRooms,
-        changeInputAddRoom,
-        inputAddRoom,
-        errInputAddRoom,
-        loadingSubmitAddRoom,
-        submitAddRoom,
-        onEditRoom,
-        clickCloseEditRoom,
-        changeEditRoom,
-        roomName,
-        inputEditRoom,
-        errInputEditRoom,
-        loadingIdEditRoom,
-        editIdRoom,
-        handleSubmitUpdate,
-        clickEditRoom,
-        selectRoomType,
-        roomTypeOptions,
-        editSelectRoomType
-    } = UseRooms({ setOnModalSettings })
+        searchText,
+        handleSearchText,
+        clickCloseSearchTxt,
+        clickNewCounter,
+        onAddCounter,
+        changeInputAddCounter,
+        errInputAddCounter,
+        inputAddCounter,
+        loadingSubmitAddCounter,
+        submitAddCounter
+    } = UseCounters({ setOnModalSettings })
 
     return (
         <>
-            {onAddRooms && (
-                <AddRoom
-                    clickCloseAddRoom={clickNewRoom}
-                    changeInputAddRoom={changeInputAddRoom}
-                    inputAddRoom={inputAddRoom}
-                    errInputAddRoom={errInputAddRoom}
-                    loadingSubmitAddRoom={loadingSubmitAddRoom}
-                    roomTypeOptions={roomTypeOptions}
-                    selectRoomType={selectRoomType}
-                    submitAddRoom={submitAddRoom}
-                />
-            )}
-
-            {onEditRoom && (
-                <EditRoom
-                clickCloseEditRoom={clickCloseEditRoom}
-                changeEditRoom={changeEditRoom}
-                roomName={roomName}
-                inputEditRoom={inputEditRoom}
-                errInputEditRoom={errInputEditRoom}
-                loadingIdEditRoom={loadingIdEditRoom}
-                editIdRoom={editIdRoom}
-                roomTypeOptions={roomTypeOptions}
-                selectRoomType={editSelectRoomType}
-                handleSubmitUpdate={handleSubmitUpdate}
+            {onAddCounter && (
+                <AddCounter
+                    clickCloseAddCounter={clickNewCounter}
+                    changeInputAddCounter={changeInputAddCounter}
+                    inputAddCounter={inputAddCounter}
+                    errInputAddCounter={errInputAddCounter}
+                    loadingSubmitAddCounter={loadingSubmitAddCounter}
+                    submitAddCounter={submitAddCounter}
                 />
             )}
 
@@ -125,10 +88,10 @@ export function Rooms() {
                         icon={faPlus}
                         className="mr-2"
                     />}
-                    nameBtn="New room"
+                    nameBtn="New counter"
                     classBtn="hover:bg-white py-[7px]"
                     classLoading="hidden"
-                    clickBtn={clickNewRoom}
+                    clickBtn={clickNewCounter}
                 />
             </div>
 
@@ -144,19 +107,6 @@ export function Rooms() {
                             changeInput={handleSearchText}
                             clickCloseSearch={clickCloseSearchTxt}
                         />
-                        {/* {displayOnCalendar && (
-                            <InputSearch
-                                icon={faCalendarDays}
-                                classWrapp='mt-2'
-                                placeholderText='Search Date'
-                                onCalendar={true}
-                                changeInput={handleSearchDate}
-                                selected={selectDate}
-                                onCloseSearch={selectDate !== undefined}
-                                renderCustomHeader={renderCustomHeader}
-                                clickCloseSearch={clickCloseSearchDate}
-                            />
-                        )} */}
                     </>
                 }
                 rightChild={<></>}
@@ -171,34 +121,14 @@ export function Rooms() {
                         id='tHead'
                     />
 
-                    {currentTableData.length > 0 ? currentTableData.map((room, index) => {
-                        const actionsData: ActionsDataT[] = [
-                            {
-                                name: 'Edit',
-                                classWrapp: 'cursor-pointer',
-                                click: (e?: MouseEvent) => {
-                                    clickEditRoom(room.id, room.data[0].name)
-                                    e?.stopPropagation()
-                                }
-                            },
-                            {
-                                name: 'Delete',
-                                classWrapp: 'text-red-default cursor-pointer',
-                                click: (e?: MouseEvent) => {
-                                    e?.stopPropagation()
-                                }
-                            },
-                        ]
-
+                    {currentTableData.length > 0 ? currentTableData.map((loket, index) => {
                         return (
                             <TableColumns
                                 key={index}
                                 classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
-                                actionsData={actionsData}
                                 clickBtn={() => { return }}
-                                clickColumnMenu={() => clickColumnMenu(index)}
                             >
-                                {room.data.map((item, idx) => {
+                                {loket.data.map((item, idx) => {
                                     return (
                                         <TableData
                                             key={idx}
@@ -215,7 +145,7 @@ export function Rooms() {
                         >
                             <p
                                 className='p-8'
-                            >No rooms data</p>
+                            >No counters data</p>
                         </div>
                     )}
                 </TableBody>

@@ -192,82 +192,73 @@ export function FilterTable() {
         room?: RoomTreatmentT[] | undefined
     ): void {
         if (res.length > 0) {
-            const newData: DataTableContentT[] = []
-            const getDataColumns = (): void => {
-                res.forEach(patient => {
-                    // patient already on confirm
-                    const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
+            const getDataColumns: DataTableContentT[] = res.map(patient => {
+                // patient already on confirm
+                const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
 
-                    // get room treatment of patient
-                    const findRoomOfPatient = room?.find(roomData => roomData.id === findPatientOnConfirm?.roomInfo?.roomId)
+                // get room treatment of patient
+                const findRoomOfPatient = room?.find(roomData => roomData.id === findPatientOnConfirm?.roomInfo?.roomId)
 
-                    const dataRegis: DataTableContentT = {
-                        id: patient.id,
-                        data: [
-                            {
-                                name: patient.patientName
-                            },
-                            {
-                                name: findRoomOfPatient?.room as string,
-                                fontWeightName: 'bold',
-                                filterRoom: true
-                            },
-                            {
-                                name: findPatientOnConfirm?.roomInfo?.queueNumber as string,
-                                colorName: '#ff296d',
-                                fontWeightName: 'bold'
-                            },
-                            {
-                                firstDesc: createDateNormalFormat(patient.appointmentDate),
-                                color: '#288bbc',
-                                colorName: '#777',
-                                marginBottom: '4.5px',
-                                fontSize: '12px',
-                                filterBy: 'Appointment Date',
-                                queueNumber: findPatientOnConfirm?.roomInfo?.queueNumber,
-                                confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
-                                name: patient.appointmentDate,
-                            },
-                            {
-                                name: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours as string
-                            },
-                            {
-                                firstDesc: createDateNormalFormat(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
-                                colorName: '#777',
-                                marginBottom: '4.5px',
-                                fontSize: '12px',
-                                filterBy: 'Confirmation Date',
-                                confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
-                                name: findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string,
-                            },
-                            {
-                                name: findPatientOnConfirm?.dateConfirmInfo?.confirmHour as string
-                            },
-                            {
-                                name: patient.emailAddress
-                            },
-                            {
-                                firstDesc: createDateNormalFormat(patient.dateOfBirth),
-                                colorName: '#777',
-                                marginBottom: '4.5px',
-                                fontSize: '12px',
-                                filterBy: 'Date of Birth',
-                                name: patient.dateOfBirth,
-                            },
-                            {
-                                name: patient.phone
-                            },
-                        ]
-                    }
-
-                    newData.push(dataRegis)
-                })
-            }
-
-            getDataColumns()
-            if (newData.length === res.length) {
-                setDataColumns(newData)
-            }
+                return {
+                    id: patient.id,
+                    data: [
+                        {
+                            name: patient.patientName
+                        },
+                        {
+                            name: findRoomOfPatient?.room as string,
+                            fontWeightName: 'bold',
+                            filterRoom: true
+                        },
+                        {
+                            name: findPatientOnConfirm?.roomInfo?.queueNumber as string,
+                            colorName: '#ff296d',
+                            fontWeightName: 'bold'
+                        },
+                        {
+                            firstDesc: createDateNormalFormat(patient.appointmentDate),
+                            color: '#288bbc',
+                            colorName: '#777',
+                            marginBottom: '4.5px',
+                            fontSize: '12px',
+                            filterBy: 'Appointment Date',
+                            queueNumber: findPatientOnConfirm?.roomInfo?.queueNumber,
+                            confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
+                            name: patient.appointmentDate,
+                        },
+                        {
+                            name: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours as string
+                        },
+                        {
+                            firstDesc: createDateNormalFormat(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
+                            colorName: '#777',
+                            marginBottom: '4.5px',
+                            fontSize: '12px',
+                            filterBy: 'Confirmation Date',
+                            confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
+                            name: findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string,
+                        },
+                        {
+                            name: findPatientOnConfirm?.dateConfirmInfo?.confirmHour as string
+                        },
+                        {
+                            name: patient.emailAddress
+                        },
+                        {
+                            firstDesc: createDateNormalFormat(patient.dateOfBirth),
+                            colorName: '#777',
+                            marginBottom: '4.5px',
+                            fontSize: '12px',
+                            filterBy: 'Date of Birth',
+                            name: patient.dateOfBirth,
+                        },
+                        {
+                            name: patient.phone
+                        },
+                    ]
+                }
+            })
+            setDataColumns(getDataColumns)
         } else {
             setDataColumns([])
         }
@@ -314,6 +305,10 @@ export function FilterTable() {
     const handleSearchText = (e?: ChangeEvent<HTMLInputElement>): void => {
         setSearchText(e?.target.value as string)
     }
+
+    useMemo(()=>{
+        setCurrentPage(1)
+    }, [searchText])
 
     const handleInputDate = (e?: Date | ChangeEvent<HTMLInputElement>): void => {
         setSelectDate(e as Date)
@@ -550,12 +545,12 @@ export function FilterTable() {
         dataFilter: DataTableContentT[]
     ): DataTableContentT[] {
         const filter = dataFilter.filter(patient => {
-            const findItem = patient.data.filter(data => 
+            const findItem = patient.data.find(data =>
                 data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()) ||
                 data?.firstDesc?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
-                )
+            )
 
-            return findItem.length > 0
+            return findItem
         })
         return filter
     }

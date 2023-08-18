@@ -183,6 +183,10 @@ export type InputAddRoomT = {
     roomType: string
 }
 
+export type InputAddCounterT = {
+    loketName: string
+}
+
 export type FormatPDFT = 
 'a4' | 
 'a2' | 

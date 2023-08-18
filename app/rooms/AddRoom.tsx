@@ -11,7 +11,7 @@ import { DataOptionT } from "lib/types/FilterT";
 
 type ActionProps = {
     clickCloseAddRoom: () => void
-    changeInputAddRoom: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    changeInputAddRoom: (e: ChangeEvent<HTMLInputElement>) => void
     submitAddRoom: ()=>void
     selectRoomType: ()=>void
 }
@@ -62,13 +62,6 @@ export function AddRoom({
                 />
 
                 <TitleInput title='Room Type' />
-                {/* <Input
-                    type='text'
-                    nameInput='roomType'
-                    placeholder="Ruang Spesialis THT"
-                    changeInput={changeInputAddRoom}
-                    valueInput={inputAddRoom.roomType}
-                /> */}
                 <InputSelect
                 data={roomTypeOptions}
                 id="selectRoomType"

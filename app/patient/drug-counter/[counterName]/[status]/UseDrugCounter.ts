@@ -238,64 +238,55 @@ export function UseDrugCounter({
             }
 
             if (currentDataStatus.current.length > 0) {
-                const newData: DataTableContentT[] = []
-                const getDataColumns = (): void => {
-                    currentDataStatus.current.forEach(patient => {
-                        const patientCounter = dataDrugCounter?.find(patientC => patientC.patientId === patient.id)
-                        const status = params.status === 'waiting-patient' ? 'waiting' : params.status === 'already-confirmed' ? 'already confirmed' : params.status === 'expired-patient' ? 'expired' : 'null'
-                        const colorStatus = status === 'waiting' ? '#FFA500' : status === 'already confirmed' ? '#288bbc' : status === 'expired' ? '#ff296d' : '#000'
-                        // find patient be passed
-                        const isPatientSkipped: 'Skipped' | null = patientCounter?.isConfirm?.isSkipped ? 'Skipped' : null
+                const getDataColumns: DataTableContentT[] = currentDataStatus.current.map(patient => {
+                    const patientCounter = dataDrugCounter?.find(patientC => patientC.patientId === patient.id)
+                    const status = params.status === 'waiting-patient' ? 'waiting' : params.status === 'already-confirmed' ? 'already confirmed' : params.status === 'expired-patient' ? 'expired' : 'null'
+                    const colorStatus = status === 'waiting' ? '#FFA500' : status === 'already confirmed' ? '#288bbc' : status === 'expired' ? '#ff296d' : '#000'
+                    // find patient be passed
+                    const isPatientSkipped: 'Skipped' | null = patientCounter?.isConfirm?.isSkipped ? 'Skipped' : null
 
-                        const dataRegis: DataTableContentT = {
-                            id: patient.id,
-                            data: [
-                                {
-                                    name: patient.patientName
-                                },
-                                {
-                                    name: patientCounter?.queueNumber as string,
-                                    filterBy: 'Queue Number'
-                                },
-                                {
-                                    firstDesc: status.toUpperCase(),
-                                    name: isPatientSkipped ? `(${isPatientSkipped})` : '',
-                                    color: colorStatus,
-                                    colorName: '#777',
-                                    fontSize: '12px',
-                                    fontWeightFirstDesc: 'bold',
-                                },
-                                {
-                                    name: params.counterName
-                                },
-                                {
-                                    name: patient.emailAddress
-                                },
-                                {
-                                    name: patient.phone
-                                },
-                                {
-                                    firstDesc: createDateNormalFormat(patient.dateOfBirth),
-                                    colorName: '#777',
-                                    marginBottom: '4.5px',
-                                    fontSize: '12px',
-                                    filterBy: 'Date of Birth',
-                                    name: patient.dateOfBirth
-                                },
-                                {
-                                    name: patient.id
-                                },
-                            ]
-                        }
-
-                        newData.push(dataRegis)
-                    })
-                }
-
-                getDataColumns()
-                if (newData.length === currentDataStatus.current.length) {
-                    setDataColumns(newData)
-                }
+                    return {
+                        id: patient.id,
+                        data: [
+                            {
+                                name: patient.patientName
+                            },
+                            {
+                                name: patientCounter?.queueNumber as string,
+                                filterBy: 'Queue Number'
+                            },
+                            {
+                                firstDesc: status.toUpperCase(),
+                                name: isPatientSkipped ? `(${isPatientSkipped})` : '',
+                                color: colorStatus,
+                                colorName: '#777',
+                                fontSize: '12px',
+                                fontWeightFirstDesc: 'bold',
+                            },
+                            {
+                                name: params.counterName
+                            },
+                            {
+                                name: patient.emailAddress
+                            },
+                            {
+                                name: patient.phone
+                            },
+                            {
+                                firstDesc: createDateNormalFormat(patient.dateOfBirth),
+                                colorName: '#777',
+                                marginBottom: '4.5px',
+                                fontSize: '12px',
+                                filterBy: 'Date of Birth',
+                                name: patient.dateOfBirth
+                            },
+                            {
+                                name: patient.id
+                            },
+                        ]
+                    }
+                })
+                setDataColumns(getDataColumns)
             } else {
                 setDataColumns([])
             }

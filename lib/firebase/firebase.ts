@@ -1,17 +1,24 @@
 import {initializeApp} from 'firebase/app'
 import {getStorage}from 'firebase/storage'
+import { firebaseAPI } from 'lib/api/firebaseAPI'
+import { FirebaseConfigT } from 'lib/types/InputT.type'
 
-type FirebaseConfigT = {
-    [key: string]: string
-}
+const {
+    apiKey,
+    authDomain,
+    projectId,
+    storageBucket,
+    messagingSenderId,
+    appId
+} = firebaseAPI
 
 const firebaseConfig: FirebaseConfigT = {
-    apiKey: "AIzaSyBA3tfdTGufcX7E8oGNu7nYD99iUYnBkKE",
-    authDomain: "hospice-medical.firebaseapp.com",
-    projectId: "hospice-medical",
-    storageBucket: "hospice-medical.appspot.com",
-    messagingSenderId: "9575432257",
-    appId: "1:9575432257:web:d1bfa3dbce0f872a2646c0"
+    apiKey,
+    authDomain,
+    projectId,
+    storageBucket,
+    messagingSenderId,
+    appId
 }
 
 const app = initializeApp(firebaseConfig)

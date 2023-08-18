@@ -403,15 +403,6 @@ export function UseForm({
                     },
                 ]
             })
-            // setOnPopupSetting({
-            //     title: `Delete confirmation data from "${patientName}" patient`,
-            //     classIcon: 'text-font-color-2',
-            //     classBtnNext: 'hover:bg-white',
-            //     iconPopup: faBan,
-            //     nameBtnNext: 'Yes',
-            //     patientId: patientId,
-            //     categoryAction: 'delete-confirmation'
-            // })
             clickMenu()
         }
     }

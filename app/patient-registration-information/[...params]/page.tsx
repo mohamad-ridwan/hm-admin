@@ -1,20 +1,26 @@
+import { Suspense } from 'react'
 import Template from "app/template";
 import { Container } from "components/Container";
 import { PatientPDF } from "./PatientPDF";
+import Loading from 'app/loading';
 
-export default function DownloadPatientPDF({params}: {params: {params: string}}) {
+export default function DownloadPatientPDF({ params }: { params: { params: string } }) {
     return (
-        <Template
-            key={10}
-            isNavigateOff={true}
-            title="Patient PDF | Hospice Medical Admin"
-            description="bukti pendaftaran pasien yang sudah dikonfirmasi oleh hospice medical"
+        <Suspense
+            fallback={<Loading />}
         >
-            <Container
-                isNavleft={false}
+            <Template
+                key={10}
+                isNavigateOff={true}
+                title="Patient PDF | Hospice Medical Admin"
+                description="bukti pendaftaran pasien yang sudah dikonfirmasi oleh hospice medical"
             >
-                <PatientPDF params={params}/>
-            </Container>
-        </Template>
+                <Container
+                    isNavleft={false}
+                >
+                    <PatientPDF params={params} />
+                </Container>
+            </Template>
+        </Suspense>
     )
 }

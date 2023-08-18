@@ -1,12 +1,11 @@
+import dayjs from 'dayjs'
+
 export function createDateFormat(
     currentDate: Date | string,
+    format?: 'MM/DD/YYYY'
 ): string {
-    const nowDate = new Date(currentDate)
+    const newFormat: 'MM/DD/YYYY' = typeof format === 'undefined' ? 'MM/DD/YYYY' : format
+    const days = dayjs(currentDate).format(newFormat)
 
-    const month = nowDate.getMonth() + 1
-    const newMonth = month.toString().length === 1 ? `0${month}` : month
-    const date = nowDate.getDate().toString().length === 1 ? `0${nowDate.getDate()}` : nowDate.getDate()
-    const years = `${newMonth}/${date}/${nowDate.getFullYear()}`
-
-    return years
+    return days
 }

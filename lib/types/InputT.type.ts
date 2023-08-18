@@ -187,6 +187,15 @@ export type InputAddCounterT = {
     loketName: string
 }
 
+export type FirebaseConfigT = {
+    apiKey: string
+    authDomain: string
+    projectId: string
+    storageBucket: string
+    messagingSenderId: string
+    appId: string
+}
+
 export type FormatPDFT = 
 'a4' | 
 'a2' | 

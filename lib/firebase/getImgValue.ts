@@ -7,7 +7,8 @@ export async function getImgValue(
             if(
                 getTypeFile.toLowerCase() === 'jpg' ||
                 getTypeFile.toLowerCase() === 'jpeg' ||
-                getTypeFile.toLowerCase() === 'png'
+                getTypeFile.toLowerCase() === 'png' ||
+                getTypeFile.toLowerCase() === 'webp'
             ){
                 let url: string = ''
                 url = URL.createObjectURL(file[0])
@@ -16,7 +17,7 @@ export async function getImgValue(
                     files: file
                 })
             }else{
-                reject('Must be image file\nlike .png/.jpeg/.jpg')
+                reject('Must be image file\nlike .png/.jpeg/.jpg/.webp')
             }
         }
     })

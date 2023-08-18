@@ -172,53 +172,6 @@ export function OurDoctor() {
                 </ContainerPopup>
             )}
 
-            {/* popup next / cancel */}
-            {/* {onPopupSetting?.title && (
-                <ContainerPopup
-                    className='flex justify-center items-center overflow-y-auto'
-                >
-                    <SettingPopup
-                        clickClose={() => setOnPopupSetting({} as PopupSetting)}
-                        title={onPopupSetting.title}
-                        classIcon="text-font-color-2"
-                        iconPopup={onPopupSetting.iconPopup}
-                    >
-                        <Button
-                            nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn="hover:bg-white"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
-                            }}
-                            clickBtn={() => {
-                                if (onPopupSetting.categoryAction === 'delete-doctor') {
-                                    clickDelete(onPopupSetting.doctorId as string)
-                                    setOnPopupSetting({} as PopupSetting)
-                                } else if (onPopupSetting.categoryAction === 'edit-doctor') {
-                                    nextSubmitEditDoctor()
-                                    setOnPopupSetting({} as PopupSetting)
-                                } else if (onPopupSetting.categoryAction === 'add-doctor') {
-                                    nextSubmitAddDoctor()
-                                }
-                            }}
-                        />
-                        <Button
-                            nameBtn="Cancel"
-                            classBtn="bg-white border-none"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057'
-                            }}
-                            clickBtn={() => setOnPopupSetting({} as PopupSetting)}
-                        />
-                    </SettingPopup>
-                </ContainerPopup>
-            )} */}
-
             {/* popup add medsos */}
             {onPopupAddMedsos && (
                 <AddMedsos

@@ -56,7 +56,7 @@ export default function ImageInput({
                 <Input
                 id="inputImg"
                 type="file"
-                accept=".jpg, .jpeg, .png"
+                accept=".jpg, .jpeg, .png, .webp"
                 nameInput={nameInput}
                 changeInput={changeInput}
                 valueInput={valueInput}

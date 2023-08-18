@@ -1,24 +1,30 @@
+import { Suspense } from 'react'
 import Template from "app/template";
 import { Container } from "components/Container";
 import { TableContainer } from "components/table/TableContainer";
 import { Counters } from "./Counters";
+import Loading from 'app/loading';
 
 export default function CountersPage() {
     return (
-        <Template
-            key="counters"
-            title="Counters | Hospice Medical Admin"
-            description="list daftar ruang loket pasien pada hospice medical"
-            className="min-h-[100vh] w-[100vw]"
+        <Suspense
+            fallback={<Loading />}
         >
-            <Container
-                overflow="overflow-x-auto"
-                title="List of Counters"
+            <Template
+                key="counters"
+                title="Counters | Hospice Medical Admin"
+                description="list daftar ruang loket pasien pada hospice medical"
+                className="min-h-[100vh] w-[100vw]"
             >
-                <TableContainer>
-                    <Counters />
-                </TableContainer>
-            </Container>
-        </Template>
+                <Container
+                    overflow="overflow-x-auto"
+                    title="List of Counters"
+                >
+                    <TableContainer>
+                        <Counters />
+                    </TableContainer>
+                </Container>
+            </Template>
+        </Suspense>
     )
 }

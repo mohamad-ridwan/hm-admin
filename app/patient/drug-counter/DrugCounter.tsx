@@ -24,8 +24,6 @@ export function DrugCounter() {
         onScanner,
         clickPassPatient,
         onPopupSetting,
-        cancelPopup,
-        confirmPassPatient,
         currentPatientCall,
         loadingPassPatient
     } = UseCounter()
@@ -45,38 +43,23 @@ export function DrugCounter() {
                     className='flex justify-center items-center overflow-y-auto'
                 >
                     <SettingPopup
-                        clickClose={cancelPopup}
+                        clickClose={onPopupSetting.clickClose}
                         title={onPopupSetting.title}
-                        classIcon='text-font-color-2'
+                        classIcon={onPopupSetting.classIcon}
                         iconPopup={onPopupSetting.iconPopup}
                     >
-                        <Button
-                            nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn="hover:bg-white"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
-                            }}
-                            clickBtn={() => {
-                                if (onPopupSetting.categoryAction === 'pass-patient') {
-                                    confirmPassPatient()
-                                }
-                            }}
-                        />
-
-                        <Button
-                            nameBtn="Cancel"
-                            classBtn="bg-white border-none"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057'
-                            }}
-                            clickBtn={cancelPopup}
-                        />
+                        {onPopupSetting.actionsData.length > 0 && onPopupSetting.actionsData.map((btn, idx) => {
+                            return (
+                                <Button
+                                    key={idx}
+                                    nameBtn={btn.nameBtn}
+                                    classBtn={btn.classBtn}
+                                    classLoading={btn.classLoading}
+                                    clickBtn={btn.clickBtn}
+                                    styleBtn={btn.styleBtn}
+                                />
+                            )
+                        })}
                     </SettingPopup>
                 </ContainerPopup>
             )}

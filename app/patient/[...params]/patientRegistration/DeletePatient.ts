@@ -8,8 +8,9 @@ import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
-import { PopupSetting, PopupSettings } from "lib/types/TableT.type"
+import {  AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     params?: string
@@ -35,6 +36,7 @@ export function DeletePatient({
     } = UsePatientData({ params })
 
     const { user } = authStore()
+    const {setOnAlerts} = navigationStore()
 
     const router = useRouter()
 
@@ -105,9 +107,14 @@ export function DeletePatient({
     function successDelete(): void {
         router.push('/patient/patient-registration')
         setLoadingDelete(false)
+        setOnAlerts({
+            onAlert: true,
+            title: 'Successfully deleted all patient data',
+            desc: 'All patient data is deleted'
+        })
         setTimeout(() => {
-            alert('Successfully deleted all patient data')
-        }, 500)
+            setOnAlerts({} as AlertsT)
+        }, 3000);
     }
 
     // action cancel treatment
@@ -168,7 +175,14 @@ export function DeletePatient({
                 data,
             )
                 .then(res => {
-                    alert('Successfully cancel patient registration')
+                    setOnAlerts({
+                        onAlert: true,
+                        title: 'Successfully cancel patient registration',
+                        desc: 'Patient registration was cancelled'
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                     setLoadingCancelTreatment(false)
                 })
                 .catch(err => pushTriggedErr('A server error occurred while unregistering the patient. please try again'))

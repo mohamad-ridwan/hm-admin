@@ -332,13 +332,13 @@ export function ConfirmationPatient() {
 
                         const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${namePatient}/${patient.id}`
 
-                        const findIdLoadingCancelT = idLoadingCancelTreatment.find(id=>id === patient.id)
-                        const findIdLoadingDelete = loadingIdPatientsDelete.find(id=>id === patient.id)
+                        const findIdLoadingCancelT = idLoadingCancelTreatment.find(id => id === patient.id)
+                        const findIdLoadingDelete = loadingIdPatientsDelete.find(id => id === patient.id)
 
                         const actionsData: ActionsDataT[] = [
                             {
                                 name: 'Edit',
-                                click: (e?: MouseEvent)=>{
+                                click: (e?: MouseEvent) => {
                                     clickEdit(patient.id, patient.data[0]?.name)
                                     clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
                                     openPopupEdit()
@@ -349,9 +349,9 @@ export function ConfirmationPatient() {
                             {
                                 name: 'Cancel Treatment',
                                 classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-pink-old',
-                                click: (e?: MouseEvent)=>{
+                                click: (e?: MouseEvent) => {
                                     clickCancelTreatment(patient.id, patient.data[0]?.name)
-                                    if(!findIdLoadingCancelT){
+                                    if (!findIdLoadingCancelT) {
                                         setIndexActiveTableMenu(null)
                                     }
                                     e?.stopPropagation()
@@ -360,7 +360,7 @@ export function ConfirmationPatient() {
                             {
                                 name: 'Delete',
                                 classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
-                                click: (e?: MouseEvent)=>{
+                                click: (e?: MouseEvent) => {
                                     clickDeleteIcon(patient.id, patient.data[0]?.name)
                                     setIndexActiveTableMenu(null)
                                     e?.stopPropagation()

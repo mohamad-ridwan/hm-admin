@@ -1,3 +1,4 @@
+import { AlertsT } from "lib/types/TableT.type"
 import { create } from "zustand"
 
 type NavigationProps = {
@@ -15,7 +16,12 @@ type NavLeftProps = {
     setOnNavLeft: (p: boolean)=>void
 }
 
-type DefaultProps = NotFoundProps & NavLeftProps
+type NotificationProps = {
+    alerts: AlertsT
+    setOnAlerts: (alerts: AlertsT)=>void
+}
+
+type DefaultProps = NotFoundProps & NavLeftProps & NotificationProps
 
 export const navigationStore = create<DefaultProps>()((set)=>({
     isNavigation: false,
@@ -24,5 +30,11 @@ export const navigationStore = create<DefaultProps>()((set)=>({
     setIsNotFound: (param)=>set((state)=>({isNotFound: param})),
     // default (true)
     onNavLeft: true,
-    setOnNavLeft: (p: boolean)=>set((state)=>({onNavLeft: p}))
+    setOnNavLeft: (p: boolean)=>set((state)=>({onNavLeft: p})),
+    alerts: {
+        onAlert: false,
+        title: '',
+        desc:''
+    },
+    setOnAlerts: (alerts)=>set((state)=>({alerts}))
 }))

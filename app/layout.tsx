@@ -7,6 +7,7 @@ import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { NavLeft } from 'components/navLeft/NavLeft'
 import { NavLeftMobile } from 'components/navLeft/NavLeftMobile'
+import { Alerts } from 'components/popup/Alerts'
 
 config.autoAddCss = false
 
@@ -44,6 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${mulish.variable} font-mulish`}>
       <body className="bg-bgp-default">
+        <Alerts />
         <Navbar />
         <NavLeft />
         <NavLeftMobile />

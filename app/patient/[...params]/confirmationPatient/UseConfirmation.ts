@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { InputDrugCounterT, SubmitDrugCounterT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faBan, faCircleCheck, faDownload, faEnvelope } from "@fortawesome/free-solid-svg-icons"
 import { authStore } from "lib/useZustand/auth"
 import { createDateFormat } from "lib/formats/createDateFormat"
@@ -15,6 +15,7 @@ import { sendEmail } from "lib/emailJS/sendEmail"
 import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { spaceString } from "lib/regex/spaceString"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     params: string
@@ -62,6 +63,7 @@ export function UseForm({
     } = UsePatientData({ params: paramsPersonal })
 
     const { user } = authStore()
+    const { setOnAlerts } = navigationStore()
 
     const router = useRouter()
     const params = useParams()
@@ -169,7 +171,14 @@ export function UseForm({
             dataSubmitToCounter()
         ).then(res => {
             setLoadingSubmit(false)
-            alert('Successful confirmation')
+            setOnAlerts({
+                onAlert: true,
+                title: 'Successful confirmation',
+                desc: 'The patient has been confirmed to the counter'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000)
             setTimeout(() => {
                 router.push(`${patientId}/counter/${currentCounter.id}/not-yet-confirmed/${dataSubmitToCounter().queueNumber}`)
             }, 0);
@@ -261,15 +270,6 @@ export function UseForm({
                 },
             ]
         })
-        // setOnPopupSetting({
-        //     title: 'Download Pdf?',
-        //     classIcon: 'text-font-color-2',
-        //     classBtnNext: 'hover:bg-white',
-        //     iconPopup: faDownload,
-        //     nameBtnNext: 'Yes',
-        //     patientId: '',
-        //     categoryAction: 'download-pdf'
-        // })
         clickMenu()
     }
 
@@ -311,15 +311,6 @@ export function UseForm({
                     },
                 ]
             })
-            // setOnPopupSetting({
-            //     title: 'Send confirmation to patient email?',
-            //     classIcon: 'text-font-color-2',
-            //     classBtnNext: 'hover:bg-white',
-            //     iconPopup: faEnvelope,
-            //     nameBtnNext: 'Yes',
-            //     patientId: '',
-            //     categoryAction: 'send-email'
-            // })
             clickMenu()
         }
     }
@@ -339,7 +330,14 @@ export function UseForm({
             publicKey
         )
             .then(res => {
-                alert('Successfully sent confirmation message')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully sent confirmation message',
+                    desc: `Confirmation data has been sent to the patient's email`
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
                 setLoadingSendEmail(false)
             })
             .catch(err => pushTriggedErr('a server error occurred. error while sending confirmation message to patient email. (emailJS error)'))
@@ -421,13 +419,21 @@ export function UseForm({
                 const newRoute = params?.params?.replace(currentRoute[2], 'not-yet-confirmed')
                 const urlOrigin = window.location.origin
                 window.location.replace(`${urlOrigin}/patient/${newRoute}`)
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully delete patient confirmation data',
+                    desc: 'Patient confirmation data deleted'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch(err => pushTriggedErr(`There was an error deleting patient confirmation data. Please try again`))
     }
 
-    function clickCancelTreatment():void{
+    function clickCancelTreatment(): void {
         clickMenu()
-        if(loadingCancelTreatment === false){
+        if (loadingCancelTreatment === false) {
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: 'Cancel Treatment?',
@@ -438,7 +444,7 @@ export function UseForm({
                         nameBtn: 'Yes',
                         classBtn: 'hover:bg-white',
                         classLoading: 'hidden',
-                        clickBtn: () =>setOnMsgCancelTreatment(true),
+                        clickBtn: () => setOnMsgCancelTreatment(true),
                         styleBtn: {
                             padding: '0.5rem',
                             marginRight: '0.6rem',
@@ -461,8 +467,8 @@ export function UseForm({
         }
     }
 
-    function submitCancelTreatment():void{
-        if(inputMsgCancelPatient.length > 0){
+    function submitCancelTreatment(): void {
+        if (inputMsgCancelPatient.length > 0) {
             setLoadingCancelTreatment(true)
             setOnMsgCancelTreatment(false)
             const data: SubmitFinishedTreatmentT = {
@@ -480,7 +486,14 @@ export function UseForm({
                 data,
             )
                 .then(res => {
-                    alert('Successfully cancel patient registration')
+                    setOnAlerts({
+                        onAlert: true,
+                        title:'Successfully cancel patient registration',
+                        desc: `The patient's treatment was cancelled`
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                     setLoadingCancelTreatment(false)
                 })
                 .catch(err => pushTriggedErr('A server error occurred while unregistering the patient. please try again'))

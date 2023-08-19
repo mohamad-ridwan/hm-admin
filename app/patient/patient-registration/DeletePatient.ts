@@ -14,7 +14,8 @@ import { authStore } from "lib/useZustand/auth"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { faBan, faTrash } from "@fortawesome/free-solid-svg-icons"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     findDataRegistration: (
@@ -42,6 +43,7 @@ export function DeletePatient({
     } = ServicingHours()
 
     const { user } = authStore()
+    const {setOnAlerts} = navigationStore()
     const router = useRouter()
 
     function preloadDataRegistration(
@@ -137,7 +139,14 @@ export function DeletePatient({
                         if (res?.data) {
                             let newId: { [key: string]: any } = deleteResult as { [key: string]: any }
                             preloadDataRegistration(res, newId?.id as string, 'delete')
-                            alert(`Successfully deleted data patient`)
+                            setOnAlerts({
+                                onAlert: true,
+                                title: 'Successfully deleted data patient',
+                                desc: 'The patient has been removed from the registration list'
+                            })
+                            setTimeout(() => {
+                                setOnAlerts({} as AlertsT)
+                            }, 3000);
                         } else {
                             pushTriggedErr('error preload data service. no property "data" found')
                         }
@@ -228,7 +237,14 @@ export function DeletePatient({
                     preloadFetch(endpoint.getServicingHours())
                         .then((res) => {
                             if (res?.data) {
-                                alert('Successfully cancel patient registration')
+                                setOnAlerts({
+                                    onAlert: true,
+                                    title: 'Successfully cancel patient registration',
+                                    desc: `The patient's treatment schedule has been cancelled`
+                                })
+                                setTimeout(() => {
+                                    setOnAlerts({} as AlertsT)
+                                }, 3000);
                                 const findPatientRegis = dataPatientRegis?.find(patient => patient.id === finishedRes?.patientId)
                                 const getName = findPatientRegis?.patientName?.replace(specialCharacter, '')?.replace(spaceString, '')
 

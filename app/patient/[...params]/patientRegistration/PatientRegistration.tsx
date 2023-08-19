@@ -225,7 +225,7 @@ export function PatientRegistration({ params }: { params: string }) {
                         classText="text-red-default"
                     />
                 )}
-                {!dataPatientFinishTreatment?.id && (
+                {!dataPatientFinishTreatment?.id && dataConfirmPatient?.id && (
                     <StatusRegistration
                         icon={faClockFour}
                         title="In Progress"

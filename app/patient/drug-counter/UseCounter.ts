@@ -7,10 +7,11 @@ import { DataOptionT } from "lib/types/FilterT"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { DrugCounterT } from "lib/types/PatientT.types"
 import { spaceString } from "lib/regex/spaceString"
-import { PopupSetting } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faForward } from "@fortawesome/free-solid-svg-icons"
 import { API } from "lib/api"
 import { SubmitConfirmDrugCounterT } from "lib/types/InputT.type"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type ErrType = {
     toPage: string
@@ -42,7 +43,7 @@ export function UseCounter() {
         queueNumber: 0
     })
     const [errSelectToPage, setErrSelectToPage] = useState<ErrType>({} as ErrType)
-    const [onPopupSetting, setOnPopupSetting] = useState<PopupSetting>({} as PopupSetting)
+    const [onPopupSetting, setOnPopupSetting] = useState<PopupSettings>({} as PopupSettings)
     const [loadingPassPatient, setLoadingPassPatient] = useState<boolean>(false)
     const [optionsCounter, setOptionsCounter] = useState<DataOptionT>([
         {
@@ -88,9 +89,10 @@ export function UseCounter() {
         dataLoket,
         dataDrugCounter,
         dataFinishTreatment,
-        loadDataService,
         pushTriggedErr
     } = ServicingHours()
+
+    const { setOnAlerts } = navigationStore()
 
     const router = useRouter()
 
@@ -330,13 +332,35 @@ export function UseCounter() {
     function clickPassPatient(): void {
         if (loadingPassPatient === false) {
             setOnPopupSetting({
+                clickClose: () => setOnPopupSetting({} as PopupSettings),
                 title: 'Pass Patient?',
                 classIcon: 'text-font-color-2',
-                classBtnNext: 'hover:bg-white',
                 iconPopup: faForward,
-                nameBtnNext: 'Yes',
-                patientId: '',
-                categoryAction: 'pass-patient'
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmPassPatient(),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnPopupSetting({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057',
+                        }
+                    }
+                ]
             })
         }
     }
@@ -347,7 +371,7 @@ export function UseCounter() {
             pushTriggedErr(`No patient found with id : ${currentPatientCall.patientId}`)
         }
 
-        setOnPopupSetting({} as PopupSetting)
+        setOnPopupSetting({} as PopupSettings)
         setLoadingPassPatient(true)
 
         API().APIPutPatientData(
@@ -357,7 +381,14 @@ export function UseCounter() {
         )
             .then(res => {
                 setLoadingPassPatient(false)
-                alert('Successful to pass the patient')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successful to pass the patient',
+                    desc: 'Patient has passed'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch(err => pushTriggedErr('A server error occurred. Occurs when passing a patient'))
     }
@@ -387,11 +418,7 @@ export function UseCounter() {
 
         return data
     }
-
-    function cancelPopup(): void {
-        setOnPopupSetting({} as PopupSetting)
-    }
-
+    
     return {
         optionsCounter,
         optionsGoTo,
@@ -406,8 +433,6 @@ export function UseCounter() {
         onError,
         clickPassPatient,
         onPopupSetting,
-        cancelPopup,
-        confirmPassPatient,
         currentPatientCall,
         loadingPassPatient
     }

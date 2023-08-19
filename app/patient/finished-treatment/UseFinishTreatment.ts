@@ -2,7 +2,7 @@
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from "react"
 import { useParams } from 'next/navigation'
-import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
@@ -13,6 +13,7 @@ import { spaceString } from "lib/regex/spaceString"
 import { InputEditFinishTreatmentT, SubmitConfirmDrugCounterT, SubmitEditFinishTreatmentT } from "lib/types/InputT.type"
 import { faBan, faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
 import { API } from "lib/api"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
@@ -118,6 +119,8 @@ export function UseFinishTreatment({
         dataAdmin,
         pushTriggedErr
     } = ServicingHours()
+
+    const {setOnAlerts} = navigationStore()
 
     const paramsPersonalData = useParams()
 
@@ -774,7 +777,14 @@ export function UseFinishTreatment({
                 .then(res => {
                     const removeIdLoading = loadingIdSubmitEditFT.filter(id => id !== res?.patientId)
                     setLoadingIdSubmitEditFT(removeIdLoading)
-                    alert('Successfully update patient treatment data')
+                    setOnAlerts({
+                        onAlert: true,
+                        title: 'Successfully update patient treatment data',
+                        desc: 'Patient treatment data has been updated'
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                 })
                 .catch(err => pushTriggedErr('An error occurred while updating patient treatment data. please try again'))
         }
@@ -908,18 +918,33 @@ export function UseFinishTreatment({
                     const newRes = res as { [key: string]: any }
                     const removeIdLoading = loadingIdDeleteFT.filter(id => id !== newRes?.patientId)
                     setLoadingIdDeleteFT(removeIdLoading)
-                    alert('Delete successfully')
-                    const redirectRoute: 'drug-counter' | 'registration' = checkDrugCounter?.id ? 'drug-counter' : 'registration'
+                    setOnAlerts({
+                        onAlert: true,
+                        title: 'Delete successfully',
+                        desc: 'Patient treatment data has been deleted'
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
+                    const pathname: string = window.location.pathname
+                    const redirectRoute: 'drug-counter' | 'registration' | null = pathname === '/patient/finished-treatment' ? null : checkDrugCounter?.id ? 'drug-counter' : 'registration'
                     redirectAfterDelete(redirectRoute)
                 })
                 .catch(err => pushTriggedErr('There was an error deleting patient medication data. please try again'))
         } else {
-            alert(`No patient treatment data found with id "${patientId}"`)
+            setOnAlerts({
+                onAlert: true,
+                title: 'Patient not found',
+                desc: `No patient treatment data found with id "${patientId}"`
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         }
     }
 
     function redirectAfterDelete(
-        stepPatient: 'drug-counter' | 'registration'
+        stepPatient: 'drug-counter' | 'registration' | null
     ): void {
         const checkRoute = paramsPersonalData?.params?.includes('/counter')
         const urlOrigin = window.location.origin
@@ -932,7 +957,7 @@ export function UseFinishTreatment({
                 const newRoute = `${getRoute}/not-yet-confirmed/${queueNumberCounter}`
                 window.location.replace(`${urlOrigin}/patient/${newRoute}`)
             }
-        }else if(stepPatient){
+        }else if(stepPatient === 'registration'){
             window.location.reload()
         }
     }

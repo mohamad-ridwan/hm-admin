@@ -37,3 +37,9 @@ export type ActionsDataT = {
     name: string
     click: () => void
 }
+
+export type AlertsT={
+    onAlert: boolean
+    title?: string
+    desc: string
+}

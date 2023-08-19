@@ -29,6 +29,7 @@ import ErrorInput from 'components/input/ErrorInput'
 import Input from 'components/input/Input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AddPatient } from './AddPatient'
+import { Alerts } from 'components/popup/Alerts'
 
 export function PatientRegistration() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -113,18 +114,18 @@ export function PatientRegistration() {
             {/* popup edit */}
             {onAddPatient && (
                 <AddPatient
-                clickCloseAddPatient={clickAddPatient}
-                changeInputAddPatient={changeInputAddPatient}
-                inputAddPatient={inputAddPatient}
-                errInputAddPatient={errInputAddPatient}
-                changeDateAddPatient={changeDateAddPatient}
-                handleSelectAddPatient={handleSelectAddPatient}
-                optionsDay={optionsDay}
-                submitAddPatient={submitAddPatient}
-                minDateFormAddP={minDateFormAddP}
-                maxDateFormAddP={maxDateFormAddP}
-                filterDate={filterDate}
-                loadingSubmitAddPatient={loadingSubmitAddPatient}
+                    clickCloseAddPatient={clickAddPatient}
+                    changeInputAddPatient={changeInputAddPatient}
+                    inputAddPatient={inputAddPatient}
+                    errInputAddPatient={errInputAddPatient}
+                    changeDateAddPatient={changeDateAddPatient}
+                    handleSelectAddPatient={handleSelectAddPatient}
+                    optionsDay={optionsDay}
+                    submitAddPatient={submitAddPatient}
+                    minDateFormAddP={minDateFormAddP}
+                    maxDateFormAddP={maxDateFormAddP}
+                    filterDate={filterDate}
+                    loadingSubmitAddPatient={loadingSubmitAddPatient}
                 />
             )}
 

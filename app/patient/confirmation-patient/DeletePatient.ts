@@ -10,8 +10,9 @@ import { spaceString } from "lib/regex/spaceString"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { SubmitFinishedTreatmentT } from "lib/types/InputT.type"
 import { UserT } from "lib/types/ZustandT.types"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     user: UserT
@@ -37,6 +38,8 @@ export function DeletePatient({
         dataPatientRegis,
         pushTriggedErr
     } = ServicingHours()
+
+    const {setOnAlerts} = navigationStore()
 
     const router = useRouter()
 
@@ -121,7 +124,14 @@ export function DeletePatient({
                     const getRes: { [key: string]: any } = result as {}
                     const removeIdLoading = loadingIdPatientsDelete.filter(id => id !== getRes?.patientId)
                     setLoadingIdPatientsDelete(removeIdLoading)
-                    alert(alertMessage)
+                    setOnAlerts({
+                        onAlert: true,
+                        title: alertMessage as string,
+                        desc: ''
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                 }
             })
             .catch(err => {
@@ -336,6 +346,14 @@ export function DeletePatient({
         )
             .then(res => {
                 if (res?.patientId) {
+                    setOnAlerts({
+                        onAlert: true,
+                        title: 'Patient has been cancelled',
+                        desc: 'Has successfully canceled the patient'
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                     const removeIdLoading = idLoadingCancelTreatment.filter(id => id !== res?.patientId)
                     setIdLoadingCancelTreatment(removeIdLoading)
 

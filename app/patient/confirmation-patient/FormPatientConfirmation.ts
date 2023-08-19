@@ -9,8 +9,9 @@ import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/formats/createDateFormat"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -76,6 +77,8 @@ function FormPatientConfirmation({
         dataConfirmationPatients,
         dataFinishTreatment
     } = ServicingHours()
+
+    const {setOnAlerts} = navigationStore()
 
     function changeEditConfirmPatient(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
         setValueInputEditConfirmPatient({
@@ -398,7 +401,14 @@ function FormPatientConfirmation({
                 const findPatientRegisId = dataConfirmationPatients?.find(patient => patient.id === res?.id)
                 const removeLoadingId = idLoadingEditConfirmPatient.filter(id => id !== findPatientRegisId?.patientId)
                 setIdLoadingEditConfirmPatient(removeLoadingId)
-                alert('patient confirmation data successfully updated')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Patient confirmation data successfully updated',
+                    desc: 'Confirmation patient updated successfully'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch((err) => {
                 pushTriggedErr('a server error occurred. please try again')

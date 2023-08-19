@@ -3,7 +3,7 @@
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react"
 import { notFound, useRouter, useParams } from 'next/navigation'
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
-import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { DrugCounterT, InfoLoketT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/formats/createDateFormat"
@@ -16,6 +16,7 @@ import { API, DataRequest } from "lib/api"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
 import { AdminT } from "lib/types/AdminT.types"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type ParamsProps = {
     params: {
@@ -156,6 +157,7 @@ export function UseDrugCounter({
     } = ServicingHours()
 
     const { user } = authStore()
+    const {setOnAlerts} = navigationStore()
     const router = useRouter()
     const paramsRegistration = useParams()
 
@@ -812,7 +814,14 @@ export function UseDrugCounter({
             .then(res => {
                 const findLoadingId = loadingIdSubmitEditPatientC.filter(id => id !== res?.patientId)
                 setLoadingIdSubmitEditPatientC(findLoadingId)
-                alert('Update patient counter successfully')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Update patient counter successfully',
+                    desc: 'Patient has been updated'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch(err => pushTriggedErr(`A server error occurred. occurs when updating patient counter data. please try again`))
     }
@@ -1024,6 +1033,14 @@ export function UseDrugCounter({
             data
         )
             .then(res => {
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Has successfully canceled the patient',
+                    desc: 'Patient has been cancelled'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
                 const removeIdLoading = idLoadingCancelTreatment.filter(id => id !== res?.patientId)
                 setIdLoadingCancelTreatment(removeIdLoading)
 
@@ -1162,7 +1179,14 @@ export function UseDrugCounter({
                 const newRes = res as { [key: string]: any }
                 const removeIdLoading = loadingIdPatientsDelete.filter(id => id !== newRes?.patientId)
                 setLoadingIdPatientsDelete(removeIdLoading)
-                alert('Successfully deleted patient data')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully deleted patient data',
+                    desc: 'All data from that patient has been deleted'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient counter data. please try again`))
     }
@@ -1218,7 +1242,14 @@ export function UseDrugCounter({
                 const newRes = res as { [key: string]: any }
                 const removeIdLoading = loadingIdPatientsDelete.filter(id => id !== newRes?.patientId)
                 setLoadingIdPatientsDelete(removeIdLoading)
-                alert('Successfully deleted patient data')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully deleted patient data',
+                    desc: 'Patient counter data has been deleted'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient counter data. please try again`))
     }

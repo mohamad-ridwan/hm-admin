@@ -318,16 +318,16 @@ export function OurDoctor() {
                                                     <Image
                                                         alt={dataItem.name}
                                                         src={dataItem.image}
-                                                        height={10}
-                                                        width={10}
-                                                        className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
+                                                        height={300}
+                                                        width={300}
+                                                        className="rounded-full mr-2 h-[40px] w-[40px] object-cover"
                                                     /> : indexData === 0 ?
                                                         <Image
                                                             alt={dataItem.name}
                                                             src={profileDefault}
-                                                            height={10}
-                                                            width={10}
-                                                            className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
+                                                            height={300}
+                                                            width={300}
+                                                            className="rounded-full mr-2 h-[40px] w-[40px] object-cover"
                                                         /> : <></>
                                             }
                                         />

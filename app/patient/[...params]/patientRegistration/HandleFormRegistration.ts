@@ -12,8 +12,9 @@ import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     params: string
@@ -66,6 +67,7 @@ export function HandleFormRegistration({
     const idPatientRegistration = detailDataPatientRegis?.id
 
     const { user } = authStore()
+    const {setOnAlerts} = navigationStore()
     const router = useRouter()
 
     function loadSpecialist(): void {
@@ -448,7 +450,14 @@ export function HandleFormRegistration({
         )
         .then(res=>{
             setLoadingSubmit(false)
-            alert('successful confirmation')
+            setOnAlerts({
+                onAlert: true,
+                title: 'Successful confirmation',
+                desc: 'Patient registration has been confirmed'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
             router.push(`/patient/${params[0]}/${params[1]}/confirmed/${params[3]}/${params[4]}`)
         })
         .catch(err=>{

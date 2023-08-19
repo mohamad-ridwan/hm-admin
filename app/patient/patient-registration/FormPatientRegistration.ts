@@ -10,20 +10,21 @@ import { createDateFormat } from "lib/formats/createDateFormat"
 import { API } from "lib/api"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { faPencil, faUserPlus } from "@fortawesome/free-solid-svg-icons"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { DataOptionT } from "lib/types/FilterT"
 import { dayNamesInd } from "lib/formats/dayNamesInd"
 import { PatientRegistrationT } from "lib/types/PatientT.types"
 import { createHourFormat } from "lib/formats/createHourFormat"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
 }
 
 function FormPatientRegistration({
-    setOnModalSettings
+    setOnModalSettings,
 }: Props) {
     const [patientName, setPatientName] = useState<string | null>(null)
     const [valueInputEditDetailPatient, setValueInputEditDetailPatient] = useState<InputEditPatientRegistrationT>({
@@ -78,9 +79,11 @@ function FormPatientRegistration({
         getServicingHours
     } = ServicingHours()
 
+    const { setOnAlerts } = navigationStore()
+
     const params = useParams()
     const router = useRouter()
-    
+
     const currentDate: string = createDateFormat(new Date()).split('/')[1]
     const minDateFormAddP: Date | undefined = getServicingHours?.id ? new Date(`${getServicingHours.minDate}-${currentDate}`) : undefined
     const maxDateFormAddP: Date | undefined = getServicingHours?.id ? addMonths(new Date(getServicingHours.maxDate), 0) : undefined
@@ -270,7 +273,14 @@ function FormPatientRegistration({
                 if (isRoutePersonalData) {
                     router.push(`/patient/${newRoute}`)
                 }
-                alert('Updated successfully')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Updated successfully',
+                    desc: 'Successfully updated the patient'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch((err) => {
                 pushTriggedErr('a server error occurred. please try again later')
@@ -442,7 +452,6 @@ function FormPatientRegistration({
             dataSubmitAddPatient()
         )
             .then(res => {
-                alert('Successfully added a new patient')
                 setLoadingSubmitAddPatient(false)
                 setInputAddPatient({
                     patientName: '',
@@ -454,6 +463,15 @@ function FormPatientRegistration({
                     patientComplaints: '',
                     message: '',
                 })
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully added a new patient',
+                    desc: 'A new patient has been added to the patient list'
+                })
+
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch(err => pushTriggedErr('A server error occurred. Occurs when adding a new patient. Please try again'))
     }

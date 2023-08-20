@@ -1,10 +1,10 @@
 import Image from "next/image"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { ConfirmInfoPDFT, PatientRegistrationT } from "lib/types/PatientT.types"
-import logo from 'images/logo.png'
 import { PdfStyle } from "./PdfStyle"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
+import { firstLogo } from "lib/firebase/firstlogo"
 
 type Props = {
     patientRegis: PatientRegistrationT | undefined
@@ -66,7 +66,7 @@ export function RegistrationInfo({
             <div style={PdfStyle.headStyleRegis}>
                 <Image
                     alt="hospice medical"
-                    src={logo}
+                    src={firstLogo}
                     height={10}
                     width={10}
                     style={PdfStyle.img}

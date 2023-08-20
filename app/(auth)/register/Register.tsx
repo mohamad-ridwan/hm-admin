@@ -6,7 +6,6 @@ import { ref, getDownloadURL } from 'firebase/storage'
 import { StaticImageData } from "next/image"
 import ImageInput from "components/input/ImageInput"
 import InputContainer from "components/input/InputContainer"
-import userImg from 'images/user.png'
 import Button from "components/Button"
 import Input from "components/input/Input"
 import ErrorInput from "components/input/ErrorInput"
@@ -17,6 +16,9 @@ import { uploadImg } from "lib/firebase/uploadImg"
 import { sendEmail } from "lib/emailJS/sendEmail"
 import Link from "next/link"
 import { getImgValue } from "lib/firebase/getImgValue"
+import { navigationStore } from "lib/useZustand/navigation"
+import { AlertsT } from "lib/types/TableT.type"
+import { userImg } from "lib/firebase/firstlogo"
 
 type InputT = {
     name: string
@@ -52,6 +54,8 @@ export function Register() {
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
     const [urlOrigin, setUrlOrigin] = useState<string | null>(null)
 
+    const {setOnAlerts} = navigationStore()
+
     const router = useRouter()
 
     useEffect(() => {
@@ -72,10 +76,17 @@ export function Register() {
                 image: res.url
             })
 
-            setImgFile(res.files[0])
+            setImgFile(res.files)
         })
         .catch(err=>{
-            alert(err)
+            setOnAlerts({
+                onAlert: true,
+                title: 'There is an error',
+                desc: err
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         })
     }
 

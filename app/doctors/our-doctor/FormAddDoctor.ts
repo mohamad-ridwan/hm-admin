@@ -1,6 +1,7 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
+import imageCompression from 'browser-image-compression'
 import { AddNewDoctorT } from "lib/types/InputT.type"
 import { getImgValue } from "lib/firebase/getImgValue"
 import { DoctorScheduleT, HolidaySchedule, MedsosDoctorT, ProfileDoctorT } from "lib/types/DoctorsT.types"
@@ -13,7 +14,8 @@ import ServicingHours from "lib/dataInformation/ServicingHours"
 import { DataOptionT } from "lib/types/FilterT"
 import { mailRegex } from "lib/regex/mailRegex"
 import { faPencil, faUserPlus } from "@fortawesome/free-solid-svg-icons"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type ActionProps = {
     setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
@@ -99,6 +101,8 @@ function FormAddDoctor({
         pushTriggedErr
     } = ServicingHours()
 
+    const { setOnAlerts } = navigationStore()
+
     function getRooms(): void {
         if (
             Array.isArray(dataRooms) &&
@@ -160,10 +164,17 @@ function FormAddDoctor({
                     image: res.url
                 })
 
-                setImgFile(res.files[0])
+                setImgFile(res.files)
             })
             .catch(err => {
-                alert(err)
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'There is an error',
+                    desc: err
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
     }
 
@@ -564,7 +575,14 @@ function FormAddDoctor({
                 newData
             )
                 .then(res => {
-                    alert('successfully added new doctor')
+                    setOnAlerts({
+                        onAlert: true,
+                        title: 'Successfully added new doctor',
+                        desc: 'New doctor has been added'
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                     setLoadingSubmitAddDoctor(false)
                     clearForm()
                 })
@@ -581,7 +599,14 @@ function FormAddDoctor({
                         newData
                     )
                         .then(res => {
-                            alert('successfully added new doctor')
+                            setOnAlerts({
+                                onAlert: true,
+                                title: 'Successfully added new doctor',
+                                desc: 'New doctor has been added'
+                            })
+                            setTimeout(() => {
+                                setOnAlerts({} as AlertsT)
+                            }, 3000);
                             setLoadingSubmitAddDoctor(false)
                             clearForm()
                         })
@@ -611,7 +636,7 @@ function FormAddDoctor({
         })
         setImgFile(null)
         const setDefaultRoom = document.getElementById('selectRoom') as HTMLSelectElement
-        if(setDefaultRoom){
+        if (setDefaultRoom) {
             setDefaultRoom.selectedIndex = 0
         }
     }
@@ -719,7 +744,14 @@ function FormAddDoctor({
                     if (res?.doctorId) {
                         const removeLoadingId = idLoadingEdit.filter(id => id !== res.doctorId)
                         setIdLoadingEdit(removeLoadingId)
-                        alert('updated successfully')
+                        setOnAlerts({
+                            onAlert: true,
+                            title: 'Updated successfully',
+                            desc: 'Doctor data has been updated'
+                        })
+                        setTimeout(() => {
+                            setOnAlerts({} as AlertsT)
+                        }, 3000)
                     } else {
                         pushTriggedErr('a server error occurred. please try again')
                     }
@@ -740,7 +772,14 @@ function FormAddDoctor({
                             if (res?.doctorId) {
                                 const removeLoadingId = idLoadingEdit.filter(id => id !== res.doctorId)
                                 setIdLoadingEdit(removeLoadingId)
-                                alert('updated successfully')
+                                setOnAlerts({
+                                    onAlert: true,
+                                    title: 'Updated successfully',
+                                    desc: 'Doctor data has been updated'
+                                })
+                                setTimeout(() => {
+                                    setOnAlerts({} as AlertsT)
+                                }, 3000);
                             } else {
                                 pushTriggedErr('a server error occurred. please try again')
                             }

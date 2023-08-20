@@ -21,10 +21,10 @@ import { AddDoctorSchedule } from "./AddDoctorSchedule"
 import { AddHolidaySchedule } from "./AddHolidaySchedule"
 import Image from "next/image"
 import Pagination from "components/pagination/Pagination"
-import profileDefault from 'images/user.png'
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import { ActionsDataT, PopupSettings } from "lib/types/TableT.type"
+import { userImg } from "lib/firebase/firstlogo";
 
 export function OurDoctor() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -320,14 +320,15 @@ export function OurDoctor() {
                                                         src={dataItem.image}
                                                         height={300}
                                                         width={300}
-                                                        className="rounded-full mr-2 h-[40px] w-[40px] object-cover"
-                                                    /> : indexData === 0 ?
+                                                        className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
+                                                    />
+                                                    : indexData === 0 ?
                                                         <Image
                                                             alt={dataItem.name}
-                                                            src={profileDefault}
+                                                            src={userImg}
                                                             height={300}
                                                             width={300}
-                                                            className="rounded-full mr-2 h-[40px] w-[40px] object-cover"
+                                                            className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
                                                         /> : <></>
                                             }
                                         />

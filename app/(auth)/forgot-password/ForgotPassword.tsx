@@ -11,6 +11,9 @@ import { BackToLogin } from '../BackToLogin'
 import { AdminT } from 'lib/types/AdminT.types'
 import { API } from 'lib/api'
 import { sendEmail } from 'lib/emailJS/sendEmail'
+import { navigationStore } from 'lib/useZustand/navigation'
+import { AlertsT } from 'lib/types/TableT.type'
+import { AuthRequiredError } from 'lib/errorHandling/exceptions'
 
 type StateEmail = { email: string }
 
@@ -19,8 +22,18 @@ export function ForgotPassword() {
     const [inputEmail, setInputEmail] = useState<string>('')
     const [errMsg, setErrMsg] = useState<StateEmail | null>(null)
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
+    const [triggerErr, setTriggerErr] = useState<{onTrigger: boolean, message: string}>({
+        onTrigger: false,
+        message: ''
+    })
+
+    const {setOnAlerts} = navigationStore()
 
     const router = useRouter()
+
+    if(triggerErr.onTrigger){
+        throw new AuthRequiredError(triggerErr.message)
+    }
 
     useEffect(() => {
         const url: string = window.location.origin
@@ -64,17 +77,33 @@ export function ForgotPassword() {
                     if (typeof findAdmin === 'object' && findAdmin.id) {
                         createJwtToken(findAdmin.id, findAdmin.email)
                     } else {
-                        alert('Unregistered account!')
+                        setOnAlerts({
+                            onAlert: true,
+                            title: 'Unregistered account!',
+                            desc: `Please register an account if you don't have an account yet`
+                        })
+                        setTimeout(() => {
+                            setOnAlerts({} as AlertsT)
+                        }, 3000);
                         setLoadingSubmit(false)
                     }
                 } else {
-                    alert('Unregistered account!')
+                    setOnAlerts({
+                        onAlert: true,
+                        title: 'Unregistered account!',
+                        desc: `Please register an account if you don't have an account yet`
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                     setLoadingSubmit(false)
                 }
             })
             .catch((err: any) => {
-                alert('a server error occurred\nPlease try again later')
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'A server error occurred. Please try again later'
+                })
                 setLoadingSubmit(false)
             })
     }
@@ -102,19 +131,30 @@ export function ForgotPassword() {
                         router.push(`/forgot-password/success-send-email/${res.token}`)
                     })
                     .catch(err=>{
-                        alert('a server error occurred\noccurs because when sending email')
-                        console.log(err)
+                        setTriggerErr({
+                            onTrigger: true,
+                            message: 'A server error occurred. Occurs because when sending email'
+                        })
                         setLoadingSubmit(false)
                     })
                 }else if(res?.error !== null){
-                    alert(res.error)
+                    setOnAlerts({
+                        onAlert: true,
+                        title: 'There is an error',
+                        desc: res.error
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                     setLoadingSubmit(false)
                     console.log(res)
                 }
             })
             .catch((err: any) => {
-                alert('a server error occurred\nPlease try again later')
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'A server error occurred. Please try again later'
+                })
                 setLoadingSubmit(false)
             })
     }

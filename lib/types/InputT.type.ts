@@ -56,11 +56,11 @@ export type InputPatientRegistrationT = {
 
 export type SubmitFormPatientRegisT = {
     patientId: string
-    adminInfo:{
+    adminInfo: {
         adminId: string
     }
     dateConfirmInfo: DateConfirmInfo
-    doctorInfo:{
+    doctorInfo: {
         doctorId: string
     }
     roomInfo: RoomInfo
@@ -108,13 +108,13 @@ export type InputDrugCounterT = {
 
 export type SubmitDrugCounterT = {
     patientId: string
-    loketInfo: {loketId: string}
+    loketInfo: { loketId: string }
     message: string
-    adminInfo: {adminId: string}
+    adminInfo: { adminId: string }
     // presence: string
     submissionDate: {
         submissionDate: string
-        submitHours:string
+        submitHours: string
     }
     queueNumber: string
 }
@@ -140,7 +140,7 @@ export type SubmitConfirmDrugCounterT = SubmitDrugCounterT & {
             dateConfirm: string
             confirmHour: string
         }
-        adminInfo?: {adminId: string}
+        adminInfo?: { adminId: string }
         paymentInfo?: PaymentInfo
         isSkipped?: boolean
     }
@@ -160,7 +160,7 @@ export type SubmitEditFinishTreatmentT = {
         dateConfirm: string
         confirmHour: string
     }
-    adminInfo:{
+    adminInfo: {
         adminId: string
     }
     isCanceled: boolean
@@ -196,29 +196,35 @@ export type FirebaseConfigT = {
     appId: string
 }
 
-export type FormatPDFT = 
-'a4' | 
-'a2' | 
-'b3' |
-'c3' |
-'dl' |
-'letter' |
-'government-letter' |
-'legal' |
-'junior-legal' |
-'ledger' |
-'tabloid' |
-'credit-card' |
-number[] |
-undefined
+export type OptionImgCompressedT = {
+    maxSizeMB: number,
+    maxWidthOrHeight: number,
+    useWebWorker: boolean,
+}
 
-export type UnitPDFT = 
-'em' |
-'pt' |
-'px' |
-'in' |
-'mm' |
-'cm' |
-'ex' |
-'pc' |
-undefined
+export type FormatPDFT =
+    'a4' |
+    'a2' |
+    'b3' |
+    'c3' |
+    'dl' |
+    'letter' |
+    'government-letter' |
+    'legal' |
+    'junior-legal' |
+    'ledger' |
+    'tabloid' |
+    'credit-card' |
+    number[] |
+    undefined
+
+export type UnitPDFT =
+    'em' |
+    'pt' |
+    'px' |
+    'in' |
+    'mm' |
+    'cm' |
+    'ex' |
+    'pc' |
+    undefined

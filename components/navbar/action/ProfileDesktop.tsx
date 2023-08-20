@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import userDefault from 'images/user.png'
+import userDefault from 'images/user.webp'
 import { ButtonProfile } from "./ButtonProfile"
 import { authStore } from "lib/useZustand/auth"
 

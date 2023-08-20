@@ -10,8 +10,9 @@ import { spaceString } from "lib/regex/spaceString"
 import { API } from "lib/api"
 import { preloadFetch } from "lib/useFetch/preloadFetch"
 import { endpoint } from "lib/api/endpoint"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type ActionProps = {
     setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
@@ -43,6 +44,8 @@ function UseTableColumns({
         loadDataService,
         pushTriggedErr
     } = ServicingHours()
+
+    const {setOnAlerts} = navigationStore()
 
     function getOurDoctors(
         data: ProfileDoctorT[],
@@ -259,7 +262,14 @@ function UseTableColumns({
                 const doctor = res as { [key: string]: any }
                 const removeLoadingId = idLoadingDelete.filter(doctorId => doctorId !== doctor?.doctorId)
                 setIdLoadingDelete(removeLoadingId)
-                alert('Delete successfully')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Delete successfully',
+                    desc: `Doctor's data has been deleted`
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch(err => {
                 deleteFailed()

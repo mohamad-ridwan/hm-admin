@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     shortcut: firstLogo,
     apple: [
       { url: firstLogo },
-      { url: firstLogo, sizes: '180x180', type: 'image/png' }
+      { url: firstLogo, sizes: '180x180', type: 'image/webp' }
     ],
     other: {
       rel: 'icon',

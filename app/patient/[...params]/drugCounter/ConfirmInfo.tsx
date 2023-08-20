@@ -149,46 +149,6 @@ export function ConfirmInfo({ params }: { params: string }) {
                     </SettingPopup>
                 </ContainerPopup>
             )}
-            {/* {onPopupSetting?.title && (
-                <ContainerPopup
-                    className='flex justify-center items-center overflow-y-auto'
-                >
-                    <SettingPopup
-                        clickClose={cancelPopupSetting}
-                        title={onPopupSetting.title}
-                        classIcon='text-font-color-2'
-                        iconPopup={onPopupSetting.iconPopup}
-                    >
-                        <Button
-                            nameBtn={onPopupSetting.nameBtnNext}
-                            classBtn="hover:bg-white"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginRight: '0.6rem',
-                                marginTop: '0.5rem'
-                            }}
-                            clickBtn={() => {
-                                if (onPopupSetting.categoryAction === 'download-treatment-result-pdf') {
-                                    confirmDownloadTRPdf()
-                                }
-                            }}
-                        />
-
-                        <Button
-                            nameBtn="Cancel"
-                            classBtn="bg-white border-none"
-                            classLoading="hidden"
-                            styleBtn={{
-                                padding: '0.5rem',
-                                marginTop: '0.5rem',
-                                color: '#495057'
-                            }}
-                            clickBtn={cancelPopupSetting}
-                        />
-                    </SettingPopup>
-                </ContainerPopup>
-            )} */}
 
             <HeadInfo
                 titleInfo="Confirmation Data Information"

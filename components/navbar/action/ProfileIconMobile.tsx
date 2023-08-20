@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import userDefault from 'images/user.png'
+import userDefault from 'images/user.webp'
 import Image from 'next/image'
 import { WrappMenu } from '../dropMenu/WrappMenu'
 import Link from 'next/link'

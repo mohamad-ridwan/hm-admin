@@ -13,10 +13,23 @@ import { AdminT } from 'lib/types/AdminT.types';
 import Button from 'components/Button';
 import { BackToLogin } from 'app/(auth)/BackToLogin';
 import LoadingSpinner from 'components/LoadingSpinner';
+import { navigationStore } from 'lib/useZustand/navigation';
+import { AlertsT } from 'lib/types/TableT.type';
+import { AuthRequiredError } from 'lib/errorHandling/exceptions';
 
 export default function SuccessSendEmailPage() {
     const [emailAdmin, setEmailAdmin] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(true)
+    const [triggerErr, setTriggerErr] = useState<{onTrigger: boolean, message: string}>({
+        onTrigger: false,
+        message: ''
+    })
+
+    const {setOnAlerts} = navigationStore()
+
+    if(triggerErr.onTrigger){
+        throw new AuthRequiredError(triggerErr.message)
+    }
 
     const router = useRouter()
     const params = useParams()
@@ -32,16 +45,24 @@ export default function SuccessSendEmailPage() {
             API().APIGetJwtTokenVerif(params.token)
                 .then((res: any) => {
                     if (res?.error !== null) {
-                        alert(res.error)
+                        setOnAlerts({
+                            onAlert: true,
+                            title: 'There is an error',
+                            desc: res.error
+                        })
+                        setTimeout(() => {
+                            setOnAlerts({} as AlertsT)
+                        }, 3000);
                         router.push('/login')
                     } else {
                         checkBlackListToken(res?.data?.userData?.id as string)
                     }
                 })
                 .catch((err: any) => {
-                    alert('a server error occurred\nPlease try again later')
-                    console.log(err)
-                    router.push('/login')
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'A server error occurred. Please try again later'
+                    })
                 })
         }
     }
@@ -71,11 +92,10 @@ export default function SuccessSendEmailPage() {
             loadingBlackListJWTAPI === false &&
             !Array.isArray(dataBlackList)
         ) {
-            alert('a server error occurred\nPlease try again later')
-            setTimeout(() => {
-                router.push('/login')
-                console.log(errBlackListJWTAPI)
-            }, 0)
+            setTriggerErr({
+                onTrigger: true,
+                message: 'A server error occurred. Please try again later'
+            })
         } else if(
             loadingBlackListJWTAPI === false &&
             Array.isArray(dataBlackList)
@@ -101,18 +121,31 @@ export default function SuccessSendEmailPage() {
                 setEmailAdmin(findAdmin.email)
                 setLoading(false)
             } else {
-                alert('User not found!')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'User not found!',
+                    desc: 'Please make another request for password reset'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
                 router.push('/login')
             }
         } else if (newDataAdmin?.length === 0) {
-            alert('User not found!')
+            setOnAlerts({
+                onAlert: true,
+                title: 'User not found!',
+                desc: 'No admin account registered'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000)
             router.push('/login')
         } else {
-            alert('a server error occurred\nPlease try again later')
-            setTimeout(() => {
-                router.push('/login')
-                console.log(errDataAdmin)
-            }, 0)
+            setTriggerErr({
+                onTrigger: true,
+                message: 'A server error occurred. Please try again later'
+            })
         }
     }
 

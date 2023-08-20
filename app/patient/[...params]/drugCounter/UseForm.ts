@@ -4,7 +4,7 @@ import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "reac
 import { useRouter } from 'next/navigation'
 import { DataOptionT } from "lib/types/FilterT"
 import { ErrInputEditConfirmPatientCounter, InputConfirmDrugCounterT, InputEditConfirmPatientCounter, SubmitConfirmDrugCounterT, SubmitEditFinishTreatmentT, SubmitFinishedTreatmentT } from "lib/types/InputT.type"
-import { PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faBan, faCircleCheck, faDownload, faPencil } from "@fortawesome/free-solid-svg-icons"
 import { UsePatientData } from "lib/dataInformation/UsePatientData"
 import { createDateFormat } from "lib/formats/createDateFormat"
@@ -13,6 +13,7 @@ import { authStore } from "lib/useZustand/auth"
 import { API } from "lib/api"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { DrugCounterT, PatientFinishTreatmentT } from "lib/types/PatientT.types"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type ErrorInput = {
     paymentMethod: string
@@ -93,6 +94,7 @@ export function UseForm({
     } = ServicingHours()
 
     const { user } = authStore()
+    const {setOnAlerts} = navigationStore()
     const router = useRouter()
 
     useEffect(() => {
@@ -213,7 +215,14 @@ export function UseForm({
             })
             .then(res => {
                 router.push(newRoute)
-                alert('Successful confirmation')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successful confirmation',
+                    desc: 'The patient has completed the treatment process'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
                 setLoadingSubmit(false)
             })
             .catch(err => pushTriggedErr('There was an error confirming payment. please try again'))
@@ -407,7 +416,14 @@ export function UseForm({
                 data,
             )
                 .then(res => {
-                    alert('Successfully cancel patient registration')
+                    setOnAlerts({
+                        onAlert: true,
+                        title: 'Successfully cancel patient registration',
+                        desc: `The patient's treatment process is cancelled`
+                    })
+                    setTimeout(() => {
+                        setOnAlerts({} as AlertsT)
+                    }, 3000);
                     setLoadingCancelTreatment(false)
                 })
                 .catch(err => pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
@@ -509,7 +525,14 @@ export function UseForm({
         )
             .then(res => {
                 setLoadingDelete(false)
-                alert('Successfully delete patient counter data')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully delete patient counter data',
+                    desc: 'Patient counter data deleted'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
                 const currentRouteStr: string = params.slice(0, 5).toString()
                 const newRoute = currentRouteStr.split(',').join('/')
                 const urlOrigin = window.location.origin

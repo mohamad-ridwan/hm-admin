@@ -6,7 +6,7 @@ import { ContainerPopup } from "components/popup/ContainerPopup";
 import { FormPopup } from "components/popup/FormPopup";
 import { AddNewDoctorT } from "lib/types/InputT.type";
 import ImageInput from "components/input/ImageInput";
-import defaultDoctor from 'images/user.png'
+import defaultDoctor from 'images/user.webp'
 import Button from "components/Button";
 import { CardAddMedsos } from "components/doctors/CardAddMedsos";
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";

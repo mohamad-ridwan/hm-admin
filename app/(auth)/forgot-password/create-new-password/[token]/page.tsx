@@ -16,6 +16,9 @@ import Input from "components/input/Input"
 import ErrorInput from "components/input/ErrorInput"
 import Button from "components/Button"
 import { BackToLogin } from "app/(auth)/BackToLogin"
+import { navigationStore } from "lib/useZustand/navigation"
+import { AlertsT } from "lib/types/TableT.type"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
 
 type InputPasswordT = {
     password: string
@@ -31,6 +34,16 @@ export default function CreateNewPasswordPage() {
     })
     const [errMsg, setErrMsg] = useState<InputPasswordT>({} as InputPasswordT)
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
+    const [triggerErr, setTriggerErr] = useState<{onTrigger: boolean, message: string}>({
+        onTrigger: false,
+        message: ''
+    })
+
+    const {setOnAlerts} = navigationStore()
+
+    if(triggerErr.onTrigger){
+        throw new AuthRequiredError(triggerErr.message)
+    }
 
     const router = useRouter()
     const params = useParams()
@@ -46,16 +59,24 @@ export default function CreateNewPasswordPage() {
             API().APIGetJwtTokenVerif(params.token)
                 .then((res: any) => {
                     if (res?.error !== null) {
-                        alert(res.error)
+                        setOnAlerts({
+                            onAlert: true,
+                            title: 'There is an error',
+                            desc: res.error
+                        })
+                        setTimeout(() => {
+                            setOnAlerts({} as AlertsT)
+                        }, 3000);
                         router.push('/login')
                     } else {
                         checkBlackListToken(res?.data?.userData?.id as string)
                     }
                 })
                 .catch((err: any) => {
-                    alert('a server error occurred\nPlease try again later')
-                    console.log(err)
-                    router.push('/login')
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'A server error occurred. Please try again later'
+                    })
                 })
         }
     }
@@ -85,11 +106,10 @@ export default function CreateNewPasswordPage() {
             loadingBlackListJWTAPI === false &&
             !Array.isArray(dataBlackList)
         ) {
-            alert('a server error occurred\nPlease try again later')
-            setTimeout(() => {
-                router.push('/login')
-                console.log(errBlackListJWTAPI)
-            }, 0)
+            setTriggerErr({
+                onTrigger: true,
+                message: 'A server error occurred. Please try again later'
+            })
         } else if (
             loadingBlackListJWTAPI === false &&
             Array.isArray(dataBlackList)
@@ -115,18 +135,31 @@ export default function CreateNewPasswordPage() {
                 setAdmin(findAdmin)
                 setLoading(false)
             } else {
-                alert('User not found!')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'User not found!',
+                    desc: 'Please register an account first'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
                 router.push('/login')
             }
         } else if (newDataAdmin?.length === 0) {
-            alert('User not found!')
+            setOnAlerts({
+                onAlert: true,
+                title: 'User not found!',
+                desc: 'No admin account registered'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
             router.push('/login')
         } else {
-            alert('a server error occurred\nPlease try again later')
-            setTimeout(() => {
-                router.push('/login')
-                console.log(errDataAdmin)
-            }, 0)
+            setTriggerErr({
+                onTrigger: true,
+                message: 'A server error occurred. Please try again later'
+            })
         }
     }
 
@@ -181,15 +214,17 @@ export default function CreateNewPasswordPage() {
                 if (res?.data) {
                     createTokenBlackList()
                 } else {
-                    alert('a server error occurred\nPlease try again later')
-                    console.log(res)
-                    setLoadingSubmit(false)
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'A server error occurred. Please try again later'
+                    })
                 }
             })
             .catch((err: any) => {
-                alert('a server error occurred\nPlease try again later')
-                console.log(err)
-                setLoadingSubmit(false)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'A server error occurred. Please try again later'
+                })
             })
     }
 
@@ -207,15 +242,17 @@ export default function CreateNewPasswordPage() {
                 if (res?.data) {
                     router.push(`/forgot-password/create-new-password/has-been-successfully/${params?.token}`)
                 } else {
-                    alert('a server error occurred\nPlease try again later')
-                    console.log(res)
-                    setLoadingSubmit(false)
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'A server error occurred. Please try again later'
+                    })
                 }
             })
             .catch((err: any) => {
-                alert('a server error occurred\nPlease try again later')
-                console.log(err)
-                setLoadingSubmit(false)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'A server error occurred. Please try again later'
+                })
             })
     }
 

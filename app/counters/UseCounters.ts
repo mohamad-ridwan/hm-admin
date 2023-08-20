@@ -2,7 +2,7 @@
 
 import {useState, useEffect, useMemo, ChangeEvent, Dispatch, SetStateAction} from 'react'
 import ServicingHours from 'lib/dataInformation/ServicingHours'
-import { HeadDataTableT, PopupSettings } from 'lib/types/TableT.type'
+import { AlertsT, HeadDataTableT, PopupSettings } from 'lib/types/TableT.type'
 import { InfoLoketT } from 'lib/types/PatientT.types'
 import { DataTableContentT } from 'lib/types/FilterT'
 import { specialCharacter } from 'lib/regex/specialCharacter'
@@ -10,6 +10,7 @@ import { spaceString } from 'lib/regex/spaceString'
 import { InputAddCounterT } from 'lib/types/InputT.type'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { API } from 'lib/api'
+import { navigationStore } from 'lib/useZustand/navigation'
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -34,6 +35,8 @@ export function UseCounters({
         dataLoket,
         pushTriggedErr
     } = ServicingHours()
+
+    const {setOnAlerts} = navigationStore()
 
     const head: HeadDataTableT = [
         {
@@ -183,7 +186,14 @@ export function UseCounters({
         .then(res=>{
             setLoadingSubmitAddCounter(false)
             setInputAddCounter({loketName: ''})
-            alert('Successful add counter')
+            setOnAlerts({
+                onAlert: true,
+                title: 'Successful add counter',
+                desc: 'New counter has been added'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         })
         .catch(err=>pushTriggedErr('A server error occurred. Happens when adding a counter. Please try again'))
     }

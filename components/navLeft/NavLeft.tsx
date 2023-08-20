@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MainNavLeft } from "./MainNavLeft";
 import Image from "next/image";
-import logo from 'images/logo.png'
+import logo from 'images/logo.webp'
 import { ContainerMenuNavLeft } from "./menuNavLeft/ContainerMenuNavLeft";
 import { BtnOnNavLeft } from "./BtnOnNavLeft";
 import { CopyRight } from "./CopyRight";

@@ -1,7 +1,7 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from "react"
-import { HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
@@ -10,6 +10,7 @@ import { spaceString } from "lib/regex/spaceString"
 import { InputAddRoomT } from "lib/types/InputT.type"
 import { faPencil, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { API } from "lib/api"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -95,6 +96,8 @@ export function UseRooms({
         dataRooms,
         pushTriggedErr
     } = ServicingHours()
+
+    const {setOnAlerts} = navigationStore()
 
     function loadGetRoomsData(
         roomsData: RoomTreatmentT[]
@@ -255,7 +258,14 @@ export function UseRooms({
         )
             .then(res => {
                 setLoadingSubmitAddRoom(false)
-                alert('Successfully added treatment room')
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully added treatment room',
+                    desc: 'A new specialist room has been added'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
             .catch(err => pushTriggedErr('A server error occurred. happened when adding a treatment room. Please try again'))
     }
@@ -299,7 +309,14 @@ export function UseRooms({
                 activeRoomType(roomType as string)
             }, 0)
         } else {
-            alert('Room not found')
+            setOnAlerts({
+                onAlert: true,
+                title: 'Room not found',
+                desc: 'Room not found, please reload browser'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         }
     }
 
@@ -384,7 +401,14 @@ export function UseRooms({
         .then(res=>{
             const removeLoadingId = loadingIdEditRoom.filter(id=> id !== res?.id)
             setLoadingIdEditRoom(removeLoadingId)
-            alert('Successfully updated the room')
+            setOnAlerts({
+                onAlert: true,
+                title: 'Successfully updated the room',
+                desc: 'Specialist room has been updated'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         })
         .catch(err=>pushTriggedErr('A server error occurred. Occurs when updating room data. Please try again'))
         if(typeof setOnModalSettings === 'function'){

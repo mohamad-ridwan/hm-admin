@@ -12,6 +12,8 @@ import Link from 'next/link'
 import Button from 'components/Button'
 import { AuthRequiredError } from 'lib/errorHandling/exceptions'
 import { sessionDateFormat } from 'lib/formats/sessionDateFormat'
+import { navigationStore } from 'lib/useZustand/navigation'
+import { AlertsT } from 'lib/types/TableT.type'
 
 type StateInput = {
     email: string
@@ -30,6 +32,8 @@ export function Login() {
     // zustand
     // userId auth
     const {setUserId, setLoginSession} = userIdAuthStore()
+    // navigation
+    const {setOnAlerts} = navigationStore()
 
     if(triggedErr){
         throw new AuthRequiredError('A server error has occurred. Please try again')
@@ -94,7 +98,14 @@ export function Login() {
                             setLoadingSubmit(false)
                         }
                     } else {
-                        alert('no admin data found!')
+                        setOnAlerts({
+                            onAlert: true,
+                            title: 'No admin data found!',
+                            desc: `Please register an account if you don't have an account yet`
+                        })
+                        setTimeout(() => {
+                            setOnAlerts({} as AlertsT)
+                        }, 3000);
                         console.log(new Error('Error data Admin'))
                         setLoadingSubmit(false)
                     }

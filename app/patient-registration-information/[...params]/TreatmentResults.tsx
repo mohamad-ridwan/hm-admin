@@ -1,12 +1,12 @@
 import Image from "next/image"
 import { PdfStyle } from "./PdfStyle"
-import logo from 'images/logo.png'
 import { PatientRegistrationT, TreatmentResultsPDFT } from "lib/types/PatientT.types"
 import { Container } from "components/Container"
 import { CardInfo } from "components/dataInformation/CardInfo"
 import { currencyFormat } from "lib/formats/currencyFormat"
 import { RenderTextHTML } from "lib/pdf/RenderTextHTML"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
+import { firstLogo } from "lib/firebase/firstlogo"
 
 type Props = {
     patientRegis: PatientRegistrationT | undefined
@@ -81,7 +81,7 @@ export function TreatmentResults({
             <div style={PdfStyle.headStyleRegis}>
                 <Image
                     alt="hospice medical"
-                    src={logo}
+                    src={firstLogo}
                     height={10}
                     width={10}
                     style={PdfStyle.img}

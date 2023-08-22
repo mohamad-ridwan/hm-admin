@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { faAngleDown, faAngleUp, faBarsProgress, faBedPulse, faChartLine, faClipboardCheck, faDoorClosed, faHospitalUser, faPeopleRoof, faSitemap, faStethoscope, faTag } from '@fortawesome/free-solid-svg-icons'
 import { navigationStore } from 'lib/useZustand/navigation'
@@ -94,27 +94,11 @@ export function ContainerMenuNavLeft({
         //     ]
         // }
     ])
-    const [onListMenu, setOnListMenu] = useState<StateMenu>([] as StateMenu)
     const [idxActiveDropMenu, setIdxActiveDropMenu] = useState<number | null>(null)
     const [heightMenuChild, setHeightMenuChild] = useState<string>('48px')
 
     // zustand store
-    const { onNavLeft } = navigationStore()
-
-    function handleOnListMenu(): void {
-        if (onNavLeft) {
-            const offChildMenu: StateMenu = menu.filter(item => !item.children)
-            setOnListMenu(offChildMenu)
-        } else {
-            setTimeout(() => {
-                setOnListMenu(menu)
-            }, 150);
-        }
-    }
-
-    useEffect(() => {
-        handleOnListMenu()
-    }, [onNavLeft])
+    const { onNavLeft, setOnNavLeft } = navigationStore()
 
     function clickChildMenu(index: number): void {
         const wrappMenuChild: HTMLElement | null = document.getElementById(`${idChildMenu}${index}`)
@@ -130,7 +114,7 @@ export function ContainerMenuNavLeft({
 
     return (
         <>
-            {onListMenu.map((item, index) => {
+            {menu.map((item, index) => {
                 return (
                     <MenuNavLeft
                         key={index}
@@ -141,7 +125,11 @@ export function ContainerMenuNavLeft({
                         name={onNavLeft ? '' : item.name}
                         iconDrop={idxActiveDropMenu === index ? faAngleUp : faAngleDown}
                         classWrappMenuChild={idxActiveDropMenu === index ? heightMenuChild : '48px'}
-                        click={() => clickChildMenu(index)}
+                        click={() => {
+                            clickChildMenu(index)
+                            setOnNavLeft(false)
+                        }}
+                        clickBtnTagA={() => setOnNavLeft(false)}
                     >
                         {item?.children && (
                             <div

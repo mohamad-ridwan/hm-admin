@@ -79,9 +79,9 @@ export function FilterTable() {
         {
             name: 'Email'
         },
-        // {
-        //     name: 'Date of Birth'
-        // },
+        {
+            name: 'Date of Birth'
+        },
         {
             name: 'Phone'
         },
@@ -150,14 +150,14 @@ export function FilterTable() {
                             {
                                 name: patient.emailAddress
                             },
-                            // {
-                            //     firstDesc: createDateNormalFormat(patient.dateOfBirth),
-                            //     colorName: '#777',
-                            //     marginBottom: '4.5px',
-                            //     fontSize: '12px',
-                            //     filterBy: 'Date of Birth',
-                            //     name: patient.dateOfBirth,
-                            // },
+                            {
+                                firstDesc: createDateNormalFormat(patient.dateOfBirth),
+                                colorName: '#777',
+                                marginBottom: '4.5px',
+                                fontSize: '12px',
+                                filterBy: 'Date of Birth',
+                                name: patient.dateOfBirth,
+                            },
                             {
                                 name: patient.phone
                             },

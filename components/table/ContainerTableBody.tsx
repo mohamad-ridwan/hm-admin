@@ -12,7 +12,7 @@ export function ContainerTableBody({
     return(
         <div
         // className="flex flex-col border-collapse w-full overflow-x-auto"
-        className="overflow-x-scroll flex flex-col w-full"
+        className="overflow-x-scroll flex flex-col w-full relative"
         style={style}
         >
             {children}

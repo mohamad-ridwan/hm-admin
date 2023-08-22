@@ -1,10 +1,10 @@
+import { CSSProperties, ReactElement } from "react"
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Button from "components/Button"
 import { Menu } from "components/navbar/dropMenu/Menu"
 import { WrappMenu } from "components/navbar/dropMenu/WrappMenu"
 import { ActionsDataT } from "lib/types/TableT.type"
-import { CSSProperties, ReactElement } from "react"
 
 type PropsDefault = {
     id?: string
@@ -50,14 +50,14 @@ export function TableData({
             id={id}
             // className="flex w-[calc(100%/7)] p-[20px]"
             // className="px-6 py-4"
-            className="p-[20px]"
+            className="px-6 py-4 whitespace-nowrap"
         >
             <div
                 className="flex flex-col w-full"
             >
                 <p
                     style={styleFirstDesc}
-                    className="text-[0.82rem] text-start"
+                    className="text-[0.82rem] text-start whitespace-nowrap"
                 >{firstDesc}</p>
                 <div
                     className="flex items-center"
@@ -65,7 +65,7 @@ export function TableData({
                     {leftName}
                     <p
                         style={styleName}
-                        className="text-[0.82rem] text-start"
+                        className="text-[0.82rem] text-start whitespace-nowrap"
                     >
                         {name}
                     </p>

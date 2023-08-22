@@ -25,7 +25,7 @@ export function TableHead({
                     key={index}
                     id={`${id}${index}`}
                     // className={`flex text-start text-sm py-[15px] px-[20px] w-[calc(100%/7)] ${classHeadName}`}
-                    scope="col" className="px-6 py-3"
+                    scope="col" className="px-6 py-3 whitespace-nowrap"
                     >
                         {item.name}
                     </th>

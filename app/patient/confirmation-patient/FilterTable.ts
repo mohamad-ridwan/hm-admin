@@ -27,18 +27,18 @@ export function FilterTable() {
         {
             name: 'Treatment Hours'
         },
-        // {
-        //     name: 'Confirmation Date'
-        // },
-        // {
-        //     name: 'Confirmation Hour'
-        // },
+        {
+            name: 'Confirmation Date'
+        },
+        {
+            name: 'Confirmation Hour'
+        },
         {
             name: 'Email'
         },
-        // {
-        //     name: 'Date of Birth'
-        // },
+        {
+            name: 'Date of Birth'
+        },
         {
             name: 'Phone'
         },
@@ -232,29 +232,29 @@ export function FilterTable() {
                         {
                             name: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours as string
                         },
-                        // {
-                        //     firstDesc: createDateNormalFormat(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
-                        //     colorName: '#777',
-                        //     marginBottom: '4.5px',
-                        //     fontSize: '12px',
-                        //     filterBy: 'Confirmation Date',
-                        //     confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
-                        //     name: findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string,
-                        // },
-                        // {
-                        //     name: findPatientOnConfirm?.dateConfirmInfo?.confirmHour as string
-                        // },
+                        {
+                            firstDesc: createDateNormalFormat(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
+                            colorName: '#777',
+                            marginBottom: '4.5px',
+                            fontSize: '12px',
+                            filterBy: 'Confirmation Date',
+                            confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
+                            name: findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string,
+                        },
+                        {
+                            name: findPatientOnConfirm?.dateConfirmInfo?.confirmHour as string
+                        },
                         {
                             name: patient.emailAddress
                         },
-                        // {
-                        //     firstDesc: createDateNormalFormat(patient.dateOfBirth),
-                        //     colorName: '#777',
-                        //     marginBottom: '4.5px',
-                        //     fontSize: '12px',
-                        //     filterBy: 'Date of Birth',
-                        //     name: patient.dateOfBirth,
-                        // },
+                        {
+                            firstDesc: createDateNormalFormat(patient.dateOfBirth),
+                            colorName: '#777',
+                            marginBottom: '4.5px',
+                            fontSize: '12px',
+                            filterBy: 'Date of Birth',
+                            name: patient.dateOfBirth,
+                        },
                         {
                             name: patient.phone
                         },

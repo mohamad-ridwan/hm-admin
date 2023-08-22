@@ -472,8 +472,13 @@ function FormPatientRegistration({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                refreshPage()
             })
             .catch(err => pushTriggedErr('A server error occurred. Occurs when adding a new patient. Please try again'))
+    }
+
+    function refreshPage():void{
+        window.location.reload()
     }
 
     function dataSubmitAddPatient(): PatientRegistrationT {

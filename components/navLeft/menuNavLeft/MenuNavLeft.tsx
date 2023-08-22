@@ -24,6 +24,7 @@ type ChildrenProps = IconProps & {
 
 type ActionProps = ChildrenProps & {
     click?: () => void
+    clickBtnTagA?: ()=>void
 }
 
 type DefaultProps = ActionProps
@@ -35,9 +36,10 @@ export function MenuNavLeft({
     name,
     iconDrop,
     click,
+    clickBtnTagA,
     dataChild,
     childPath,
-    children
+    children,
 }: DefaultProps) {
     return (
         <>
@@ -76,6 +78,7 @@ export function MenuNavLeft({
                 <Link
                     href={childPath}
                     className="flex flex-col py-3 text-font-color-2 cursor-pointer transition-all border-l-[5px] border-transparent hover:border-color-default hover:text-color-default"
+                    onClick={clickBtnTagA}
                 >
                     <div
                         className="flex w-full items-center"

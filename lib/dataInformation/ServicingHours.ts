@@ -13,7 +13,7 @@ function ServicingHours(){
     const [errTriggedMessages, setErrTriggedMessages] = useState<string>('')
 
     // swr fetching data
-    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(), { refreshInterval: 10000 })
+    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours())
     const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
     // servicing hours
     const getServicingHours: ServicingHoursT | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'servicing-hours')
@@ -47,7 +47,7 @@ function ServicingHours(){
     const dataAdmin: AdminT[] | undefined = findDataAdmin?.data
 
     // doctors
-    const { data: getDataDoctors, error: errGetDataDoctors, isLoading: loadDataDoctors } = useSwr(endpoint.getDoctors(), { refreshInterval: 10000 })
+    const { data: getDataDoctors, error: errGetDataDoctors, isLoading: loadDataDoctors } = useSwr(endpoint.getDoctors())
     const newDataDoctor: { [key: string]: any } | undefined = getDataDoctors as {}
     const getDoctorDocument: { [key: string]: any } | undefined = newDataDoctor?.data?.find((data: { [key: string]: any }) => data?.id === 'doctor')
     const doctors: ProfileDoctorT[] | undefined = getDoctorDocument?.data

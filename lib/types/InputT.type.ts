@@ -202,6 +202,10 @@ export type OptionImgCompressedT = {
     useWebWorker: boolean,
 }
 
+export type InputEditCounterT = {
+    loketName: string
+}
+
 export type FormatPDFT =
     'a4' |
     'a2' |

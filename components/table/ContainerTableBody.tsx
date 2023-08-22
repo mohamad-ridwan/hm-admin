@@ -11,7 +11,8 @@ export function ContainerTableBody({
 }: Props){
     return(
         <div
-        className="flex flex-col border-collapse w-full overflow-x-auto"
+        // className="flex flex-col border-collapse w-full overflow-x-auto"
+        className="overflow-x-scroll flex flex-col w-full"
         style={style}
         >
             {children}

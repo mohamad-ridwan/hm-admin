@@ -19,6 +19,7 @@ import { getImgValue } from "lib/firebase/getImgValue"
 import { navigationStore } from "lib/useZustand/navigation"
 import { AlertsT } from "lib/types/TableT.type"
 import { userImg } from "lib/firebase/firstlogo"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
 
 type InputT = {
     name: string
@@ -53,8 +54,16 @@ export function Register() {
     const [errInputMsg, setErrInputMsg] = useState<{ [key: string]: string }>({})
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false)
     const [urlOrigin, setUrlOrigin] = useState<string | null>(null)
+    const [triggerErr, setTriggerErr] = useState<{ onTrigger: boolean, message: string }>({
+        onTrigger: false,
+        message: ''
+    })
 
-    const {setOnAlerts} = navigationStore()
+    const { setOnAlerts } = navigationStore()
+
+    if(triggerErr.onTrigger){
+        throw new AuthRequiredError(triggerErr.message)
+    }
 
     const router = useRouter()
 
@@ -70,24 +79,24 @@ export function Register() {
     function changeInputImg(e: ChangeEvent<HTMLInputElement>): void {
         const files = e.target.files
         getImgValue(files)
-        .then(res=>{
-            setInput({
-                ...input,
-                image: res.url
-            })
+            .then(res => {
+                setInput({
+                    ...input,
+                    image: res.url
+                })
 
-            setImgFile(res.files)
-        })
-        .catch(err=>{
-            setOnAlerts({
-                onAlert: true,
-                title: 'There is an error',
-                desc: err
+                setImgFile(res.files)
             })
-            setTimeout(() => {
-                setOnAlerts({} as AlertsT)
-            }, 3000);
-        })
+            .catch(err => {
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'There is an error',
+                    desc: err
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
+            })
     }
 
     function deleteImg(): void {
@@ -184,7 +193,14 @@ export function Register() {
                         )
 
                         if (isAdminAvailable?.id) {
-                            alert('Account already registered')
+                            setOnAlerts({
+                                onAlert: true,
+                                title: 'Account already registered',
+                                desc: 'Please register an account with a different email'
+                            })
+                            setTimeout(() => {
+                                setOnAlerts({} as AlertsT)
+                            }, 3000);
                             setLoadingSubmit(false)
                             return
                         }
@@ -199,15 +215,17 @@ export function Register() {
                         isAccountWithImg(data, pushImgToFirebase)
                     }
                 } else {
-                    alert('There was an error registering the admin account')
-                    setLoadingSubmit(false)
-                    console.log(res)
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'There was an error registering the admin account'
+                    })
                 }
             })
             .catch((err: any) => {
-                alert('There was an error registering the admin account')
-                setLoadingSubmit(false)
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'There was an error registering the admin account'
+                })
             })
     }
 
@@ -217,7 +235,7 @@ export function Register() {
         isUpdateAdmin?: boolean
     ): void {
         const dataAdmin = data
-        const dataUserUpdate:{
+        const dataUserUpdate: {
             name: string
             image: string
             password: string
@@ -225,7 +243,7 @@ export function Register() {
             name: data.name,
             image: '',
             password: data.password
-          }
+        }
 
         uploadImg()
             .then(responUrl => {
@@ -233,7 +251,7 @@ export function Register() {
                     dataAdmin.image = responUrl
                     if (typeof isUpdateAdmin === 'boolean' && isUpdateAdmin === true) {
                         dataUserUpdate.image = responUrl
-                        updateAdminVerif(data.id, dataUserUpdate, (dataUpdate)=>{
+                        updateAdminVerif(data.id, dataUserUpdate, (dataUpdate) => {
                             postVerification(dataUpdate)
                         })
                     } else {
@@ -241,7 +259,7 @@ export function Register() {
                     }
                 } else {
                     if (typeof isUpdateAdmin === 'boolean' && isUpdateAdmin === true) {
-                        updateAdminVerif(data.id, dataUserUpdate, (dataUpdate)=>{
+                        updateAdminVerif(data.id, dataUserUpdate, (dataUpdate) => {
                             postVerification(dataUpdate)
                         })
                     } else {
@@ -250,9 +268,10 @@ export function Register() {
                 }
             })
             .catch(err => {
-                alert('a server error has occurred')
-                setLoadingSubmit(false)
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'There was an error registering the admin account'
+                })
             })
     }
 
@@ -284,9 +303,10 @@ export function Register() {
                 postVerification(data)
             })
             .catch((err: any) => {
-                alert('a server error has occurred')
-                setLoadingSubmit(false)
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'There was an error registering the admin account'
+                })
             })
     }
 
@@ -304,14 +324,17 @@ export function Register() {
                 if (res?.data) {
                     success(res.data)
                 } else {
-                    alert('There was an error in admin registration. it might happen because during account update and verification update')
-                    console.log(res)
-                    setLoadingSubmit(false)
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'There was an error in admin registration. it might happen because during account update and verification update'
+                    })
                 }
             })
             .catch((err: any) => {
-                alert('There was an error in admin registration. it might happen because during account update and verification update')
-                setLoadingSubmit(false)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'There was an error in admin registration. it might happen because during account update and verification update'
+                })
             })
     }
 
@@ -369,15 +392,17 @@ export function Register() {
                         userEmpty()
                     }
                 } else {
-                    alert('an error occurred while fetching verification data')
-                    setLoadingSubmit(false)
-                    console.log(res)
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'an error occurred while fetching verification data'
+                    })
                 }
             })
             .catch((err: any) => {
-                alert('an error occurred while fetching verification data')
-                setLoadingSubmit(false)
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'an error occurred while fetching verification data'
+                })
             })
     }
 
@@ -407,9 +432,10 @@ export function Register() {
                 sendCodeToEmailAdmin(data, token)
             })
             .catch((err: any) => {
-                alert('an error occurred while fetching verification data')
-                setLoadingSubmit(false)
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'an error occurred while fetching verification data'
+                })
             })
     }
 
@@ -448,8 +474,10 @@ export function Register() {
                 router.push(`register/verification/${data.id}`)
             })
             .catch(err => {
-                alert('an error occurred while sending message with emailjs')
-                setLoadingSubmit(false)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'an error occurred while sending message with emailjs'
+                })
             })
     }
 
@@ -471,14 +499,17 @@ export function Register() {
                 if (res?.data) {
                     sendCodeToEmailAdmin(data, token)
                 } else {
-                    alert('There was an error registering the admin account. may occur with token verification update error')
-                    setLoadingSubmit(false)
-                    console.log(res)
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'There was an error registering the admin account. may occur with token verification update error'
+                    })
                 }
             })
             .catch((err: any) => {
-                setLoadingSubmit(false)
-                alert('There was an error registering the admin account. may occur with token verification update error')
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'There was an error registering the admin account. may occur with token verification update error'
+                })
             })
     }
 

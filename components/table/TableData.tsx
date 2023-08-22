@@ -1,3 +1,9 @@
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Button from "components/Button"
+import { Menu } from "components/navbar/dropMenu/Menu"
+import { WrappMenu } from "components/navbar/dropMenu/WrappMenu"
+import { ActionsDataT } from "lib/types/TableT.type"
 import { CSSProperties, ReactElement } from "react"
 
 type PropsDefault = {
@@ -9,13 +15,23 @@ type PropsFirstDesc = {
     styleFirstDesc?: CSSProperties
 }
 
+type ButtonEditProps = {
+    classWrappMenu?: string
+    actionsData?: ActionsDataT[]
+    styleAction?: CSSProperties
+}
+
+type ActionButtonEdit = {
+    clickColumnMenu?: () => void
+}
+
 type PropsName = {
     name: string
     styleName?: CSSProperties
     leftName?: ReactElement
 }
 
-type Props = PropsDefault & PropsFirstDesc & PropsName
+type Props = PropsDefault & PropsFirstDesc & PropsName & ButtonEditProps & ActionButtonEdit
 
 export function TableData({
     id,
@@ -23,12 +39,18 @@ export function TableData({
     firstDesc,
     styleFirstDesc,
     styleName,
-    leftName
+    leftName,
+    classWrappMenu,
+    actionsData,
+    clickColumnMenu,
+    styleAction
 }: Props) {
     return (
-        <div
+        <td
             id={id}
-            className="flex w-[calc(100%/7)] p-[20px]"
+            // className="flex w-[calc(100%/7)] p-[20px]"
+            // className="px-6 py-4"
+            className="p-[20px]"
         >
             <div
                 className="flex flex-col w-full"
@@ -38,7 +60,7 @@ export function TableData({
                     className="text-[0.82rem] text-start"
                 >{firstDesc}</p>
                 <div
-                className="flex items-center"
+                    className="flex items-center"
                 >
                     {leftName}
                     <p
@@ -49,6 +71,43 @@ export function TableData({
                     </p>
                 </div>
             </div>
-        </div>
+            <WrappMenu
+                classWrapp={`${classWrappMenu} bg-white shadow-lg z-10`}
+            >
+                {
+                    typeof actionsData !== 'undefined' &&
+                    actionsData.length > 0 &&
+                    actionsData.map((item, index) => {
+                        return (
+                            <Menu
+                                key={index}
+                                classWrapp={item?.classWrapp}
+                                id={item.id}
+                                name={item.name}
+                                click={item.click}
+                            />
+                        )
+                    })
+                }
+            </WrappMenu>
+            <div
+                // className="flex items-center justify-between pr-2 right-0 absolute mt-6 mr-4"
+                style={styleAction}
+            >
+                <Button
+                    classBtn="hover:text-white rounded-sm px-[0.4rem] h-7"
+                    classLoading="hidden"
+                    icon={<>
+                        <FontAwesomeIcon icon={faEllipsis} className="text-lg" />
+                    </>}
+                    clickBtn={(e?: MouseEvent) => {
+                        if (typeof clickColumnMenu === 'function') {
+                            clickColumnMenu()
+                        }
+                        e?.stopPropagation()
+                    }}
+                />
+            </div>
+        </td>
     )
 }

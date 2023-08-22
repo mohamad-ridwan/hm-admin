@@ -19,10 +19,10 @@ export default async function PatientRegistrationPage() {
                 <Container
                     overflow="overflow-x-auto"
                     title="List of Patient Registration"
+                    maxWidth='w-[1560px]'
                 >
                     <TableContainer>
                         <PatientRegistration />
-
                     </TableContainer>
                 </Container>
             </Template>

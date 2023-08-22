@@ -13,6 +13,9 @@ import { AdminT, VerificationDataResultT } from "lib/types/AdminT.types"
 import LoadingSpinner from "components/LoadingSpinner"
 import Link from "next/link"
 import Button from "components/Button"
+import { navigationStore } from "lib/useZustand/navigation"
+import { AlertsT } from "lib/types/TableT.type"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
 
 export function Verification({
     adminData
@@ -22,12 +25,29 @@ export function Verification({
     const [msgLoadingVerification, setMsgLoadingVerification] = useState<string | null>('Please wait a moment')
     const [loading, setLoading] = useState<boolean>(true)
     const [success, setSuccess] = useState<boolean>(false)
+    const [triggerErr, setTriggerErr] = useState<{onTrigger: boolean, message: string}>({
+        onTrigger: false,
+        message: ''
+    })
+
+    const {setOnAlerts} = navigationStore()
+
+    if(triggerErr.onTrigger){
+        throw new AuthRequiredError(triggerErr.message)
+    }
 
     const router = useRouter()
 
     function checkAccount() {
         if (typeof adminData === 'undefined') {
-            alert('Account not found or Token is expired')
+            setOnAlerts({
+                onAlert: true,
+                title: 'Account not found or Token is expired',
+                desc: 'Please re-verify'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000)
             router.push('/register')
         }else if(typeof adminData === 'object' && adminData.id){
             setLoading(false)
@@ -56,24 +76,45 @@ export function Verification({
                             if (isNotExpiredToken) {
                                 updateAdminIsVerification()
                             } else {
-                                alert('Token is expired\nPlease re-register')
+                                setOnAlerts({
+                                    onAlert: true,
+                                    title: 'Token is expired',
+                                    desc: 'Please re-register'
+                                })
+                                setTimeout(() => {
+                                    setOnAlerts({} as AlertsT)
+                                }, 3000)
                                 router.push('/register')
                             }
                         } else {
-                            alert('Invalid tokens!')
+                            setOnAlerts({
+                                onAlert: true,
+                                title: 'Invalid tokens!',
+                                desc: 'Please re-register'
+                            })
+                            setTimeout(() => {
+                                setOnAlerts({} as AlertsT)
+                            }, 3000)
                             setLoading(false)
                             setMsgLoadingVerification(null)
                         }
                     } else {
-                        alert('Invalid tokens or Token is expired!')
+                        setOnAlerts({
+                            onAlert: true,
+                            title: 'Invalid tokens or Token is expired!',
+                            desc: 'Please re-register'
+                        })
+                        setTimeout(() => {
+                            setOnAlerts({} as AlertsT)
+                        }, 3000)
                         router.push('/register')
                     }
                 })
                 .catch((err: any) => {
-                    alert('a server error occurred\nPlease try again later')
-                    setMsgLoadingVerification(null)
-                    setLoading(false)
-                    console.log(err)
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'A server error occurred. Please try again'
+                    })
                 })
         }
     }
@@ -88,18 +129,20 @@ export function Verification({
                 if (res?.data) {
                     return res
                 } else {
-                    alert('a server error occurred\nPlease try again later')
-                    window.location.reload()
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'A server error occurred. Please try again'
+                    })
                 }
             })
             .then((res: any) => {
                 deleteExpiredVerification()
             })
             .catch((err: any) => {
-                alert('a server error occurred\nPlease try again later')
-                setLoading(false)
-                setMsgLoadingVerification(null)
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'A server error occurred. Please try again'
+                })
             })
     }
 
@@ -111,17 +154,17 @@ export function Verification({
                     setSuccess(true)
                     setMsgLoadingVerification('Successful Verification')
                 } else {
-                    alert('a server error occurred\nhappens because the "data" property is missing')
-                    setLoading(false)
-                    setMsgLoadingVerification(null)
-                    console.log(res)
+                    setTriggerErr({
+                        onTrigger: true,
+                        message: 'A server error occurred. Happens because the "data" property is missing'
+                    })
                 }
             })
             .catch((err: any) => {
-                alert('a server error occurred\nPlease try again later')
-                setLoading(false)
-                setMsgLoadingVerification(null)
-                console.log(err)
+                setTriggerErr({
+                    onTrigger: true,
+                    message: 'A server error occurred. Please try again'
+                })
             })
     }
 

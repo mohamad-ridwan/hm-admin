@@ -27,20 +27,21 @@ type Props = ChildProps & ButtonEditProps & ActionButtonEdit
 export function TableColumns({
     children,
     clickBtn,
-    clickColumnMenu,
-    classWrappMenu,
-    actionsData
+    // clickColumnMenu,
+    // classWrappMenu,
+    // actionsData
 }: Props) {
     return (
         <>
-            <button
+            <tr
                 onClick={clickBtn}
-                className="flex even:bg-cyan-table hover:bg-table-hover transition-all items-center"
+                // className="flex even:bg-cyan-table hover:bg-table-hover transition-all items-center"
+                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 items-center hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer"
             >
                 {children}
 
-                <div
-                    className="flex items-center justify-between pr-2 right-0 absolute"
+                {/* <div
+                    className="flex items-center justify-between pr-2 right-0 absolute mt-6 mr-4"
                 >
                     <Button
                         classBtn="hover:text-white rounded-sm px-[0.4rem] h-7"
@@ -57,7 +58,7 @@ export function TableColumns({
                     />
                 </div>
                 <WrappMenu
-                    classWrapp={`${classWrappMenu} right-[3rem] bg-white shadow-lg`}
+                    classWrapp={`${classWrappMenu} right-[4rem] bg-white shadow-lg z-10`}
                 >
                     {
                         typeof actionsData !== 'undefined' &&
@@ -74,8 +75,8 @@ export function TableColumns({
                             )
                         })
                     }
-                </WrappMenu>
-            </button>
+                </WrappMenu> */}
+            </tr>
         </>
     )
 }

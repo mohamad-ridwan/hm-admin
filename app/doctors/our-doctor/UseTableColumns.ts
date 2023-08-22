@@ -78,6 +78,9 @@ function UseTableColumns({
                         {
                             name: doctor.id
                         },
+                        {
+                            name: ''
+                        },
                     ]
                 }
 
@@ -208,35 +211,6 @@ function UseTableColumns({
 
     const lastPage: number = resultFilterData.length < 5 ? 1 : Math.ceil(resultFilterData.length / pageSize)
     const maxLength: number = 7
-
-    const changeTableStyle = (currentData: DataTableContentT[]): void => {
-        if (currentData.length > 0) {
-            let elementTHead = document.getElementById('tHead0') as HTMLElement
-            let elementTData = document.getElementById('tData00') as HTMLElement
-
-            if (elementTHead !== null) {
-                elementTHead = document.getElementById(`tHead0`) as HTMLElement
-                elementTHead.style.width = 'calc(100%/4.5)'
-            }
-            if (elementTData !== null) {
-                for (let i = 0; i < currentData.length; i++) {
-                    elementTData = document.getElementById(`tData${i}0`) as HTMLElement
-                    if (elementTData?.style) {
-                        elementTData.style.width = 'calc(100%/4.5)'
-                        elementTData.style.overflowX = 'auto'
-                        elementTData = document.getElementById(`tData${i}2`) as HTMLElement
-                        elementTData.style.overflowX = 'auto'
-                    }
-                }
-            }
-        }
-    }
-
-    useEffect(() => {
-        if (currentTableData.length > 0) {
-            changeTableStyle(currentTableData)
-        }
-    }, [currentPage, currentTableData])
 
     // action delete
     function clickDelete(id: string): void {

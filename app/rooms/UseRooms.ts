@@ -8,7 +8,7 @@ import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
 import { InputAddRoomT } from "lib/types/InputT.type"
-import { faPencil, faPlus } from "@fortawesome/free-solid-svg-icons"
+import { faBan, faPencil, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { API } from "lib/api"
 import { navigationStore } from "lib/useZustand/navigation"
 
@@ -41,6 +41,7 @@ export function UseRooms({
     const [roomName, setRoomName] = useState<string>('')
     const [loadingIdEditRoom, setLoadingIdEditRoom] = useState<string[]>([])
     const [editIdRoom, setEditIdRoom] = useState<string | null>(null)
+    const [loadingIdDelete, setLoadingIdDelete] = useState<string[]>([])
     const [head] = useState<HeadDataTableT>([
         {
             name: 'Room'
@@ -50,6 +51,9 @@ export function UseRooms({
         },
         {
             name: 'Id'
+        },
+        {
+            name: 'Action'
         }
     ])
     const [roomTypeOptions] = useState<DataOptionT>([
@@ -97,7 +101,7 @@ export function UseRooms({
         pushTriggedErr
     } = ServicingHours()
 
-    const {setOnAlerts} = navigationStore()
+    const { setOnAlerts } = navigationStore()
 
     function loadGetRoomsData(
         roomsData: RoomTreatmentT[]
@@ -114,6 +118,9 @@ export function UseRooms({
                     },
                     {
                         name: room.id
+                    },
+                    {
+                        name: ''
                     }
                 ]
             }
@@ -278,10 +285,10 @@ export function UseRooms({
         }
     }
 
-    function activeRoomType(roomType: string):void{
+    function activeRoomType(roomType: string): void {
         const elem = document.getElementById('editSelectRoomType') as HTMLSelectElement
-        const roomIndex:number = roomTypeOptions.findIndex(item=>item.id === roomType)
-        if(elem){
+        const roomIndex: number = roomTypeOptions.findIndex(item => item.id === roomType)
+        if (elem) {
             elem.selectedIndex = roomIndex
         }
     }
@@ -391,46 +398,46 @@ export function UseRooms({
         return 'success'
     }
 
-    function confirmSubmitEditRoom():void{
-        setLoadingIdEditRoom((current)=>[editIdRoom as string, ...current])
+    function confirmSubmitEditRoom(): void {
+        setLoadingIdEditRoom((current) => [editIdRoom as string, ...current])
         API().APIPutPatientData(
             'room',
             editIdRoom as string,
             dataEditSubmitRoom()
         )
-        .then(res=>{
-            const removeLoadingId = loadingIdEditRoom.filter(id=> id !== res?.id)
-            setLoadingIdEditRoom(removeLoadingId)
-            setOnAlerts({
-                onAlert: true,
-                title: 'Successfully updated the room',
-                desc: 'Specialist room has been updated'
+            .then(res => {
+                const removeLoadingId = loadingIdEditRoom.filter(id => id !== res?.id)
+                setLoadingIdEditRoom(removeLoadingId)
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully updated the room',
+                    desc: 'Specialist room has been updated'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
-            setTimeout(() => {
-                setOnAlerts({} as AlertsT)
-            }, 3000);
-        })
-        .catch(err=>pushTriggedErr('A server error occurred. Occurs when updating room data. Please try again'))
-        if(typeof setOnModalSettings === 'function'){
+            .catch(err => pushTriggedErr('A server error occurred. Occurs when updating room data. Please try again'))
+        if (typeof setOnModalSettings === 'function') {
             setOnModalSettings({} as PopupSettings)
         }
     }
 
-    function dataEditSubmitRoom():InputAddRoomT{
+    function dataEditSubmitRoom(): InputAddRoomT {
         const {
             room,
             roomType
         } = inputEditRoom
-        return{
+        return {
             room,
             roomType
         }
     }
 
-    function selectRoomType():void{
+    function selectRoomType(): void {
         const elem = document.getElementById('selectRoomType') as HTMLSelectElement
         const value = elem.options[elem.selectedIndex].value
-        if(value){
+        if (value) {
             setInputAddRoom({
                 ...inputAddRoom,
                 roomType: value
@@ -442,10 +449,10 @@ export function UseRooms({
         }
     }
 
-    function editSelectRoomType():void{
+    function editSelectRoomType(): void {
         const elem = document.getElementById('editSelectRoomType') as HTMLSelectElement
         const value = elem.options[elem.selectedIndex].value
-        if(value){
+        if (value) {
             setInputEditRoom({
                 ...inputEditRoom,
                 roomType: value
@@ -454,6 +461,77 @@ export function UseRooms({
                 ...errInputEditRoom,
                 roomType: ''
             })
+        }
+    }
+
+    function clickDelete(
+        id: string,
+        roomName: string
+    ): void {
+        const loadingId = loadingIdDelete.find(loadId => loadId === id)
+        if(
+            !loadingId &&
+            typeof setOnModalSettings === 'function'
+        ) {
+            setIndexActiveColumnMenu(null)
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Delete specialist room "${roomName}"?`,
+                classIcon: 'text-font-color-2',
+                iconPopup: faBan,
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmDeleteRoom(id, roomName),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    }
+                ]
+            })
+        }
+    }
+
+    function confirmDeleteRoom(
+        id: string,
+        roomName: string
+    ):void{
+        setLoadingIdDelete((current)=>[...current, id])
+        API().APIDeletePatientData(
+            'room',
+            id,
+            id
+        )
+        .then(res=>{
+            const removeLoadingId = loadingIdDelete.filter(loadId=>loadId !== id)
+            setLoadingIdDelete(removeLoadingId)
+            setOnAlerts({
+                onAlert: true,
+                title: `Has successfully deleted specialist room ${roomName}`,
+                desc: 'Specialist room has been removed'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
+        })
+        .catch(err=>pushTriggedErr('A server error occurred. occurs when deleting specialist room'))
+        if(typeof setOnModalSettings === 'function'){
+            setOnModalSettings({} as PopupSettings)
         }
     }
 
@@ -492,6 +570,8 @@ export function UseRooms({
         handleSubmitUpdate,
         selectRoomType,
         roomTypeOptions,
-        editSelectRoomType
+        editSelectRoomType,
+        clickDelete,
+        loadingIdDelete
     }
 }

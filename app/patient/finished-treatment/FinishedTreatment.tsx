@@ -101,18 +101,18 @@ export function FinishedTreatment() {
             )}
             {onPopupEditFinishTreatment && (
                 <EditFinishTreatment
-                clickClosePopupEditFT={clickClosePopupEditFT}
-                changeEditFT={changeEditFT}
-                patientName={patientNameEditFT}
-                errInputEditFinishTreatment={errInputEditFinishTreatment}
-                inputEditFinishTreatment={inputEditFinishTreatment}
-                changeDateEditFT={changeDateEditFT}
-                handleSelectEditFT={handleSelectEditFT}
-                optionsAdminEmail={optionsAdminEmail}
-                isPatientCanceled={isPatientCanceled}
-                loadingIdSubmitEditFT={loadingIdSubmitEditFT}
-                idPatientEditFT={idPatientEditFT}
-                submitEditFinishTreatment={submitEditFinishTreatment}
+                    clickClosePopupEditFT={clickClosePopupEditFT}
+                    changeEditFT={changeEditFT}
+                    patientName={patientNameEditFT}
+                    errInputEditFinishTreatment={errInputEditFinishTreatment}
+                    inputEditFinishTreatment={inputEditFinishTreatment}
+                    changeDateEditFT={changeDateEditFT}
+                    handleSelectEditFT={handleSelectEditFT}
+                    optionsAdminEmail={optionsAdminEmail}
+                    isPatientCanceled={isPatientCanceled}
+                    loadingIdSubmitEditFT={loadingIdSubmitEditFT}
+                    idPatientEditFT={idPatientEditFT}
+                    submitEditFinishTreatment={submitEditFinishTreatment}
                 />
             )}
 
@@ -193,81 +193,81 @@ export function FinishedTreatment() {
             />
 
             <ContainerTableBody>
-                <TableBody
-                    style={{
-                        width: '1400px'
-                    }}
-                >
+                <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
+                    <tbody>
+                        {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                            const findIdLoadingDelete = loadingIdDeleteFT.find(id => id === patient.id)
 
-                    {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
-                        const findIdLoadingDelete = loadingIdDeleteFT.find(id=>id === patient.id)
-
-                        const actionsData: ActionsDataT[] = [
-                            {
-                                name: 'Edit',
-                                click: (e?: MouseEvent) => {
-                                    clickEdit(patient.id, patient.data[0].name)
-                                    clickEditFinishTreatment(patient.id, patient.data[0].name)
-                                    openPopupEdit()
-                                    setIndexActiveTableMenu(null)
-                                    e?.stopPropagation()
-                                }
-                            },
-                            {
-                                name: 'Delete',
-                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
-                                click: (e?: MouseEvent) => {
-                                    if(!findIdLoadingDelete){
-                                        clickDeleteFT(patient.id, patient.data[0].name)
+                            const actionsData: ActionsDataT[] = [
+                                {
+                                    name: 'Edit',
+                                    click: (e?: MouseEvent) => {
+                                        clickEdit(patient.id, patient.data[0].name)
+                                        clickEditFinishTreatment(patient.id, patient.data[0].name)
+                                        openPopupEdit()
                                         setIndexActiveTableMenu(null)
+                                        e?.stopPropagation()
                                     }
-                                    e?.stopPropagation()
+                                },
+                                {
+                                    name: 'Delete',
+                                    classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
+                                    click: (e?: MouseEvent) => {
+                                        if (!findIdLoadingDelete) {
+                                            clickDeleteFT(patient.id, patient.data[0].name)
+                                            setIndexActiveTableMenu(null)
+                                        }
+                                        e?.stopPropagation()
+                                    }
                                 }
-                            }
-                        ]
+                            ]
 
-                        return (
-                            <TableColumns
-                                key={index}
-                                classWrappMenu={indexActiveTableMenu === index ? 'flex' : 'hidden'}
-                                clickBtn={() => router.push(patient.url as string)}
-                                actionsData={actionsData}
-                                clickColumnMenu={() => clickColumnMenu(index)}
+                            return (
+                                <TableColumns
+                                    key={index}
+                                    clickBtn={() => router.push(patient.url as string)}
+                                >
+                                    {patient.data.map((item, idx) => {
+                                        return (
+                                            <TableData
+                                                key={idx}
+                                                classWrappMenu={indexActiveTableMenu === index && idx === head.length - 1 ? 'flex ml-[-6rem]' : 'hidden'}
+                                                actionsData={actionsData}
+                                                clickColumnMenu={() => clickColumnMenu(index)}
+                                                styleAction={{
+                                                    display: idx === head.length - 1 ? 'flex' : 'none'
+                                                }}
+                                                id={`tData${index}${idx}`}
+                                                name={item.name}
+                                                firstDesc={item?.firstDesc}
+                                                styleFirstDesc={{
+                                                    color: item?.color,
+                                                    marginBottom: item?.marginBottom
+                                                }}
+                                                styleName={{
+                                                    fontSize: item?.fontSize,
+                                                    fontWeight: item?.fontWeightName,
+                                                    color: item?.colorName
+                                                }}
+                                            />
+                                        )
+                                    })}
+                                </TableColumns>
+                            )
+                        }) : (
+                            <tr
+                                className='flex justify-center'
                             >
-                                {patient.data.map((item, idx) => {
-                                    return (
-                                        <TableData
-                                            key={idx}
-                                            id={`tData${index}${idx}`}
-                                            name={item.name}
-                                            firstDesc={item?.firstDesc}
-                                            styleFirstDesc={{
-                                                color: item?.color,
-                                                marginBottom: item?.marginBottom
-                                            }}
-                                            styleName={{
-                                                fontSize: item?.fontSize,
-                                                fontWeight: item?.fontWeightName,
-                                                color: item?.colorName
-                                            }}
-                                        />
-                                    )
-                                })}
-                            </TableColumns>
-                        )
-                    }) : (
-                        <div
-                            className='flex justify-center'
-                        >
-                            <p
-                                className='p-8'
-                            >No patient registration data</p>
-                        </div>
-                    )}
+                                <td
+                                    className='p-8'
+                                >No patient registration data</td>
+                            </tr>
+                        )}
+                    </tbody>
                 </TableBody>
             </ContainerTableBody>
 

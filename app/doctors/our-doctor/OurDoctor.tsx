@@ -46,6 +46,9 @@ export function OurDoctor() {
         },
         {
             name: 'Id Doctor'
+        },
+        {
+            name: 'Action'
         }
     ])
 
@@ -266,86 +269,98 @@ export function OurDoctor() {
                         data={head}
                         id='tHead'
                     />
+                    <tbody>
+                        {currentTableData.length > 0 ? currentTableData.map((item, index) => {
+                            const pathDoctor = `/doctors/profile/${item.id}`
 
-                    {currentTableData.length > 0 ? currentTableData.map((item, index) => {
-                        const pathDoctor = `/doctors/profile/${item.id}`
+                            const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
 
-                        const findCurrentLoading = idLoadingDelete.find(loadingId => loadingId === item.id)
-
-                        const actionsData: ActionsDataT[] = [
-                            {
-                                name: 'Edit',
-                                click: (e?: MouseEvent) => {
-                                    clickEdit(item.id)
-                                    setIndexActiveColumnMenu(null)
-                                    e?.stopPropagation()
-                                }
-                            },
-                            {
-                                name: 'Delete',
-                                classWrapp: findCurrentLoading ? 'text-not-allowed hover:text-[#f9f9f9] hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
-                                click: (e?: MouseEvent) => {
-                                    openPopupDelete(item.id, item.data[0].name)
-                                    e?.stopPropagation()
-                                }
-                            }
-                        ]
-
-                        return (
-                            <TableColumns
-                                key={index}
-                                clickBtn={() => pathDoctor}
-                                actionsData={actionsData}
-                                classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
-                                clickColumnMenu={() => {
-                                    if (indexActiveColumnMenu === index) {
+                            const actionsData: ActionsDataT[] = [
+                                {
+                                    name: 'Edit',
+                                    click: (e?: MouseEvent) => {
+                                        clickEdit(item.id)
                                         setIndexActiveColumnMenu(null)
-                                    } else {
-                                        setIndexActiveColumnMenu(index)
+                                        e?.stopPropagation()
                                     }
-                                }}
-                            >
-                                {item.data.map((dataItem, indexData) => {
-                                    return (
-                                        <TableData
-                                            key={indexData}
-                                            id={`tData${index}${indexData}`}
-                                            name={dataItem.name}
-                                            leftName={
-                                                indexData === 0 &&
-                                                    dataItem?.image?.includes('https')
-                                                    ?
-                                                    <Image
-                                                        alt={dataItem.name}
-                                                        src={dataItem.image}
-                                                        height={300}
-                                                        width={300}
-                                                        className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
-                                                    />
-                                                    : indexData === 0 ?
+                                },
+                                {
+                                    name: 'Delete',
+                                    classWrapp: findCurrentLoading ? 'text-not-allowed hover:text-[#f9f9f9] hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
+                                    click: (e?: MouseEvent) => {
+                                        openPopupDelete(item.id, item.data[0].name)
+                                        e?.stopPropagation()
+                                    }
+                                }
+                            ]
+
+                            return (
+                                <TableColumns
+                                    key={index}
+                                    clickBtn={() => pathDoctor}
+                                    // actionsData={actionsData}
+                                    // classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
+                                    // clickColumnMenu={() => {
+                                    //     if (indexActiveColumnMenu === index) {
+                                    //         setIndexActiveColumnMenu(null)
+                                    //     } else {
+                                    //         setIndexActiveColumnMenu(index)
+                                    //     }
+                                    // }}
+                                >
+                                    {item.data.map((dataItem, indexData) => {
+                                        return (
+                                            <TableData
+                                                key={indexData}
+                                                id={`tData${index}${indexData}`}
+                                                name={dataItem.name}
+                                                actionsData={actionsData}
+                                                classWrappMenu={indexActiveColumnMenu === index && indexData === head.length - 1 ? 'flex ml-[-6rem]' : 'hidden'}
+                                                clickColumnMenu={() => {
+                                                    if (indexActiveColumnMenu === index) {
+                                                        setIndexActiveColumnMenu(null)
+                                                    } else {
+                                                        setIndexActiveColumnMenu(index)
+                                                    }
+                                                }}
+                                                styleAction={{
+                                                    display: indexData === head.length - 1 ? 'flex' : 'none'
+                                                }}
+                                                leftName={
+                                                    indexData === 0 &&
+                                                        dataItem?.image?.includes('https')
+                                                        ?
                                                         <Image
                                                             alt={dataItem.name}
-                                                            src={userImg}
+                                                            src={dataItem.image}
                                                             height={300}
                                                             width={300}
                                                             className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
-                                                        /> : <></>
-                                            }
-                                        />
-                                    )
-                                })}
-                            </TableColumns>
-                        )
-                    }) : (
-                        <div
-                            className='flex justify-center'
-                        >
-                            <p
-                                className='p-8'
-                            >No patient registration data</p>
-                        </div>
-                    )}
-
+                                                        />
+                                                        : indexData === 0 ?
+                                                            <Image
+                                                                alt={dataItem.name}
+                                                                src={userImg}
+                                                                height={300}
+                                                                width={300}
+                                                                className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
+                                                            /> : <></>
+                                                }
+                                            />
+                                        )
+                                    })}
+                                </TableColumns>
+                            )
+                        }) : (
+                            <tr
+                                className='flex justify-center'
+                            >
+                                <td
+                                    className='p-8'
+                                >No Doctors data</td>
+                            </tr>
+                        )}
+                    </tbody>
                 </TableBody>
             </ContainerTableBody>
 

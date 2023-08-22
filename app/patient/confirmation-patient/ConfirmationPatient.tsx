@@ -315,96 +315,99 @@ export function ConfirmationPatient() {
             />
 
             <ContainerTableBody>
-                <TableBody
-                    style={{
-                        width: '1800px'
-                    }}
-                >
+                <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
+                    <tbody>
+                        {/* load data */}
+                        {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                            const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
+                            const namePatient = cleanName.replace(spaceString, '')
 
-                    {/* load data */}
-                    {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
-                        const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
-                        const namePatient = cleanName.replace(spaceString, '')
+                            const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${namePatient}/${patient.id}`
 
-                        const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${namePatient}/${patient.id}`
+                            const findIdLoadingCancelT = idLoadingCancelTreatment.find(id => id === patient.id)
+                            const findIdLoadingDelete = loadingIdPatientsDelete.find(id => id === patient.id)
 
-                        const findIdLoadingCancelT = idLoadingCancelTreatment.find(id => id === patient.id)
-                        const findIdLoadingDelete = loadingIdPatientsDelete.find(id => id === patient.id)
-
-                        const actionsData: ActionsDataT[] = [
-                            {
-                                name: 'Edit',
-                                click: (e?: MouseEvent) => {
-                                    clickEdit(patient.id, patient.data[0]?.name)
-                                    clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
-                                    openPopupEdit()
-                                    setIndexActiveTableMenu(null)
-                                    e?.stopPropagation()
-                                }
-                            },
-                            {
-                                name: 'Cancel Treatment',
-                                classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-pink-old',
-                                click: (e?: MouseEvent) => {
-                                    clickCancelTreatment(patient.id, patient.data[0]?.name)
-                                    if (!findIdLoadingCancelT) {
+                            const actionsData: ActionsDataT[] = [
+                                {
+                                    name: 'Edit',
+                                    click: (e?: MouseEvent) => {
+                                        clickEdit(patient.id, patient.data[0]?.name)
+                                        clickEditToConfirmPatient(patient.id, patient.data[0]?.name)
+                                        openPopupEdit()
                                         setIndexActiveTableMenu(null)
+                                        e?.stopPropagation()
                                     }
-                                    e?.stopPropagation()
+                                },
+                                {
+                                    name: 'Cancel Treatment',
+                                    classWrapp: findIdLoadingCancelT ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-pink-old',
+                                    click: (e?: MouseEvent) => {
+                                        clickCancelTreatment(patient.id, patient.data[0]?.name)
+                                        if (!findIdLoadingCancelT) {
+                                            setIndexActiveTableMenu(null)
+                                        }
+                                        e?.stopPropagation()
+                                    }
+                                },
+                                {
+                                    name: 'Delete',
+                                    classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
+                                    click: (e?: MouseEvent) => {
+                                        clickDeleteIcon(patient.id, patient.data[0]?.name)
+                                        setIndexActiveTableMenu(null)
+                                        e?.stopPropagation()
+                                    }
                                 }
-                            },
-                            {
-                                name: 'Delete',
-                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
-                                click: (e?: MouseEvent) => {
-                                    clickDeleteIcon(patient.id, patient.data[0]?.name)
-                                    setIndexActiveTableMenu(null)
-                                    e?.stopPropagation()
-                                }
-                            }
-                        ]
+                            ]
 
-                        return (
-                            <TableColumns
-                                key={index}
-                                actionsData={actionsData}
-                                classWrappMenu={indexActiveTableMenu === index ? 'flex' : 'hidden'}
-                                clickBtn={() => toPage(pathUrlToDataDetail)}
-                                clickColumnMenu={() => clickColumnMenu(index)}
+                            return (
+                                <TableColumns
+                                    key={index}
+                                    clickBtn={() => toPage(pathUrlToDataDetail)}
+                                // actionsData={actionsData}
+                                // classWrappMenu={indexActiveTableMenu === index ? 'flex' : 'hidden'}
+                                // clickColumnMenu={() => clickColumnMenu(index)}
+                                >
+                                    {patient.data.map((item, idx) => {
+                                        return (
+                                            <TableData
+                                                key={idx}
+                                                actionsData={actionsData}
+                                                classWrappMenu={indexActiveTableMenu === index && idx === head.length - 1 ? 'flex ml-[-10rem]' : 'hidden'}
+                                                clickColumnMenu={() => clickColumnMenu(index)}
+                                                styleAction={{
+                                                    display: idx === head.length - 1 ? 'flex' : 'none'
+                                                }}
+                                                id={`tData${index}${idx}`}
+                                                name={item.name}
+                                                firstDesc={item?.firstDesc}
+                                                styleFirstDesc={{
+                                                    color: item?.color,
+                                                    marginBottom: item?.marginBottom
+                                                }}
+                                                styleName={{
+                                                    fontSize: item?.fontSize,
+                                                    color: item?.colorName
+                                                }}
+                                            />
+                                        )
+                                    })}
+                                </TableColumns>
+                            )
+                        }) : (
+                            <tr
+                                className='flex justify-center'
                             >
-                                {patient.data.map((item, idx) => {
-                                    return (
-                                        <TableData
-                                            key={idx}
-                                            id={`tData${index}${idx}`}
-                                            name={item.name}
-                                            firstDesc={item?.firstDesc}
-                                            styleFirstDesc={{
-                                                color: item?.color,
-                                                marginBottom: item?.marginBottom
-                                            }}
-                                            styleName={{
-                                                fontSize: item?.fontSize,
-                                                color: item?.colorName
-                                            }}
-                                        />
-                                    )
-                                })}
-                            </TableColumns>
-                        )
-                    }) : (
-                        <div
-                            className='flex justify-center'
-                        >
-                            <p
-                                className='p-8'
-                            >No patient confirmation data</p>
-                        </div>
-                    )}
+                                <td
+                                    className='p-8'
+                                >No patient confirmation data</td>
+                            </tr>
+                        )}
+                    </tbody>
                 </TableBody>
             </ContainerTableBody>
 

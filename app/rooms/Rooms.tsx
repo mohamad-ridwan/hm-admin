@@ -58,7 +58,9 @@ export function Rooms() {
         clickEditRoom,
         selectRoomType,
         roomTypeOptions,
-        editSelectRoomType
+        editSelectRoomType,
+        clickDelete,
+        loadingIdDelete
     } = UseRooms({ setOnModalSettings })
 
     return (
@@ -78,16 +80,16 @@ export function Rooms() {
 
             {onEditRoom && (
                 <EditRoom
-                clickCloseEditRoom={clickCloseEditRoom}
-                changeEditRoom={changeEditRoom}
-                roomName={roomName}
-                inputEditRoom={inputEditRoom}
-                errInputEditRoom={errInputEditRoom}
-                loadingIdEditRoom={loadingIdEditRoom}
-                editIdRoom={editIdRoom}
-                roomTypeOptions={roomTypeOptions}
-                selectRoomType={editSelectRoomType}
-                handleSubmitUpdate={handleSubmitUpdate}
+                    clickCloseEditRoom={clickCloseEditRoom}
+                    changeEditRoom={changeEditRoom}
+                    roomName={roomName}
+                    inputEditRoom={inputEditRoom}
+                    errInputEditRoom={errInputEditRoom}
+                    loadingIdEditRoom={loadingIdEditRoom}
+                    editIdRoom={editIdRoom}
+                    roomTypeOptions={roomTypeOptions}
+                    selectRoomType={editSelectRoomType}
+                    handleSubmitUpdate={handleSubmitUpdate}
                 />
             )}
 
@@ -163,61 +165,66 @@ export function Rooms() {
             />
 
             <ContainerTableBody>
-                <TableBody
-                    width="w-auto max-lg:w-[960px]"
-                >
+                <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
+                    <tbody>
+                        {currentTableData.length > 0 ? currentTableData.map((room, index) => {
+                            const loadingDelete = loadingIdDelete.find(loadId => loadId === room.id)
 
-                    {currentTableData.length > 0 ? currentTableData.map((room, index) => {
-                        const actionsData: ActionsDataT[] = [
-                            {
-                                name: 'Edit',
-                                classWrapp: 'cursor-pointer',
-                                click: (e?: MouseEvent) => {
-                                    clickEditRoom(room.id, room.data[0].name)
-                                    e?.stopPropagation()
-                                }
-                            },
-                            {
-                                name: 'Delete',
-                                classWrapp: 'text-red-default cursor-pointer',
-                                click: (e?: MouseEvent) => {
-                                    e?.stopPropagation()
-                                }
-                            },
-                        ]
+                            const actionsData: ActionsDataT[] = [
+                                {
+                                    name: 'Edit',
+                                    classWrapp: 'cursor-pointer',
+                                    click: (e?: MouseEvent) => {
+                                        clickEditRoom(room.id, room.data[0].name)
+                                        e?.stopPropagation()
+                                    }
+                                },
+                                {
+                                    name: 'Delete',
+                                    classWrapp: loadingDelete ? 'text-not-allowed hover:text-[#f9f9f9] hover:bg-white cursor-not-allowed' : 'text-red-default cursor-pointer',
+                                    click: (e?: MouseEvent) => {
+                                        clickDelete(room.id, room.data[0].name)
+                                        e?.stopPropagation()
+                                    }
+                                },
+                            ]
 
-                        return (
-                            <TableColumns
-                                key={index}
-                                classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
-                                actionsData={actionsData}
-                                clickBtn={() => { return }}
-                                clickColumnMenu={() => clickColumnMenu(index)}
+                            return (
+                                <TableColumns
+                                    key={index}
+                                    clickBtn={() => { return }}
+                                >
+                                    {room.data.map((item, idx) => {
+                                        return (
+                                            <TableData
+                                                key={idx}
+                                                classWrappMenu={indexActiveColumnMenu === index && idx === head.length - 1 ? 'flex ml-[-6rem]' : 'hidden'}
+                                                actionsData={actionsData}
+                                                clickColumnMenu={() => clickColumnMenu(index)}
+                                                styleAction={{
+                                                    display: idx === head.length - 1 ? 'flex' : 'none'
+                                                }}
+                                                id={`tData${index}${idx}`}
+                                                name={item.name}
+                                            />
+                                        )
+                                    })}
+                                </TableColumns>
+                            )
+                        }) : (
+                            <tr
+                                className='flex justify-center'
                             >
-                                {room.data.map((item, idx) => {
-                                    return (
-                                        <TableData
-                                            key={idx}
-                                            id={`tData${index}${idx}`}
-                                            name={item.name}
-                                        />
-                                    )
-                                })}
-                            </TableColumns>
-                        )
-                    }) : (
-                        <div
-                            className='flex justify-center'
-                        >
-                            <p
-                                className='p-8'
-                            >No rooms data</p>
-                        </div>
-                    )}
+                                <td
+                                    className='p-8'
+                                >No rooms data</td>
+                            </tr>
+                        )}
+                    </tbody>
                 </TableBody>
             </ContainerTableBody>
 

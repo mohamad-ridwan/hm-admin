@@ -272,95 +272,97 @@ export function DrugCounter({ params }: ParamsProps) {
             />
 
             <ContainerTableBody>
-                <TableBody style={{
-                    width: '1500px'
-                }}>
+                <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
+                    <tbody>
+                        {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                            const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
+                            const namePatient = cleanName.replace(spaceString, '')
+                            const status = params?.status !== 'already-confirmed' ? 'not-yet-confirmed' : 'confirmed'
+                            const queueNumber = patient.data[1].name
 
-                    {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
-                        const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
-                        const namePatient = cleanName.replace(spaceString, '')
-                        const status = params?.status !== 'already-confirmed' ? 'not-yet-confirmed' : 'confirmed'
-                        const queueNumber = patient.data[1].name
+                            const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${namePatient}/${patient.id}/counter/${params?.counterName}/${status}/${queueNumber}`
 
-                        const pathUrlToDataDetail = `/patient/patient-registration/personal-data/confirmed/${namePatient}/${patient.id}/counter/${params?.counterName}/${status}/${queueNumber}`
+                            const findIdLoadingCancelT = idLoadingCancelTreatment.find(id => id === patient.id)
+                            const findIdLoadingDelete = loadingIdPatientsDelete.find(id => id === patient.id)
 
-                        const findIdLoadingCancelT = idLoadingCancelTreatment.find(id => id === patient.id)
-                        const findIdLoadingDelete = loadingIdPatientsDelete.find(id => id === patient.id)
-
-                        const actionsData: ActionsDataT[] = [
-                            {
-                                name: 'Edit',
-                                click: (e?: MouseEvent) => {
-                                    clickEdit(patient.id, patient.data[0].name)
-                                    clickEditPatientCounter(patient.id, patient.data[0].name)
-                                    openPopupEdit()
-                                    setIndexActiveTableMenu(null)
-                                    e?.stopPropagation()
-                                }
-                            },
-                            {
-                                name: 'Cancel Treatment',
-                                classWrapp: findIdLoadingCancelT || params.status === 'already-confirmed' ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-pink-old',
-                                click: (e?: MouseEvent) => {
-                                    if(params.status !== 'already-confirmed'){
-                                        clickCancelTreatment(patient.id, patient.data[0].name)
+                            const actionsData: ActionsDataT[] = [
+                                {
+                                    name: 'Edit',
+                                    click: (e?: MouseEvent) => {
+                                        clickEdit(patient.id, patient.data[0].name)
+                                        clickEditPatientCounter(patient.id, patient.data[0].name)
+                                        openPopupEdit()
+                                        setIndexActiveTableMenu(null)
+                                        e?.stopPropagation()
                                     }
-                                    e?.stopPropagation()
+                                },
+                                {
+                                    name: 'Cancel Treatment',
+                                    classWrapp: findIdLoadingCancelT || params.status === 'already-confirmed' ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-pink-old',
+                                    click: (e?: MouseEvent) => {
+                                        if (params.status !== 'already-confirmed') {
+                                            clickCancelTreatment(patient.id, patient.data[0].name)
+                                        }
+                                        e?.stopPropagation()
+                                    }
+                                },
+                                {
+                                    name: 'Delete',
+                                    classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
+                                    click: (e?: MouseEvent) => {
+                                        clickDeletePatient(patient.id, patient.data[0].name)
+                                        e?.stopPropagation()
+                                    }
                                 }
-                            },
-                            {
-                                name: 'Delete',
-                                classWrapp: findIdLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
-                                click: (e?: MouseEvent) => {
-                                    clickDeletePatient(patient.id, patient.data[0].name)
-                                    e?.stopPropagation()
-                                }
-                            }
-                        ]
+                            ]
 
-                        return (
-                            <TableColumns
-                                key={index}
-                                classWrappMenu={indexActiveTableMenu === index ? 'flex' : 'hidden'}
-                                clickBtn={() => router.push(pathUrlToDataDetail)}
-                                clickColumnMenu={() => clickColumnMenu(index)}
-                                actionsData={actionsData}
+                            return (
+                                <TableColumns
+                                    key={index}
+                                    clickBtn={() => router.push(pathUrlToDataDetail)}
+                                >
+                                    {patient.data.map((item, idx) => {
+                                        return (
+                                            <TableData
+                                                key={idx}
+                                                classWrappMenu={indexActiveTableMenu === index && idx === head.length - 1 ? 'flex ml-[-10rem]' : 'hidden'}
+                                                clickColumnMenu={() => clickColumnMenu(index)}
+                                                actionsData={actionsData}
+                                                styleAction={{
+                                                    display: idx === head.length - 1 ? 'flex' : 'none'
+                                                }}
+                                                id={`tData${index}${idx}`}
+                                                name={item.name}
+                                                firstDesc={item?.firstDesc}
+                                                styleFirstDesc={{
+                                                    color: item?.color,
+                                                    marginBottom: item?.marginBottom,
+                                                    fontWeight: item?.fontWeightFirstDesc
+                                                }}
+                                                styleName={{
+                                                    fontSize: item?.fontSize,
+                                                    fontWeight: item?.fontWeightName,
+                                                    color: item?.colorName
+                                                }}
+                                            />
+                                        )
+                                    })}
+                                </TableColumns>
+                            )
+                        }) : (
+                            <tr
+                                className='flex justify-center'
                             >
-                                {patient.data.map((item, idx) => {
-                                    return (
-                                        <TableData
-                                            key={idx}
-                                            id={`tData${index}${idx}`}
-                                            name={item.name}
-                                            firstDesc={item?.firstDesc}
-                                            styleFirstDesc={{
-                                                color: item?.color,
-                                                marginBottom: item?.marginBottom,
-                                                fontWeight: item?.fontWeightFirstDesc
-                                            }}
-                                            styleName={{
-                                                fontSize: item?.fontSize,
-                                                fontWeight: item?.fontWeightName,
-                                                color: item?.colorName
-                                            }}
-                                        />
-                                    )
-                                })}
-                            </TableColumns>
-                        )
-                    }) : (
-                        <div
-                            className='flex justify-center'
-                        >
-                            <p
-                                className='p-8'
-                            >No patient registration data</p>
-                        </div>
-                    )}
+                                <td
+                                    className='p-8'
+                                >No patient registration data</td>
+                            </tr>
+                        )}
+                    </tbody>
                 </TableBody>
             </ContainerTableBody>
             <div

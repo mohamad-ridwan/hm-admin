@@ -14,9 +14,10 @@ import Pagination from "components/pagination/Pagination"
 import Button from "components/Button"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { AddCounter } from "./AddCounter"
-import { PopupSettings } from 'lib/types/TableT.type'
+import { ActionsDataT, PopupSettings } from 'lib/types/TableT.type'
 import { ContainerPopup } from 'components/popup/ContainerPopup'
 import { SettingPopup } from 'components/popup/SettingPopup'
+import { EditCounter } from './EditCounter'
 
 export function Counters() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -38,7 +39,18 @@ export function Counters() {
         errInputAddCounter,
         inputAddCounter,
         loadingSubmitAddCounter,
-        submitAddCounter
+        submitAddCounter,
+        clickColumnMenu,
+        clickEdit,
+        idEditCounter,
+        counterName,
+        inputEditCounter,
+        errInputEditCounter,
+        onEditCounter,
+        clickCloseEditCounter,
+        changeInputEditCounter,
+        loadingIdEditCounter,
+        submitEditCounter
     } = UseCounters({ setOnModalSettings })
 
     return (
@@ -51,6 +63,19 @@ export function Counters() {
                     errInputAddCounter={errInputAddCounter}
                     loadingSubmitAddCounter={loadingSubmitAddCounter}
                     submitAddCounter={submitAddCounter}
+                />
+            )}
+
+            {onEditCounter && (
+                <EditCounter
+                    clickCloseEditCounter={clickCloseEditCounter}
+                    counterName={counterName}
+                    changeInputEditCounter={changeInputEditCounter}
+                    inputEditCounter={inputEditCounter}
+                    errInputEditCounter={errInputEditCounter}
+                    loadingIdEditCounter={loadingIdEditCounter}
+                    idEditCounter={idEditCounter as string}
+                    submitEditCounter={submitEditCounter}
                 />
             )}
 
@@ -113,41 +138,63 @@ export function Counters() {
             />
 
             <ContainerTableBody>
-                <TableBody
-                    width="w-auto max-lg:w-[960px]"
-                >
+                <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
+                    <tbody>
+                        {currentTableData.length > 0 ? currentTableData.map((loket, index) => {
+                            const actionsData: ActionsDataT[] = [
+                                {
+                                    name: 'Edit',
+                                    classWrapp: 'cursor-pointer',
+                                    click: (e?: MouseEvent) => {
+                                        clickEdit(loket.id, loket.data[0].name)
+                                        e?.stopPropagation()
+                                    }
+                                },
+                                {
+                                    name: 'Delete',
+                                    classWrapp: 'text-red-default cursor-pointer',
+                                    click: (e?: MouseEvent) => {
+                                        e?.stopPropagation()
+                                    }
+                                }
+                            ]
 
-                    {currentTableData.length > 0 ? currentTableData.map((loket, index) => {
-                        return (
-                            <TableColumns
-                                key={index}
-                                classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
-                                clickBtn={() => { return }}
+                            return (
+                                <TableColumns
+                                    key={index}
+                                    clickBtn={() => { return }}
+                                >
+                                    {loket.data.map((item, idx) => {
+                                        return (
+                                            <TableData
+                                                key={idx}
+                                                classWrappMenu={indexActiveColumnMenu === index && idx === head.length - 1 ? 'flex ml-[-6rem]' : 'hidden'}
+                                                actionsData={actionsData}
+                                                clickColumnMenu={() => clickColumnMenu(index)}
+                                                styleAction={{
+                                                    display: idx === head.length - 1 ? 'flex' : 'none'
+                                                }}
+                                                id={`tData${index}${idx}`}
+                                                name={item.name}
+                                            />
+                                        )
+                                    })}
+                                </TableColumns>
+                            )
+                        }) : (
+                            <tr
+                                className='flex justify-center'
                             >
-                                {loket.data.map((item, idx) => {
-                                    return (
-                                        <TableData
-                                            key={idx}
-                                            id={`tData${index}${idx}`}
-                                            name={item.name}
-                                        />
-                                    )
-                                })}
-                            </TableColumns>
-                        )
-                    }) : (
-                        <div
-                            className='flex justify-center'
-                        >
-                            <p
-                                className='p-8'
-                            >No counters data</p>
-                        </div>
-                    )}
+                                <td
+                                    className='p-8'
+                                >No counters data</td>
+                            </tr>
+                        )}
+                    </tbody>
                 </TableBody>
             </ContainerTableBody>
 

@@ -95,6 +95,11 @@ export type RoomTreatmentT = {
     id: string
     room: string
     roomType?: string
+    dates?: {
+        procurementDate: string
+        procurementHours: string
+    }
+    roomActive?: 'Active' | 'Not Active'
 }
 
 // info loket

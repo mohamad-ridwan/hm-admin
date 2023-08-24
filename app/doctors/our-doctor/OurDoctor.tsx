@@ -298,15 +298,15 @@ export function OurDoctor() {
                                 <TableColumns
                                     key={index}
                                     clickBtn={() => pathDoctor}
-                                    // actionsData={actionsData}
-                                    // classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
-                                    // clickColumnMenu={() => {
-                                    //     if (indexActiveColumnMenu === index) {
-                                    //         setIndexActiveColumnMenu(null)
-                                    //     } else {
-                                    //         setIndexActiveColumnMenu(index)
-                                    //     }
-                                    // }}
+                                // actionsData={actionsData}
+                                // classWrappMenu={indexActiveColumnMenu === index ? 'flex' : 'hidden'}
+                                // clickColumnMenu={() => {
+                                //     if (indexActiveColumnMenu === index) {
+                                //         setIndexActiveColumnMenu(null)
+                                //     } else {
+                                //         setIndexActiveColumnMenu(index)
+                                //     }
+                                // }}
                                 >
                                     {item.data.map((dataItem, indexData) => {
                                         return (
@@ -330,21 +330,29 @@ export function OurDoctor() {
                                                     indexData === 0 &&
                                                         dataItem?.image?.includes('https')
                                                         ?
-                                                        <Image
-                                                            alt={dataItem.name}
-                                                            src={dataItem.image}
-                                                            height={300}
-                                                            width={300}
-                                                            className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
-                                                        />
-                                                        : indexData === 0 ?
+                                                        <div
+                                                            className="flex h-[35px] w-[35px] rounded-full overflow-hidden mr-2"
+                                                        >
                                                             <Image
                                                                 alt={dataItem.name}
-                                                                src={userImg}
+                                                                src={dataItem.image}
                                                                 height={300}
                                                                 width={300}
-                                                                className="rounded-full mr-2 h-[35px] w-[35px] object-cover"
-                                                            /> : <></>
+                                                                className="object-cover w-full"
+                                                            />
+                                                        </div>
+                                                        : indexData === 0 ?
+                                                            <div
+                                                            className="flex h-[35px] w-[35px] rounded-full overflow-hidden mr-2"
+                                                            >
+                                                                <Image
+                                                                    alt={dataItem.name}
+                                                                    src={userImg}
+                                                                    height={300}
+                                                                    width={300}
+                                                                    className="object-cover w-full"
+                                                                />
+                                                            </div> : <></>
                                                 }
                                             />
                                         )

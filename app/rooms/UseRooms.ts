@@ -7,10 +7,12 @@ import { RoomTreatmentT } from "lib/types/PatientT.types"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
-import { InputAddRoomT } from "lib/types/InputT.type"
+import { InputAddRoomT, InputSubmitAddRoomT } from "lib/types/InputT.type"
 import { faBan, faPencil, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { API } from "lib/api"
 import { navigationStore } from "lib/useZustand/navigation"
+import { createDateFormat } from "lib/formats/createDateFormat"
+import { createHourFormat } from "lib/formats/createHourFormat"
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -27,7 +29,10 @@ export function UseRooms({
     const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
     const [inputAddRoom, setInputAddRoom] = useState<InputAddRoomT>({
         room: '',
-        roomType: 'Select Room Type'
+        roomType: 'Select Room Type',
+        procurementDate: '',
+        procurementHours: '',
+        roomActive: 'Select Room Active'
     })
     const [onAddRooms, setOnAddRooms] = useState<boolean>(false)
     const [errInputAddRoom, setErrInputAddRoom] = useState<InputAddRoomT>({} as InputAddRoomT)
@@ -35,7 +40,10 @@ export function UseRooms({
     const [onEditRoom, setOnEditRoom] = useState<boolean>(false)
     const [inputEditRoom, setInputEditRoom] = useState<InputAddRoomT>({
         room: '',
-        roomType: 'Select Room Type'
+        roomType: 'Select Room Type',
+        procurementDate: '',
+        procurementHours: '',
+        roomActive: 'Select Room Active'
     })
     const [errInputEditRoom, setErrInputEditRoom] = useState<InputAddRoomT>({} as InputAddRoomT)
     const [roomName, setRoomName] = useState<string>('')
@@ -48,6 +56,15 @@ export function UseRooms({
         },
         {
             name: 'Room Type'
+        },
+        {
+            name: 'Procurement Date'
+        },
+        {
+            name: 'Procurement Hours'
+        },
+        {
+            name: 'Room Active'
         },
         {
             name: 'Id'
@@ -94,6 +111,20 @@ export function UseRooms({
             title: 'Spesialis Penyakit Dalam'
         },
     ])
+    const roomActiveOptions: DataOptionT = [
+        {
+            id: 'Select Room Active',
+            title: 'Select Room Active'
+        },
+        {
+            id: 'Active',
+            title: 'Active'
+        },
+        {
+            id: 'Not Active',
+            title: 'Not Active'
+        },
+    ]
 
     const {
         loadDataService,
@@ -114,7 +145,16 @@ export function UseRooms({
                         name: room.room
                     },
                     {
-                        name: room?.roomType ? room.roomType : ''
+                        name: room?.roomType ? room.roomType : '-'
+                    },
+                    {
+                        name: room?.dates?.procurementDate ? room.dates.procurementDate : '-'
+                    },
+                    {
+                        name: room?.dates?.procurementHours ? room.dates.procurementHours : '-'
+                    },
+                    {
+                        name: room?.roomActive ? `${room.roomActive}` : 'Not Active'
                     },
                     {
                         name: room.id
@@ -246,6 +286,9 @@ export function UseRooms({
         if (inputAddRoom.roomType === 'Select Room Type') {
             err.roomType = 'Must be required'
         }
+        if(inputAddRoom.roomActive === 'Select Room Active'){
+            err.roomActive = 'Must be required'
+        }
 
         if (Object.keys(err).length !== 0) {
             setErrInputAddRoom(err)
@@ -281,17 +324,30 @@ export function UseRooms({
         return {
             id: `${new Date().getTime()}`,
             room: inputAddRoom.room,
-            roomType: inputAddRoom.roomType
+            roomType: inputAddRoom.roomType,
+            dates: {
+                procurementDate: createDateFormat(new Date()),
+                procurementHours: createHourFormat(new Date())
+            },
+            roomActive: inputAddRoom.roomActive as 'Active'
         }
     }
 
     function activeRoomType(roomType: string): void {
         const elem = document.getElementById('editSelectRoomType') as HTMLSelectElement
         const roomIndex: number = roomTypeOptions.findIndex(item => item.id === roomType)
-        if (elem) {
-            elem.selectedIndex = roomIndex
-        }
+        if (elem) elem.selectedIndex = roomIndex
     }
+
+    function idxRoomActive():void{
+        const findIndex = roomActiveOptions.findIndex(item=>item.id === inputEditRoom.roomActive)
+        const elem = document.getElementById('roomActiveOpt') as HTMLSelectElement
+        if(elem)elem.selectedIndex = findIndex
+    }
+
+    useEffect(()=>{
+        idxRoomActive()
+    }, [inputEditRoom])
 
     function clickEditRoom(
         roomId: string,
@@ -305,11 +361,16 @@ export function UseRooms({
             setIndexActiveColumnMenu(null)
             const {
                 room,
-                roomType
+                roomType,
+                dates,
+                roomActive
             } = findRoom
             setInputEditRoom({
                 room,
-                roomType: typeof roomType === 'undefined' ? '' : roomType
+                roomType: typeof roomType === 'undefined' ? '' : roomType,
+                procurementDate: dates?.procurementDate ?? '',
+                procurementHours: dates?.procurementHours ?? '',
+                roomActive: typeof roomActive !== 'undefined' ? roomActive : 'Not Active'
             })
             setErrInputEditRoom({} as InputAddRoomT)
             setTimeout(() => {
@@ -337,7 +398,7 @@ export function UseRooms({
             [e.target.name]: e.target.value
         })
         setErrInputEditRoom({
-            ...errInputAddRoom,
+            ...errInputEditRoom,
             [e.target.name]: ''
         })
     }
@@ -390,6 +451,15 @@ export function UseRooms({
         if (!inputEditRoom.roomType.trim()) {
             err.roomType = 'Must be required'
         }
+        if(!inputEditRoom.procurementDate.trim()){
+            err.procurementDate = 'Must be required'
+        }
+        if(!inputEditRoom.procurementHours.trim()){
+            err.procurementHours = 'Must be required'
+        }
+        if(inputEditRoom.roomActive === 'Select Room Active'){
+            err.roomActive = 'Must be required'
+        }
 
         if (Object.keys(err).length !== 0) {
             setErrInputEditRoom(err)
@@ -423,14 +493,22 @@ export function UseRooms({
         }
     }
 
-    function dataEditSubmitRoom(): InputAddRoomT {
+    function dataEditSubmitRoom(): InputSubmitAddRoomT {
         const {
             room,
-            roomType
+            roomType,
+            procurementDate,
+            procurementHours,
+            roomActive
         } = inputEditRoom
         return {
             room,
-            roomType
+            roomType,
+            dates: {
+                procurementDate,
+                procurementHours,
+            },
+            roomActive: roomActive as 'Active'
         }
     }
 
@@ -469,7 +547,7 @@ export function UseRooms({
         roomName: string
     ): void {
         const loadingId = loadingIdDelete.find(loadId => loadId === id)
-        if(
+        if (
             !loadingId &&
             typeof setOnModalSettings === 'function'
         ) {
@@ -510,28 +588,72 @@ export function UseRooms({
     function confirmDeleteRoom(
         id: string,
         roomName: string
-    ):void{
-        setLoadingIdDelete((current)=>[...current, id])
+    ): void {
+        setLoadingIdDelete((current) => [...current, id])
         API().APIDeletePatientData(
             'room',
             id,
             id
         )
-        .then(res=>{
-            const removeLoadingId = loadingIdDelete.filter(loadId=>loadId !== id)
-            setLoadingIdDelete(removeLoadingId)
-            setOnAlerts({
-                onAlert: true,
-                title: `Has successfully deleted specialist room ${roomName}`,
-                desc: 'Specialist room has been removed'
+            .then(res => {
+                const removeLoadingId = loadingIdDelete.filter(loadId => loadId !== id)
+                setLoadingIdDelete(removeLoadingId)
+                setOnAlerts({
+                    onAlert: true,
+                    title: `Has successfully deleted specialist room ${roomName}`,
+                    desc: 'Specialist room has been removed'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
             })
-            setTimeout(() => {
-                setOnAlerts({} as AlertsT)
-            }, 3000);
-        })
-        .catch(err=>pushTriggedErr('A server error occurred. occurs when deleting specialist room'))
-        if(typeof setOnModalSettings === 'function'){
+            .catch(err => pushTriggedErr('A server error occurred. occurs when deleting specialist room'))
+        if (typeof setOnModalSettings === 'function') {
             setOnModalSettings({} as PopupSettings)
+        }
+    }
+
+    function changeDateEditRoom(
+        e?: ChangeEvent<HTMLInputElement> | Date,
+        nameInput?: 'procurementDate'
+    ):void{
+        setInputEditRoom({
+            ...inputEditRoom,
+            [nameInput as 'procurementDate']: e ? `${createDateFormat(e as Date, 'MM/DD/YYYY')}` : ''
+        })
+        setErrInputEditRoom({
+            ...errInputEditRoom,
+            [nameInput as 'procurementDate']: ''
+        })
+    }
+
+    function selectRoomActive():void{
+        const elem = document.getElementById('roomActiveOpt') as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if (value) {
+            setInputEditRoom({
+                ...inputEditRoom,
+                roomActive: value as 'Active'
+            })
+            setErrInputEditRoom({
+                ...errInputEditRoom,
+                roomActive: ''
+            })
+        }
+    }
+
+    function selectAddRoomActive():void{
+        const elem = document.getElementById('roomActiveOpt') as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if (value) {
+            setInputAddRoom({
+                ...inputAddRoom,
+                roomActive: value as 'Active'
+            })
+            setErrInputAddRoom({
+                ...errInputAddRoom,
+                roomActive: ''
+            })
         }
     }
 
@@ -572,6 +694,10 @@ export function UseRooms({
         roomTypeOptions,
         editSelectRoomType,
         clickDelete,
-        loadingIdDelete
+        loadingIdDelete,
+        roomActiveOptions,
+        changeDateEditRoom,
+        selectRoomActive,
+        selectAddRoomActive
     }
 }

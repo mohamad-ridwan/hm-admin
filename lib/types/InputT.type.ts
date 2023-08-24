@@ -181,6 +181,19 @@ export type InputAddPatientT = {
 export type InputAddRoomT = {
     room: string
     roomType: string
+    procurementDate: string
+    procurementHours: string
+    roomActive: 'Active' | 'Not Active' | 'Select Room Active' | 'Must be required' | ''
+}
+
+export type InputSubmitAddRoomT = {
+    room: string
+    roomType?: string
+    dates: {
+        procurementDate: string
+        procurementHours: string
+    }
+    roomActive: 'Active' | 'Not Active'
 }
 
 export type InputAddCounterT = {

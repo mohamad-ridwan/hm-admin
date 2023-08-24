@@ -60,7 +60,11 @@ export function Rooms() {
         roomTypeOptions,
         editSelectRoomType,
         clickDelete,
-        loadingIdDelete
+        loadingIdDelete,
+        roomActiveOptions,
+        changeDateEditRoom,
+        selectRoomActive,
+        selectAddRoomActive
     } = UseRooms({ setOnModalSettings })
 
     return (
@@ -75,6 +79,8 @@ export function Rooms() {
                     roomTypeOptions={roomTypeOptions}
                     selectRoomType={selectRoomType}
                     submitAddRoom={submitAddRoom}
+                    roomActiveOptions={roomActiveOptions}
+                    selectAddRoomActive={selectAddRoomActive}
                 />
             )}
 
@@ -90,6 +96,9 @@ export function Rooms() {
                     roomTypeOptions={roomTypeOptions}
                     selectRoomType={editSelectRoomType}
                     handleSubmitUpdate={handleSubmitUpdate}
+                    roomActiveOptions={roomActiveOptions}
+                    changeDateEditRoom={changeDateEditRoom}
+                    selectRoomActive={selectRoomActive}
                 />
             )}
 

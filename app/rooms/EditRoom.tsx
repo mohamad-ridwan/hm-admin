@@ -8,12 +8,20 @@ import ErrorInput from "components/input/ErrorInput";
 import Button from "components/Button";
 import { InputSelect } from "components/input/InputSelect";
 import { DataOptionT } from "lib/types/FilterT";
+import { InputSearch } from "components/input/InputSearch";
+import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { renderCustomHeader } from "lib/datePicker/renderCustomHeader";
 
 type ActionProps = {
     clickCloseEditRoom: () => void
     changeEditRoom: (e: ChangeEvent<HTMLInputElement>) => void
     handleSubmitUpdate: () => void
-    selectRoomType: ()=>void
+    selectRoomType: () => void
+    changeDateEditRoom: (
+        e?: ChangeEvent<HTMLInputElement> | Date,
+        nameInput?: 'procurementDate'
+    ) => void
+    selectRoomActive: ()=>void
 }
 
 type Props = ActionProps & {
@@ -23,6 +31,7 @@ type Props = ActionProps & {
     loadingIdEditRoom: string[]
     editIdRoom: string | null
     roomTypeOptions: DataOptionT
+    roomActiveOptions: DataOptionT
 }
 
 export function EditRoom({
@@ -35,7 +44,10 @@ export function EditRoom({
     editIdRoom,
     handleSubmitUpdate,
     roomTypeOptions,
-    selectRoomType
+    selectRoomType,
+    changeDateEditRoom,
+    roomActiveOptions,
+    selectRoomActive
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -68,12 +80,6 @@ export function EditRoom({
                 />
 
                 <TitleInput title='Room Type' />
-                {/* <Input
-                    type='text'
-                    nameInput='roomType'
-                    changeInput={changeEditRoom}
-                    valueInput={inputEditRoom.roomType}
-                /> */}
                 <InputSelect
                     data={roomTypeOptions}
                     id="editSelectRoomType"
@@ -82,6 +88,44 @@ export function EditRoom({
                 <ErrorInput
                     {...styleError}
                     error={errInputEditRoom?.roomType}
+                />
+
+                <TitleInput title='Procurement Date' />
+                <InputSearch
+                    icon={faCalendarDays}
+                    selected={!inputEditRoom.procurementDate ? undefined : new Date(inputEditRoom.procurementDate)}
+                    renderCustomHeader={renderCustomHeader}
+                    changeInput={(e) => changeDateEditRoom(e, 'procurementDate')}
+                    onCalendar={true}
+                    classWrapp='bg-white border-bdr-one border-color-young-gray hover:border-color-default'
+                    classDate='text-[#000] text-sm'
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputEditRoom?.procurementDate}
+                />
+
+                <TitleInput title='Procurement Hours' />
+                <Input
+                    type='text'
+                    nameInput='procurementHours'
+                    changeInput={changeEditRoom}
+                    valueInput={inputEditRoom.procurementHours}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputEditRoom?.procurementHours}
+                />
+
+                <TitleInput title='Room Active' />
+                <InputSelect
+                    data={roomActiveOptions}
+                    id="roomActiveOpt"
+                    handleSelect={selectRoomActive}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputEditRoom?.roomActive as string}
                 />
 
                 <Button

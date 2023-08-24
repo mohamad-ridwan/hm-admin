@@ -12,8 +12,9 @@ import { DataOptionT } from "lib/types/FilterT";
 type ActionProps = {
     clickCloseAddRoom: () => void
     changeInputAddRoom: (e: ChangeEvent<HTMLInputElement>) => void
-    submitAddRoom: ()=>void
-    selectRoomType: ()=>void
+    submitAddRoom: () => void
+    selectRoomType: () => void
+    selectAddRoomActive: ()=>void
 }
 
 type Props = ActionProps & {
@@ -21,6 +22,7 @@ type Props = ActionProps & {
     errInputAddRoom: InputAddRoomT
     loadingSubmitAddRoom: boolean
     roomTypeOptions: DataOptionT
+    roomActiveOptions: DataOptionT
 }
 
 export function AddRoom({
@@ -31,7 +33,9 @@ export function AddRoom({
     loadingSubmitAddRoom,
     submitAddRoom,
     roomTypeOptions,
-    selectRoomType
+    selectRoomType,
+    roomActiveOptions,
+    selectAddRoomActive
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -63,13 +67,24 @@ export function AddRoom({
 
                 <TitleInput title='Room Type' />
                 <InputSelect
-                data={roomTypeOptions}
-                id="selectRoomType"
-                handleSelect={selectRoomType}
+                    data={roomTypeOptions}
+                    id="selectRoomType"
+                    handleSelect={selectRoomType}
                 />
                 <ErrorInput
                     {...styleError}
                     error={errInputAddRoom?.roomType}
+                />
+
+                <TitleInput title='Room Active' />
+                <InputSelect
+                    data={roomActiveOptions}
+                    id="roomActiveOpt"
+                    handleSelect={selectAddRoomActive}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddRoom?.roomActive as string}
                 />
 
                 <Button

@@ -27,7 +27,7 @@ export function Container({
     classHeadTitle,
     classHeadDesc,
     children,
-    maxWidth = 'w-[1360px]',
+    maxWidth = 'w-[1300px]',
     overflow,
     classWrapp,
     isNavleft = true,

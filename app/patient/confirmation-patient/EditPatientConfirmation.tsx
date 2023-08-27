@@ -19,13 +19,13 @@ type ActionProps = {
     handleInputSelectConfirmPatient: (
         idElement: string,
         nameInput: 'emailAdmin' | 'doctorSpecialist' | 'nameDoctor' | 'roomName' | 'presence',
-        cb?: (id: string, p2?: boolean) => void,
+        cb?: (id: string, p2?: boolean, p3?: string) => void,
         cb2?: (p1?: boolean) => void
     ) => void
     changeDateConfirm: (
         e: ChangeEvent<HTMLInputElement> | Date | undefined, inputName: string
     )=>void
-    loadDataDoctor: (specialist: string, isActiveDoctor?: boolean)=>void
+    loadDataDoctor: (specialist: string, isActiveDoctor?: boolean, appointmentDate?: string)=>void
     loadDataRoom: (isActiveRoom?: boolean)=>void
     toggleChangeManualQueue: ()=>void
     toggleSetAutoQueue: ()=>void
@@ -148,7 +148,7 @@ function EditPatientConfirmation({
                     id='selectSpecialist'
                     classWrapp='bg-white mt-2 border-bdr-one border-color-young-gray'
                     data={selectDoctorSpecialist}
-                    handleSelect={() => handleInputSelectConfirmPatient('selectSpecialist', 'doctorSpecialist', (id, p2) => loadDataDoctor(id, p2), (p1) => loadDataRoom(p1))}
+                    handleSelect={() => handleInputSelectConfirmPatient('selectSpecialist', 'doctorSpecialist', (id, p2, p3) => loadDataDoctor(id, p2, p3), (p1) => loadDataRoom(p1))}
                 />
                 <ErrorInput
                     {...styleError}
@@ -217,6 +217,10 @@ function EditPatientConfirmation({
                     nameInput='treatmentHours'
                     changeInput={changeEditConfirmPatient}
                     valueInput={valueInputEditConfirmPatient?.treatmentHours}
+                    readonly={true}
+                    styles={{
+                        background:'#f9f9f9'
+                    }}
                 />
                 <ErrorInput
                     {...styleError}

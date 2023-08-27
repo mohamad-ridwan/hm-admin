@@ -15,6 +15,7 @@ import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
 import { navigationStore } from "lib/useZustand/navigation"
+import { specialistDoctor } from "lib/formats/specialistDoctor"
 
 type Props = {
     params: string
@@ -67,7 +68,7 @@ export function HandleFormRegistration({
     const idPatientRegistration = detailDataPatientRegis?.id
 
     const { user } = authStore()
-    const {setOnAlerts} = navigationStore()
+    const { setOnAlerts } = navigationStore()
     const router = useRouter()
 
     function loadSpecialist(): void {
@@ -75,23 +76,23 @@ export function HandleFormRegistration({
             Array.isArray(doctors) &&
             doctors.length > 0
         ) {
-            const getSpecialist = doctors.filter((value, index, self) =>
-                index === self.findIndex((t) => (
-                    t.deskripsi === value.deskripsi
-                ))
-            )
+            // const getSpecialist = doctors.filter((value, index, self) =>
+            //     index === self.findIndex((t) => (
+            //         t.deskripsi === value.deskripsi
+            //     ))
+            // )
 
-            const resultSpecialist = getSpecialist.map(doctor => ({
-                id: doctor.deskripsi,
-                title: doctor.deskripsi
-            }))
+            // const resultSpecialist = getSpecialist.map(doctor => ({
+            //     id: doctor.deskripsi,
+            //     title: doctor.deskripsi
+            // }))
 
             setOptionsSpecialist([
                 {
                     id: 'Select Specialist',
                     title: 'Select Specialist'
                 },
-                ...resultSpecialist
+                ...specialistDoctor
             ])
         }
     }
@@ -105,24 +106,31 @@ export function HandleFormRegistration({
             const dayOfAppointment = appointmentDate.split(',')[1]?.replace(spaceString, '')
             const dateOfAppointment = createDateFormat(new Date(appointmentDate.split(',')[0]))
             const getDoctors = doctors?.filter(doctor => {
-                const checkCurrentSchedule = doctor.doctorSchedule.find(day=>day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
-                const checkHolidaySchedule = doctor.holidaySchedule.find(day=>day.date === dateOfAppointment)
+                const checkCurrentSchedule = doctor.doctorSchedule.find(day => day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
+                const checkHolidaySchedule = doctor.holidaySchedule.find(day => day.date === dateOfAppointment)
 
-                return doctor.deskripsi === inputValue.specialist && 
-                checkCurrentSchedule && 
-                !checkHolidaySchedule
+                return doctor?.doctorActive === 'Active' &&
+                    doctor.deskripsi === inputValue.specialist &&
+                    checkCurrentSchedule &&
+                    !checkHolidaySchedule
             })
-            if(
+            if (
                 Array.isArray(getDoctors) &&
                 getDoctors.length === 0
-            ){
+            ) {
                 setErrInputValue({
                     ...errInputValue,
                     doctor: `No doctor's schedule is available on the patient's designated day`
                 })
 
+                setOptionsDoctor([
+                    {
+                        id: 'Select Doctor',
+                        title: 'Select Doctor'
+                    },
+                ])
                 return
-            }else{
+            } else {
                 setErrInputValue({
                     ...errInputValue,
                     doctor: ''
@@ -236,9 +244,10 @@ export function HandleFormRegistration({
             Array.isArray(dataRooms) &&
             dataRooms.length > 0
         ) {
-            const getRooms = dataRooms.map(room => ({
+            const roomActive = dataRooms.filter(room => room?.roomActive === 'Active')
+            const getRooms = roomActive.map(room => ({
                 id: room.room,
-                title: room.room
+                title: `${room.room} - (${room?.roomType})`
             }))
             setOptionsRoom([
                 {
@@ -333,7 +342,7 @@ export function HandleFormRegistration({
                         nameBtn: 'Yes',
                         classBtn: 'hover:bg-white',
                         classLoading: 'hidden',
-                        clickBtn: ()=>nextSubmitConfirmation(),
+                        clickBtn: () => nextSubmitConfirmation(),
                         styleBtn: {
                             padding: '0.5rem',
                             marginRight: '0.6rem',
@@ -356,11 +365,11 @@ export function HandleFormRegistration({
         }
     }
 
-    function nextSubmitConfirmation():void{
+    function nextSubmitConfirmation(): void {
         setLoadingSubmit(true)
         setErrInputValue({} as InputPatientRegistrationT)
         pushToConfirm()
-        if(typeof setOnModalSettings !== 'undefined'){
+        if (typeof setOnModalSettings !== 'undefined') {
             setOnModalSettings({} as PopupSettings)
         }
     }
@@ -392,6 +401,31 @@ export function HandleFormRegistration({
     }
 
     function pushToConfirm(): void {
+        API().APIPostPatientData(
+            'confirmation-patients',
+            dataSubmitConfirmPatient()
+        )
+            .then(res => {
+                setLoadingSubmit(false)
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successful confirmation',
+                    desc: 'Patient registration has been confirmed'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
+                router.push(`/patient/${params[0]}/${params[1]}/confirmed/${params[3]}/${params[4]}`)
+                setTimeout(() => {
+                    window.location.reload()
+                }, 100);
+            })
+            .catch(err => {
+                pushTriggedErr('There was a server error when confirming patient registration. please try again')
+            })
+    }
+
+    function dataSubmitConfirmPatient(): SubmitFormPatientRegisT {
         const {
             specialist,
             doctor,
@@ -425,7 +459,7 @@ export function HandleFormRegistration({
             sortQueueNumber.length > 0
             ? Number(sortQueueNumber[0].roomInfo.queueNumber) + 1 : 1
 
-        const data: SubmitFormPatientRegisT = {
+        return {
             patientId: idPatientRegistration,
             adminInfo: {
                 adminId: user.user?.id as string
@@ -443,26 +477,6 @@ export function HandleFormRegistration({
                 queueNumber: `${queueNumber}`,
             }
         }
-
-        API().APIPostPatientData(
-            'confirmation-patients',
-            data
-        )
-        .then(res=>{
-            setLoadingSubmit(false)
-            setOnAlerts({
-                onAlert: true,
-                title: 'Successful confirmation',
-                desc: 'Patient registration has been confirmed'
-            })
-            setTimeout(() => {
-                setOnAlerts({} as AlertsT)
-            }, 3000);
-            router.push(`/patient/${params[0]}/${params[1]}/confirmed/${params[3]}/${params[4]}`)
-        })
-        .catch(err=>{
-            pushTriggedErr('There was a server error when confirming patient registration. please try again')
-        })
     }
 
     return {

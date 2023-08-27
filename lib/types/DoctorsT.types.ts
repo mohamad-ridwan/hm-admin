@@ -1,4 +1,4 @@
-export type MedsosDoctorT={
+export type MedsosDoctorT = {
     id: string
     nameIcon: string
     path: string
@@ -24,8 +24,9 @@ export type ProfileDoctorT = {
     deskripsi: string
     email: string
     phone: string
+    room: string
+    doctorActive?: 'Active' | 'Not Active'
     medsos: MedsosDoctorT[]
     doctorSchedule: DoctorScheduleT[]
     holidaySchedule: HolidaySchedule[]
-    room: string
 }

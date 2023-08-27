@@ -71,25 +71,29 @@ export function TableData({
                     </p>
                 </div>
             </div>
-            <WrappMenu
-                classWrapp={`${classWrappMenu} bg-white shadow-lg z-10`}
+            <div
+                className="relative"
             >
-                {
-                    typeof actionsData !== 'undefined' &&
-                    actionsData.length > 0 &&
-                    actionsData.map((item, index) => {
-                        return (
-                            <Menu
-                                key={index}
-                                classWrapp={item?.classWrapp}
-                                id={item.id}
-                                name={item.name}
-                                click={item.click}
-                            />
-                        )
-                    })
-                }
-            </WrappMenu>
+                <WrappMenu
+                    classWrapp={`${classWrappMenu} bg-white shadow-lg z-10`}
+                >
+                    {
+                        typeof actionsData !== 'undefined' &&
+                        actionsData.length > 0 &&
+                        actionsData.map((item, index) => {
+                            return (
+                                <Menu
+                                    key={index}
+                                    classWrapp={item?.classWrapp}
+                                    id={item.id}
+                                    name={item.name}
+                                    click={item.click}
+                                />
+                            )
+                        })
+                    }
+                </WrappMenu>
+            </div>
             <div
                 // className="flex items-center justify-between pr-2 right-0 absolute mt-6 mr-4"
                 style={styleAction}

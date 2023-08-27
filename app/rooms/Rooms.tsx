@@ -129,8 +129,14 @@ export function Rooms() {
             )}
 
             <div
-                className="flex justify-end"
+                className="flex justify-between"
             >
+                <Button
+                    nameBtn='Refresh'
+                    classLoading='hidden'
+                    classBtn='w-fit hover:bg-white'
+                    clickBtn={() => window.location.reload()}
+                />
                 <Button
                     iconLeft={<FontAwesomeIcon
                         icon={faPlus}

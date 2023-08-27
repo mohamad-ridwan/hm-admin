@@ -10,7 +10,7 @@ import { spaceString } from "lib/regex/spaceString"
 import { API } from "lib/api"
 import { preloadFetch } from "lib/useFetch/preloadFetch"
 import { endpoint } from "lib/api/endpoint"
-import { AlertsT, PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"
 import { navigationStore } from "lib/useZustand/navigation"
 
@@ -37,6 +37,33 @@ function UseTableColumns({
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
 
+    const head: HeadDataTableT = [
+        {
+            name: 'Name'
+        },
+        {
+            name: 'Specialist'
+        },
+        {
+            name: 'Email'
+        },
+        {
+            name: 'Phone'
+        },
+        {
+            name: 'Practice Room'
+        },
+        {
+            name: 'Doctor Active'
+        },
+        {
+            name: 'Id Doctor'
+        },
+        {
+            name: 'Action'
+        }
+    ]
+
     const {
         doctors,
         dataRooms,
@@ -45,53 +72,47 @@ function UseTableColumns({
         pushTriggedErr
     } = ServicingHours()
 
-    const {setOnAlerts} = navigationStore()
+    const { setOnAlerts } = navigationStore()
 
     function getOurDoctors(
         data: ProfileDoctorT[],
         rooms: RoomTreatmentT[]
     ): void {
-        const newData: DataTableContentT[] = []
-        const getDataColumns = () => {
-            data.forEach(doctor => {
-                const findRoom = rooms.find(room => room.id === doctor.room)
+        const newDataDoctor: DataTableContentT[] = data.map(doctor => {
+            const findRoom = rooms.find(room => room.id === doctor.room)
 
-                const dataDoctors = {
-                    id: doctor.id,
-                    data: [
-                        {
-                            name: doctor.name,
-                            image: doctor.image
-                        },
-                        {
-                            name: doctor.deskripsi
-                        },
-                        {
-                            name: doctor.email
-                        },
-                        {
-                            name: doctor.phone
-                        },
-                        {
-                            name: findRoom?.room as string
-                        },
-                        {
-                            name: doctor.id
-                        },
-                        {
-                            name: ''
-                        },
-                    ]
-                }
-
-                newData.push(dataDoctors)
-            })
-        }
-
-        getDataColumns()
-        if (newData.length === data.length) {
-            setDataColumns(newData)
-        }
+            return {
+                id: doctor.id,
+                data: [
+                    {
+                        name: doctor.name,
+                        image: doctor.image
+                    },
+                    {
+                        name: doctor.deskripsi
+                    },
+                    {
+                        name: doctor.email
+                    },
+                    {
+                        name: doctor.phone
+                    },
+                    {
+                        name: findRoom?.room as string
+                    },
+                    {
+                        name: doctor?.doctorActive ?? '-'
+                    },
+                    {
+                        name: doctor.id
+                    },
+                    {
+                        name: ''
+                    },
+                ]
+            }
+        })
+        setDataColumns(newDataDoctor)
     }
 
     useEffect(() => {
@@ -222,17 +243,17 @@ function UseTableColumns({
             id
         )
             .then(res => {
-                preloadFetch(endpoint.getDoctors())
-                    .then(doctor => {
-                        if (doctor?.data) {
-                            preloadDoctors(doctor.data)
-                        } else {
-                            deleteFailed()
-                        }
-                    })
-                    .catch(err => {
-                        deleteFailed()
-                    })
+                // preloadFetch(endpoint.getDoctors())
+                //     .then(doctor => {
+                //         if (doctor?.data) {
+                //             preloadDoctors(doctor.data)
+                //         } else {
+                //             deleteFailed()
+                //         }
+                //     })
+                //     .catch(err => {
+                //         deleteFailed()
+                //     })
                 const doctor = res as { [key: string]: any }
                 const removeLoadingId = idLoadingDelete.filter(doctorId => doctorId !== doctor?.doctorId)
                 setIdLoadingDelete(removeLoadingId)
@@ -244,6 +265,7 @@ function UseTableColumns({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => {
                 deleteFailed()
@@ -304,7 +326,8 @@ function UseTableColumns({
         indexActiveColumnMenu,
         setIndexActiveColumnMenu,
         idLoadingDelete,
-        openPopupDelete
+        openPopupDelete,
+        head
     }
 }
 

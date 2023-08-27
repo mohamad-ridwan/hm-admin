@@ -4,7 +4,7 @@ import Input from "components/input/Input";
 import { TitleInput } from "components/input/TitleInput";
 import { ContainerPopup } from "components/popup/ContainerPopup";
 import { FormPopup } from "components/popup/FormPopup";
-import { AddNewDoctorT } from "lib/types/InputT.type";
+import { AddNewDoctorT, ErrInputAddDoctor } from "lib/types/InputT.type";
 import ImageInput from "components/input/ImageInput";
 import defaultDoctor from 'images/user.webp'
 import Button from "components/Button";
@@ -14,18 +14,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CardAddDoctorSchedule } from "components/doctors/CardAddDoctorSchedule";
 import { InputSelect } from "components/input/InputSelect";
 import { DataOptionT } from "lib/types/FilterT";
-
-type ErrInputAddDoctor = {
-    image: string
-    name: string
-    deskripsi: string
-    email: string
-    phone: string
-    room: string
-    medsos: string
-    doctorSchedule: string
-    holidaySchedule: string
-}
 
 type ActionProps = {
     clickClosePopupEdit: () => void
@@ -40,8 +28,11 @@ type ActionProps = {
     deleteHolidaySchedule: (id: string) => void
     onAddHolidaySchedule: () => void
     submitAddDoctor: () => void
-    selectRoomDoctor: () => void
-    submitEditDoctor: ()=>void
+    selectRoomDoctor: (
+        nameInput: 'room' | 'doctorActive' | 'deskripsi',
+        elementId: 'selectRoom' | 'selectActiveDoctor' | 'selectSpecialist'
+    ) => void
+    submitEditDoctor: () => void
 }
 
 type Props = ActionProps & {
@@ -49,9 +40,11 @@ type Props = ActionProps & {
     errInputAddDoctor: ErrInputAddDoctor
     loadingSubmitAddDoctor: boolean
     rooms: DataOptionT
-    titleFormDoctor: {title: string, peopleName: string, btnName: string}
+    titleFormDoctor: { title: string, peopleName: string, btnName: string }
     idLoadingEdit: string[]
     idEditDoctor: string | null
+    activeDoctor: DataOptionT
+    doctorSpecialist: DataOptionT
 }
 
 export function AddDoctor({
@@ -75,7 +68,9 @@ export function AddDoctor({
     titleFormDoctor,
     submitEditDoctor,
     idLoadingEdit,
-    idEditDoctor
+    idEditDoctor,
+    activeDoctor,
+    doctorSpecialist
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -85,7 +80,7 @@ export function AddDoctor({
 
     const currentImg = !inputValueAddDoctor.image ? defaultDoctor : inputValueAddDoctor.image
 
-    const currentLoadingEdit = idLoadingEdit.find(id=>id === idEditDoctor)
+    const currentLoadingEdit = idLoadingEdit.find(id => id === idEditDoctor)
 
     return (
         <ContainerPopup
@@ -138,12 +133,17 @@ export function AddDoctor({
                 />
 
                 <TitleInput title='Doctor Specialist' />
-                <Input
+                {/* <Input
                     type='text'
                     nameInput='deskripsi'
                     placeholder="Spesialis THT"
                     changeInput={changeInputAddDoctor}
                     valueInput={inputValueAddDoctor.deskripsi}
+                /> */}
+                <InputSelect
+                    data={doctorSpecialist}
+                    id="selectSpecialist"
+                    handleSelect={()=>selectRoomDoctor('deskripsi', 'selectSpecialist')}
                 />
                 <ErrorInput
                     {...styleError}
@@ -180,11 +180,22 @@ export function AddDoctor({
                 <InputSelect
                     data={rooms}
                     id="selectRoom"
-                    handleSelect={selectRoomDoctor}
+                    handleSelect={()=>selectRoomDoctor('room', 'selectRoom')}
                 />
                 <ErrorInput
                     {...styleError}
                     error={errInputAddDoctor?.room}
+                />
+
+                <TitleInput title='Doctor Active' />
+                <InputSelect
+                    data={activeDoctor}
+                    id="selectActiveDoctor"
+                    handleSelect={()=>selectRoomDoctor('doctorActive', 'selectActiveDoctor')}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddDoctor?.doctorActive}
                 />
 
                 <div
@@ -293,19 +304,19 @@ export function AddDoctor({
 
                 {!titleFormDoctor.peopleName && (
                     <Button
-                    nameBtn='Add Doctor'
-                    classLoading={loadingSubmitAddDoctor ? 'flex' : 'hidden'}
-                    classBtn={loadingSubmitAddDoctor ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
-                    clickBtn={submitAddDoctor}
-                />
+                        nameBtn='Add Doctor'
+                        classLoading={loadingSubmitAddDoctor ? 'flex' : 'hidden'}
+                        classBtn={loadingSubmitAddDoctor ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
+                        clickBtn={submitAddDoctor}
+                    />
                 )}
                 {titleFormDoctor.peopleName.length > 0 && (
                     <Button
-                    nameBtn='Edit'
-                    classLoading={currentLoadingEdit ? 'flex' : 'hidden'}
-                    classBtn={currentLoadingEdit ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
-                    clickBtn={submitEditDoctor}
-                />
+                        nameBtn='Edit'
+                        classLoading={currentLoadingEdit ? 'flex' : 'hidden'}
+                        classBtn={currentLoadingEdit ? 'hover:text-white cursor-not-allowed' : 'hover:bg-white'}
+                        clickBtn={submitEditDoctor}
+                    />
                 )}
             </FormPopup>
         </ContainerPopup>

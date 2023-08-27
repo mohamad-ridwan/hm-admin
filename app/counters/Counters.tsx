@@ -50,7 +50,14 @@ export function Counters() {
         clickCloseEditCounter,
         changeInputEditCounter,
         loadingIdEditCounter,
-        submitEditCounter
+        submitEditCounter,
+        counterTypeOpt,
+        selectEditCounter,
+        roomActiveOpt,
+        changeDateEditCounter,
+        selectAddCounter,
+        clickDelete,
+        loadingDeleteId
     } = UseCounters({ setOnModalSettings })
 
     return (
@@ -62,6 +69,9 @@ export function Counters() {
                     inputAddCounter={inputAddCounter}
                     errInputAddCounter={errInputAddCounter}
                     loadingSubmitAddCounter={loadingSubmitAddCounter}
+                    roomActiveOpt={roomActiveOpt}
+                    counterTypeOpt={counterTypeOpt}
+                    selectAddCounter={selectAddCounter}
                     submitAddCounter={submitAddCounter}
                 />
             )}
@@ -76,6 +86,10 @@ export function Counters() {
                     loadingIdEditCounter={loadingIdEditCounter}
                     idEditCounter={idEditCounter as string}
                     submitEditCounter={submitEditCounter}
+                    counterTypeOpt={counterTypeOpt}
+                    selectEditCounter={selectEditCounter}
+                    roomActiveOpt={roomActiveOpt}
+                    changeDateEditCounter={changeDateEditCounter}
                 />
             )}
 
@@ -106,8 +120,14 @@ export function Counters() {
             )}
 
             <div
-                className="flex justify-end"
+                className="flex justify-between"
             >
+                <Button
+                    nameBtn='Refresh'
+                    classLoading='hidden'
+                    classBtn='w-fit hover:bg-white'
+                    clickBtn={() => window.location.reload()}
+                />
                 <Button
                     iconLeft={<FontAwesomeIcon
                         icon={faPlus}
@@ -145,6 +165,8 @@ export function Counters() {
                     />
                     <tbody>
                         {currentTableData.length > 0 ? currentTableData.map((loket, index) => {
+                            const isLoadingDelete = loadingDeleteId.find(loadId=>loadId === loket.id)
+
                             const actionsData: ActionsDataT[] = [
                                 {
                                     name: 'Edit',
@@ -156,8 +178,9 @@ export function Counters() {
                                 },
                                 {
                                     name: 'Delete',
-                                    classWrapp: 'text-red-default cursor-pointer',
+                                    classWrapp: isLoadingDelete ? 'text-not-allowed hover:bg-white hover:text-[#8f8f8f] cursor-not-allowed' : 'cursor-pointer text-red-default',
                                     click: (e?: MouseEvent) => {
+                                        clickDelete(loket.id, loket.data[0].name)
                                         e?.stopPropagation()
                                     }
                                 }

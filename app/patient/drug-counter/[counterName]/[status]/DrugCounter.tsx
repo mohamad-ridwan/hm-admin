@@ -225,6 +225,13 @@ export function DrugCounter({ params }: ParamsProps) {
             <TableFilter
                 leftChild={
                     <>
+                        <Button
+                            nameBtn='Refresh'
+                            classLoading='hidden'
+                            classBtn='w-fit hover:bg-white'
+                            clickBtn={() => window.location.reload()}
+                        />
+
                         <InputSearch
                             icon={faMagnifyingGlass}
                             classWrapp='mt-2'

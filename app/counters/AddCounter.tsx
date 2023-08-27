@@ -6,17 +6,26 @@ import { FormPopup } from "components/popup/FormPopup";
 import { InputAddCounterT } from "lib/types/InputT.type";
 import ErrorInput from "components/input/ErrorInput";
 import Button from "components/Button";
+import { InputSelect } from "components/input/InputSelect";
+import { DataOptionT } from "lib/types/FilterT";
 
 type ActionProps = {
     clickCloseAddCounter: () => void
     changeInputAddCounter: (e: ChangeEvent<HTMLInputElement>) => void
-    submitAddCounter: ()=>void
+    submitAddCounter: () => void
+    selectAddCounter: (
+        e: ChangeEvent<HTMLSelectElement>,
+        nameInput: 'counterType' | 'roomActive',
+        elementId: 'addOptCounterType' | 'addOptRoomActive'
+    ) => void
 }
 
 type Props = ActionProps & {
     inputAddCounter: InputAddCounterT
     errInputAddCounter: InputAddCounterT
     loadingSubmitAddCounter: boolean
+    counterTypeOpt: DataOptionT
+    roomActiveOpt: DataOptionT
 }
 
 export function AddCounter({
@@ -25,7 +34,10 @@ export function AddCounter({
     inputAddCounter,
     errInputAddCounter,
     loadingSubmitAddCounter,
-    submitAddCounter
+    submitAddCounter,
+    counterTypeOpt,
+    selectAddCounter,
+    roomActiveOpt
 }: Props) {
     const styleError: { style: CSSProperties } = {
         style: {
@@ -53,6 +65,36 @@ export function AddCounter({
                 <ErrorInput
                     {...styleError}
                     error={errInputAddCounter?.loketName}
+                />
+
+                <TitleInput title='Counter Type' />
+                <InputSelect
+                    data={counterTypeOpt}
+                    id="addOptCounterType"
+                    handleSelect={(e) => {
+                        if (typeof e !== 'undefined') {
+                            selectAddCounter(e, 'counterType', 'addOptCounterType')
+                        }
+                    }}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddCounter?.counterType}
+                />
+
+                <TitleInput title='Room Active' />
+                <InputSelect
+                    data={roomActiveOpt}
+                    id="addOptRoomActive"
+                    handleSelect={(e) => {
+                        if (typeof e !== 'undefined') {
+                            selectAddCounter(e, 'roomActive', 'addOptRoomActive')
+                        }
+                    }}
+                />
+                <ErrorInput
+                    {...styleError}
+                    error={errInputAddCounter?.roomActive}
                 />
 
                 <Button

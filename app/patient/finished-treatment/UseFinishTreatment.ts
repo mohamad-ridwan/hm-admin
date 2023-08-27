@@ -770,6 +770,7 @@ export function UseFinishTreatment({
                     setTimeout(() => {
                         setOnAlerts({} as AlertsT)
                     }, 3000);
+                    window.location.reload()
                 })
                 .catch(err => pushTriggedErr('An error occurred while updating patient treatment data. please try again'))
         }
@@ -914,6 +915,9 @@ export function UseFinishTreatment({
                     const pathname: string = window.location.pathname
                     const redirectRoute: 'drug-counter' | 'registration' | null = pathname === '/patient/finished-treatment' ? null : checkDrugCounter?.id ? 'drug-counter' : 'registration'
                     redirectAfterDelete(redirectRoute)
+                    if(redirectRoute === null){
+                        window.location.reload()
+                    }
                 })
                 .catch(err => pushTriggedErr('There was an error deleting patient medication data. please try again'))
         } else {

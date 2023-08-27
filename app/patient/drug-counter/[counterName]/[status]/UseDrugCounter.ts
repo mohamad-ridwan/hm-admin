@@ -807,6 +807,7 @@ export function UseDrugCounter({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => pushTriggedErr(`A server error occurred. occurs when updating patient counter data. please try again`))
     }
@@ -1172,6 +1173,7 @@ export function UseDrugCounter({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient counter data. please try again`))
     }
@@ -1235,6 +1237,7 @@ export function UseDrugCounter({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient counter data. please try again`))
     }
@@ -1301,7 +1304,7 @@ export function UseDrugCounter({
             .then(res => {
                 const removeIdLoading = loadingIdPatientsDelete.filter(id => id !== res?.patientId)
                 setLoadingIdPatientsDelete(removeIdLoading)
-                alert('Successfully deleted patient data')
+                window.location.reload()
             })
             .catch(err => pushTriggedErr(`A server error occurred. occurs when deleting patient treatment data. please try again`))
     }

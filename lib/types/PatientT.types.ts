@@ -106,6 +106,12 @@ export type RoomTreatmentT = {
 export type InfoLoketT = {
     id: string
     loketName: string
+    counterType?: 'BPJS' | 'cash'
+    dates?: {
+        procurementDate: string
+        procurementHours: string
+    }
+    roomActive?: 'Active' | 'Not Active'
 }
 
 // type for pdf download

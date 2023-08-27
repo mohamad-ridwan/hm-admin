@@ -91,12 +91,12 @@ export function DeletePatient({
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `Delete patient of "${name}"`,
-                classIcon: 'text-pink-old',
+                classIcon: 'text-font-color-2',
                 iconPopup: faTrash,
                 actionsData: [
                     {
                         nameBtn: 'Yes',
-                        classBtn: 'bg-pink-old border-pink-old hover:bg-white hover:text-pink-old hover:border-pink-old',
+                        classBtn: 'hover:bg-white',
                         classLoading: 'hidden',
                         clickBtn: () => nextConfirmDelete(id),
                         styleBtn: {
@@ -147,6 +147,7 @@ export function DeletePatient({
                             setTimeout(() => {
                                 setOnAlerts({} as AlertsT)
                             }, 3000);
+                            window.location.reload()
                         } else {
                             pushTriggedErr('error preload data service. no property "data" found')
                         }
@@ -167,13 +168,13 @@ export function DeletePatient({
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `Cancel patient registration "${name}"?`,
-                classIcon: 'text-red-default',
+                classIcon: 'text-font-color-2',
                 iconPopup: faBan,
                 patientId: id,
                 actionsData: [
                     {
                         nameBtn: 'Yes',
-                        classBtn: 'bg-red border-red-default hover:bg-white hover:text-red-default hover:border-red-default',
+                        classBtn: 'hover:bg-white',
                         classLoading: 'hidden',
                         clickBtn: () => nextCancelTreatment(),
                         styleBtn: {

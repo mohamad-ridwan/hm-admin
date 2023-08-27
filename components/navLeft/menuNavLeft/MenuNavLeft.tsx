@@ -1,9 +1,9 @@
 'use client'
 
+import { ReactNode } from "react"
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from "next/link"
-import { ReactNode } from "react"
 
 type MenuNameProps = {
     name: string

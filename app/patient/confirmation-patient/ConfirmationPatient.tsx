@@ -253,6 +253,12 @@ export function ConfirmationPatient() {
             <TableFilter
                 leftChild={
                     <>
+                        <Button
+                            nameBtn='Refresh'
+                            classLoading='hidden'
+                            classBtn='w-fit hover:bg-white'
+                            clickBtn={() => window.location.reload()}
+                        />
                         <InputSearch
                             icon={faMagnifyingGlass}
                             classWrapp='mt-2'
@@ -403,7 +409,7 @@ export function ConfirmationPatient() {
                                 className='flex justify-center'
                             >
                                 <td
-                                    className='p-8'
+                                    className='p-8 whitespace-nowrap'
                                 >No patient confirmation data</td>
                             </tr>
                         )}

@@ -42,7 +42,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
         setOnModalSettings,
         onModalSettings,
         doctorIsAvailable
-    } = UseForm({params})
+    } = UseForm({ params })
 
     const {
         onPopupEditConfirmPatient,
@@ -153,7 +153,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
                 if (dataPatientFinishTreatment?.id || drugCounterPatient?.id) {
                     return
                 }
-                if(params.length <= 5){
+                if (params.length <= 5) {
                     clickDelete(detailDataPatientRegis.patientName, detailDataPatientRegis.id, dataConfirmPatient.id)
                 }
             }
@@ -258,13 +258,13 @@ export function ConfirmationPatient({ params }: { params: string }) {
 
                     {/* form confirm patient to counter */}
                     {
-                    !drugCounterPatient?.id &&
-                    !dataPatientFinishTreatment?.id &&
-                    (
-                        <FormConfirmation 
-                        params={params}
-                        />
-                    )}
+                        !drugCounterPatient?.id &&
+                        !dataPatientFinishTreatment?.id &&
+                        (
+                            <FormConfirmation
+                                params={params}
+                            />
+                        )}
                 </Container>
             )}
         </>

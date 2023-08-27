@@ -281,6 +281,7 @@ function FormPatientRegistration({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch((err) => {
                 pushTriggedErr('a server error occurred. please try again later')

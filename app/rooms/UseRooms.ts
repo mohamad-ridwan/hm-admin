@@ -13,6 +13,7 @@ import { API } from "lib/api"
 import { navigationStore } from "lib/useZustand/navigation"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
+import { specialistDoctor } from "lib/formats/specialistDoctor"
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -73,44 +74,7 @@ export function UseRooms({
             name: 'Action'
         }
     ])
-    const [roomTypeOptions] = useState<DataOptionT>([
-        {
-            id: 'Select Room Type',
-            title: 'Select Room Type'
-        },
-        {
-            id: 'Spesialis Anak',
-            title: 'Spesialis Anak'
-        },
-        {
-            id: 'Spesialis Mata',
-            title: 'Spesialis Mata'
-        },
-        {
-            id: 'Spesialis Kandungan',
-            title: 'Spesialis Kandungan'
-        },
-        {
-            id: 'Spesialis Saraf',
-            title: 'Spesialis Saraf'
-        },
-        {
-            id: 'Spesialis Kedokteran Jiwa',
-            title: 'Spesialis Kedokteran Jiwa'
-        },
-        {
-            id: 'Spesialis Telinga Hidung Tenggorokan',
-            title: 'Spesialis Telinga Hidung Tenggorokan'
-        },
-        {
-            id: 'Spesialis Kulit dan Kelamin',
-            title: 'Spesialis Kulit dan Kelamin'
-        },
-        {
-            id: 'Spesialis Penyakit Dalam',
-            title: 'Spesialis Penyakit Dalam'
-        },
-    ])
+    const [roomTypeOptions, setRoomTypeOptions] = useState<DataOptionT>(specialistDoctor)
     const roomActiveOptions: DataOptionT = [
         {
             id: 'Select Room Active',
@@ -145,16 +109,16 @@ export function UseRooms({
                         name: room.room
                     },
                     {
-                        name: room?.roomType ? room.roomType : '-'
+                        name: room?.roomType ?? '-'
                     },
                     {
-                        name: room?.dates?.procurementDate ? room.dates.procurementDate : '-'
+                        name: room?.dates?.procurementDate ?? ''
                     },
                     {
-                        name: room?.dates?.procurementHours ? room.dates.procurementHours : '-'
+                        name: room?.dates?.procurementHours ?? '-'
                     },
                     {
-                        name: room?.roomActive ? `${room.roomActive}` : 'Not Active'
+                        name: room?.roomActive ?? '-'
                     },
                     {
                         name: room.id
@@ -177,6 +141,13 @@ export function UseRooms({
             loadGetRoomsData(dataRooms)
         }
     }, [loadDataService, dataRooms])
+
+    useEffect(() => {
+        setRoomTypeOptions((current) => [{
+            id: 'Select Room Type',
+            title: 'Select Room Type'
+        }, ...current])
+    }, [])
 
     const filterText: DataTableContentT[] = dataColumns.length > 0 ? dataColumns.filter(room => {
         const names = room.data.filter(roomData => roomData.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
@@ -286,7 +257,7 @@ export function UseRooms({
         if (inputAddRoom.roomType === 'Select Room Type') {
             err.roomType = 'Must be required'
         }
-        if(inputAddRoom.roomActive === 'Select Room Active'){
+        if (inputAddRoom.roomActive === 'Select Room Active') {
             err.roomActive = 'Must be required'
         }
 
@@ -339,13 +310,13 @@ export function UseRooms({
         if (elem) elem.selectedIndex = roomIndex
     }
 
-    function idxRoomActive():void{
-        const findIndex = roomActiveOptions.findIndex(item=>item.id === inputEditRoom.roomActive)
+    function idxRoomActive(): void {
+        const findIndex = roomActiveOptions.findIndex(item => item.id === inputEditRoom.roomActive)
         const elem = document.getElementById('roomActiveOpt') as HTMLSelectElement
-        if(elem)elem.selectedIndex = findIndex
+        if (elem) elem.selectedIndex = findIndex
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         idxRoomActive()
     }, [inputEditRoom])
 
@@ -451,13 +422,13 @@ export function UseRooms({
         if (!inputEditRoom.roomType.trim()) {
             err.roomType = 'Must be required'
         }
-        if(!inputEditRoom.procurementDate.trim()){
+        if (!inputEditRoom.procurementDate.trim()) {
             err.procurementDate = 'Must be required'
         }
-        if(!inputEditRoom.procurementHours.trim()){
+        if (!inputEditRoom.procurementHours.trim()) {
             err.procurementHours = 'Must be required'
         }
-        if(inputEditRoom.roomActive === 'Select Room Active'){
+        if (inputEditRoom.roomActive === 'Select Room Active') {
             err.roomActive = 'Must be required'
         }
 
@@ -486,6 +457,7 @@ export function UseRooms({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => pushTriggedErr('A server error occurred. Occurs when updating room data. Please try again'))
         if (typeof setOnModalSettings === 'function') {
@@ -606,6 +578,7 @@ export function UseRooms({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => pushTriggedErr('A server error occurred. occurs when deleting specialist room'))
         if (typeof setOnModalSettings === 'function') {
@@ -616,7 +589,7 @@ export function UseRooms({
     function changeDateEditRoom(
         e?: ChangeEvent<HTMLInputElement> | Date,
         nameInput?: 'procurementDate'
-    ):void{
+    ): void {
         setInputEditRoom({
             ...inputEditRoom,
             [nameInput as 'procurementDate']: e ? `${createDateFormat(e as Date, 'MM/DD/YYYY')}` : ''
@@ -627,7 +600,7 @@ export function UseRooms({
         })
     }
 
-    function selectRoomActive():void{
+    function selectRoomActive(): void {
         const elem = document.getElementById('roomActiveOpt') as HTMLSelectElement
         const value = elem.options[elem.selectedIndex].value
         if (value) {
@@ -642,7 +615,7 @@ export function UseRooms({
         }
     }
 
-    function selectAddRoomActive():void{
+    function selectAddRoomActive(): void {
         const elem = document.getElementById('roomActiveOpt') as HTMLSelectElement
         const value = elem.options[elem.selectedIndex].value
         if (value) {

@@ -12,6 +12,9 @@ import { createDateFormat } from "lib/formats/createDateFormat"
 import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faPenToSquare, faPencil } from "@fortawesome/free-solid-svg-icons"
 import { navigationStore } from "lib/useZustand/navigation"
+import { specialistDoctor } from "lib/formats/specialistDoctor"
+import { spaceString } from "lib/regex/spaceString"
+import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -28,6 +31,7 @@ function FormPatientConfirmation({
     const [onPopupEditConfirmPatient, setOnPopupEditConfirmPatient] = useState<boolean>(false)
     const [idPatientToEditConfirmPatient, setIdPatientToEditConfirmPatient] = useState<string | null>(null)
     const [idLoadingEditConfirmPatient, setIdLoadingEditConfirmPatient] = useState<string[]>([])
+    const [getAppointmentDate, setGetAppointmentDate] = useState<string>('')
     const [valueInputEditConfirmPatient, setValueInputEditConfirmPatient] = useState<InputEditConfirmPatientT>({
         patientId: '',
         emailAdmin: '',
@@ -78,7 +82,7 @@ function FormPatientConfirmation({
         dataFinishTreatment
     } = ServicingHours()
 
-    const {setOnAlerts} = navigationStore()
+    const { setOnAlerts } = navigationStore()
 
     function changeEditConfirmPatient(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
         setValueInputEditConfirmPatient({
@@ -92,10 +96,29 @@ function FormPatientConfirmation({
         })
     }
 
+    function changeTreatmentHours(): void {
+        if (
+            Array.isArray(doctors) &&
+            doctors.length > 0
+        ) {
+            const dayOfAppointment = createDateNormalFormat(getAppointmentDate).split(',')[1]?.replace(spaceString, '')
+            const findDoctor = doctors.find(doctor=>doctor.name === valueInputEditConfirmPatient.nameDoctor)
+            const findDaySchedule = findDoctor?.doctorSchedule.find(day=>day.dayName === dayOfAppointment)
+            setValueInputEditConfirmPatient({
+                ...valueInputEditConfirmPatient,
+                treatmentHours: findDaySchedule?.practiceHours ?? ''
+            })
+        }
+    }
+
+    useEffect(() => {
+        changeTreatmentHours()
+    }, [valueInputEditConfirmPatient.nameDoctor])
+
     function handleInputSelectConfirmPatient(
         idElement: string,
         nameInput: 'emailAdmin' | 'doctorSpecialist' | 'nameDoctor' | 'roomName' | 'presence',
-        cb?: (id: string, p2?: boolean) => void,
+        cb?: (id: string, p2?: boolean, p3?: string) => void,
         cb2?: (p1?: boolean) => void
     ): void {
         const selectEl = document.getElementById(idElement) as HTMLSelectElement
@@ -107,7 +130,7 @@ function FormPatientConfirmation({
             })
 
             if (typeof cb === 'function') {
-                cb(id, true)
+                cb(id, true, getAppointmentDate)
             }
             if (typeof cb2 === 'function') {
                 cb2(true)
@@ -127,9 +150,20 @@ function FormPatientConfirmation({
         })
     }
 
-    function loadDataDoctor(specialist: string, isActiveDoctor?: boolean): void {
+    function loadDataDoctor(specialist: string, isActiveDoctor?: boolean, appointmentDate?: string): void {
         if (Array.isArray(doctors) && doctors.length > 0 && specialist) {
-            const findDoctorSpecialist = doctors.filter(data => data.deskripsi === specialist)
+            if (appointmentDate === undefined) return
+            const dayOfAppointment = createDateNormalFormat(appointmentDate).split(',')[1]?.replace(spaceString, '')
+            const dateOfAppointment = createDateFormat(new Date(appointmentDate.split(',')[0]))
+            const findDoctorSpecialist = doctors.filter(data => {
+                const checkCurrentSchedule = data.doctorSchedule.find(day => day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
+                const checkHolidaySchedule = data.holidaySchedule.find(day => day.date === dateOfAppointment)
+
+                return data?.doctorActive === 'Active' &&
+                    data.deskripsi === specialist &&
+                    checkCurrentSchedule &&
+                    !checkHolidaySchedule
+            })
             const getDoctors = findDoctorSpecialist.map(data => ({
                 id: data.name,
                 title: data.name
@@ -143,6 +177,18 @@ function FormPatientConfirmation({
                 ...getDoctors
             ])
 
+            if (findDoctorSpecialist.length === 0) {
+                setErrEditInputConfirmPatient({
+                    ...errEditInputConfirmPatient,
+                    nameDoctor: `No doctor's schedule is available on the patient's designated day`
+                })
+            } else {
+                setErrEditInputConfirmPatient({
+                    ...errEditInputConfirmPatient,
+                    nameDoctor: ''
+                })
+            }
+
             if (isActiveDoctor) {
                 const doctor = document.getElementById('selectDoctor') as HTMLSelectElement
                 if (doctor) {
@@ -154,15 +200,23 @@ function FormPatientConfirmation({
                 }))
             }
         } else {
-            alert(`no doctor's data found. please try again`)
+            setOnAlerts({
+                onAlert: true,
+                title: `no doctor's data found`,
+                desc: 'please try again'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         }
     }
 
     function loadDataRoom(isActiveRoom?: boolean): void {
         if (Array.isArray(dataRooms) && dataRooms.length > 0) {
-            const findRoom: DataOptionT = dataRooms?.map(room => ({
+            const roomActive = dataRooms.filter(room => room?.roomActive === 'Active')
+            const findRoom: DataOptionT = roomActive.map(room => ({
                 id: room.room,
-                title: room.room
+                title: `${room.room} - (${room?.roomType})`
             }))
 
             setSelectRoom([
@@ -184,7 +238,14 @@ function FormPatientConfirmation({
                 }))
             }
         } else {
-            alert('medical room data not found. please try again')
+            setOnAlerts({
+                onAlert: true,
+                title: 'Medical room data not found.',
+                desc: 'Please try again'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         }
     }
 
@@ -354,12 +415,11 @@ function FormPatientConfirmation({
         const findRegistration = dataPatientRegis?.filter((patient => {
             // patient already on confirm
             const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) =>
-                patientConfirm.patientId === patient.id && patientConfirm.patientId !== patientId
+                patientConfirm.patientId === patient.id && patientConfirm.patientId !== patientId &&
+                patientConfirm.roomInfo.roomId === findRoom?.id
             )
-            // get patient in this room
-            const findPatientInRoom = dataRooms?.find(room => room?.id === findRoom?.id)
 
-            return findPatientOnConfirm && findPatientInRoom
+            return findPatientOnConfirm
         }))
         // find patient this data
         const findPatientThisData = dataPatientRegis?.find(patient => patient.id === patientId)
@@ -409,6 +469,7 @@ function FormPatientConfirmation({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch((err) => {
                 pushTriggedErr('a server error occurred. please try again')
@@ -417,7 +478,7 @@ function FormPatientConfirmation({
 
     function clickEditToConfirmPatient(
         id: string,
-        name: string,
+        name: string
     ): void {
         const findPatient = dataConfirmationPatients?.find(patient => patient.patientId === id)
         if (findPatient) {
@@ -428,8 +489,10 @@ function FormPatientConfirmation({
                 doctorInfo,
                 roomInfo
             } = findPatient
+            const findPatientRegis = dataPatientRegis?.find(patient => patient.id === patientId)
             setNameEditConfirmPatient(name)
             setIdPatientToEditConfirmPatient(findPatient?.patientId)
+            setGetAppointmentDate(findPatientRegis?.appointmentDate as string)
 
             // admin
             const findAdmin: AdminT | null | undefined = dataAdmin?.find(admin => admin?.id === adminInfo.adminId)
@@ -450,17 +513,17 @@ function FormPatientConfirmation({
                 queueNumber: roomInfo?.queueNumber,
             })
 
-            const patientFT = dataFinishTreatment?.find(patient=>patient.patientId === id)
-            if(patientFT){
+            const patientFT = dataFinishTreatment?.find(patient => patient.patientId === id)
+            if (patientFT) {
                 setDisableToggleQueue(true)
-            }else{
+            } else {
                 setDisableToggleQueue(false)
             }
 
             setTimeout(() => {
                 loadDataAdmin()
                 loadDataSpecialist()
-                loadDataDoctor(findDoctor?.deskripsi as string)
+                loadDataDoctor(findDoctor?.deskripsi as string, undefined, findPatientRegis?.appointmentDate)
                 loadDataRoom()
             }, 0)
         } else {
@@ -489,25 +552,32 @@ function FormPatientConfirmation({
 
     function loadDataSpecialist(): void {
         if (Array.isArray(doctors) && doctors.length > 0) {
-            let newDataSpecialist: { id: string, title: string }[] = []
-            let count: number = 0
-            doctors.forEach(data => {
-                count = count + 1
-                const checkSpecialist = newDataSpecialist.find(specialist => specialist.id === data.deskripsi)
-                if (!checkSpecialist) {
-                    newDataSpecialist.push({ id: data.deskripsi, title: data.deskripsi })
-                }
-            })
+            // let newDataSpecialist: { id: string, title: string }[] = []
+            // let count: number = 0
+            // doctors.forEach(data => {
+            //     count = count + 1
+            //     const checkSpecialist = newDataSpecialist.find(specialist => specialist.id === data.deskripsi)
+            //     if (!checkSpecialist) {
+            //         newDataSpecialist.push({ id: data.deskripsi, title: data.deskripsi })
+            //     }
+            // })
 
-            if (count === doctors.length) {
-                setSelectDoctorSpecialist([
-                    {
-                        id: 'Select Specialist',
-                        title: 'Select Specialist'
-                    },
-                    ...newDataSpecialist
-                ])
-            }
+            // if (count === doctors.length) {
+            //     setSelectDoctorSpecialist([
+            //         {
+            //             id: 'Select Specialist',
+            //             title: 'Select Specialist'
+            //         },
+            //         ...specialistDoctor
+            //     ])
+            // }
+            setSelectDoctorSpecialist([
+                {
+                    id: 'Select Specialist',
+                    title: 'Select Specialist'
+                },
+                ...specialistDoctor
+            ])
         } else {
             alert(`no doctor's data found. please try again`)
         }

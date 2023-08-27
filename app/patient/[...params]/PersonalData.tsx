@@ -17,11 +17,8 @@ export function PersonalData(
     return (
         <>
             <PatientRegistration params={params}/>
-
             <ConfirmationPatient params={params}/>
-
             <DrugCounter params={params}/>
-
             <FinishedTreatment params={params}/>
         </>
     )

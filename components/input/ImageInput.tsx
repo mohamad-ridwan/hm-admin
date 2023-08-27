@@ -1,14 +1,15 @@
+import { CSSProperties, ChangeEvent } from "react";
 import Image, { StaticImageData } from "next/image"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
 import Input from "./Input";
-import { ChangeEvent } from "react";
 
 type ImgProps = {
     height?: number
     width?: number
     src: string | StaticImageData
     alt?: string
+    styleWrappImg?: CSSProperties
 }
 
 type ButtonProps = ImgProps & {
@@ -31,7 +32,8 @@ export default function ImageInput({
     changeInput,
     nameInput,
     valueInput,
-    alt = 'user image hospice medical admin'
+    alt = 'user image hospice medical admin',
+    styleWrappImg
 }: Props) {
     return (
         <div
@@ -39,6 +41,7 @@ export default function ImageInput({
         >
             <div
                 className="flex justify-center overflow-hidden relative h-20 w-20"
+                style={styleWrappImg}
             >
                 <Image
                     src={src}

@@ -271,24 +271,23 @@ export function FilterTable() {
     }
 
     function getFilterRooms(): void {
-        const data: DataOptionT = [
+        const roomActive = dataRooms?.filter(room => room?.roomActive === 'Active')
+        const rooms = roomActive?.map(room => (
+            {
+                id: room.room,
+                title: `${room.room} - (${room?.roomType})`
+            }
+        ))
+        if (
+            Array.isArray(rooms) &&
+            rooms.length > 0
+        ) setDataFilterRoom([
             {
                 id: 'Filter By Room',
                 title: 'Filter By Room'
-            }
-        ]
-        let count: number = 0
-        dataRooms?.forEach(room => {
-            count = count + 1
-            data.push({
-                id: room.room,
-                title: room.room
-            })
-        })
-
-        if (count === dataRooms?.length) {
-            setDataFilterRoom(data)
-        }
+            },
+            ...rooms
+        ])
     }
 
     useEffect(() => {
@@ -312,7 +311,7 @@ export function FilterTable() {
         setSearchText(e?.target.value as string)
     }
 
-    useMemo(()=>{
+    useMemo(() => {
         setCurrentPage(1)
     }, [searchText])
 

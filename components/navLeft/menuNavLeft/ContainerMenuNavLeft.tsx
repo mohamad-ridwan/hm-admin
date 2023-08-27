@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { faAngleDown, faAngleUp, faBarsProgress, faBedPulse, faChartLine, faClipboardCheck, faDoorClosed, faHospitalUser, faPeopleRoof, faSitemap, faStethoscope, faTag } from '@fortawesome/free-solid-svg-icons'
 import { navigationStore } from 'lib/useZustand/navigation'
@@ -27,11 +27,11 @@ export function ContainerMenuNavLeft({
             path: '/',
             icon: faBarsProgress
         },
-        {
-            name: 'Upload Article',
-            path: '/upload-article',
-            icon: faSitemap
-        },
+        // {
+        //     name: 'Upload Article',
+        //     path: '/upload-article',
+        //     icon: faSitemap
+        // },
         {
             name: 'Patient',
             path: null,
@@ -105,12 +105,19 @@ export function ContainerMenuNavLeft({
         const getHightEl: number | undefined = wrappMenuChild?.getBoundingClientRect()?.height
         if (idxActiveDropMenu === index) {
             setIdxActiveDropMenu(null)
-            setHeightMenuChild(`48px`)
+            setHeightMenuChild('48px')
         } else {
             setIdxActiveDropMenu(index)
             setHeightMenuChild(`${getHightEl as number + 58}px`)
         }
     }
+
+    useEffect(()=>{
+        if(onNavLeft){
+            setIdxActiveDropMenu(null)
+            setHeightMenuChild('48px')
+        }
+    }, [onNavLeft])
 
     return (
         <>

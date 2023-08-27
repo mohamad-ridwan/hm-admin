@@ -28,29 +28,6 @@ import { userImg } from "lib/firebase/firstlogo";
 
 export function OurDoctor() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
-    const [head] = useState<{ name: string }[]>([
-        {
-            name: 'Name'
-        },
-        {
-            name: 'Specialist'
-        },
-        {
-            name: 'Email'
-        },
-        {
-            name: 'Phone'
-        },
-        {
-            name: 'Practice Room'
-        },
-        {
-            name: 'Id Doctor'
-        },
-        {
-            name: 'Action'
-        }
-    ])
 
     const {
         searchText,
@@ -101,6 +78,8 @@ export function OurDoctor() {
         selectRoomDoctor,
         roomOptions,
         titleFormDoctor,
+        activeDoctor,
+        doctorSpecialist,
         // action edit doctor
         idLoadingEdit,
         idEditDoctor,
@@ -117,7 +96,8 @@ export function OurDoctor() {
         indexActiveColumnMenu,
         setIndexActiveColumnMenu,
         idLoadingDelete,
-        openPopupDelete
+        openPopupDelete,
+        head
     } = UseTableColumns({ currentFilter, selectCurrentFilter, searchText, setOnModalSettings })
 
     return (
@@ -145,6 +125,8 @@ export function OurDoctor() {
                     onAddHolidaySchedule={onAddHolidaySchedule}
                     submitAddDoctor={submitAddDoctor}
                     selectRoomDoctor={selectRoomDoctor}
+                    doctorSpecialist={doctorSpecialist}
+                    activeDoctor={activeDoctor}
                     submitEditDoctor={submitEditDoctor}
                 />
             )}
@@ -211,8 +193,14 @@ export function OurDoctor() {
 
             {/* add new doctor */}
             <div
-                className="flex justify-end"
+                className="flex justify-between"
             >
+                <Button
+                    nameBtn='Refresh'
+                    classLoading='hidden'
+                    classBtn='w-fit hover:bg-white'
+                    clickBtn={() => window.location.reload()}
+                />
                 <Button
                     iconLeft={<FontAwesomeIcon
                         icon={faPlus}
@@ -343,7 +331,7 @@ export function OurDoctor() {
                                                         </div>
                                                         : indexData === 0 ?
                                                             <div
-                                                            className="flex h-[35px] w-[35px] rounded-full overflow-hidden mr-2"
+                                                                className="flex h-[35px] w-[35px] rounded-full overflow-hidden mr-2"
                                                             >
                                                                 <Image
                                                                     alt={dataItem.name}

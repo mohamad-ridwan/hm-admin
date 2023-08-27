@@ -85,9 +85,10 @@ export function UseForm({
             Array.isArray(dataLoket) &&
             dataLoket.length > 0
         ) {
-            const getLoket = dataLoket.map(loket => ({
+            const counterActive = dataLoket.filter(counter => counter?.roomActive === 'Active')
+            const getLoket = counterActive.map(loket => ({
                 id: loket.loketName,
-                title: loket.loketName
+                title: `${loket.loketName} - (${loket?.counterType})`
             }))
             setCounterOptions([
                 {
@@ -181,6 +182,9 @@ export function UseForm({
             }, 3000)
             setTimeout(() => {
                 router.push(`${patientId}/counter/${currentCounter.id}/not-yet-confirmed/${dataSubmitToCounter().queueNumber}`)
+                setTimeout(() => {
+                    window.location.reload()
+                }, 300);
             }, 0);
         })
             .catch(err => pushTriggedErr('An error occurred when confirming the patient to the counter. please try again'))
@@ -191,7 +195,7 @@ export function UseForm({
     function dataSubmitToCounter(): SubmitDrugCounterT {
         const loketId = dataLoket?.find(loket => loket?.loketName === currentCounter?.id)?.id
 
-        const data: SubmitDrugCounterT = {
+        return {
             patientId,
             loketInfo: { loketId: loketId as string },
             message: value,
@@ -202,8 +206,6 @@ export function UseForm({
             },
             queueNumber: getQueueNumber()
         }
-
-        return data
     }
 
     function getQueueNumber(): string {
@@ -471,32 +473,36 @@ export function UseForm({
         if (inputMsgCancelPatient.length > 0) {
             setLoadingCancelTreatment(true)
             setOnMsgCancelTreatment(false)
-            const data: SubmitFinishedTreatmentT = {
-                patientId: patientId,
-                confirmedTime: {
-                    dateConfirm: createDateFormat(new Date()),
-                    confirmHour: createHourFormat(new Date())
-                },
-                adminInfo: { adminId: user.user?.id as string },
-                isCanceled: true,
-                messageCancelled: inputMsgCancelPatient
-            }
             API().APIPostPatientData(
                 'finished-treatment',
-                data,
+                dataSubmitCancelTreatment()
             )
                 .then(res => {
                     setOnAlerts({
                         onAlert: true,
-                        title:'Successfully cancel patient registration',
+                        title: 'Successfully cancel patient registration',
                         desc: `The patient's treatment was cancelled`
                     })
                     setTimeout(() => {
                         setOnAlerts({} as AlertsT)
                     }, 3000);
                     setLoadingCancelTreatment(false)
+                    window.location.reload()
                 })
                 .catch(err => pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
+        }
+    }
+
+    function dataSubmitCancelTreatment(): SubmitFinishedTreatmentT {
+        return {
+            patientId: patientId,
+            confirmedTime: {
+                dateConfirm: createDateFormat(new Date()),
+                confirmHour: createHourFormat(new Date())
+            },
+            adminInfo: { adminId: user.user?.id as string },
+            isCanceled: true,
+            messageCancelled: inputMsgCancelPatient
         }
     }
 

@@ -64,6 +64,13 @@ export function DrugCounter() {
                 </ContainerPopup>
             )}
 
+            <Button
+                nameBtn='Refresh'
+                classLoading='hidden'
+                classBtn='w-fit hover:bg-white mb-3'
+                clickBtn={() => window.location.reload()}
+            />
+
             <h1
                 className="font-bold text-[1.3rem] mb-8"
             >Counter Information</h1>

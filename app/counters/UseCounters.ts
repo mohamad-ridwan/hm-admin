@@ -4,13 +4,15 @@ import { useState, useEffect, useMemo, ChangeEvent, Dispatch, SetStateAction } f
 import ServicingHours from 'lib/dataInformation/ServicingHours'
 import { AlertsT, HeadDataTableT, PopupSettings } from 'lib/types/TableT.type'
 import { InfoLoketT } from 'lib/types/PatientT.types'
-import { DataTableContentT } from 'lib/types/FilterT'
+import { DataOptionT, DataTableContentT } from 'lib/types/FilterT'
 import { specialCharacter } from 'lib/regex/specialCharacter'
 import { spaceString } from 'lib/regex/spaceString'
-import { InputAddCounterT, InputEditCounterT } from 'lib/types/InputT.type'
-import { faPencil, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { InputAddCounterT, InputEditCounterT, InputSubmitAddCounterT, SubmitInputEditCounterT } from 'lib/types/InputT.type'
+import { faBan, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { API } from 'lib/api'
 import { navigationStore } from 'lib/useZustand/navigation'
+import { createDateFormat } from 'lib/formats/createDateFormat'
+import { createHourFormat } from 'lib/formats/createHourFormat'
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -25,18 +27,25 @@ export function UseCounters({
     const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
     const [onAddCounter, setOnAddCounter] = useState<boolean>(false)
     const [inputAddCounter, setInputAddCounter] = useState<InputAddCounterT>({
-        loketName: ''
+        loketName: '',
+        counterType: 'Select Payment Method',
+        roomActive: 'Select Room Active'
     })
     const [errInputAddCounter, setErrInputAddCounter] = useState<InputAddCounterT>({} as InputAddCounterT)
     const [loadingSubmitAddCounter, setLoadingSubmitAddCounter] = useState<boolean>(false)
     const [inputEditCounter, setInputEditCounter] = useState<InputEditCounterT>({
-        loketName: ''
+        loketName: '',
+        counterType: 'Select Payment Method',
+        procurementDate: '',
+        procurementHours: '',
+        roomActive: 'Select Room Active'
     })
     const [errInputEditCounter, setErrInputEditCounter] = useState<InputEditCounterT>({} as InputEditCounterT)
     const [idEditCounter, setIdEditCounter] = useState<string | null>(null)
     const [counterName, setCounterName] = useState<string>('')
     const [onEditCounter, setOnEditCounter] = useState<boolean>(false)
     const [loadingIdEditCounter, setLoadingIdEditCounter] = useState<string[]>([])
+    const [loadingDeleteId, setLoadingDeleteId] = useState<string[]>([])
 
     const {
         loadDataService,
@@ -51,10 +60,51 @@ export function UseCounters({
             name: 'Counter Name'
         },
         {
+            name: 'Counter Type'
+        },
+        {
+            name: 'Procurement Date'
+        },
+        {
+            name: 'Procurement Hours'
+        },
+        {
+            name: 'Room Active'
+        },
+        {
             name: 'Id'
         },
         {
             name: 'Action'
+        }
+    ]
+
+    const counterTypeOpt: DataOptionT = [
+        {
+            id: 'Select Payment Method',
+            title: 'Select Payment Method'
+        },
+        {
+            id: 'cash',
+            title: 'cash'
+        },
+        {
+            id: 'BPJS',
+            title: 'BPJS'
+        },
+    ]
+    const roomActiveOpt: DataOptionT = [
+        {
+            id: 'Select Room Active',
+            title: 'Select Room Active'
+        },
+        {
+            id: 'Active',
+            title: 'Active'
+        },
+        {
+            id: 'Not Active',
+            title: 'Not Active'
         }
     ]
 
@@ -66,6 +116,18 @@ export function UseCounters({
             data: [
                 {
                     name: item.loketName
+                },
+                {
+                    name: item?.counterType ?? '-'
+                },
+                {
+                    name: item?.dates?.procurementDate ?? ''
+                },
+                {
+                    name: item?.dates?.procurementHours ?? '-'
+                },
+                {
+                    name: item?.roomActive ?? '-'
                 },
                 {
                     name: item.id
@@ -123,10 +185,12 @@ export function UseCounters({
 
     function changeInputAddCounter(e: ChangeEvent<HTMLInputElement>): void {
         setInputAddCounter({
-            loketName: e.target.value
+            ...inputAddCounter,
+            [e.target.name]: e.target.value
         })
         setErrInputAddCounter({
-            loketName: ''
+            ...errInputAddCounter,
+            [e.target.name]: ''
         })
     }
 
@@ -174,6 +238,12 @@ export function UseCounters({
         if (!inputAddCounter.loketName.trim()) {
             err.loketName = 'Must be required'
         }
+        if (inputAddCounter.counterType === 'Select Payment Method') {
+            err.counterType = 'Must be required'
+        }
+        if (inputAddCounter.roomActive === 'Select Room Active') {
+            err.roomActive = 'Must be required'
+        }
 
         if (Object.keys(err).length !== 0) {
             setErrInputAddCounter(err)
@@ -187,19 +257,13 @@ export function UseCounters({
         if (typeof setOnModalSettings === 'function') {
             setOnModalSettings({} as PopupSettings)
         }
-        const data: InputAddCounterT & {
-            id: string
-        } = {
-            id: `${new Date().getTime()}`,
-            loketName: inputAddCounter.loketName
-        }
         API().APIPostPatientData(
             'info-loket',
-            data
+            dataSubmitAddCounter()
         )
             .then(res => {
                 setLoadingSubmitAddCounter(false)
-                setInputAddCounter({ loketName: '' })
+                setInputAddCounter({} as InputAddCounterT)
                 setOnAlerts({
                     onAlert: true,
                     title: 'Successful add counter',
@@ -208,8 +272,27 @@ export function UseCounters({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => pushTriggedErr('A server error occurred. Happens when adding a counter. Please try again'))
+    }
+
+    function dataSubmitAddCounter(): InputSubmitAddCounterT {
+        const {
+            loketName,
+            counterType,
+            roomActive
+        } = inputAddCounter
+        return {
+            id: `${new Date().getTime()}`,
+            loketName,
+            counterType: counterType as 'BPJS',
+            dates: {
+                procurementDate: createDateFormat(new Date()),
+                procurementHours: createHourFormat(new Date())
+            },
+            roomActive: roomActive as 'Active'
+        }
     }
 
     function clickColumnMenu(index: number): void {
@@ -226,13 +309,28 @@ export function UseCounters({
     ): void {
         const findLoket = dataLoket?.find(loket => loket.id === id)
         if (findLoket) {
+            const {
+                counterType,
+                dates,
+                roomActive
+            } = findLoket
             setCounterName(counterName)
             setIndexActiveColumnMenu(null)
             setIdEditCounter(id)
             setOnEditCounter(true)
+            const newCounterType = typeof counterType !== 'undefined' ? counterType : 'Select Payment Method'
+            const newRoomActive = roomActive ?? 'Select Room Active'
             setInputEditCounter({
-                loketName: counterName
+                loketName: counterName,
+                counterType: newCounterType,
+                procurementDate: dates?.procurementDate ?? '',
+                procurementHours: dates?.procurementHours ?? '',
+                roomActive: newRoomActive
             })
+            setTimeout(() => {
+                activeIndexSelect('optCounterType', getIndexCounterType(newCounterType))
+                activeIndexSelect('optRoomActive', getIndexRoomActive(newRoomActive))
+            }, 0);
         } else {
             setOnAlerts({
                 onAlert: true,
@@ -245,16 +343,38 @@ export function UseCounters({
         }
     }
 
+    function getIndexCounterType(value: 'BPJS' | 'cash' | 'Select Payment Method'): number {
+        const findIndex = counterTypeOpt.findIndex(item => item.id === value)
+        return findIndex
+    }
+
+    function getIndexRoomActive(value: 'Active' | 'Not Active' | 'Select Room Active'): number {
+        const findIndex = roomActiveOpt.findIndex(item => item.id === value)
+        return findIndex
+    }
+
+    function activeIndexSelect(
+        elementId: 'optCounterType' | 'optRoomActive',
+        index: number
+    ): void {
+        const elem = document.getElementById(elementId) as HTMLSelectElement
+        if (elem) {
+            elem.selectedIndex = index
+        }
+    }
+
     function clickCloseEditCounter(): void {
         setOnEditCounter(false)
     }
 
     function changeInputEditCounter(e: ChangeEvent<HTMLInputElement>): void {
         setInputEditCounter({
-            loketName: e.target.value
+            ...inputEditCounter,
+            [e.target.name]: e.target.value
         })
         setErrInputEditCounter({
-            loketName: ''
+            ...errInputEditCounter,
+            [e.target.name]: ''
         })
     }
 
@@ -262,6 +382,7 @@ export function UseCounters({
         const isLoading = loadingIdEditCounter.find(id => id === idEditCounter)
         if (
             !isLoading &&
+            validateSubmitEditCounter() &&
             typeof setOnModalSettings === 'function'
         ) {
             setOnModalSettings({
@@ -297,16 +418,38 @@ export function UseCounters({
         }
     }
 
+    function validateSubmitEditCounter(): string | undefined {
+        let err = {} as InputEditCounterT
+        if (!inputEditCounter.loketName.trim()) {
+            err.loketName = 'Must be required'
+        }
+        if (inputEditCounter.counterType === 'Select Payment Method') {
+            err.counterType = 'Must be required'
+        }
+        if (!inputEditCounter.procurementDate.trim()) {
+            err.procurementDate = 'Must be required'
+        }
+        if (!inputEditCounter.procurementHours.trim()) {
+            err.procurementHours = 'Must be required'
+        }
+        if (inputEditCounter.roomActive === 'Select Room Active') {
+            err.roomActive = 'Must be required'
+        }
+
+        if (Object.keys(err).length !== 0) {
+            setErrInputEditCounter(err)
+            return
+        }
+
+        return 'success'
+    }
+
     function confirmSubmitEditCounter(): void {
         setLoadingIdEditCounter((current) => [...current, idEditCounter as string])
-        const { loketName } = inputEditCounter
-        const data: InputEditCounterT = {
-            loketName
-        }
         API().APIPutPatientData(
             'info-loket',
             idEditCounter as string,
-            data
+            dataSubmitEditCounter()
         )
             .then(res => {
                 const removeLoadingId = loadingIdEditCounter.filter(id => id !== res?.id)
@@ -319,9 +462,149 @@ export function UseCounters({
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => pushTriggedErr('A server error occurred. happened while updating the counter'))
         if (typeof setOnModalSettings === 'function') {
+            setOnModalSettings({} as PopupSettings)
+        }
+    }
+
+    function dataSubmitEditCounter(): SubmitInputEditCounterT {
+        const {
+            loketName,
+            counterType,
+            procurementDate,
+            procurementHours,
+            roomActive
+        } = inputEditCounter
+        return {
+            loketName,
+            counterType: counterType as 'cash',
+            dates: {
+                procurementDate,
+                procurementHours,
+            },
+            roomActive: roomActive as 'Active'
+        }
+    }
+
+    function changeDateEditCounter(
+        e?: ChangeEvent<HTMLInputElement> | Date,
+        nameInput?: 'procurementDate'
+    ): void {
+        setInputEditCounter({
+            ...inputEditCounter,
+            [nameInput as 'procurementDate']: e ? `${createDateFormat(e as Date)}` : ''
+        })
+        setErrInputEditCounter({
+            ...errInputEditCounter,
+            [nameInput as 'procurementDate']: ''
+        })
+    }
+
+    function selectEditCounter(
+        e: ChangeEvent<HTMLSelectElement>,
+        nameInput: 'counterType' | 'roomActive',
+        elementId: 'optCounterType' | 'optRoomActive'
+    ): void {
+        const elem = document.getElementById(elementId as string) as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if (value) {
+            setInputEditCounter({
+                ...inputEditCounter,
+                [nameInput]: value
+            })
+            setErrInputEditCounter({
+                ...errInputEditCounter,
+                [nameInput]: ''
+            })
+        }
+    }
+
+    function selectAddCounter(
+        e: ChangeEvent<HTMLSelectElement>,
+        nameInput: 'counterType' | 'roomActive',
+        elementId: 'addOptCounterType' | 'addOptRoomActive'
+    ): void {
+        const elem = document.getElementById(elementId) as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if (value) {
+            setInputAddCounter({
+                ...inputAddCounter,
+                [nameInput]: value
+            })
+            setErrInputAddCounter({
+                ...errInputAddCounter,
+                [nameInput]: ''
+            })
+        }
+    }
+
+    function clickDelete(
+        id: string,
+        counterName: string
+    ): void {
+        const loadingId = loadingDeleteId.find(loadId => loadId === id)
+        if (
+            !loadingId &&
+            typeof setOnModalSettings !== 'undefined'
+        ) {
+            setIndexActiveColumnMenu(null)
+            setOnModalSettings({
+                clickClose: () => setOnModalSettings({} as PopupSettings),
+                title: `Delete counter "${counterName}"?`,
+                classIcon: 'text-font-color-2',
+                iconPopup: faBan,
+                actionsData: [
+                    {
+                        nameBtn: 'Yes',
+                        classBtn: 'hover:bg-white',
+                        classLoading: 'hidden',
+                        clickBtn: () => confirmDeleteCounter(id),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginRight: '0.6rem',
+                            marginTop: '0.5rem'
+                        }
+                    },
+                    {
+                        nameBtn: 'Cancel',
+                        classBtn: 'bg-white border-none',
+                        classLoading: 'hidden',
+                        clickBtn: () => setOnModalSettings({} as PopupSettings),
+                        styleBtn: {
+                            padding: '0.5rem',
+                            marginTop: '0.5rem',
+                            color: '#495057'
+                        }
+                    }
+                ]
+            })
+        }
+    }
+
+    function confirmDeleteCounter(
+        id: string
+    ): void {
+        API().APIDeletePatientData(
+            'info-loket',
+            id,
+            id
+        )
+        .then(res=>{
+            setOnAlerts({
+                onAlert: true,
+                title: 'Has successfully deleted the data counter',
+                desc: 'Counter data has been deleted',
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000)
+            window.location.reload()
+        })
+        .catch(err=>pushTriggedErr('A server error occurred. happens when deleting counter data. please try again'))
+        if(typeof setOnModalSettings !== 'undefined'){
             setOnModalSettings({} as PopupSettings)
         }
     }
@@ -354,6 +637,13 @@ export function UseCounters({
         clickCloseEditCounter,
         changeInputEditCounter,
         loadingIdEditCounter,
-        submitEditCounter
+        submitEditCounter,
+        changeDateEditCounter,
+        counterTypeOpt,
+        selectEditCounter,
+        roomActiveOpt,
+        selectAddCounter,
+        clickDelete,
+        loadingDeleteId
     }
 }

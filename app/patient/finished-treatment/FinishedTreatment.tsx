@@ -146,6 +146,13 @@ export function FinishedTreatment() {
             <TableFilter
                 leftChild={
                     <>
+                        <Button
+                            nameBtn='Refresh'
+                            classLoading='hidden'
+                            classBtn='w-fit hover:bg-white mb-3'
+                            clickBtn={() => window.location.reload()}
+                        />
+                        
                         <InputSearch
                             icon={faMagnifyingGlass}
                             classWrapp='mt-2'
@@ -264,7 +271,7 @@ export function FinishedTreatment() {
                             >
                                 <td
                                     className='p-8'
-                                >No patient registration data</td>
+                                >No patient completed data</td>
                             </tr>
                         )}
                     </tbody>

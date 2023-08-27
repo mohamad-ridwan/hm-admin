@@ -1,8 +1,7 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react"
-import imageCompression from 'browser-image-compression'
-import { AddNewDoctorT } from "lib/types/InputT.type"
+import { AddNewDoctorT, ErrInputAddDoctor } from "lib/types/InputT.type"
 import { getImgValue } from "lib/firebase/getImgValue"
 import { DoctorScheduleT, HolidaySchedule, MedsosDoctorT, ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { createDateFormat } from "lib/formats/createDateFormat"
@@ -16,24 +15,13 @@ import { mailRegex } from "lib/regex/mailRegex"
 import { faPencil, faUserPlus } from "@fortawesome/free-solid-svg-icons"
 import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { navigationStore } from "lib/useZustand/navigation"
+import { specialistDoctor } from "lib/formats/specialistDoctor"
 
 type ActionProps = {
     setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
 }
 
 type PropsComponent = ActionProps
-
-type ErrInputAddDoctor = {
-    image: string
-    name: string
-    deskripsi: string
-    email: string
-    phone: string
-    room: string
-    medsos: string
-    doctorSchedule: string
-    holidaySchedule: string
-}
 
 function FormAddDoctor({
     setOnModalSettings,
@@ -58,13 +46,15 @@ function FormAddDoctor({
             title: 'Select Room'
         }
     ])
+    const [doctorSpecialist, setDoctorSpecialist] = useState<DataOptionT>(specialistDoctor)
     const [inputValueAddDoctor, setInputValueAddDoctor] = useState<AddNewDoctorT>({
         image: '',
         name: '',
-        deskripsi: '',
+        deskripsi: 'Select Specialist',
         email: '',
         phone: '',
-        room: '',
+        room: 'Select Room',
+        doctorActive: 'Select Active Doctor',
         medsos: [],
         doctorSchedule: [],
         holidaySchedule: []
@@ -94,6 +84,21 @@ function FormAddDoctor({
     const [idEditDoctor, setIdEditDoctor] = useState<string | null>(null)
     const [idLoadingEdit, setIdLoadingEdit] = useState<string[]>([])
 
+    const activeDoctor: DataOptionT = [
+        {
+            id: 'Select Active Doctor',
+            title: 'Select Active Doctor',
+        },
+        {
+            id: 'Active',
+            title: 'Active'
+        },
+        {
+            id: 'Not Active',
+            title: 'Not Active'
+        }
+    ]
+
     const {
         loadDataService,
         dataRooms,
@@ -120,6 +125,13 @@ function FormAddDoctor({
     }
 
     useEffect(() => {
+        setDoctorSpecialist((current) => [{
+            id: 'Select Specialist',
+            title: 'Select Specialist'
+        }, ...current])
+    }, [])
+
+    useEffect(() => {
         if (!loadDataService) {
             getRooms()
         }
@@ -134,10 +146,11 @@ function FormAddDoctor({
         setInputValueAddDoctor({
             image: '',
             name: '',
-            deskripsi: '',
+            deskripsi: 'Select Specialist',
             email: '',
             phone: '',
-            room: '',
+            room: 'Select Room',
+            doctorActive: 'Select Active Doctor',
             medsos: [],
             doctorSchedule: [],
             holidaySchedule: []
@@ -198,11 +211,17 @@ function FormAddDoctor({
         })
     }
 
-    function selectRoomDoctor(): void {
-        const selectEl = document.getElementById('selectRoom') as HTMLSelectElement
+    function selectRoomDoctor(
+        nameInput: 'room' | 'doctorActive' | 'deskripsi',
+        elementId: 'selectRoom' | 'selectActiveDoctor' | 'selectSpecialist'
+    ): void {
+        const selectEl = document.getElementById(elementId) as HTMLSelectElement
         const id = selectEl?.options[selectEl.selectedIndex].value
         if (id) {
-            if (id !== 'Select Room') {
+            if (
+                nameInput === 'room' &&
+                id !== 'Select Room'
+            ) {
                 const findRoom = dataRooms?.find(room => room.room === id)
                 setInputValueAddDoctor({
                     ...inputValueAddDoctor,
@@ -216,7 +235,11 @@ function FormAddDoctor({
             } else {
                 setInputValueAddDoctor({
                     ...inputValueAddDoctor,
-                    room: ''
+                    [nameInput]: id
+                })
+                setErrInputAddDoctor({
+                    ...errInputAddDoctor,
+                    [nameInput]: ''
                 })
             }
         }
@@ -514,7 +537,7 @@ function FormAddDoctor({
         if (!inputValueAddDoctor.name.trim()) {
             err.name = 'Must be required'
         }
-        if (!inputValueAddDoctor.deskripsi.trim()) {
+        if (inputValueAddDoctor.deskripsi === 'Select Specialist') {
             err.deskripsi = 'Must be required'
         }
         if (!inputValueAddDoctor.email.trim()) {
@@ -525,8 +548,11 @@ function FormAddDoctor({
         if (!inputValueAddDoctor.phone.trim()) {
             err.phone = 'Must be required'
         }
-        if (!inputValueAddDoctor.room.trim()) {
+        if (inputValueAddDoctor.room === 'Select Room') {
             err.room = 'Must be required'
+        }
+        if (inputValueAddDoctor.doctorActive === 'Select Active Doctor') {
+            err.doctorActive = 'Must be required'
         }
         if (inputValueAddDoctor.medsos.length === 0) {
             err.medsos = 'Must be required'
@@ -585,6 +611,7 @@ function FormAddDoctor({
                     }, 3000);
                     setLoadingSubmitAddDoctor(false)
                     clearForm()
+                    window.location.reload()
                 })
                 .catch(err => {
                     pushTriggedErr('a server error occurred while adding new doctor data. please try again')
@@ -609,6 +636,7 @@ function FormAddDoctor({
                             }, 3000);
                             setLoadingSubmitAddDoctor(false)
                             clearForm()
+                            window.location.reload()
                         })
                         .catch(err => {
                             pushTriggedErr('a server error occurred while adding new doctor data. please try again')
@@ -626,10 +654,11 @@ function FormAddDoctor({
         setInputValueAddDoctor({
             image: '',
             name: '',
-            deskripsi: '',
+            deskripsi: 'Select Specialist',
             email: '',
             phone: '',
-            room: '',
+            room: 'Select Room',
+            doctorActive: 'Select Active Doctor',
             medsos: [],
             doctorSchedule: [],
             holidaySchedule: []
@@ -654,9 +683,10 @@ function FormAddDoctor({
             medsos,
             doctorSchedule,
             holidaySchedule,
-            room
+            room,
+            doctorActive
         } = findDoctor
-
+        const newDoctorActive = doctorActive ?? 'Select Active Doctor'
         setInputValueAddDoctor({
             image,
             name,
@@ -664,6 +694,7 @@ function FormAddDoctor({
             email,
             phone,
             medsos,
+            doctorActive: newDoctorActive,
             doctorSchedule,
             holidaySchedule,
             room
@@ -677,14 +708,37 @@ function FormAddDoctor({
         })
         setErrInputAddDoctor({} as ErrInputAddDoctor)
 
+        setTimeout(() => {
+            idxActiveSelectAddDoc('selectSpecialist', idxActiveSelectSpecialist(deskripsi))
+            idxActiveSelectAddDoc('selectRoom', idxActiveSelectRoom(room))
+            idxActiveSelectAddDoc('selectActiveDoctor', idxActiveSelectActiveDoctor(newDoctorActive))
+        }, 0)
+    }
+
+    function idxActiveSelectAddDoc(
+        elementId: 'selectSpecialist' | 'selectRoom' | 'selectActiveDoctor',
+        index: number
+    ): void {
+        const elem = document.getElementById(elementId) as HTMLSelectElement
+        if(elem){
+            elem.selectedIndex = index
+        }
+    }
+
+    function idxActiveSelectSpecialist(value: string):number{
+        const currentSpecialist = doctorSpecialist.findIndex(specialist=>specialist.id === value)
+        return currentSpecialist
+    }
+
+    function idxActiveSelectRoom(room: string):number{
         const currentRoom = dataRooms?.find(roomData => roomData.id === room)
         const findIdxRoom = roomOptions.findIndex(room => room.id === currentRoom?.room)
-        setTimeout(() => {
-            const roomElement = document.getElementById('selectRoom') as HTMLSelectElement
-            if (roomElement && findIdxRoom !== -1) {
-                roomElement.selectedIndex = findIdxRoom
-            }
-        }, 50)
+        return findIdxRoom
+    }
+
+    function idxActiveSelectActiveDoctor(value: string):number{
+        const currentActiveDoctor = activeDoctor.findIndex(item=>item.id === value)
+        return currentActiveDoctor
     }
 
     function submitEditDoctor(): void {
@@ -752,6 +806,7 @@ function FormAddDoctor({
                         setTimeout(() => {
                             setOnAlerts({} as AlertsT)
                         }, 3000)
+                        window.location.reload()
                     } else {
                         pushTriggedErr('a server error occurred. please try again')
                     }
@@ -780,6 +835,7 @@ function FormAddDoctor({
                                 setTimeout(() => {
                                     setOnAlerts({} as AlertsT)
                                 }, 3000);
+                                window.location.reload()
                             } else {
                                 pushTriggedErr('a server error occurred. please try again')
                             }
@@ -837,7 +893,9 @@ function FormAddDoctor({
         idEditDoctor,
         idLoadingEdit,
         nextSubmitEditDoctor,
-        nextSubmitAddDoctor
+        nextSubmitAddDoctor,
+        activeDoctor,
+        doctorSpecialist
     }
 }
 

@@ -184,6 +184,7 @@ export function DeletePatient({
                         setOnAlerts({} as AlertsT)
                     }, 3000);
                     setLoadingCancelTreatment(false)
+                    window.location.reload()
                 })
                 .catch(err => pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
         }

@@ -80,27 +80,17 @@ function UseTableFilter() {
             Array.isArray(doctors) &&
             doctors.length > 0
         ) {
-            const newChooseSpecialist = [
+            const getDoctors: DataOptionT = doctors.map(doctor=>({
+                id: doctor.deskripsi,
+                title: doctor.deskripsi
+            }))
+            setChooseFilter([
                 {
                     id: 'Select Specialist',
                     title: 'Select Specialist'
-                }
-            ]
-            let count: number = 0
-            doctors.forEach(doctor=>{
-                count = count + 1
-                const checkSpecialist = newChooseSpecialist.find(specialist=>specialist.id === doctor.deskripsi)
-                if(!checkSpecialist){
-                    newChooseSpecialist.push({
-                        id: doctor.deskripsi,
-                        title: doctor.deskripsi
-                    })
-                }
-            })
-
-            if(count === doctors.length){
-                setChooseFilter(newChooseSpecialist)
-            }
+                },
+                ...getDoctors
+            ])
         }
     }
 
@@ -111,27 +101,18 @@ function UseTableFilter() {
             Array.isArray(dataRooms) &&
             dataRooms.length > 0
         ){
-            const newChooseRoom = [
+            const roomActive = dataRooms.filter(room=>room?.roomActive === 'Active')
+            const rooms: DataOptionT = roomActive.map(room=>({
+                id: room.room,
+                title: room.room
+            }))
+            setChooseFilter([
                 {
                     id: 'Select Room',
                     title: 'Select Room'
-                }
-            ]
-            let count: number = 0
-            dataRooms.forEach(rooms=>{
-                count = count + 1
-                const checkRooms = newChooseRoom.find(filter=>filter.id === rooms.room)
-                if(!checkRooms){
-                    newChooseRoom.push({
-                        id: rooms.room,
-                        title: rooms.room
-                    })
-                }
-            })
-
-            if(count === dataRooms.length){
-                setChooseFilter(newChooseRoom)
-            }
+                },
+                ...rooms
+            ])
         }
     }
 

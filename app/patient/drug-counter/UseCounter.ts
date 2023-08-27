@@ -101,9 +101,10 @@ export function UseCounter() {
             Array.isArray(dataLoket) &&
             dataLoket.length > 0
         ) {
-            const newCounter = dataLoket.map(counter => ({
+            const counterActive = dataLoket.filter(counter=>counter?.roomActive === 'Active')
+            const newCounter = counterActive.map(counter => ({
                 id: counter.loketName,
-                title: counter.loketName
+                title: `${counter.loketName} - (${counter?.counterType})`
             }))
             setOptionsCounter([
                 {
@@ -389,6 +390,7 @@ export function UseCounter() {
                 setTimeout(() => {
                     setOnAlerts({} as AlertsT)
                 }, 3000);
+                window.location.reload()
             })
             .catch(err => pushTriggedErr('A server error occurred. Occurs when passing a patient'))
     }

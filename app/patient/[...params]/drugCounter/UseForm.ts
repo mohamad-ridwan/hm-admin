@@ -94,7 +94,7 @@ export function UseForm({
     } = ServicingHours()
 
     const { user } = authStore()
-    const {setOnAlerts} = navigationStore()
+    const { setOnAlerts } = navigationStore()
     const router = useRouter()
 
     useEffect(() => {
@@ -224,6 +224,9 @@ export function UseForm({
                     setOnAlerts({} as AlertsT)
                 }, 3000);
                 setLoadingSubmit(false)
+                setTimeout(() => {
+                    window.location.reload()
+                }, 0);
             })
             .catch(err => pushTriggedErr('There was an error confirming payment. please try again'))
     }
@@ -401,19 +404,9 @@ export function UseForm({
         if (inputMsgCancelPatient.length > 0) {
             setOnMsgCancelTreatment(false)
             setOnModalSettings({} as PopupSettings)
-            const data: SubmitFinishedTreatmentT = {
-                patientId: params[4],
-                confirmedTime: {
-                    dateConfirm: createDateFormat(new Date()),
-                    confirmHour: createHourFormat(new Date())
-                },
-                adminInfo: { adminId: user.user?.id as string },
-                isCanceled: true,
-                messageCancelled: inputMsgCancelPatient
-            }
             API().APIPostPatientData(
                 'finished-treatment',
-                data,
+                dataSubmitCancelTreatment(),
             )
                 .then(res => {
                     setOnAlerts({
@@ -425,8 +418,22 @@ export function UseForm({
                         setOnAlerts({} as AlertsT)
                     }, 3000);
                     setLoadingCancelTreatment(false)
+                    window.location.reload()
                 })
                 .catch(err => pushTriggedErr('A server error occurred while unregistering the patient. please try again'))
+        }
+    }
+
+    function dataSubmitCancelTreatment(): SubmitFinishedTreatmentT {
+        return {
+            patientId: params[4],
+            confirmedTime: {
+                dateConfirm: createDateFormat(new Date()),
+                confirmHour: createHourFormat(new Date())
+            },
+            adminInfo: { adminId: user.user?.id as string },
+            isCanceled: true,
+            messageCancelled: inputMsgCancelPatient
         }
     }
 

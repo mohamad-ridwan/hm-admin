@@ -132,6 +132,7 @@ export function DeletePatient({
                     setTimeout(() => {
                         setOnAlerts({} as AlertsT)
                     }, 3000);
+                    window.location.reload()
                 }
             })
             .catch(err => {
@@ -281,9 +282,7 @@ export function DeletePatient({
                             nameBtn: 'Yes',
                             classBtn: 'hover:bg-white',
                             classLoading: 'hidden',
-                            clickBtn: () => {
-                                nextCancelTreatment()
-                            },
+                            clickBtn: () => nextCancelTreatment(),
                             styleBtn: {
                                 padding: '0.5rem',
                                 marginRight: '0.6rem',

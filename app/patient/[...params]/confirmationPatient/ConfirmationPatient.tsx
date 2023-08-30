@@ -29,7 +29,7 @@ export function ConfirmationPatient({ params }: { params: string }) {
     const {
         loadGetDataAdmin,
         dataAdmin
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const {
         clickDownload,

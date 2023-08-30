@@ -22,7 +22,7 @@ export function UsePatientData({ params }: { params?: string }) {
         doctors,
         dataRooms,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     function getPatientRegis(): void {
         if (typeof params !== 'undefined') {

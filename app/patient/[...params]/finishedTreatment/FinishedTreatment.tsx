@@ -27,7 +27,7 @@ export function FinishedTreatment({ params }: { params: string }) {
 
     const {
         dataAdmin
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const {
         isActiveMenu,

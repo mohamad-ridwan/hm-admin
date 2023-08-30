@@ -104,7 +104,7 @@ function FormAddDoctor({
         dataRooms,
         doctors,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { setOnAlerts } = navigationStore()
 

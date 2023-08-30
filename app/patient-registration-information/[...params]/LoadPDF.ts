@@ -54,7 +54,7 @@ export function LoadPDF({
         dataService,
         loadDataDoctors,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const patientRegis = dataPatientRegis?.find(patient => patient.id === params.params[0])
     const confirmPatient = dataConfirmationPatients?.find(patient => patient.patientId === params.params[0])

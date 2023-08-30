@@ -77,7 +77,7 @@ function FormPatientRegistration({
         dataPatientRegis,
         pushTriggedErr,
         getServicingHours
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { setOnAlerts } = navigationStore()
 

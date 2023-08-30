@@ -121,7 +121,7 @@ export function UseFinishTreatment({
         loadDataService,
         dataAdmin,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const {setOnAlerts} = navigationStore()
 

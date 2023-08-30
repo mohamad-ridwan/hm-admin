@@ -55,7 +55,7 @@ export function UseForm({
         dataPatientRegis,
         pushTriggedErr,
         doctors
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const {
         detailDataPatientRegis,

@@ -9,6 +9,7 @@ import getYear from 'date-fns/getYear'
 import { DrugCounterT, PatientFinishTreatmentT } from 'lib/types/PatientT.types'
 import { currencyFormat } from 'lib/formats/currencyFormat'
 import { monthDetailNames } from 'lib/formats/monthDetailNames'
+import { GetServicingHoursQueryT } from 'lib/types/FilterT'
 
 export function UseDashboard() {
     const [overview, setOverview] = useState<{
@@ -77,11 +78,16 @@ export function UseDashboard() {
     const [yearsOnPaymentInfo, setYearsOnPaymentInfo] = useState<string>(`${new Date().getFullYear()}`)
     const [yearsOnEarnings, setYearsOnEarnings] = useState<string>(`${new Date().getFullYear()}`)
 
+    const servicingHoursPaginate: GetServicingHoursQueryT = {
+        limit: 2,
+        page: 3
+    }
+
     const {
         loadDataService,
         dataFinishTreatment,
         dataDrugCounter
-    } = ServicingHours()
+    } = ServicingHours({servicingHours: servicingHoursPaginate})
 
     // finish treatment
     function getFinishTreatment(): void {

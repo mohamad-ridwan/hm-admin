@@ -116,7 +116,7 @@ export function FilterTable() {
         dataDrugCounter,
         dataRooms,
         loadDataService,
-    } = ServicingHours()
+    } = ServicingHours({})
 
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,

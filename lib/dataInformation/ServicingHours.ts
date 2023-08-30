@@ -7,13 +7,20 @@ import { ConfirmationPatientsT, DrugCounterT, InfoLoketT, PatientFinishTreatment
 import { AdminT } from "lib/types/AdminT.types"
 import { ProfileDoctorT } from "lib/types/DoctorsT.types"
 import { AuthRequiredError } from "lib/errorHandling/exceptions"
+import { GetServicingHoursQueryT } from "lib/types/FilterT"
 
-function ServicingHours(){
+type Props = {
+    servicingHours?: GetServicingHoursQueryT
+}
+
+function ServicingHours({
+    servicingHours
+}: Props){
     const [triggedErr, setTriggedErr] = useState<boolean>(false)
     const [errTriggedMessages, setErrTriggedMessages] = useState<string>('')
 
     // swr fetching data
-    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours())
+    const { data: dataService, error: errDataService, isLoading: loadDataService } = useSwr(endpoint.getServicingHours(servicingHours?.limit, servicingHours?.page))
     const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
     // servicing hours
     const getServicingHours: ServicingHoursT | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'servicing-hours')

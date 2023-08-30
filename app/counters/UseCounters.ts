@@ -51,7 +51,7 @@ export function UseCounters({
         loadDataService,
         dataLoket,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { setOnAlerts } = navigationStore()
 

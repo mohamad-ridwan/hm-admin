@@ -157,7 +157,7 @@ export function UseDrugCounter({
         loadDataService,
         dataAdmin,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { user } = authStore()
     const {setOnAlerts} = navigationStore()

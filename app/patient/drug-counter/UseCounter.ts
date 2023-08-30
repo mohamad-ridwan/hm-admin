@@ -90,7 +90,7 @@ export function UseCounter() {
         dataDrugCounter,
         dataFinishTreatment,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { setOnAlerts } = navigationStore()
 

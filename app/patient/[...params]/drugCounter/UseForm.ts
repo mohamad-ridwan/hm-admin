@@ -91,7 +91,7 @@ export function UseForm({
         dataDrugCounter,
         dataFinishTreatment,
         dataAdmin
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { user } = authStore()
     const { setOnAlerts } = navigationStore()

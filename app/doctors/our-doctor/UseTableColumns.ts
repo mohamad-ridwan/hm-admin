@@ -70,7 +70,7 @@ function UseTableColumns({
         loadDataDoctors,
         loadDataService,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { setOnAlerts } = navigationStore()
 

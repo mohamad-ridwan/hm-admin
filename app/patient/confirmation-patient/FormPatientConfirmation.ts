@@ -80,7 +80,7 @@ function FormPatientConfirmation({
         dataRooms,
         dataConfirmationPatients,
         dataFinishTreatment
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { setOnAlerts } = navigationStore()
 
@@ -129,10 +129,10 @@ function FormPatientConfirmation({
                 [nameInput]: id
             })
 
-            if (typeof cb === 'function') {
+            if (cb) {
                 cb(id, true, getAppointmentDate)
             }
-            if (typeof cb2 === 'function') {
+            if (cb2) {
                 cb2(true)
             }
         }
@@ -287,7 +287,7 @@ function FormPatientConfirmation({
         if (!isLoading) {
             validateEditConfirmPatient()
                 .then(res => {
-                    if (typeof setOnModalSettings !== 'undefined') {
+                    if (setOnModalSettings) {
                         setOnModalSettings({
                             clickClose: () => setOnModalSettings({} as PopupSettings),
                             title: `Update confirmation data from patient "${nameEditConfirmPatient}"?`,
@@ -327,7 +327,7 @@ function FormPatientConfirmation({
     function nextSubmitEditConfirmPatient(): void {
         setErrEditInputConfirmPatient({} as InputEditConfirmPatientT)
         pushToUpdateConfirmPatient()
-        if (typeof setOnModalSettings !== 'undefined') {
+        if (setOnModalSettings) {
             setOnModalSettings({} as PopupSettings)
         }
     }
@@ -527,7 +527,14 @@ function FormPatientConfirmation({
                 loadDataRoom()
             }, 0)
         } else {
-            alert('an error occurred, please try again or reload the page')
+            setOnAlerts({
+                onAlert: true,
+                title: 'an error occurred',
+                desc: 'please try again or reload the page'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         }
     }
 
@@ -546,7 +553,18 @@ function FormPatientConfirmation({
                 ...newSelectAdmin
             ])
         } else {
-            alert('no admin data found. please try again')
+            setOnAlerts({
+                onAlert: true,
+                title: `no admin data found`,
+                desc: 'Please try again'
+            })
+            setTimeout(() => {
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'no admin data found',
+                    desc: 'lagi'
+                })
+            }, 3000);
         }
     }
 
@@ -579,7 +597,14 @@ function FormPatientConfirmation({
                 ...specialistDoctor
             ])
         } else {
-            alert(`no doctor's data found. please try again`)
+            setOnAlerts({
+                onAlert: true,
+                title: `no doctor's data found`,
+                desc: 'please try again'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000);
         }
     }
 
@@ -645,7 +670,7 @@ function FormPatientConfirmation({
     }
 
     function openPopupEdit(): void {
-        if (typeof setOnModalSettings !== 'undefined') {
+        if (setOnModalSettings) {
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: 'What do you want to edit?',

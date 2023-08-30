@@ -94,7 +94,7 @@ export function UseRooms({
         loadDataService,
         dataRooms,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const { setOnAlerts } = navigationStore()
 
@@ -214,7 +214,7 @@ export function UseRooms({
         if (
             loadingSubmitAddRoom === false &&
             validateFormAddRoom() &&
-            typeof setOnModalSettings === 'function'
+            setOnModalSettings
         ) {
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
@@ -270,7 +270,7 @@ export function UseRooms({
 
     function confirmSubmitAddRoom(): void {
         setLoadingSubmitAddRoom(true)
-        if (typeof setOnModalSettings === 'function') {
+        if (setOnModalSettings) {
             setOnModalSettings({} as PopupSettings)
         }
         API().APIPostPatientData(
@@ -379,7 +379,7 @@ export function UseRooms({
         if (
             !findLoadingId &&
             validateFormEditRoom() &&
-            typeof setOnModalSettings === 'function'
+            setOnModalSettings
         ) {
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
@@ -460,7 +460,7 @@ export function UseRooms({
                 window.location.reload()
             })
             .catch(err => pushTriggedErr('A server error occurred. Occurs when updating room data. Please try again'))
-        if (typeof setOnModalSettings === 'function') {
+        if (setOnModalSettings) {
             setOnModalSettings({} as PopupSettings)
         }
     }
@@ -521,7 +521,7 @@ export function UseRooms({
         const loadingId = loadingIdDelete.find(loadId => loadId === id)
         if (
             !loadingId &&
-            typeof setOnModalSettings === 'function'
+            setOnModalSettings
         ) {
             setIndexActiveColumnMenu(null)
             setOnModalSettings({
@@ -581,7 +581,7 @@ export function UseRooms({
                 window.location.reload()
             })
             .catch(err => pushTriggedErr('A server error occurred. occurs when deleting specialist room'))
-        if (typeof setOnModalSettings === 'function') {
+        if (setOnModalSettings) {
             setOnModalSettings({} as PopupSettings)
         }
     }

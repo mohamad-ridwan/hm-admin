@@ -48,7 +48,7 @@ export default function Button({
 }: Props) {
     return <button className={`flex text-center ${typeof colorBtnTxt === 'undefined' ? 'text-white' : colorBtnTxt} justify-center items-center py-[0.7rem] px-2 border-bdr-one border-color-default bg-color-default 
     text-[0.85rem] font-semibold hover:text-color-default hover:border-color-default transition ${classBtn}`} disabled={disabled} onClick={clickBtn} style={styleBtn}>
-        {typeof iconLeft !== 'undefined' && (
+        {iconLeft && (
             <>
             {iconLeft}
             </>
@@ -57,7 +57,7 @@ export default function Button({
         {nameBtn}
         {children}
 
-        {typeof icon !== 'undefined' && (
+        {icon && (
             <>
                 {icon}
             </>

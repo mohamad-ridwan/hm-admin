@@ -29,3 +29,8 @@ export type DataTableContentT = {
     url?: string
     data: DataOnDataTableContentT[]
 }
+
+export type GetServicingHoursQueryT = {
+    limit?: number
+    page?: number
+}

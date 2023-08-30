@@ -1,36 +1,36 @@
 // servicing hours
-const getServicingHours = (): string => 'v8/servicing-hours/get'
+const getServicingHours = (limit?: number, page?: number): string => `servicing-hours/get?limit=${limit}&page=${page}`
 // post patient data
-const postPatientData = (roleId: string):string=>`v8/servicing-hours/post/role/${roleId}/data`
+const postPatientData = (roleId: string):string=>`servicing-hours/post/role/${roleId}/data`
 // update patient data
-const putPatientData = (roleId: string, id: string): string=> `v8/servicing-hours/put/role/${roleId}/data/${id}`
+const putPatientData = (roleId: string, id: string): string=> `servicing-hours/put/role/${roleId}/data/${id}`
 // delete patient data
-const deletePatientData = (roleId: string, id: string, patientId: string): string=>`v8/servicing-hours/delete/role/${roleId}/data/${id}/${patientId}`
+const deletePatientData = (roleId: string, id: string, patientId: string): string=>`servicing-hours/delete/role/${roleId}/data/${id}/${patientId}`
 
 // doctors
-const getDoctors = (): string=>'v10/doctors/get'
-const postNewDoctor = (id: string):string=>`v10/doctors/post/data/${id}`
-const deleteProfileDoctor = (roleId: string, id: string):string=>`v10/doctors/delete/role/${roleId}/data/${id}`
-const putProfileDoctor = (roleId: string, id: string):string=>`v10/doctors/put/role/${roleId}/data/${id}`
+const getDoctors = (): string=>'doctors/get'
+const postNewDoctor = (id: string):string=>`doctors/post/data/${id}`
+const deleteProfileDoctor = (roleId: string, id: string):string=>`doctors/delete/role/${roleId}/data/${id}`
+const putProfileDoctor = (roleId: string, id: string):string=>`doctors/put/role/${roleId}/data/${id}`
 
 // verification
-const getVerification = (): string => 'v13/verification/get'
-const putVerification = (userId: string): string => `v13/verification/put/${userId}`
-const postVerification = (): string => 'v13/verification/post'
-const deleteVerification = (id: string): string => `v13/verification/delete/${id}`
+const getVerification = (): string => 'verification/get'
+const putVerification = (userId: string): string => `verification/put/${userId}`
+const postVerification = (): string => 'verification/post'
+const deleteVerification = (id: string): string => `verification/delete/${id}`
 // verification create new password and create jwt-token
-const postCreateJwtToken = (userId?: string): string => `v13/verification/post/forgot-password/create-new-password/${userId}/admin`
-const getTokenJwt = (): string => 'v13/verification/get/forgot-password/create-new-password'
+const postCreateJwtToken = (userId?: string): string => `verification/post/forgot-password/create-new-password/${userId}/admin`
+const getTokenJwt = (): string => 'verification/get/forgot-password/create-new-password'
 
 // admin
-const getAdmin = (): string => 'v14/admin/get'
-const putAdmin = (adminId: string): string => `v14/admin/put/admin/${adminId}`
-const putAdminVerification = (adminId: string): string => `v14/admin/put/${adminId}`
-const postAdmin = (): string => 'v14/admin/post'
+const getAdmin = (): string => 'admin/get'
+const putAdmin = (adminId: string): string => `admin/put/admin/${adminId}`
+const putAdminVerification = (adminId: string): string => `admin/put/${adminId}`
+const postAdmin = (): string => 'admin/post'
 
 // black list jwt
-const getBlackListJWT = (): string => 'v15/black-list-jwt/get'
-const postBlackListJWT = (): string => 'v15/black-list-jwt/post'
+const getBlackListJWT = (): string => 'black-list-jwt/get'
+const postBlackListJWT = (): string => 'black-list-jwt/post'
 
 export const endpoint= {
     getServicingHours,

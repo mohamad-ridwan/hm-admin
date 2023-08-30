@@ -96,7 +96,7 @@ export function FilterTable() {
         dataConfirmationPatients,
         dataFinishTreatment,
         loadDataService,
-    } = ServicingHours()
+    } = ServicingHours({})
 
     function findDataRegistration(
         dataPatientRegis: PatientRegistrationT[] | undefined,

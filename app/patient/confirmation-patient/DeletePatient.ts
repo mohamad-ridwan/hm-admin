@@ -37,7 +37,7 @@ export function DeletePatient({
         dataConfirmationPatients,
         dataPatientRegis,
         pushTriggedErr
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const {setOnAlerts} = navigationStore()
 
@@ -51,7 +51,7 @@ export function DeletePatient({
         if (!findId) {
             setNamePatientToDelete(patientName)
             setIdPatientToDelete(patientId)
-            if (typeof setOnModalSettings !== 'undefined') {
+            if (setOnModalSettings) {
                 setOnModalSettings({
                     clickClose: () => setOnModalSettings({} as PopupSettings),
                     title: 'What do you want to delete?',
@@ -117,7 +117,7 @@ export function DeletePatient({
             mainPatientId
         )
             .then((result) => {
-                if (typeof cb === 'function') {
+                if (cb) {
                     cb()
                 }
                 if (endDeleted) {
@@ -145,7 +145,7 @@ export function DeletePatient({
         patientId: string,
         patientName: string
     ): void {
-        if (typeof setOnModalSettings !== 'undefined') {
+        if (setOnModalSettings) {
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `Delete details and confirmation data from patient "${patientName}"?`,
@@ -202,7 +202,7 @@ export function DeletePatient({
             )
         )
 
-        if (typeof setOnModalSettings !== 'undefined') {
+        if (setOnModalSettings) {
             setOnModalSettings({} as PopupSettings)
         }
     }
@@ -211,7 +211,7 @@ export function DeletePatient({
         patientId: string,
         patientName: string
     ): void {
-        if (typeof setOnModalSettings !== 'undefined') {
+        if (setOnModalSettings) {
             setOnModalSettings({
                 clickClose: () => setOnModalSettings({} as PopupSettings),
                 title: `Delete confirmation data from "${patientName}" patient`,

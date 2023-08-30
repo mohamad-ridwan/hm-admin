@@ -42,7 +42,7 @@ function UseTableFilter() {
         dataRooms,
         loadDataDoctors,
         loadDataService
-    } = ServicingHours()
+    } = ServicingHours({})
 
     const handleSearchText = (e?: ChangeEvent<HTMLInputElement>): void => {
         setSearchText(e?.target.value as string)

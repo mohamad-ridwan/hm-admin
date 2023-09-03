@@ -10,6 +10,7 @@ import ErrorInput from "components/input/ErrorInput";
 import { QRScanner } from "./QRScanner";
 import { ContainerPopup } from "components/popup/ContainerPopup";
 import { SettingPopup } from "components/popup/SettingPopup";
+import LoadingSpinner from "components/LoadingSpinner";
 
 export function DrugCounter() {
     const {
@@ -25,7 +26,8 @@ export function DrugCounter() {
         clickPassPatient,
         onPopupSetting,
         currentPatientCall,
-        loadingPassPatient
+        loadingPassPatient,
+        loadingCounterInfo
     } = UseCounter()
 
     function OffDisplayScan() {
@@ -71,9 +73,29 @@ export function DrugCounter() {
                 clickBtn={() => window.location.reload()}
             />
 
-            <h1
-                className="font-bold text-[1.3rem] mb-8"
-            >Counter Information</h1>
+            <div
+                className="flex justify-between flex-wrap mb-8"
+            >
+                <h1
+                    className="font-bold text-[1.3rem]"
+                >Counter Information</h1>
+                <div
+                    style={{
+                        height: '1.5rem',
+                        width: '1.5rem',
+                        margin: '0 0 0 0'
+                    }}
+                >
+                    {loadingCounterInfo && (
+                        <LoadingSpinner
+                            style={{
+                                height: '1.5rem',
+                                width: '1.5rem'
+                            }}
+                        />
+                    )}
+                </div>
+            </div>
 
             <div
                 className="flex flex-wrap justify-between"

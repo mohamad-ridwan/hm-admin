@@ -29,6 +29,7 @@ import ErrorInput from 'components/input/ErrorInput'
 import Input from 'components/input/Input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AddPatient } from './AddPatient'
+import LoadingSpinner from 'components/LoadingSpinner'
 
 export function PatientRegistration() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -76,16 +77,17 @@ export function PatientRegistration() {
         setSelectDate,
         handleFilterDate,
         chooseFilterByDate,
-        currentTableData,
+        dataColumns,
         dataSortDate,
         handleSortCategory,
         lastPage,
         maxLength,
-        findDataRegistration,
+        // findDataRegistration,
         filterBy,
         clickColumnMenu,
         indexActiveColumnMenu,
-        setIndexActiveColumnMenu
+        setIndexActiveColumnMenu,
+        loadingDataTable
     } = FilterTable()
 
     const {
@@ -98,7 +100,7 @@ export function PatientRegistration() {
         inputMsgCancelPatient,
         idLoadingCancelTreatment,
         idLoadingDeletePatient
-    } = DeletePatient({ findDataRegistration, setOnModalSettings, onModalSettings })
+    } = DeletePatient({ setOnModalSettings, onModalSettings })
 
     function toPage(path: string): void {
         router.push(path)
@@ -284,7 +286,7 @@ export function PatientRegistration() {
                         />
                         {
                             chooseFilterByDate.id !== 'Filter By' &&
-                            currentTableData.length > 0 &&
+                            dataColumns.length > 0 &&
                             (
                                 <InputSelect
                                     id='sortDateTable'
@@ -299,13 +301,28 @@ export function PatientRegistration() {
             />
 
             <ContainerTableBody>
+                <div
+                    style={{
+                        height: '1.5rem',
+                        width: '1.5rem'
+                    }}
+                >
+                    {loadingDataTable && (
+                        <LoadingSpinner
+                            style={{
+                                height: '1.5rem',
+                                width: '1.5rem'
+                            }}
+                        />
+                    )}
+                </div>
                 <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
                     <tbody>
-                        {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                        {dataColumns.length > 0 ? dataColumns.map((patient, index) => {
                             const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
                             const namePatient = cleanName.replace(spaceString, '')
 

@@ -1,17 +1,50 @@
 // servicing hours
 const getServicingHours = (limit?: number, page?: number): string => `servicing-hours/get?limit=${limit}&page=${page}`
+// data table
+// patient registration
+const getDataTablePatientRegis = (
+    searchTxt: string,
+    filterBy: string,
+    selectDate: string,
+    sortBy: string,
+    currentPage: number,
+    pageSize: number
+)=> `servicing-hours/get/data-table/patient-registration?searchTxt=${searchTxt}&filterBy=${filterBy}&selectDate=${selectDate}&sortBy=${sortBy}&currentPage=${currentPage}&pageSize=${pageSize}`
+// confirmation patient
+const getDataTableConfirmPatient = (
+    searchTxt: string,
+    roomBy: string,
+    filterBy: string,
+    selectDate: string,
+    sortBy: string,
+    currentPage: number,
+    pageSize: number,
+) => `servicing-hours/get/data-table/confirmation-patients?searchTxt=${searchTxt}&roomBy=${roomBy}&filterBy=${filterBy}&selectDate=${selectDate}&sortBy=${sortBy}&currentPage=${currentPage}&pageSize=${pageSize}`
+// counter information (drug counter page)
+const getCounterInformation = (counter: string)=>`servicing-hours/get/counter-information?counter=${counter}`
+// drug counter patient
+const getDataTableDrugCounter = (
+    counterName: string,
+    status: string,
+    searchTxt: string,
+    filterBy: string,
+    sortBy: string,
+    selectDate: string,
+    currentPage: number,
+    pageSize: number
+)=>`servicing-hours/get/data-table/drug-counter/${counterName}/${status}?searchTxt=${searchTxt}&filterBy=${filterBy}&sortBy=${sortBy}&selectDate=${selectDate}&currentPage=${currentPage}&pageSize=${pageSize}`
 // post patient data
-const postPatientData = (roleId: string):string=>`servicing-hours/post/role/${roleId}/data`
+const postPatientData = (roleId: string): string => `servicing-hours/post/role/${roleId}/data`
 // update patient data
-const putPatientData = (roleId: string, id: string): string=> `servicing-hours/put/role/${roleId}/data/${id}`
+const putPatientData = (roleId: string, id: string): string => `servicing-hours/put/role/${roleId}/data/${id}`
 // delete patient data
-const deletePatientData = (roleId: string, id: string, patientId: string): string=>`servicing-hours/delete/role/${roleId}/data/${id}/${patientId}`
+const deletePatientData = (roleId: string, id: string, patientId: string): string => `servicing-hours/delete/role/${roleId}/data/${id}/${patientId}`
 
 // doctors
-const getDoctors = (): string=>'doctors/get'
-const postNewDoctor = (id: string):string=>`doctors/post/data/${id}`
-const deleteProfileDoctor = (roleId: string, id: string):string=>`doctors/delete/role/${roleId}/data/${id}`
-const putProfileDoctor = (roleId: string, id: string):string=>`doctors/put/role/${roleId}/data/${id}`
+const getDoctors = (): string => 'doctors/get'
+const postNewDoctor = (id: string): string => `doctors/post/data/${id}`
+const deleteProfileDoctor = (roleId: string, id: string): string => `doctors/delete/role/${roleId}/data/${id}`
+const putProfileDoctor = (roleId: string, id: string): string => `doctors/put/role/${roleId}/data/${id}`
 
 // verification
 const getVerification = (): string => 'verification/get'
@@ -32,7 +65,7 @@ const postAdmin = (): string => 'admin/post'
 const getBlackListJWT = (): string => 'black-list-jwt/get'
 const postBlackListJWT = (): string => 'black-list-jwt/post'
 
-export const endpoint= {
+export const endpoint = {
     getServicingHours,
     postPatientData,
     putPatientData,
@@ -52,5 +85,9 @@ export const endpoint= {
     putAdminVerification,
     postAdmin,
     getBlackListJWT,
-    postBlackListJWT
+    postBlackListJWT,
+    getDataTableConfirmPatient,
+    getDataTablePatientRegis,
+    getCounterInformation,
+    getDataTableDrugCounter
 }

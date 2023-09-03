@@ -27,6 +27,7 @@ import { FormPopup } from "components/popup/FormPopup";
 import { TitleInput } from "components/input/TitleInput";
 import Input from "components/input/Input";
 import ErrorInput from "components/input/ErrorInput";
+import LoadingSpinner from "components/LoadingSpinner";
 
 type ParamsProps = {
     params: {
@@ -60,7 +61,8 @@ export function DrugCounter({ params }: ParamsProps) {
         setCurrentPage,
         lastPage,
         maxLength,
-        currentTableData,
+        dataColumns,
+        loadingDataTable,
         searchText,
         handleSearchText,
         closeSearch,
@@ -279,13 +281,28 @@ export function DrugCounter({ params }: ParamsProps) {
             />
 
             <ContainerTableBody>
+                <div
+                    style={{
+                        height: '1.5rem',
+                        width: '1.5rem'
+                    }}
+                >
+                    {loadingDataTable && (
+                        <LoadingSpinner
+                            style={{
+                                height: '1.5rem',
+                                width: '1.5rem'
+                            }}
+                        />
+                    )}
+                </div>
                 <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
                     <tbody>
-                        {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                        {dataColumns.length > 0 ? dataColumns.map((patient, index) => {
                             const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
                             const namePatient = cleanName.replace(spaceString, '')
                             const status = params?.status !== 'already-confirmed' ? 'not-yet-confirmed' : 'confirmed'

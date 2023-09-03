@@ -1,14 +1,17 @@
 'use client'
 
 import { ChangeEvent, useEffect, useMemo, useState } from "react"
+import { useSwr } from "lib/useFetch/useSwr"
+import { endpoint } from "lib/api/endpoint"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { specialCharacter } from "lib/regex/specialCharacter"
 import { spaceString } from "lib/regex/spaceString"
-import { HeadDataTableT } from "lib/types/TableT.type"
+import { DataTableResultT, HeadDataTableT } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { ConfirmationPatientsT, DrugCounterT, PatientFinishTreatmentT, PatientRegistrationT, RoomTreatmentT } from "lib/types/PatientT.types"
 import { createDateNormalFormat } from "lib/formats/createDateNormalFormat"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
 
 export function FilterTable() {
     const [head] = useState<HeadDataTableT>([
@@ -108,167 +111,186 @@ export function FilterTable() {
     ])
 
     const {
-        pushTriggedErr,
+        // pushTriggedErr,
         dataService,
-        dataPatientRegis,
-        dataConfirmationPatients,
-        dataFinishTreatment,
-        dataDrugCounter,
+        // dataPatientRegis,
+        // dataConfirmationPatients,
+        // dataFinishTreatment,
+        // dataDrugCounter,
         dataRooms,
         loadDataService,
     } = ServicingHours({})
 
-    function findDataRegistration(
-        dataPatientRegis: PatientRegistrationT[] | undefined,
-        dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
-        dataDrugCounter: DrugCounterT[] | undefined,
-        dataFinishTreatment: PatientFinishTreatmentT[] | undefined,
-        room: RoomTreatmentT[] | undefined
-    ): void {
-        if (
-            !loadDataService &&
-            Array.isArray(dataPatientRegis) &&
-            dataPatientRegis.length > 0
-        ) {
-            const findConfirmPatient = dataConfirmationPatients?.filter(patient => {
-                // patient registration
-                const findPatientRegistration = dataPatientRegis?.find(patientRegis =>
-                    patientRegis.id === patient.patientId
-                )
-                // patient in counter
-                const findPatientInCounter = dataDrugCounter?.find(counterP =>
-                    counterP.patientId === patient.patientId
-                )
-                // patient at finish treatment
-                const findPatientFT = dataFinishTreatment?.find((patientFT) => patientFT.patientId === patient.patientId)
+    const pageSize: number = 5
+    const { data: tableDataConfirm, error: errDataTable, isLoading: loadingDataTable } = useSwr(endpoint.getDataTableConfirmPatient(
+        searchText,
+        chooseFilterByRoom.title,
+        chooseFilterByDate.title,
+        selectDate ? `${selectDate}` : '',
+        chooseOnSortDate.title,
+        currentPage,
+        pageSize
+    ))
+    const resultDataTable: DataTableResultT = tableDataConfirm as DataTableResultT
 
-                return !findPatientFT && !findPatientInCounter && findPatientRegistration
-            })
-
-            const setPatientRegistration = async (): Promise<PatientRegistrationT[]> => {
-                const newPatientRegistration: PatientRegistrationT[] = []
-                let count: number = 0
-                if (Array.isArray(findConfirmPatient) && findConfirmPatient.length > 0) {
-                    findConfirmPatient.forEach(patientConf => {
-                        count = count + 1
-                        const findPatient = dataPatientRegis.find(patientRegis => patientRegis.id === patientConf.patientId)
-                        if (findPatient) {
-                            newPatientRegistration.push(findPatient as PatientRegistrationT)
-                        }
-                    })
-                }
-
-                return await new Promise((resolve, reject) => {
-                    if (
-                        Array.isArray(findConfirmPatient) &&
-                        count === findConfirmPatient.length
-                    ) {
-                        resolve(newPatientRegistration)
-                    } else if (
-                        Array.isArray(findConfirmPatient) &&
-                        count === findConfirmPatient.length &&
-                        newPatientRegistration.length === 0
-                    ) {
-                        reject([])
-                    }
-                })
-            }
-
-            setPatientRegistration()
-                .then(res => {
-                    generateDataTable(res, room)
-                })
-                .catch(noData => {
-                    setDataColumns([])
-                })
-        } else if (
-            !loadDataService &&
-            Array.isArray(dataPatientRegis) &&
-            dataPatientRegis.length === 0
-        ) {
-            setDataColumns([])
-        }
+    if (
+        !loadingDataTable &&
+        errDataTable
+    ) {
+        throw new AuthRequiredError('A server error occurred. occurs when retrieving confirmation data resources')
     }
 
-    function generateDataTable(
-        res: PatientRegistrationT[],
-        room?: RoomTreatmentT[] | undefined
-    ): void {
-        if (res.length > 0) {
-            const getDataColumns: DataTableContentT[] = res.map(patient => {
-                // patient already on confirm
-                const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
+    // function findDataRegistration(
+    //     dataPatientRegis: PatientRegistrationT[] | undefined,
+    //     dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
+    //     dataDrugCounter: DrugCounterT[] | undefined,
+    //     dataFinishTreatment: PatientFinishTreatmentT[] | undefined,
+    //     room: RoomTreatmentT[] | undefined
+    // ): void {
+    //     if (
+    //         !loadDataService &&
+    //         Array.isArray(dataPatientRegis) &&
+    //         dataPatientRegis.length > 0
+    //     ) {
+    //         const findConfirmPatient = dataConfirmationPatients?.filter(patient => {
+    //             // patient registration
+    //             const findPatientRegistration = dataPatientRegis?.find(patientRegis =>
+    //                 patientRegis.id === patient.patientId
+    //             )
+    //             // patient in counter
+    //             const findPatientInCounter = dataDrugCounter?.find(counterP =>
+    //                 counterP.patientId === patient.patientId
+    //             )
+    //             // patient at finish treatment
+    //             const findPatientFT = dataFinishTreatment?.find((patientFT) => patientFT.patientId === patient.patientId)
 
-                // get room treatment of patient
-                const findRoomOfPatient = room?.find(roomData => roomData.id === findPatientOnConfirm?.roomInfo?.roomId)
+    //             return !findPatientFT && !findPatientInCounter && findPatientRegistration
+    //         })
 
-                return {
-                    id: patient.id,
-                    data: [
-                        {
-                            name: patient.patientName
-                        },
-                        {
-                            name: findRoomOfPatient?.room as string,
-                            fontWeightName: 'bold',
-                            filterRoom: true
-                        },
-                        {
-                            name: findPatientOnConfirm?.roomInfo?.queueNumber as string,
-                            colorName: '#ff296d',
-                            fontWeightName: 'bold'
-                        },
-                        {
-                            firstDesc: createDateNormalFormat(patient.appointmentDate),
-                            color: '#288bbc',
-                            colorName: '#777',
-                            marginBottom: '4.5px',
-                            fontSize: '12px',
-                            filterBy: 'Appointment Date',
-                            queueNumber: findPatientOnConfirm?.roomInfo?.queueNumber,
-                            confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
-                            name: patient.appointmentDate,
-                        },
-                        {
-                            name: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours as string
-                        },
-                        {
-                            firstDesc: createDateNormalFormat(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
-                            colorName: '#777',
-                            marginBottom: '4.5px',
-                            fontSize: '12px',
-                            filterBy: 'Confirmation Date',
-                            confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
-                            name: findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string,
-                        },
-                        {
-                            name: findPatientOnConfirm?.dateConfirmInfo?.confirmHour as string
-                        },
-                        {
-                            name: patient.emailAddress
-                        },
-                        {
-                            firstDesc: createDateNormalFormat(patient.dateOfBirth),
-                            colorName: '#777',
-                            marginBottom: '4.5px',
-                            fontSize: '12px',
-                            filterBy: 'Date of Birth',
-                            name: patient.dateOfBirth,
-                        },
-                        {
-                            name: patient.phone
-                        },
-                        {
-                            name: ''
-                        }
-                    ]
-                }
-            })
-            setDataColumns(getDataColumns)
-        } else {
-            setDataColumns([])
-        }
-    }
+    //         const setPatientRegistration = async (): Promise<PatientRegistrationT[]> => {
+    //             const newPatientRegistration: PatientRegistrationT[] = []
+    //             let count: number = 0
+    //             if (Array.isArray(findConfirmPatient) && findConfirmPatient.length > 0) {
+    //                 findConfirmPatient.forEach(patientConf => {
+    //                     count = count + 1
+    //                     const findPatient = dataPatientRegis.find(patientRegis => patientRegis.id === patientConf.patientId)
+    //                     if (findPatient) {
+    //                         newPatientRegistration.push(findPatient as PatientRegistrationT)
+    //                     }
+    //                 })
+    //             }
+
+    //             return await new Promise((resolve, reject) => {
+    //                 if (
+    //                     Array.isArray(findConfirmPatient) &&
+    //                     count === findConfirmPatient.length
+    //                 ) {
+    //                     resolve(newPatientRegistration)
+    //                 } else if (
+    //                     Array.isArray(findConfirmPatient) &&
+    //                     count === findConfirmPatient.length &&
+    //                     newPatientRegistration.length === 0
+    //                 ) {
+    //                     reject([])
+    //                 }
+    //             })
+    //         }
+
+    //         setPatientRegistration()
+    //             .then(res => {
+    //                 generateDataTable(res, room)
+    //             })
+    //             .catch(noData => {
+    //                 setDataColumns([])
+    //             })
+    //     } else if (
+    //         !loadDataService &&
+    //         Array.isArray(dataPatientRegis) &&
+    //         dataPatientRegis.length === 0
+    //     ) {
+    //         setDataColumns([])
+    //     }
+    // }
+
+    // function generateDataTable(
+    //     res: PatientRegistrationT[],
+    //     room?: RoomTreatmentT[] | undefined
+    // ): void {
+    //     if (res.length > 0) {
+    //         const getDataColumns: DataTableContentT[] = res.map(patient => {
+    //             // patient already on confirm
+    //             const findPatientOnConfirm = dataConfirmationPatients?.find((patientConfirm) => patientConfirm.patientId === patient.id)
+
+    //             // get room treatment of patient
+    //             const findRoomOfPatient = room?.find(roomData => roomData.id === findPatientOnConfirm?.roomInfo?.roomId)
+
+    //             return {
+    //                 id: patient.id,
+    //                 data: [
+    //                     {
+    //                         name: patient.patientName
+    //                     },
+    //                     {
+    //                         name: findRoomOfPatient?.room as string,
+    //                         fontWeightName: 'bold',
+    //                         filterRoom: true
+    //                     },
+    //                     {
+    //                         name: findPatientOnConfirm?.roomInfo?.queueNumber as string,
+    //                         colorName: '#ff296d',
+    //                         fontWeightName: 'bold'
+    //                     },
+    //                     {
+    //                         firstDesc: createDateNormalFormat(patient.appointmentDate),
+    //                         color: '#288bbc',
+    //                         colorName: '#777',
+    //                         marginBottom: '4.5px',
+    //                         fontSize: '12px',
+    //                         filterBy: 'Appointment Date',
+    //                         queueNumber: findPatientOnConfirm?.roomInfo?.queueNumber,
+    //                         confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
+    //                         name: patient.appointmentDate,
+    //                     },
+    //                     {
+    //                         name: findPatientOnConfirm?.dateConfirmInfo?.treatmentHours as string
+    //                     },
+    //                     {
+    //                         firstDesc: createDateNormalFormat(findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string),
+    //                         colorName: '#777',
+    //                         marginBottom: '4.5px',
+    //                         fontSize: '12px',
+    //                         filterBy: 'Confirmation Date',
+    //                         confirmHour: findPatientOnConfirm?.dateConfirmInfo?.confirmHour,
+    //                         name: findPatientOnConfirm?.dateConfirmInfo?.dateConfirm as string,
+    //                     },
+    //                     {
+    //                         name: findPatientOnConfirm?.dateConfirmInfo?.confirmHour as string
+    //                     },
+    //                     {
+    //                         name: patient.emailAddress
+    //                     },
+    //                     {
+    //                         firstDesc: createDateNormalFormat(patient.dateOfBirth),
+    //                         colorName: '#777',
+    //                         marginBottom: '4.5px',
+    //                         fontSize: '12px',
+    //                         filterBy: 'Date of Birth',
+    //                         name: patient.dateOfBirth,
+    //                     },
+    //                     {
+    //                         name: patient.phone
+    //                     },
+    //                     {
+    //                         name: ''
+    //                     }
+    //                 ]
+    //             }
+    //         })
+    //         setDataColumns(getDataColumns)
+    //     } else {
+    //         setDataColumns([])
+    //     }
+    // }
 
     function getFilterRooms(): void {
         const roomActive = dataRooms?.filter(room => room?.roomActive === 'Active')
@@ -290,14 +312,28 @@ export function FilterTable() {
         ])
     }
 
+    function loadDataTable(): void {
+        if (
+            !loadingDataTable &&
+            tableDataConfirm
+        ) {
+            const result: DataTableResultT = tableDataConfirm as DataTableResultT
+            setDataColumns(result.data)
+        }
+    }
+
     useEffect(() => {
-        findDataRegistration(
-            dataPatientRegis,
-            dataConfirmationPatients,
-            dataDrugCounter,
-            dataFinishTreatment,
-            dataRooms
-        )
+        loadDataTable()
+    }, [loadingDataTable, tableDataConfirm])
+
+    useEffect(() => {
+        // findDataRegistration(
+        //     dataPatientRegis,
+        //     dataConfirmationPatients,
+        //     dataDrugCounter,
+        //     dataFinishTreatment,
+        //     dataRooms
+        // )
 
         if (
             Array.isArray(dataRooms) &&
@@ -345,6 +381,7 @@ export function FilterTable() {
 
             setDisplayOnCalendar(false)
             setSelectDate(undefined)
+            setCurrentPage(1)
 
             const selectEl = document.getElementById('filterDateTable') as HTMLSelectElement
             if (selectEl) selectEl.selectedIndex = 0
@@ -377,212 +414,208 @@ export function FilterTable() {
     }
 
     // filter by room
-    function filterByRoom(): DataTableContentT[] {
-        if (dataColumns.length > 0 && chooseFilterByRoom.id !== 'Filter By Room') {
-            const findPatientByRoom = dataColumns.filter(patient => {
-                const getRoom = patient.data.find(data => data.name === chooseFilterByRoom.id)
+    // function filterByRoom(): DataTableContentT[] {
+    //     if (dataColumns.length > 0 && chooseFilterByRoom.id !== 'Filter By Room') {
+    //         const findPatientByRoom = dataColumns.filter(patient => {
+    //             const getRoom = patient.data.find(data => data.name === chooseFilterByRoom.id)
 
-                return getRoom
-            })
+    //             return getRoom
+    //         })
 
-            return findPatientByRoom
-        } else {
-            return dataColumns
-        }
-    }
-    const resultFilterByRoom: DataTableContentT[] = filterByRoom()
+    //         return findPatientByRoom
+    //     } else {
+    //         return dataColumns
+    //     }
+    // }
+    // const resultFilterByRoom: DataTableContentT[] = filterByRoom()
 
     // filter by date
-    function onFilterByDate(): DataTableContentT[] {
-        if (selectDate) {
-            const findPatient = resultFilterByRoom.filter(patient => {
-                const getData = patient.data.filter(data =>
-                    data.filterBy === chooseFilterByDate.id &&
-                    data.name === createDateFormat(selectDate)
-                )
+    // function onFilterByDate(): DataTableContentT[] {
+    //     if (selectDate) {
+    //         const findPatient = resultFilterByRoom.filter(patient => {
+    //             const getData = patient.data.filter(data =>
+    //                 data.filterBy === chooseFilterByDate.id &&
+    //                 data.name === createDateFormat(selectDate)
+    //             )
 
-                return getData.length > 0
-            })
+    //             return getData.length > 0
+    //         })
 
-            return findPatient
-        } else {
-            return resultFilterByRoom
-        }
-    }
+    //         return findPatient
+    //     } else {
+    //         return resultFilterByRoom
+    //     }
+    // }
 
-    function filterByDate(): DataTableContentT[] {
-        if (resultFilterByRoom.length > 0 && chooseFilterByDate.id !== 'Filter By') {
-            return onFilterByDate()
-        } else {
-            return resultFilterByRoom
-        }
-    }
-    const resultFilterByDate = filterByDate()
+    // function filterByDate(): DataTableContentT[] {
+    //     if (resultFilterByRoom.length > 0 && chooseFilterByDate.id !== 'Filter By') {
+    //         return onFilterByDate()
+    //     } else {
+    //         return resultFilterByRoom
+    //     }
+    // }
+    // const resultFilterByDate = filterByDate()
 
     // sort by Appointment
-    function sortByUpAppointment(): DataTableContentT[] {
-        const sortPatient = resultFilterByDate.sort((p1, p2) => {
-            const findAppointment1 = p1.data.find(data => data.filterBy === 'Appointment Date')
-            const findAppointment2 = p2.data.find(data => data.filterBy === 'Appointment Date')
+    // function sortByUpAppointment(): DataTableContentT[] {
+    //     const sortPatient = dataColumns.sort((p1, p2) => {
+    //         const findAppointment1 = p1.data.find(data => data.filterBy === 'Appointment Date')
+    //         const findAppointment2 = p2.data.find(data => data.filterBy === 'Appointment Date')
 
-            const getDateApp1 = findAppointment1?.name
-            const getDateApp2 = findAppointment2?.name
+    //         const getDateApp1 = findAppointment1?.name
+    //         const getDateApp2 = findAppointment2?.name
 
-            const getConfirmHour1 = findAppointment1?.confirmHour
-            const getConfirmHour2 = findAppointment2?.confirmHour
+    //         const getConfirmHour1 = findAppointment1?.confirmHour
+    //         const getConfirmHour2 = findAppointment2?.confirmHour
 
-            return (new Date(`${getDateApp2} ${getConfirmHour2}`).valueOf()) - (new Date(`${getDateApp1} ${getConfirmHour1}`).valueOf())
-        })
+    //         return (new Date(`${getDateApp2} ${getConfirmHour2}`).valueOf()) - (new Date(`${getDateApp1} ${getConfirmHour1}`).valueOf())
+    //     })
 
-        return sortPatient
-    }
+    //     return sortPatient
+    // }
 
-    function sortByDownAppointment(): DataTableContentT[] {
-        const sortPatient = resultFilterByDate.sort((p1, p2) => {
-            const findAppointment1 = p1.data.find(data => data.filterBy === 'Appointment Date')
-            const findAppointment2 = p2.data.find(data => data.filterBy === 'Appointment Date')
+    // function sortByDownAppointment(): DataTableContentT[] {
+    //     const sortPatient = dataColumns.sort((p1, p2) => {
+    //         const findAppointment1 = p1.data.find(data => data.filterBy === 'Appointment Date')
+    //         const findAppointment2 = p2.data.find(data => data.filterBy === 'Appointment Date')
 
-            const getDateApp1 = findAppointment1?.name
-            const getDateApp2 = findAppointment2?.name
+    //         const getDateApp1 = findAppointment1?.name
+    //         const getDateApp2 = findAppointment2?.name
 
-            const getConfirmHour1 = findAppointment1?.confirmHour
-            const getConfirmHour2 = findAppointment2?.confirmHour
+    //         const getConfirmHour1 = findAppointment1?.confirmHour
+    //         const getConfirmHour2 = findAppointment2?.confirmHour
 
-            return (new Date(`${getDateApp1} ${getConfirmHour1}`).valueOf()) - (new Date(`${getDateApp2} ${getConfirmHour2}`).valueOf())
-        })
+    //         return (new Date(`${getDateApp1} ${getConfirmHour1}`).valueOf()) - (new Date(`${getDateApp2} ${getConfirmHour2}`).valueOf())
+    //     })
 
-        return sortPatient
-    }
+    //     return sortPatient
+    // }
 
-    function sortByAppointmentDate(): DataTableContentT[] | undefined {
-        if (chooseFilterByDate.id === 'Appointment Date' && chooseOnSortDate.id === 'Sort By Down') {
-            return sortByDownAppointment()
-        } else if (chooseFilterByDate.id === 'Appointment Date' && chooseOnSortDate.id === 'Sort By Up') {
-            return sortByUpAppointment()
-        }
-    }
+    // function sortByAppointmentDate(): DataTableContentT[] | undefined {
+    //     if (chooseFilterByDate.id === 'Appointment Date' && chooseOnSortDate.id === 'Sort By Down') {
+    //         return sortByDownAppointment()
+    //     } else if (chooseFilterByDate.id === 'Appointment Date' && chooseOnSortDate.id === 'Sort By Up') {
+    //         return sortByUpAppointment()
+    //     }
+    // }
 
-    const resultSortByAppointmentDate: DataTableContentT[] | undefined = sortByAppointmentDate()
+    // const resultSortByAppointmentDate: DataTableContentT[] | undefined = sortByAppointmentDate()
 
     // sort by confirmation date
-    function sortByUpConfirmDate(): DataTableContentT[] {
-        const sortPatient = resultFilterByDate.sort((p1, p2) => {
-            const findConfirmDate1 = p1.data.find(data => data.filterBy === 'Confirmation Date')
-            const findConfirmDate2 = p2.data.find(data => data.filterBy === 'Confirmation Date')
+    // function sortByUpConfirmDate(): DataTableContentT[] {
+    //     const sortPatient = dataColumns.sort((p1, p2) => {
+    //         const findConfirmDate1 = p1.data.find(data => data.filterBy === 'Confirmation Date')
+    //         const findConfirmDate2 = p2.data.find(data => data.filterBy === 'Confirmation Date')
 
-            const getDateConfirm1 = findConfirmDate1?.name
-            const getDateConfirm2 = findConfirmDate2?.name
+    //         const getDateConfirm1 = findConfirmDate1?.name
+    //         const getDateConfirm2 = findConfirmDate2?.name
 
-            const getConfirmHour1 = findConfirmDate1?.confirmHour?.split('-')[0]
-            const getConfirmHour2 = findConfirmDate2?.confirmHour?.split('-')[0]
+    //         const getConfirmHour1 = findConfirmDate1?.confirmHour?.split('-')[0]
+    //         const getConfirmHour2 = findConfirmDate2?.confirmHour?.split('-')[0]
 
-            return (new Date(`${getDateConfirm2} ${getConfirmHour2}`).valueOf()) - (new Date(`${getDateConfirm1} ${getConfirmHour1}`).valueOf())
-        })
+    //         return (new Date(`${getDateConfirm2} ${getConfirmHour2}`).valueOf()) - (new Date(`${getDateConfirm1} ${getConfirmHour1}`).valueOf())
+    //     })
 
-        return sortPatient
-    }
+    //     return sortPatient
+    // }
 
-    function sortByDownConfirmDate(): DataTableContentT[] {
-        const sortPatient = resultFilterByDate.sort((p1, p2) => {
-            const findConfirmDate1 = p1.data.find(data => data.filterBy === 'Confirmation Date')
-            const findConfirmDate2 = p2.data.find(data => data.filterBy === 'Confirmation Date')
+    // function sortByDownConfirmDate(): DataTableContentT[] {
+    //     const sortPatient = dataColumns.sort((p1, p2) => {
+    //         const findConfirmDate1 = p1.data.find(data => data.filterBy === 'Confirmation Date')
+    //         const findConfirmDate2 = p2.data.find(data => data.filterBy === 'Confirmation Date')
 
-            const getDateConfirm1 = findConfirmDate1?.name
-            const getDateConfirm2 = findConfirmDate2?.name
+    //         const getDateConfirm1 = findConfirmDate1?.name
+    //         const getDateConfirm2 = findConfirmDate2?.name
 
-            const getConfirmHour1 = findConfirmDate1?.confirmHour?.split('-')[0]
-            const getConfirmHour2 = findConfirmDate2?.confirmHour?.split('-')[0]
+    //         const getConfirmHour1 = findConfirmDate1?.confirmHour?.split('-')[0]
+    //         const getConfirmHour2 = findConfirmDate2?.confirmHour?.split('-')[0]
 
-            return (new Date(`${getDateConfirm1} ${getConfirmHour1}`).valueOf()) - (new Date(`${getDateConfirm2} ${getConfirmHour2}`).valueOf())
-        })
+    //         return (new Date(`${getDateConfirm1} ${getConfirmHour1}`).valueOf()) - (new Date(`${getDateConfirm2} ${getConfirmHour2}`).valueOf())
+    //     })
 
-        return sortPatient
-    }
+    //     return sortPatient
+    // }
 
-    function sortByConfirmationDate(): DataTableContentT[] | undefined {
-        if (chooseFilterByDate.id === 'Confirmation Date' && chooseOnSortDate.id === 'Sort By Down') {
-            return sortByDownConfirmDate()
-        } else if (chooseFilterByDate.id === 'Confirmation Date' && chooseOnSortDate.id === 'Sort By Up') {
-            return sortByUpConfirmDate()
-        }
-    }
-    const resultSortByConfirmationDate: DataTableContentT[] | undefined = sortByConfirmationDate()
+    // function sortByConfirmationDate(): DataTableContentT[] | undefined {
+    //     if (chooseFilterByDate.id === 'Confirmation Date' && chooseOnSortDate.id === 'Sort By Down') {
+    //         return sortByDownConfirmDate()
+    //     } else if (chooseFilterByDate.id === 'Confirmation Date' && chooseOnSortDate.id === 'Sort By Up') {
+    //         return sortByUpConfirmDate()
+    //     }
+    // }
+    // const resultSortByConfirmationDate: DataTableContentT[] | undefined = sortByConfirmationDate()
 
     // sort by date of birth
-    function sortByUpDateOfBirth(): DataTableContentT[] {
-        const sortPatient = resultFilterByDate.sort((p1, p2) => {
-            const findDateOfBirth1 = p1.data.find(data => data.filterBy === 'Date of Birth')
-            const findDateOfBirth2 = p2.data.find(data => data.filterBy === 'Date of Birth')
+    // function sortByUpDateOfBirth(): DataTableContentT[] {
+    //     const sortPatient = dataColumns.sort((p1, p2) => {
+    //         const findDateOfBirth1 = p1.data.find(data => data.filterBy === 'Date of Birth')
+    //         const findDateOfBirth2 = p2.data.find(data => data.filterBy === 'Date of Birth')
 
-            const getDateOfBirth1: string = findDateOfBirth1?.name as string
-            const getDateOfBirth2: string = findDateOfBirth2?.name as string
+    //         const getDateOfBirth1: string = findDateOfBirth1?.name as string
+    //         const getDateOfBirth2: string = findDateOfBirth2?.name as string
 
-            return (new Date(getDateOfBirth2).valueOf()) - (new Date(getDateOfBirth1).valueOf())
-        })
+    //         return (new Date(getDateOfBirth2).valueOf()) - (new Date(getDateOfBirth1).valueOf())
+    //     })
 
-        return sortPatient
-    }
+    //     return sortPatient
+    // }
 
-    function sortByDownDateOfBirth(): DataTableContentT[] {
-        const sortPatient = resultFilterByDate.sort((p1, p2) => {
-            const findDateOfBirth1 = p1.data.find(data => data.filterBy === 'Date of Birth')
-            const findDateOfBirth2 = p2.data.find(data => data.filterBy === 'Date of Birth')
+    // function sortByDownDateOfBirth(): DataTableContentT[] {
+    //     const sortPatient = dataColumns.sort((p1, p2) => {
+    //         const findDateOfBirth1 = p1.data.find(data => data.filterBy === 'Date of Birth')
+    //         const findDateOfBirth2 = p2.data.find(data => data.filterBy === 'Date of Birth')
 
-            const getDateOfBirth1: string = findDateOfBirth1?.name as string
-            const getDateOfBirth2: string = findDateOfBirth2?.name as string
+    //         const getDateOfBirth1: string = findDateOfBirth1?.name as string
+    //         const getDateOfBirth2: string = findDateOfBirth2?.name as string
 
-            return (new Date(getDateOfBirth1).valueOf()) - (new Date(getDateOfBirth2).valueOf())
-        })
+    //         return (new Date(getDateOfBirth1).valueOf()) - (new Date(getDateOfBirth2).valueOf())
+    //     })
 
-        return sortPatient
-    }
+    //     return sortPatient
+    // }
 
-    function sortByDateOfBirth(): DataTableContentT[] | undefined {
-        if (chooseFilterByDate.id === 'Date of Birth' && chooseOnSortDate.id === 'Sort By Down') {
-            return sortByDownDateOfBirth()
-        } else if (chooseFilterByDate.id === 'Date of Birth' && chooseOnSortDate.id === 'Sort By Up') {
-            return sortByUpDateOfBirth()
-        }
-    }
-    const resultSortByDateOfBirth: DataTableContentT[] | undefined = sortByDateOfBirth()
+    // function sortByDateOfBirth(): DataTableContentT[] | undefined {
+    //     if (chooseFilterByDate.id === 'Date of Birth' && chooseOnSortDate.id === 'Sort By Down') {
+    //         return sortByDownDateOfBirth()
+    //     } else if (chooseFilterByDate.id === 'Date of Birth' && chooseOnSortDate.id === 'Sort By Up') {
+    //         return sortByUpDateOfBirth()
+    //     }
+    // }
+    // const resultSortByDateOfBirth: DataTableContentT[] | undefined = sortByDateOfBirth()
 
-    function getFilterText(
-        dataFilter: DataTableContentT[]
-    ): DataTableContentT[] {
-        const filter = dataFilter.filter(patient => {
-            const findItem = patient.data.find(data =>
-                data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()) ||
-                data?.firstDesc?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
-            )
+    // function getFilterText(
+    //     dataFilter: DataTableContentT[]
+    // ): DataTableContentT[] {
+    //     const filter = dataFilter.filter(patient => {
+    //         const findItem = patient.data.find(data =>
+    //             data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()) ||
+    //             data?.firstDesc?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
+    //         )
 
-            return findItem
-        })
-        return filter
-    }
+    //         return findItem
+    //     })
+    //     return filter
+    // }
 
     // filter on search text
-    const filterText: DataTableContentT[] =
-        Array.isArray(resultSortByAppointmentDate) &&
-            resultSortByAppointmentDate.length > 0
-            ? getFilterText(resultSortByAppointmentDate) :
-            Array.isArray(resultSortByConfirmationDate) &&
-                resultSortByConfirmationDate.length > 0 ?
-                getFilterText(resultSortByConfirmationDate) :
-                Array.isArray(resultSortByDateOfBirth) &&
-                    resultSortByDateOfBirth.length > 0 ?
-                    getFilterText(resultSortByDateOfBirth) :
-                    resultFilterByDate.length > 0 ?
-                        getFilterText(resultFilterByDate) : []
+    // const getSort: DataTableContentT[] =
+    //     Array.isArray(resultSortByAppointmentDate) &&
+    //         resultSortByAppointmentDate.length > 0
+    //         ? resultSortByAppointmentDate :
+    //         Array.isArray(resultSortByConfirmationDate) &&
+    //             resultSortByConfirmationDate.length > 0 ?
+    //             resultSortByConfirmationDate :
+    //             Array.isArray(resultSortByDateOfBirth) &&
+    //                 resultSortByDateOfBirth.length > 0 ?
+    //                 resultSortByDateOfBirth : dataColumns
 
-    const pageSize: number = 5
+    // const currentTableData = useMemo((): DataTableContentT[] => {
+    //     const firstPageIndex = (currentPage - 1) * pageSize
+    //     const lastPageIndex = firstPageIndex + pageSize
+    //     return filterText.slice(firstPageIndex, lastPageIndex)
+    // }, [dataColumns, currentPage])
 
-    const currentTableData = useMemo((): DataTableContentT[] => {
-        const firstPageIndex = (currentPage - 1) * pageSize
-        const lastPageIndex = firstPageIndex + pageSize
-        return filterText.slice(firstPageIndex, lastPageIndex)
-    }, [filterText, currentPage])
-
-    const lastPage: number = filterText.length < 5 ? 1 : Math.ceil(filterText.length / pageSize)
+    const lastPage: number = resultDataTable?.pagination?.lastPage ?? 1
     const maxLength: number = 7
 
     const handleSortCategory = (): void => {
@@ -622,13 +655,14 @@ export function FilterTable() {
         setChooseFilterByDate,
         filterBy,
         handleFilterDate,
-        currentTableData,
+        dataColumns,
         lastPage,
         maxLength,
         dataSortDate,
         handleSortCategory,
         indexActiveTableMenu,
         clickColumnMenu,
-        setIndexActiveTableMenu
+        setIndexActiveTableMenu,
+        loadingDataTable
     }
 }

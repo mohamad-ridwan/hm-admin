@@ -18,17 +18,17 @@ import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { navigationStore } from "lib/useZustand/navigation"
 
 type Props = {
-    findDataRegistration: (
-        dataPatientRegis: PatientRegistrationT[] | undefined,
-        dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
-        dataFinishTreatment: PatientFinishTreatmentT[] | undefined
-    ) => void
+    // findDataRegistration: (
+    //     dataPatientRegis: PatientRegistrationT[] | undefined,
+    //     dataConfirmationPatients: ConfirmationPatientsT[] | undefined,
+    //     dataFinishTreatment: PatientFinishTreatmentT[] | undefined
+    // ) => void
     setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
     onModalSettings?: PopupSettings
 }
 
 export function DeletePatient({
-    findDataRegistration,
+    // findDataRegistration,
     setOnModalSettings,
     onModalSettings
 }: Props) {
@@ -46,41 +46,41 @@ export function DeletePatient({
     const {setOnAlerts} = navigationStore()
     const router = useRouter()
 
-    function preloadDataRegistration(
-        dataService: { [key: string]: any } | { [key: string]: any }[],
-        patientId: string,
-        actionFor: 'delete' | 'cancel'
-    ): void {
-        const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
-        const getPatientRegistration: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'patient-registration')
-        const dataPatientRegis: PatientRegistrationT[] | undefined = getPatientRegistration?.data
+    // function preloadDataRegistration(
+    //     dataService: { [key: string]: any } | { [key: string]: any }[],
+    //     patientId: string,
+    //     actionFor: 'delete' | 'cancel'
+    // ): void {
+    //     const newPatientRegistration: { [key: string]: any } | undefined = dataService as {}
+    //     const getPatientRegistration: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientRegistrationT) => item?.id === 'patient-registration')
+    //     const dataPatientRegis: PatientRegistrationT[] | undefined = getPatientRegistration?.data
 
-        // confirmation patients
-        const getConfirmationPatients: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: ConfirmationPatientsT) => item?.id === 'confirmation-patients')
-        const dataConfirmationPatients: ConfirmationPatientsT[] | undefined = getConfirmationPatients?.data
+    //     // confirmation patients
+    //     const getConfirmationPatients: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: ConfirmationPatientsT) => item?.id === 'confirmation-patients')
+    //     const dataConfirmationPatients: ConfirmationPatientsT[] | undefined = getConfirmationPatients?.data
 
-        // finished treatment data
-        const getFinishTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientFinishTreatmentT) => item?.id === 'finished-treatment')
-        const dataFinishTreatment: PatientFinishTreatmentT[] | undefined = getFinishTreatment?.data
+    //     // finished treatment data
+    //     const getFinishTreatment: { [key: string]: any } | undefined = newPatientRegistration?.data?.find((item: PatientFinishTreatmentT) => item?.id === 'finished-treatment')
+    //     const dataFinishTreatment: PatientFinishTreatmentT[] | undefined = getFinishTreatment?.data
 
-        setTimeout(() => {
-            findDataRegistration(
-                dataPatientRegis,
-                dataConfirmationPatients,
-                dataFinishTreatment
-            )
+    //     setTimeout(() => {
+    //         findDataRegistration(
+    //             dataPatientRegis,
+    //             dataConfirmationPatients,
+    //             dataFinishTreatment
+    //         )
 
-            setTimeout(() => {
-                if (actionFor === 'delete') {
-                    const removeIdLoading = idLoadingDeletePatient.filter(id => id !== patientId)
-                    setIdLoadingDeletePatient(removeIdLoading)
-                } else if (actionFor === 'cancel') {
-                    const removeIdLoading = idLoadingCancelTreatment.filter(id => id !== patientId)
-                    setIdLoadingCancelTreatment(removeIdLoading)
-                }
-            }, 0);
-        }, 500)
-    }
+    //         setTimeout(() => {
+    //             if (actionFor === 'delete') {
+    //                 const removeIdLoading = idLoadingDeletePatient.filter(id => id !== patientId)
+    //                 setIdLoadingDeletePatient(removeIdLoading)
+    //             } else if (actionFor === 'cancel') {
+    //                 const removeIdLoading = idLoadingCancelTreatment.filter(id => id !== patientId)
+    //                 setIdLoadingCancelTreatment(removeIdLoading)
+    //             }
+    //         }, 0);
+    //     }, 500)
+    // }
 
     function clickDelete(
         id: string,
@@ -134,27 +134,36 @@ export function DeletePatient({
             id
         )
             .then((deleteResult) => {
-                preloadFetch(endpoint.getServicingHours())
-                    .then((res) => {
-                        if (res?.data) {
-                            let newId: { [key: string]: any } = deleteResult as { [key: string]: any }
-                            preloadDataRegistration(res, newId?.id as string, 'delete')
-                            setOnAlerts({
-                                onAlert: true,
-                                title: 'Successfully deleted data patient',
-                                desc: 'The patient has been removed from the registration list'
-                            })
-                            setTimeout(() => {
-                                setOnAlerts({} as AlertsT)
-                            }, 3000);
-                            window.location.reload()
-                        } else {
-                            pushTriggedErr('error preload data service. no property "data" found')
-                        }
-                    })
-                    .catch(err => {
-                        pushTriggedErr('error preload data service')
-                    })
+                // preloadFetch(endpoint.getServicingHours())
+                //     .then((res) => {
+                //         if (res?.data) {
+                //             let newId: { [key: string]: any } = deleteResult as { [key: string]: any }
+                //             preloadDataRegistration(res, newId?.id as string, 'delete')
+                //             setOnAlerts({
+                //                 onAlert: true,
+                //                 title: 'Successfully deleted data patient',
+                //                 desc: 'The patient has been removed from the registration list'
+                //             })
+                //             setTimeout(() => {
+                //                 setOnAlerts({} as AlertsT)
+                //             }, 3000);
+                //             window.location.reload()
+                //         } else {
+                //             pushTriggedErr('error preload data service. no property "data" found')
+                //         }
+                //     })
+                //     .catch(err => {
+                //         pushTriggedErr('error preload data service')
+                //     })
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Successfully deleted data patient',
+                    desc: 'The patient has been removed from the registration list'
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000);
+                window.location.reload()
             })
             .catch((err: any) => {
                 pushTriggedErr('a server error has occurred. Please try again later')

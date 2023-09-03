@@ -4,6 +4,7 @@ import { endpoint } from "lib/api/endpoint"
 import { useSwr } from "lib/useFetch/useSwr"
 import { authStore, userIdAuthStore } from "lib/useZustand/auth"
 import { sessionDateFormat } from "lib/formats/sessionDateFormat"
+import { navigationStore } from "lib/useZustand/navigation"
 
 type ObjString = { [key: string]: any }
 
@@ -11,6 +12,7 @@ export function IsLoggedIn() {
     const { data, error, isLoading } = useSwr(endpoint.getAdmin())
     const { userId, setUserId, loginSession, setLoginSession } = userIdAuthStore()
     const { setUser, setLoadingAuth } = authStore()
+    const { setNotification } = navigationStore()
 
     function findAdmin(): void {
         if (
@@ -37,6 +39,13 @@ export function IsLoggedIn() {
                         setUser({ user: findUser })
                         setLoadingAuth(false)
                     } else {
+                        if (loginSession !== null) {
+                            setNotification({
+                                onNotif: true,
+                                title: 'Your login session has expired',
+                                desc: 'Your login session has expired. To gain access, please log in to gain access again'
+                            })
+                        }
                         notLoggedIn()
                     }
                 } else {

@@ -3,7 +3,7 @@
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react"
 import { notFound, useRouter, useParams } from 'next/navigation'
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
-import { AlertsT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, DataTableResultT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { DrugCounterT, InfoLoketT, PatientFinishTreatmentT, PatientRegistrationT } from "lib/types/PatientT.types"
 import { createDateFormat } from "lib/formats/createDateFormat"
@@ -17,6 +17,9 @@ import { createHourFormat } from "lib/formats/createHourFormat"
 import { authStore } from "lib/useZustand/auth"
 import { AdminT } from "lib/types/AdminT.types"
 import { navigationStore } from "lib/useZustand/navigation"
+import { useSwr } from "lib/useFetch/useSwr"
+import { endpoint } from "lib/api/endpoint"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
 
 type ParamsProps = {
     params: {
@@ -159,10 +162,41 @@ export function UseDrugCounter({
         pushTriggedErr
     } = ServicingHours({})
 
+    const pageSize: number = 5
+
+    const {data: newDataTable, error: errDataTable, isLoading: loadingDataTable} = useSwr(endpoint.getDataTableDrugCounter(
+        params.counterName,
+        params.status,
+        searchText,
+        currentFilterBy.title,
+        currentSortBy.title,
+        selectDate? `${selectDate}` : '',
+        currentPage,
+        pageSize
+    ))
+    const dataTableDrugCounter = newDataTable as DataTableResultT
+
+    if(
+        !loadingDataTable &&
+        errDataTable
+    ){
+        throw new AuthRequiredError('A server error occurred. Occurs when retrieving the counter data resource')
+    }
+
     const { user } = authStore()
     const {setOnAlerts} = navigationStore()
     const router = useRouter()
     const paramsRegistration = useParams()
+
+    function loadDataTable():void{
+        if(dataTableDrugCounter?.data){
+            setDataColumns(dataTableDrugCounter.data)
+        }
+    }
+
+    useEffect(()=>{
+        loadDataTable()
+    },[dataTableDrugCounter, currentPage])
 
     const loket = dataLoket?.find(loket => loket?.loketName === params?.counterName)
     const statusURL: ['waiting-patient', 'already-confirmed', 'expired-patient'] = [
@@ -181,261 +215,260 @@ export function UseDrugCounter({
         }
     }
 
-    function findDataRegistration(
-        dataPatientRegis: PatientRegistrationT[] | undefined,
-        dataDrugCounter: DrugCounterT[] | undefined,
-        dataLoket: InfoLoketT[] | undefined,
-        dataFinishTreatment: PatientFinishTreatmentT[] | undefined
-    ): void {
-        if (
-            !loadDataService &&
-            Array.isArray(dataPatientRegis) &&
-            dataPatientRegis.length > 0
-        ) {
-            const patientWaiting = dataPatientRegis.filter((patient => {
-                // finished treatment
-                const findPatientFT = dataFinishTreatment?.find(patientFT =>
-                    patientFT.patientId === patient.id
-                )
-                // patient counter
-                const findPatientCounter = dataDrugCounter?.find(patientC =>
-                    patientC?.patientId === patient.id &&
-                    patientC?.loketInfo?.loketId === loket?.id &&
-                    patientC?.isConfirm?.confirmState === false &&
-                    patientC?.submissionDate?.submissionDate === createDateFormat(new Date())
-                )
-                return findPatientCounter && !findPatientFT
-            }))
-            const patientAlreadyConfirmed = dataPatientRegis.filter((patient => {
-                const loket = dataLoket?.find(loket => loket.loketName === params.counterName)
-                // patient counter
-                const findPatientCounter = dataDrugCounter?.find(patientC =>
-                    patientC?.patientId === patient.id &&
-                    patientC?.loketInfo?.loketId === loket?.id &&
-                    patientC?.isConfirm?.confirmState &&
-                    patientC?.submissionDate?.submissionDate === createDateFormat(new Date())
-                )
-                return findPatientCounter
-            }))
+    // function findDataRegistration(
+    //     dataPatientRegis: PatientRegistrationT[] | undefined,
+    //     dataDrugCounter: DrugCounterT[] | undefined,
+    //     dataLoket: InfoLoketT[] | undefined,
+    //     dataFinishTreatment: PatientFinishTreatmentT[] | undefined
+    // ): void {
+    //     if (
+    //         !loadDataService &&
+    //         Array.isArray(dataPatientRegis) &&
+    //         dataPatientRegis.length > 0
+    //     ) {
+    //         const patientWaiting = dataPatientRegis.filter((patient => {
+    //             // finished treatment
+    //             const findPatientFT = dataFinishTreatment?.find(patientFT =>
+    //                 patientFT.patientId === patient.id
+    //             )
+    //             // patient counter
+    //             const findPatientCounter = dataDrugCounter?.find(patientC =>
+    //                 patientC?.patientId === patient.id &&
+    //                 patientC?.loketInfo?.loketId === loket?.id &&
+    //                 patientC?.isConfirm?.confirmState === false &&
+    //                 patientC?.submissionDate?.submissionDate === createDateFormat(new Date())
+    //             )
+    //             return findPatientCounter && !findPatientFT
+    //         }))
+    //         const patientAlreadyConfirmed = dataPatientRegis.filter((patient => {
+    //             const loket = dataLoket?.find(loket => loket.loketName === params.counterName)
+    //             // patient counter
+    //             const findPatientCounter = dataDrugCounter?.find(patientC =>
+    //                 patientC?.patientId === patient.id &&
+    //                 patientC?.loketInfo?.loketId === loket?.id &&
+    //                 patientC?.isConfirm?.confirmState &&
+    //                 patientC?.submissionDate?.submissionDate === createDateFormat(new Date())
+    //             )
+    //             return findPatientCounter
+    //         }))
 
-            const patientExpired = dataPatientRegis.filter((patient => {
-                // finished treatment
-                const findPatientFT = dataFinishTreatment?.find(patientFT =>
-                    patientFT.patientId === patient.id
-                )
-                const loket = dataLoket?.find(loket => loket.loketName === params.counterName)
-                // patient counter
-                const findPatientCounter = dataDrugCounter?.find(patientC =>
-                    patientC?.patientId === patient.id &&
-                    patientC?.loketInfo?.loketId === loket?.id &&
-                    patientC?.isConfirm?.confirmState === false &&
-                    patientC?.submissionDate?.submissionDate < createDateFormat(new Date())
-                )
-                return findPatientCounter && !findPatientFT
-            }))
+    //         const patientExpired = dataPatientRegis.filter((patient => {
+    //             // finished treatment
+    //             const findPatientFT = dataFinishTreatment?.find(patientFT =>
+    //                 patientFT.patientId === patient.id
+    //             )
+    //             const loket = dataLoket?.find(loket => loket.loketName === params.counterName)
+    //             // patient counter
+    //             const findPatientCounter = dataDrugCounter?.find(patientC =>
+    //                 patientC?.patientId === patient.id &&
+    //                 patientC?.loketInfo?.loketId === loket?.id &&
+    //                 patientC?.isConfirm?.confirmState === false &&
+    //                 patientC?.submissionDate?.submissionDate < createDateFormat(new Date())
+    //             )
+    //             return findPatientCounter && !findPatientFT
+    //         }))
 
-            if (params.status === 'waiting-patient') {
-                currentDataStatus.current = patientWaiting
-            } else if (params.status === 'already-confirmed') {
-                currentDataStatus.current = patientAlreadyConfirmed
-            } else if (params.status === 'expired-patient') {
-                currentDataStatus.current = patientExpired
-            }
+    //         if (params.status === 'waiting-patient') {
+    //             currentDataStatus.current = patientWaiting
+    //         } else if (params.status === 'already-confirmed') {
+    //             currentDataStatus.current = patientAlreadyConfirmed
+    //         } else if (params.status === 'expired-patient') {
+    //             currentDataStatus.current = patientExpired
+    //         }
 
-            if (currentDataStatus.current.length > 0) {
-                const getDataColumns: DataTableContentT[] = currentDataStatus.current.map(patient => {
-                    const patientCounter = dataDrugCounter?.find(patientC => patientC.patientId === patient.id)
-                    const status = params.status === 'waiting-patient' ? 'waiting' : params.status === 'already-confirmed' ? 'already confirmed' : params.status === 'expired-patient' ? 'expired' : 'null'
-                    const colorStatus = status === 'waiting' ? '#FFA500' : status === 'already confirmed' ? '#288bbc' : status === 'expired' ? '#ff296d' : '#000'
-                    // find patient be passed
-                    const isPatientSkipped: 'Skipped' | null = patientCounter?.isConfirm?.isSkipped ? 'Skipped' : null
+    //         if (currentDataStatus.current.length > 0) {
+    //             const getDataColumns: DataTableContentT[] = currentDataStatus.current.map(patient => {
+    //                 const patientCounter = dataDrugCounter?.find(patientC => patientC.patientId === patient.id)
+    //                 const status = params.status === 'waiting-patient' ? 'waiting' : params.status === 'already-confirmed' ? 'already confirmed' : params.status === 'expired-patient' ? 'expired' : 'null'
+    //                 const colorStatus = status === 'waiting' ? '#FFA500' : status === 'already confirmed' ? '#288bbc' : status === 'expired' ? '#ff296d' : '#000'
+    //                 // find patient be passed
+    //                 const isPatientSkipped: 'Skipped' | null = patientCounter?.isConfirm?.isSkipped ? 'Skipped' : null
 
-                    return {
-                        id: patient.id,
-                        data: [
-                            {
-                                name: patient.patientName
-                            },
-                            {
-                                name: patientCounter?.queueNumber as string,
-                                filterBy: 'Queue Number'
-                            },
-                            {
-                                firstDesc: status.toUpperCase(),
-                                name: isPatientSkipped ? `(${isPatientSkipped})` : '',
-                                color: colorStatus,
-                                colorName: '#777',
-                                fontSize: '12px',
-                                fontWeightFirstDesc: 'bold',
-                            },
-                            {
-                                name: params.counterName
-                            },
-                            {
-                                name: patient.emailAddress
-                            },
-                            {
-                                name: patient.phone
-                            },
-                            {
-                                firstDesc: createDateNormalFormat(patient.dateOfBirth),
-                                colorName: '#777',
-                                marginBottom: '4.5px',
-                                fontSize: '12px',
-                                filterBy: 'Date of Birth',
-                                name: patient.dateOfBirth
-                            },
-                            {
-                                name: patient.id
-                            },
-                            {
-                                name: ''
-                            }
-                        ]
-                    }
-                })
-                setDataColumns(getDataColumns)
-            } else {
-                setDataColumns([])
-            }
-        } else if (
-            !loadDataService &&
-            Array.isArray(dataPatientRegis) &&
-            dataPatientRegis.length === 0
-        ) {
-            setDataColumns([])
-        }
-    }
+    //                 return {
+    //                     id: patient.id,
+    //                     data: [
+    //                         {
+    //                             name: patient.patientName
+    //                         },
+    //                         {
+    //                             name: patientCounter?.queueNumber as string,
+    //                             filterBy: 'Queue Number'
+    //                         },
+    //                         {
+    //                             firstDesc: status.toUpperCase(),
+    //                             name: isPatientSkipped ? `(${isPatientSkipped})` : '',
+    //                             color: colorStatus,
+    //                             colorName: '#777',
+    //                             fontSize: '12px',
+    //                             fontWeightFirstDesc: 'bold',
+    //                         },
+    //                         {
+    //                             name: params.counterName
+    //                         },
+    //                         {
+    //                             name: patient.emailAddress
+    //                         },
+    //                         {
+    //                             name: patient.phone
+    //                         },
+    //                         {
+    //                             firstDesc: createDateNormalFormat(patient.dateOfBirth),
+    //                             colorName: '#777',
+    //                             marginBottom: '4.5px',
+    //                             fontSize: '12px',
+    //                             filterBy: 'Date of Birth',
+    //                             name: patient.dateOfBirth
+    //                         },
+    //                         {
+    //                             name: patient.id
+    //                         },
+    //                         {
+    //                             name: ''
+    //                         }
+    //                     ]
+    //                 }
+    //             })
+    //             setDataColumns(getDataColumns)
+    //         } else {
+    //             setDataColumns([])
+    //         }
+    //     } else if (
+    //         !loadDataService &&
+    //         Array.isArray(dataPatientRegis) &&
+    //         dataPatientRegis.length === 0
+    //     ) {
+    //         setDataColumns([])
+    //     }
+    // }
 
-    useEffect(() => {
-        findDataRegistration(
-            dataPatientRegis,
-            dataDrugCounter,
-            dataLoket,
-            dataFinishTreatment,
-        )
-    }, [loadDataService, dataService])
+    // useEffect(() => {
+    //     findDataRegistration(
+    //         dataPatientRegis,
+    //         dataDrugCounter,
+    //         dataLoket,
+    //         dataFinishTreatment,
+    //     )
+    // }, [loadDataService, dataService])
 
     // filter by
     // filter date
-    const filterByDate =
-        currentFilterBy.id === 'Date of Birth' &&
-            dataColumns.length > 0 ? dataColumns.filter(patient => {
-                if (selectDate) {
-                    const findDate = patient.data.find(data => data?.filterBy === 'Date of Birth')
-                    const checkDate = findDate?.name === createDateFormat(selectDate)
-                    return checkDate
-                }
-                return dataColumns
-            }) : []
+    // const filterByDate =
+    //     currentFilterBy.id === 'Date of Birth' &&
+    //         dataColumns.length > 0 ? dataColumns.filter(patient => {
+    //             if (selectDate) {
+    //                 const findDate = patient.data.find(data => data?.filterBy === 'Date of Birth')
+    //                 const checkDate = findDate?.name === createDateFormat(selectDate)
+    //                 return checkDate
+    //             }
+    //             return dataColumns
+    //         }) : []
 
     // filter queue number
-    const filterQueueNumber =
-        currentFilterBy.id === 'Queue Number' &&
-            dataColumns.length > 0 ? dataColumns.filter(patient => {
-                const findQueue = patient.data.find(data => data?.filterBy === 'Queue Number')
+    // const filterQueueNumber =
+    //     currentFilterBy.id === 'Queue Number' &&
+    //         dataColumns.length > 0 ? dataColumns.filter(patient => {
+    //             const findQueue = patient.data.find(data => data?.filterBy === 'Queue Number')
 
-                return findQueue
-            }) : dataColumns
+    //             return findQueue
+    //         }) : dataColumns
 
-    function sortByUp(): DataTableContentT[] {
-        if (
-            currentFilterBy.id === 'Date of Birth' &&
-            currentSortBy.id === 'Sort By Up'
-        ) {
-            const sort = filterByDate.sort((a, b) => {
-                const findDateA = a.data.find(data => data?.filterBy === 'Date of Birth')
-                const findDateB = b.data.find(data => data?.filterBy === 'Date of Birth')
-                const checkDate = (new Date(findDateB?.name as string)).valueOf() - (new Date(findDateA?.name as string)).valueOf()
-                return checkDate
-            })
-            return sort
-        } else if (
-            currentFilterBy.id === 'Queue Number' &&
-            currentSortBy.id === 'Sort By Up'
-        ) {
-            const sort = filterQueueNumber.sort((a, b) => {
-                const findQueueA = a.data.find(data => data?.filterBy === 'Queue Number')
-                const findQueueB = b.data.find(data => data?.filterBy === 'Queue Number')
-                const checkQueue = Number(findQueueB?.name) - Number(findQueueA?.name)
-                return checkQueue
-            })
-            return sort
-        }
+    // function sortByUp(): DataTableContentT[] {
+    //     if (
+    //         currentFilterBy.id === 'Date of Birth' &&
+    //         currentSortBy.id === 'Sort By Up'
+    //     ) {
+    //         const sort = filterByDate.sort((a, b) => {
+    //             const findDateA = a.data.find(data => data?.filterBy === 'Date of Birth')
+    //             const findDateB = b.data.find(data => data?.filterBy === 'Date of Birth')
+    //             const checkDate = (new Date(findDateB?.name as string)).valueOf() - (new Date(findDateA?.name as string)).valueOf()
+    //             return checkDate
+    //         })
+    //         return sort
+    //     } else if (
+    //         currentFilterBy.id === 'Queue Number' &&
+    //         currentSortBy.id === 'Sort By Up'
+    //     ) {
+    //         const sort = filterQueueNumber.sort((a, b) => {
+    //             const findQueueA = a.data.find(data => data?.filterBy === 'Queue Number')
+    //             const findQueueB = b.data.find(data => data?.filterBy === 'Queue Number')
+    //             const checkQueue = Number(findQueueB?.name) - Number(findQueueA?.name)
+    //             return checkQueue
+    //         })
+    //         return sort
+    //     }
 
-        return []
-    }
+    //     return []
+    // }
 
-    function sortByDown(): DataTableContentT[] {
-        if (
-            currentFilterBy.id === 'Date of Birth' &&
-            currentSortBy.id === 'Sort By Down'
-        ) {
-            const sort = filterByDate.sort((a, b) => {
-                const findDateA = a.data.find(data => data?.filterBy === 'Date of Birth')
-                const findDateB = b.data.find(data => data?.filterBy === 'Date of Birth')
-                const checkDate = (new Date(findDateA?.name as string)).valueOf() - (new Date(findDateB?.name as string)).valueOf()
-                return checkDate
-            })
-            return sort
-        } else if (
-            currentFilterBy.id === 'Queue Number' &&
-            currentSortBy.id === 'Sort By Down'
-        ) {
-            const sort = filterQueueNumber.sort((a, b) => {
-                const findQueueA = a.data.find(data => data?.filterBy === 'Queue Number')
-                const findQueueB = b.data.find(data => data?.filterBy === 'Queue Number')
-                const checkQueue = Number(findQueueA?.name) - Number(findQueueB?.name)
-                return checkQueue
-            })
-            return sort
-        }
+    // function sortByDown(): DataTableContentT[] {
+    //     if (
+    //         currentFilterBy.id === 'Date of Birth' &&
+    //         currentSortBy.id === 'Sort By Down'
+    //     ) {
+    //         const sort = filterByDate.sort((a, b) => {
+    //             const findDateA = a.data.find(data => data?.filterBy === 'Date of Birth')
+    //             const findDateB = b.data.find(data => data?.filterBy === 'Date of Birth')
+    //             const checkDate = (new Date(findDateA?.name as string)).valueOf() - (new Date(findDateB?.name as string)).valueOf()
+    //             return checkDate
+    //         })
+    //         return sort
+    //     } else if (
+    //         currentFilterBy.id === 'Queue Number' &&
+    //         currentSortBy.id === 'Sort By Down'
+    //     ) {
+    //         const sort = filterQueueNumber.sort((a, b) => {
+    //             const findQueueA = a.data.find(data => data?.filterBy === 'Queue Number')
+    //             const findQueueB = b.data.find(data => data?.filterBy === 'Queue Number')
+    //             const checkQueue = Number(findQueueA?.name) - Number(findQueueB?.name)
+    //             return checkQueue
+    //         })
+    //         return sort
+    //     }
 
-        return []
-    }
+    //     return []
+    // }
 
-    function resultFilterBy(): DataTableContentT[] {
-        if (
-            currentFilterBy.id === 'Date of Birth' &&
-            currentSortBy.id === 'Sort By'
-        ) {
-            return filterByDate
-        }
-        if (
-            currentFilterBy.id !== 'Filter By' &&
-            currentSortBy.id !== 'Sort By'
-        ) {
-            if (currentSortBy.id === 'Sort By Up') {
-                return sortByUp()
-            } else if (currentSortBy.id === 'Sort By Down') {
-                return sortByDown()
-            }
-        }
+    // function resultFilterBy(): DataTableContentT[] {
+    //     if (
+    //         currentFilterBy.id === 'Date of Birth' &&
+    //         currentSortBy.id === 'Sort By'
+    //     ) {
+    //         return filterByDate
+    //     }
+    //     if (
+    //         currentFilterBy.id !== 'Filter By' &&
+    //         currentSortBy.id !== 'Sort By'
+    //     ) {
+    //         if (currentSortBy.id === 'Sort By Up') {
+    //             return sortByUp()
+    //         } else if (currentSortBy.id === 'Sort By Down') {
+    //             return sortByDown()
+    //         }
+    //     }
 
-        return dataColumns
-    }
+    //     return dataColumns
+    // }
 
-    const filterText = resultFilterBy().filter(patient => {
-        const findItem = patient.data.filter(data =>
-            data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()) ||
-            data?.firstDesc?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
-        )
+    // const filterText = resultFilterBy().filter(patient => {
+    //     const findItem = patient.data.filter(data =>
+    //         data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()) ||
+    //         data?.firstDesc?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase())
+    //     )
 
-        return findItem.length > 0
-    })
+    //     return findItem.length > 0
+    // })
 
     useEffect(() => {
         setCurrentPage(1)
     }, [searchText])
 
-    const pageSize: number = 5
-    const currentTableData = useMemo((): DataTableContentT[] => {
-        const firstPageIndex = (currentPage - 1) * pageSize
-        const lastPageIndex = firstPageIndex + pageSize
-        return filterText.slice(firstPageIndex, lastPageIndex)
-    }, [filterText, currentPage])
+    // const currentTableData = useMemo((): DataTableContentT[] => {
+    //     const firstPageIndex = (currentPage - 1) * pageSize
+    //     const lastPageIndex = firstPageIndex + pageSize
+    //     return filterText.slice(firstPageIndex, lastPageIndex)
+    // }, [filterText, currentPage])
 
-    const lastPage: number = filterText.length < 5 ? 1 : Math.ceil(filterText.length / pageSize)
+    const lastPage: number = dataTableDrugCounter?.pagination?.lastPage ?? 1
     const maxLength: number = 7
 
     const handleSearchText = (e?: ChangeEvent<HTMLInputElement>): void => {
@@ -571,7 +604,14 @@ export function UseDrugCounter({
                 ...newSelectAdmin
             ])
         } else {
-            alert('no admin data found. please try again')
+            setOnAlerts({
+                onAlert: true,
+                title: 'No admin data found',
+                desc: 'Please try again'
+            })
+            setTimeout(() => {
+                setOnAlerts({} as AlertsT)
+            }, 3000)
         }
     }
 
@@ -1339,7 +1379,9 @@ export function UseDrugCounter({
         setCurrentPage,
         lastPage,
         maxLength,
-        currentTableData,
+        // currentTableData,
+        dataColumns,
+        loadingDataTable,
         searchText,
         handleSearchText,
         closeSearch,

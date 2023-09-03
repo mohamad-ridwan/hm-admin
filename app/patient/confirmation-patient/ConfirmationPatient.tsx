@@ -30,6 +30,7 @@ import { FormPopup } from 'components/popup/FormPopup'
 import { TitleInput } from 'components/input/TitleInput'
 import Input from 'components/input/Input'
 import ErrorInput from 'components/input/ErrorInput'
+import LoadingSpinner from 'components/LoadingSpinner'
 
 export function ConfirmationPatient() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -93,14 +94,15 @@ export function ConfirmationPatient() {
         chooseFilterByDate,
         filterBy,
         handleFilterDate,
-        currentTableData,
+        dataColumns,
         lastPage,
         maxLength,
         dataSortDate,
         handleSortCategory,
         indexActiveTableMenu,
         clickColumnMenu,
-        setIndexActiveTableMenu
+        setIndexActiveTableMenu,
+        loadingDataTable
     } = FilterTable()
 
     // zustand store
@@ -306,7 +308,7 @@ export function ConfirmationPatient() {
                         />
                         {
                             chooseFilterByDate.id !== 'Filter By' &&
-                            currentTableData.length > 0 &&
+                            dataColumns.length > 0 &&
                             (
                                 <InputSelect
                                     id='sortDateTable'
@@ -321,6 +323,22 @@ export function ConfirmationPatient() {
             />
 
             <ContainerTableBody>
+                <div
+                style={{
+                    height: '1.5rem',
+                    width: '1.5rem'
+                }}
+                >
+                    {loadingDataTable && (
+                        <LoadingSpinner
+                            style={{
+                                height: '1.5rem',
+                                width: '1.5rem'
+                            }}
+                        />
+                    )}
+                </div>
+
                 <TableBody>
                     <TableHead
                         data={head}
@@ -328,7 +346,7 @@ export function ConfirmationPatient() {
                     />
                     <tbody>
                         {/* load data */}
-                        {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                        {dataColumns.length > 0 ? dataColumns.map((patient, index) => {
                             const cleanName = patient.data[0]?.name.replace(specialCharacter, '')
                             const namePatient = cleanName.replace(spaceString, '')
 

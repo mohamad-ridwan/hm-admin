@@ -7,11 +7,14 @@ import { DataOptionT } from "lib/types/FilterT"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { DrugCounterT } from "lib/types/PatientT.types"
 import { spaceString } from "lib/regex/spaceString"
-import { AlertsT, PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, CounterInfoT, DataCounterInfoResultT, PopupSettings, QueueNumberCIT } from "lib/types/TableT.type"
 import { faForward } from "@fortawesome/free-solid-svg-icons"
 import { API } from "lib/api"
 import { SubmitConfirmDrugCounterT } from "lib/types/InputT.type"
 import { navigationStore } from "lib/useZustand/navigation"
+import { useSwr } from "lib/useFetch/useSwr"
+import { endpoint } from "lib/api/endpoint"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
 
 type ErrType = {
     toPage: string
@@ -33,11 +36,7 @@ export function UseCounter() {
         id: 'Select Go To',
         title: 'Select Go To'
     })
-    const [currentPatientCall, setCurrentPatientCall] = useState<{
-        documentId: string | null
-        patientId: string | null
-        queueNumber: number
-    }>({
+    const [currentPatientCall, setCurrentPatientCall] = useState<QueueNumberCIT>({
         documentId: null,
         patientId: null,
         queueNumber: 0
@@ -70,7 +69,7 @@ export function UseCounter() {
             title: 'Expired Patient'
         },
     ])
-    const [optionsTotalPatient, setOptionsTotalPatient] = useState<{ title: string, total: number | string }[]>([
+    const [optionsTotalPatient, setOptionsTotalPatient] = useState<CounterInfoT[]>([
         {
             title: 'Total Patient Waiting Today',
             total: 0
@@ -88,9 +87,19 @@ export function UseCounter() {
     const {
         dataLoket,
         dataDrugCounter,
-        dataFinishTreatment,
+        // dataFinishTreatment,
         pushTriggedErr
     } = ServicingHours({})
+
+    const {data: newDataCounterInfo, error: errDataCounterInfo, isLoading: loadingCounterInfo} = useSwr(endpoint.getCounterInformation(currentCounter.title))
+    const dataCounterInfo = newDataCounterInfo as DataCounterInfoResultT
+
+    if(
+        !loadingCounterInfo &&
+        errDataCounterInfo
+    ){
+        throw new AuthRequiredError('A server error occurred. occurs when retrieving info counter resources')
+    }
 
     const { setOnAlerts } = navigationStore()
 
@@ -121,160 +130,164 @@ export function UseCounter() {
     }, [dataLoket])
 
     function getPatientsAtCounter(): void {
-        patientsAtCounter()
+        // patientsAtCounter()
 
-        if (currentCounter.id === 'Choose Counter') {
-            setOptionsTotalPatient([
-                {
-                    title: 'Total Patient Waiting Today',
-                    total: 0
-                },
-                {
-                    title: 'Has been Confirmed Today',
-                    total: 0
-                },
-                {
-                    title: 'Total Expired Progress',
-                    total: 0
-                },
-            ])
+        // if (currentCounter.id === 'Choose Counter') {
+        //     setOptionsTotalPatient([
+        //         {
+        //             title: 'Total Patient Waiting Today',
+        //             total: 0
+        //         },
+        //         {
+        //             title: 'Has been Confirmed Today',
+        //             total: 0
+        //         },
+        //         {
+        //             title: 'Total Expired Progress',
+        //             total: 0
+        //         },
+        //     ])
+        // }
+        if(dataCounterInfo?.data?.counterInfo){
+            setOptionsTotalPatient(dataCounterInfo.data.counterInfo)
+            setCurrentPatientCall(dataCounterInfo.data.queueNumber)
         }
     }
 
     useEffect(() => {
         getPatientsAtCounter()
-    }, [currentCounter, dataDrugCounter, dataFinishTreatment])
+    }, [currentCounter, dataCounterInfo])
 
-    function patientsAtCounter(): void {
-        setOptionsTotalPatient([
-            {
-                title: 'Total Patient Waiting Today',
-                total: `${patientWaitingToday().length} ${checkPatientWaiting()}`
-            },
-            {
-                title: 'Has been Confirmed Today',
-                total: patientConfirmedToday().length
-            },
-            {
-                title: 'Total Expired Progress',
-                total: patientExpired().length
-            },
-        ])
-    }
+    // function patientsAtCounter(): void {
+    //     setOptionsTotalPatient([
+    //         {
+    //             title: 'Total Patient Waiting Today',
+    //             total: `${patientWaitingToday().length} ${checkPatientWaiting()}`
+    //         },
+    //         {
+    //             title: 'Has been Confirmed Today',
+    //             total: patientConfirmedToday().length
+    //         },
+    //         {
+    //             title: 'Total Expired Progress',
+    //             total: patientExpired().length
+    //         },
+    //     ])
+    // }
 
-    function checkPatientWaiting(): string {
-        if (patientWaitingToday().length > 0) {
-            const patientNotCallYet = patientWaitingToday().filter(patient => !patient.isConfirm?.isSkipped)
-            const patientSkipped = patientWaitingToday().filter(patient => patient.isConfirm?.isSkipped)
+    // function checkPatientWaiting(): string {
+    //     if (patientWaitingToday().length > 0) {
+    //         const patientNotCallYet = patientWaitingToday().filter(patient => !patient.isConfirm?.isSkipped)
+    //         const patientSkipped = patientWaitingToday().filter(patient => patient.isConfirm?.isSkipped)
 
-            if (patientSkipped.length > 0) {
-                return `(${patientNotCallYet.length} Haven't been called, ${patientSkipped.length} Patient passed)`
-            }
-            return ''
-        }
+    //         if (patientSkipped.length > 0) {
+    //             return `(${patientNotCallYet.length} Haven't been called, ${patientSkipped.length} Patient passed)`
+    //         }
+    //         return ''
+    //     }
 
-        return ''
-    }
+    //     return ''
+    // }
 
-    function patientWaitingToday(): DrugCounterT[] {
-        const patient = dataDrugCounter?.filter(patient => {
-            const checkCounter = dataLoket?.find(loket =>
-                loket.id === patient.loketInfo.loketId
-            )?.loketName === currentCounter.id
+    // function patientWaitingToday(): DrugCounterT[] {
+    //     const patient = dataDrugCounter?.filter(patient => {
+    //         const checkCounter = dataLoket?.find(loket =>
+    //             loket.id === patient.loketInfo.loketId
+    //         )?.loketName === currentCounter.id
 
-            const checkFinishTreatment = dataFinishTreatment?.find(finishP =>
-                finishP?.patientId === patient?.patientId
-            )
-            const checkSubmitDate = patient?.submissionDate?.submissionDate === createDateFormat(new Date())
+    //         const checkFinishTreatment = dataFinishTreatment?.find(finishP =>
+    //             finishP?.patientId === patient?.patientId
+    //         )
+    //         const checkSubmitDate = patient?.submissionDate?.submissionDate === createDateFormat(new Date())
 
-            return checkCounter && !checkFinishTreatment && checkSubmitDate
-        })
-        setTimeout(() => {
-            if (Array.isArray(patient)) {
-                findCurrentQueueNumber(patient)
-            }
-        }, 0)
-        if (!Array.isArray(patient)) {
-            return []
-        }
+    //         return checkCounter && !checkFinishTreatment && checkSubmitDate
+    //     })
+    //     setTimeout(() => {
+    //         if (Array.isArray(patient)) {
+    //             findCurrentQueueNumber(patient)
+    //         }
+    //     }, 0)
+    //     if (!Array.isArray(patient)) {
+    //         return []
+    //     }
 
-        return patient
-    }
+    //     return patient
+    // }
 
-    function findCurrentQueueNumber(
-        patient: DrugCounterT[]
-    ): void {
-        if (patient.length > 0) {
-            const patientNotCallYet = patient.filter(patientData => !patientData.isConfirm?.isSkipped)
-            if (patientNotCallYet.length > 0) {
-                const sort = patientNotCallYet.sort((a, b) =>
-                    Number(a.queueNumber) - Number(b.queueNumber)
-                )
-                const firstPatient = sort[0]
-                setCurrentPatientCall({
-                    documentId: firstPatient.id,
-                    patientId: firstPatient.patientId,
-                    queueNumber: Number(firstPatient.queueNumber)
-                })
+    // function findCurrentQueueNumber(
+    //     patient: DrugCounterT[]
+    // ): void {
+    //     if (patient.length > 0) {
+    //         const patientNotCallYet = patient.filter(patientData => !patientData.isConfirm?.isSkipped)
+    //         if (patientNotCallYet.length > 0) {
+    //             const sort = patientNotCallYet.sort((a, b) =>
+    //                 Number(a.queueNumber) - Number(b.queueNumber)
+    //             )
+    //             const firstPatient = sort[0]
+    //             setCurrentPatientCall({
+    //                 documentId: firstPatient.id,
+    //                 patientId: firstPatient.patientId,
+    //                 queueNumber: Number(firstPatient.queueNumber)
+    //             })
 
-                return
-            } else {
-                setCurrentPatientCall({
-                    documentId: null,
-                    patientId: null,
-                    queueNumber: 0
-                })
-                return
-            }
-        }
+    //             return
+    //         } else {
+    //             setCurrentPatientCall({
+    //                 documentId: null,
+    //                 patientId: null,
+    //                 queueNumber: 0
+    //             })
+    //             return
+    //         }
+    //     }
 
-        setCurrentPatientCall({
-            documentId: null,
-            patientId: null,
-            queueNumber: 0
-        })
-    }
+    //     setCurrentPatientCall({
+    //         documentId: null,
+    //         patientId: null,
+    //         queueNumber: 0
+    //     })
+    // }
 
-    function patientConfirmedToday(): DrugCounterT[] {
-        const patientConfirm = dataDrugCounter?.filter(patient => {
-            const checkCounter = dataLoket?.find(loket =>
-                loket.id === patient.loketInfo.loketId
-            )?.loketName === currentCounter.id
+    // function patientConfirmedToday(): DrugCounterT[] {
+    //     const patientConfirm = dataDrugCounter?.filter(patient => {
+    //         const checkCounter = dataLoket?.find(loket =>
+    //             loket.id === patient.loketInfo.loketId
+    //         )?.loketName === currentCounter.id
 
-            const checkFinishTreatment = dataFinishTreatment?.find(finishP =>
-                finishP?.patientId === patient?.patientId &&
-                !finishP?.isCanceled
-            )
-            const checkSubmitDate = patient?.submissionDate?.submissionDate === createDateFormat(new Date())
+    //         const checkFinishTreatment = dataFinishTreatment?.find(finishP =>
+    //             finishP?.patientId === patient?.patientId &&
+    //             !finishP?.isCanceled
+    //         )
+    //         const checkSubmitDate = patient?.submissionDate?.submissionDate === createDateFormat(new Date())
 
-            return checkCounter && checkFinishTreatment && checkSubmitDate
-        })
-        if (!Array.isArray(patientConfirm)) {
-            return []
-        }
+    //         return checkCounter && checkFinishTreatment && checkSubmitDate
+    //     })
+    //     if (!Array.isArray(patientConfirm)) {
+    //         return []
+    //     }
 
-        return patientConfirm
-    }
+    //     return patientConfirm
+    // }
 
-    function patientExpired(): DrugCounterT[] {
-        const patientExpired = dataDrugCounter?.filter(patient => {
-            const checkCounter = dataLoket?.find(loket =>
-                loket.id === patient.loketInfo.loketId
-            )?.loketName === currentCounter.id
+    // function patientExpired(): DrugCounterT[] {
+    //     const patientExpired = dataDrugCounter?.filter(patient => {
+    //         const checkCounter = dataLoket?.find(loket =>
+    //             loket.id === patient.loketInfo.loketId
+    //         )?.loketName === currentCounter.id
 
-            const checkFinishTreatment = dataFinishTreatment?.find(finishP =>
-                finishP?.patientId === patient?.patientId
-            )
-            const checkSubmitDate = patient?.submissionDate?.submissionDate < createDateFormat(new Date())
+    //         const checkFinishTreatment = dataFinishTreatment?.find(finishP =>
+    //             finishP?.patientId === patient?.patientId
+    //         )
+    //         const checkSubmitDate = patient?.submissionDate?.submissionDate < createDateFormat(new Date())
 
-            return checkCounter && !checkFinishTreatment && checkSubmitDate
-        })
-        if (!Array.isArray(patientExpired)) {
-            return []
-        }
+    //         return checkCounter && !checkFinishTreatment && checkSubmitDate
+    //     })
+    //     if (!Array.isArray(patientExpired)) {
+    //         return []
+    //     }
 
-        return patientExpired
-    }
+    //     return patientExpired
+    // }
 
     // handle choose counter
     function handleCounter(): void {
@@ -436,6 +449,7 @@ export function UseCounter() {
         clickPassPatient,
         onPopupSetting,
         currentPatientCall,
-        loadingPassPatient
+        loadingPassPatient,
+        loadingCounterInfo
     }
 }

@@ -1,4 +1,4 @@
-import { AlertsT } from "lib/types/TableT.type"
+import { AlertsT, NotificationT } from "lib/types/TableT.type"
 import { create } from "zustand"
 
 type NavigationProps = {
@@ -18,7 +18,9 @@ type NavLeftProps = {
 
 type NotificationProps = {
     alerts: AlertsT
+    notification: NotificationT
     setOnAlerts: (alerts: AlertsT)=>void
+    setNotification: (notification: NotificationT)=>void
 }
 
 type DefaultProps = NotFoundProps & NavLeftProps & NotificationProps
@@ -36,5 +38,11 @@ export const navigationStore = create<DefaultProps>()((set)=>({
         title: '',
         desc:''
     },
-    setOnAlerts: (alerts)=>set((state)=>({alerts}))
+    setOnAlerts: (alerts)=>set((state)=>({alerts})),
+    notification: {
+        onNotif: false,
+        title: '',
+        desc: ''
+    },
+    setNotification:(notification)=>set((state)=>({notification}))
 }))

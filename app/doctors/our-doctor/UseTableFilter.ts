@@ -80,7 +80,12 @@ function UseTableFilter() {
             Array.isArray(doctors) &&
             doctors.length > 0
         ) {
-            const getDoctors: DataOptionT = doctors.map(doctor=>({
+            const removeDuplicateSP = doctors.filter((value, idx, self)=>
+                idx === self.findIndex((t)=>(
+                    t.deskripsi === value.deskripsi
+                ))
+            )
+            const getDoctors: DataOptionT = removeDuplicateSP.map(doctor=>({
                 id: doctor.deskripsi,
                 title: doctor.deskripsi
             }))

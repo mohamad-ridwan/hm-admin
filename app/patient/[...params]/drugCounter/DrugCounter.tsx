@@ -60,7 +60,7 @@ export function DrugCounter({ params }: { params: string }) {
         nameEditPatientCounter,
         clickEditPatientCounter,
         setOnpopupEditPatientCounter
-    } = UseDrugCounter({ params: { counterName: '', status: '' }, setOnModalSettings, onModalSettings })
+    } = UseDrugCounter({ params: { counterName: '-', status: '-' }, setOnModalSettings, onModalSettings })
 
     const loketName = dataLoket?.find(loket => loket.id === drugCounterPatient?.loketInfo?.loketId)
 

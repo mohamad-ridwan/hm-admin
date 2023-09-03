@@ -9,7 +9,7 @@ const getDataTablePatientRegis = (
     sortBy: string,
     currentPage: number,
     pageSize: number
-)=> `servicing-hours/get/data-table/patient-registration?searchTxt=${searchTxt}&filterBy=${filterBy}&selectDate=${selectDate}&sortBy=${sortBy}&currentPage=${currentPage}&pageSize=${pageSize}`
+):string=> `servicing-hours/get/data-table/patient-registration?searchTxt=${searchTxt}&filterBy=${filterBy}&selectDate=${selectDate}&sortBy=${sortBy}&currentPage=${currentPage}&pageSize=${pageSize}`
 // confirmation patient
 const getDataTableConfirmPatient = (
     searchTxt: string,
@@ -32,7 +32,40 @@ const getDataTableDrugCounter = (
     selectDate: string,
     currentPage: number,
     pageSize: number
-)=>`servicing-hours/get/data-table/drug-counter/${counterName}/${status}?searchTxt=${searchTxt}&filterBy=${filterBy}&sortBy=${sortBy}&selectDate=${selectDate}&currentPage=${currentPage}&pageSize=${pageSize}`
+):string=>`servicing-hours/get/data-table/drug-counter/${counterName}/${status}?searchTxt=${searchTxt}&filterBy=${filterBy}&sortBy=${sortBy}&selectDate=${selectDate}&currentPage=${currentPage}&pageSize=${pageSize}`
+// finished treatment
+const getDataTableFinishTreatment = (
+    searchTxt: string,
+    filterBy: string,
+    selectDate: string,
+    sortBy: string,
+    currentPage: number,
+    pageSize: number
+):string=>`servicing-hours/get/data-table/finished-treatment?searchTxt=${searchTxt}&filterBy=${filterBy}&selectDate=${selectDate}&sortBy=${sortBy}&currentPage=${currentPage}&pageSize=${pageSize}`
+// our doctor
+const getDataTableOurDoctor = (
+    searchTxt: string,
+    filterBy: string,
+    selectSpecialist: string,
+    currentPage: number,
+    pageSize: number
+):string=>`servicing-hours/get/data-table/our-doctor?searchTxt=${searchTxt}&filterBy=${filterBy}&selectSpecialist=${selectSpecialist}&currentPage=${currentPage}&pageSize=${pageSize}`
+// get rooms
+const getDataTableRooms = (
+    searchTxt: string,
+    filterRoom: string,
+    filterRoomActive: string,
+    currentPage: number,
+    pageSize: number
+):string=>`servicing-hours/get/data-table/rooms?searchTxt=${searchTxt}&filterRoom=${filterRoom}&filterRoomActive=${filterRoomActive}&currentPage=${currentPage}&pageSize=${pageSize}`
+// get counters
+const getDataTableCounters = (
+    searchTxt: string,
+    counterType: string,
+    roomActive: string,
+    currentPage: number,
+    pageSize: number
+):string=>`servicing-hours/get/data-table/counters?searchTxt=${searchTxt}&counterType=${counterType}&roomActive=${roomActive}&currentPage=${currentPage}&pageSize=${pageSize}`
 // post patient data
 const postPatientData = (roleId: string): string => `servicing-hours/post/role/${roleId}/data`
 // update patient data
@@ -89,5 +122,9 @@ export const endpoint = {
     getDataTableConfirmPatient,
     getDataTablePatientRegis,
     getCounterInformation,
-    getDataTableDrugCounter
+    getDataTableDrugCounter,
+    getDataTableFinishTreatment,
+    getDataTableOurDoctor,
+    getDataTableRooms,
+    getDataTableCounters
 }

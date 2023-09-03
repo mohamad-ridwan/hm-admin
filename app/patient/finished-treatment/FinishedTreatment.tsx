@@ -21,6 +21,7 @@ import Button from "components/Button"
 import FormPatientRegistration from "../patient-registration/FormPatientRegistration"
 import EditPatientRegistration from "../patient-registration/EditPatientRegistration"
 import { EditFinishTreatment } from "./EditFinishTreatment"
+import LoadingSpinner from "components/LoadingSpinner"
 
 export function FinishedTreatment() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -55,7 +56,8 @@ export function FinishedTreatment() {
         selectDate,
         handleInputDate,
         closeSearchDate,
-        currentTableData,
+        // currentTableData,
+        dataColumns,
         lastPage,
         maxLength,
         currentPage,
@@ -79,7 +81,8 @@ export function FinishedTreatment() {
         loadingIdSubmitEditFT,
         idPatientEditFT,
         clickDeleteFT,
-        loadingIdDeleteFT
+        loadingIdDeleteFT,
+        loadingDataTable
     } = UseFinishTreatment({ setOnModalSettings, setOnPopupEdit })
 
     const router = useRouter()
@@ -200,13 +203,28 @@ export function FinishedTreatment() {
             />
 
             <ContainerTableBody>
+                <div
+                    style={{
+                        height: '1.5rem',
+                        width: '1.5rem'
+                    }}
+                >
+                    {loadingDataTable && (
+                        <LoadingSpinner
+                            style={{
+                                height: '1.5rem',
+                                width: '1.5rem'
+                            }}
+                        />
+                    )}
+                </div>
                 <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
                     <tbody>
-                        {currentTableData.length > 0 ? currentTableData.map((patient, index) => {
+                        {dataColumns.length > 0 ? dataColumns.map((patient, index) => {
                             const findIdLoadingDelete = loadingIdDeleteFT.find(id => id === patient.id)
 
                             const actionsData: ActionsDataT[] = [

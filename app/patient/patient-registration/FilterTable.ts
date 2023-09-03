@@ -20,6 +20,7 @@ export function FilterTable() {
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [displayOnCalendar, setDisplayOnCalendar] = useState<boolean>(false)
     const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
+    const [getLastPage, setGetLastPage] = useState<number>(1)
     const [chooseFilterByDate, setChooseFilterByDate] = useState<{
         id: string
         title: string
@@ -122,6 +123,7 @@ export function FilterTable() {
     useEffect(()=>{
         if(dataTablePatientRegis?.data){
             setDataColumns(dataTablePatientRegis.data)
+            setGetLastPage(dataTablePatientRegis.pagination.lastPage)
         }
     }, [dataTablePatientRegis])
 
@@ -375,7 +377,8 @@ export function FilterTable() {
         }
     }
 
-    const lastPage: number = dataTablePatientRegis?.pagination?.lastPage ?? 1
+    // const lastPage: number = dataTablePatientRegis?.pagination?.lastPage ?? 1
+    const lastPage: number = getLastPage
     const maxLength: number = 7
 
     function clickColumnMenu(index: number):void{

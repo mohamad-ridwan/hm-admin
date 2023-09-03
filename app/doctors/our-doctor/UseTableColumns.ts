@@ -10,9 +10,11 @@ import { spaceString } from "lib/regex/spaceString"
 import { API } from "lib/api"
 import { preloadFetch } from "lib/useFetch/preloadFetch"
 import { endpoint } from "lib/api/endpoint"
-import { AlertsT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, DataTableResultT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import { faBan } from "@fortawesome/free-solid-svg-icons"
 import { navigationStore } from "lib/useZustand/navigation"
+import { useSwr } from "lib/useFetch/useSwr"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
 
 type ActionProps = {
     setOnModalSettings: Dispatch<SetStateAction<PopupSettings>>
@@ -36,6 +38,7 @@ function UseTableColumns({
     const [idLoadingDelete, setIdLoadingDelete] = useState<string[]>([])
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [indexActiveColumnMenu, setIndexActiveColumnMenu] = useState<number | null>(null)
+    const [getLastPage, setGetLastPage] = useState<number>(1)
 
     const head: HeadDataTableT = [
         {
@@ -65,172 +68,203 @@ function UseTableColumns({
     ]
 
     const {
-        doctors,
-        dataRooms,
-        loadDataDoctors,
-        loadDataService,
+        // doctors,
+        // dataRooms,
+        // loadDataDoctors,
+        // loadDataService,
         pushTriggedErr
     } = ServicingHours({})
 
+    const pageSize: number = 5
+    const { data: newDataTable, error: errDataTable, isLoading: loadingDataTable } = useSwr(endpoint.getDataTableOurDoctor(
+        searchText,
+        currentFilter.title,
+        selectCurrentFilter.title,
+        currentPage,
+        pageSize
+    ))
+    const dataTableDoctor = newDataTable as DataTableResultT
+
+    if (
+        !loadingDataTable &&
+        errDataTable
+    ) {
+        throw new AuthRequiredError('A server error occurred. occurs when retrieving a doctor data resource')
+    }
+
     const { setOnAlerts } = navigationStore()
 
-    function getOurDoctors(
-        data: ProfileDoctorT[],
-        rooms: RoomTreatmentT[]
-    ): void {
-        const newDataDoctor: DataTableContentT[] = data.map(doctor => {
-            const findRoom = rooms.find(room => room.id === doctor.room)
-
-            return {
-                id: doctor.id,
-                data: [
-                    {
-                        name: doctor.name,
-                        image: doctor.image
-                    },
-                    {
-                        name: doctor.deskripsi
-                    },
-                    {
-                        name: doctor.email
-                    },
-                    {
-                        name: doctor.phone
-                    },
-                    {
-                        name: findRoom?.room as string
-                    },
-                    {
-                        name: doctor?.doctorActive ?? '-'
-                    },
-                    {
-                        name: doctor.id
-                    },
-                    {
-                        name: ''
-                    },
-                ]
-            }
-        })
-        setDataColumns(newDataDoctor)
+    function loadDataTable():void{
+        if(dataTableDoctor?.data){
+            setDataColumns(dataTableDoctor.data)
+            setGetLastPage(dataTableDoctor.pagination.lastPage)
+        }
     }
 
     useEffect(() => {
-        if (
-            !loadDataDoctors &&
-            Array.isArray(doctors) &&
-            doctors.length > 0 &&
-            !loadDataService &&
-            Array.isArray(dataRooms) &&
-            dataRooms.length > 0
-        ) {
-            getOurDoctors(doctors, dataRooms)
-        } else if (
-            !loadDataDoctors &&
-            Array.isArray(doctors) &&
-            doctors.length === 0
-        ) {
-            setDataColumns([])
-        }
-    }, [loadDataDoctors, doctors, loadDataService, dataRooms])
+        loadDataTable()
+    }, [dataTableDoctor])
 
-    function preloadDoctors(
-        doctors: { [key: string]: any }
-    ): void {
-        const getDoctorDocument: { [key: string]: any } | undefined = doctors?.find((data: { [key: string]: any }) => data?.id === 'doctor')
-        const currentDoctors: ProfileDoctorT[] | undefined = getDoctorDocument?.data
+    useEffect(()=>{
+        setCurrentPage(1)
+    }, [selectCurrentFilter])
 
-        setTimeout(() => {
-            if (
-                Array.isArray(currentDoctors) &&
-                currentDoctors.length > 0 &&
-                !loadDataService &&
-                Array.isArray(dataRooms) &&
-                dataRooms.length > 0
-            ) {
-                getOurDoctors(
-                    currentDoctors as ProfileDoctorT[],
-                    dataRooms
-                )
-            }
-        }, 500);
-    }
+    // function getOurDoctors(
+    //     data: ProfileDoctorT[],
+    //     rooms: RoomTreatmentT[]
+    // ): void {
+    //     const newDataDoctor: DataTableContentT[] = data.map(doctor => {
+    //         const findRoom = rooms.find(room => room.id === doctor.room)
 
-    function onFilterSpecialist(): DataTableContentT[] {
-        if (
-            currentFilter.id === 'Specialist' &&
-            selectCurrentFilter.id !== 'Select Specialist'
-        ) {
-            const filterSpecialist = dataColumns.filter(items => items.data[1].name === selectCurrentFilter.id)
-            return filterSpecialist
-        }
-        return dataColumns
-    }
+    //         return {
+    //             id: doctor.id,
+    //             data: [
+    //                 {
+    //                     name: doctor.name,
+    //                     image: doctor.image
+    //                 },
+    //                 {
+    //                     name: doctor.deskripsi
+    //                 },
+    //                 {
+    //                     name: doctor.email
+    //                 },
+    //                 {
+    //                     name: doctor.phone
+    //                 },
+    //                 {
+    //                     name: findRoom?.room as string
+    //                 },
+    //                 {
+    //                     name: doctor?.doctorActive ?? '-'
+    //                 },
+    //                 {
+    //                     name: doctor.id
+    //                 },
+    //                 {
+    //                     name: ''
+    //                 },
+    //             ]
+    //         }
+    //     })
+    //     setDataColumns(newDataDoctor)
+    // }
 
-    function onFilterRooms(): DataTableContentT[] {
-        if (
-            currentFilter.id === 'Rooms' &&
-            selectCurrentFilter.id !== 'Select Room'
-        ) {
-            const filterRooms = dataColumns.filter(items => items.data[4].name === selectCurrentFilter.id)
-            return filterRooms
-        }
-        return dataColumns
-    }
+    // useEffect(() => {
+    //     if (
+    //         !loadDataDoctors &&
+    //         Array.isArray(doctors) &&
+    //         doctors.length > 0 &&
+    //         !loadDataService &&
+    //         Array.isArray(dataRooms) &&
+    //         dataRooms.length > 0
+    //     ) {
+    //         getOurDoctors(doctors, dataRooms)
+    //     } else if (
+    //         !loadDataDoctors &&
+    //         Array.isArray(doctors) &&
+    //         doctors.length === 0
+    //     ) {
+    //         setDataColumns([])
+    //     }
+    // }, [loadDataDoctors, doctors, loadDataService, dataRooms])
 
-    function getFilterText(): DataTableContentT[] {
-        if (
-            currentFilter.id === 'Specialist' &&
-            selectCurrentFilter.id !== 'no filter' &&
-            selectCurrentFilter.id !== 'Select Specialist'
-        ) {
-            const filterText = onFilterSpecialist().filter(items => {
-                const findItem = items.data.filter(data => data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
+    // function preloadDoctors(
+    //     doctors: { [key: string]: any }
+    // ): void {
+    //     const getDoctorDocument: { [key: string]: any } | undefined = doctors?.find((data: { [key: string]: any }) => data?.id === 'doctor')
+    //     const currentDoctors: ProfileDoctorT[] | undefined = getDoctorDocument?.data
 
-                return findItem
-            })
+    //     setTimeout(() => {
+    //         if (
+    //             Array.isArray(currentDoctors) &&
+    //             currentDoctors.length > 0 &&
+    //             !loadDataService &&
+    //             Array.isArray(dataRooms) &&
+    //             dataRooms.length > 0
+    //         ) {
+    //             getOurDoctors(
+    //                 currentDoctors as ProfileDoctorT[],
+    //                 dataRooms
+    //             )
+    //         }
+    //     }, 500);
+    // }
 
-            return filterText
-        } else if (
-            currentFilter.id === 'Rooms' &&
-            selectCurrentFilter.id !== 'no filter' &&
-            selectCurrentFilter.id !== 'Select Room'
-        ) {
-            const filterText = onFilterRooms().filter(items => {
-                const findItem = items.data.filter(data => data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
+    // function onFilterSpecialist(): DataTableContentT[] {
+    //     if (
+    //         currentFilter.id === 'Specialist' &&
+    //         selectCurrentFilter.id !== 'Select Specialist'
+    //     ) {
+    //         const filterSpecialist = dataColumns.filter(items => items.data[1].name === selectCurrentFilter.id)
+    //         return filterSpecialist
+    //     }
+    //     return dataColumns
+    // }
 
-                return findItem
-            })
+    // function onFilterRooms(): DataTableContentT[] {
+    //     if (
+    //         currentFilter.id === 'Rooms' &&
+    //         selectCurrentFilter.id !== 'Select Room'
+    //     ) {
+    //         const filterRooms = dataColumns.filter(items => items.data[4].name === selectCurrentFilter.id)
+    //         return filterRooms
+    //     }
+    //     return dataColumns
+    // }
 
-            return filterText
-        }
+    // function getFilterText(): DataTableContentT[] {
+    //     if (
+    //         currentFilter.id === 'Specialist' &&
+    //         selectCurrentFilter.id !== 'no filter' &&
+    //         selectCurrentFilter.id !== 'Select Specialist'
+    //     ) {
+    //         const filterText = onFilterSpecialist().filter(items => {
+    //             const findItem = items.data.filter(data => data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
 
-        const filterText = dataColumns.filter(items => {
-            const findItem = items.data?.filter(data => data?.name?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
+    //             return findItem
+    //         })
 
-            return findItem.length > 0
-        })
+    //         return filterText
+    //     } else if (
+    //         currentFilter.id === 'Rooms' &&
+    //         selectCurrentFilter.id !== 'no filter' &&
+    //         selectCurrentFilter.id !== 'Select Room'
+    //     ) {
+    //         const filterText = onFilterRooms().filter(items => {
+    //             const findItem = items.data.filter(data => data.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
 
-        return filterText
-    }
+    //             return findItem
+    //         })
 
-    const resultFilterData: DataTableContentT[] = getFilterText()
+    //         return filterText
+    //     }
 
-    const pageSize: number = 5
+    //     const filterText = dataColumns.filter(items => {
+    //         const findItem = items.data?.filter(data => data?.name?.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
 
-    const currentTableData = useMemo((): DataTableContentT[] => {
-        const firstPageIndex = (currentPage - 1) * pageSize
-        const lastPageIndex = firstPageIndex + pageSize
-        return resultFilterData.slice(firstPageIndex, lastPageIndex)
-    }, [resultFilterData, currentPage])
+    //         return findItem.length > 0
+    //     })
 
-    useEffect(() => {
-        if (currentTableData.length === 0 && currentPage > 1) {
-            setCurrentPage((current) => current - 1)
-        }
-    }, [idLoadingDelete, currentTableData])
+    //     return filterText
+    // }
 
-    const lastPage: number = resultFilterData.length < 5 ? 1 : Math.ceil(resultFilterData.length / pageSize)
+    // const resultFilterData: DataTableContentT[] = getFilterText()
+
+    // const currentTableData = useMemo((): DataTableContentT[] => {
+    //     const firstPageIndex = (currentPage - 1) * pageSize
+    //     const lastPageIndex = firstPageIndex + pageSize
+    //     return resultFilterData.slice(firstPageIndex, lastPageIndex)
+    // }, [resultFilterData, currentPage])
+
+    // useEffect(() => {
+    //     if (currentTableData.length === 0 && currentPage > 1) {
+    //         setCurrentPage((current) => current - 1)
+    //     }
+    // }, [idLoadingDelete, currentTableData])
+
+    // const lastPage: number = resultFilterData.length < 5 ? 1 : Math.ceil(resultFilterData.length / pageSize)
+    const lastPage: number = getLastPage
     const maxLength: number = 7
 
     // action delete
@@ -317,7 +351,7 @@ function UseTableColumns({
     }
 
     return {
-        currentTableData,
+        // currentTableData,
         clickDelete,
         lastPage,
         maxLength,
@@ -327,7 +361,9 @@ function UseTableColumns({
         setIndexActiveColumnMenu,
         idLoadingDelete,
         openPopupDelete,
-        head
+        head,
+        loadingDataTable,
+        dataColumns
     }
 }
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import {usePathname} from 'next/navigation'
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 import { faAngleDown, faAngleUp, faBarsProgress, faBedPulse, faChartLine, faClipboardCheck, faDoorClosed, faHospitalUser, faPeopleRoof, faSitemap, faStethoscope, faTag } from '@fortawesome/free-solid-svg-icons'
 import { navigationStore } from 'lib/useZustand/navigation'
@@ -21,10 +22,12 @@ type StateMenu = {
 export function ContainerMenuNavLeft({
     idChildMenu
 }: { idChildMenu: string }) {
-    const [menu, setMenu] = useState<StateMenu>([
+    const pathname = usePathname()
+
+    const menu: StateMenu =[
         {
             name: 'Dashboard',
-            path: '/',
+            path: '/dashboard',
             icon: faBarsProgress
         },
         // {
@@ -34,7 +37,7 @@ export function ContainerMenuNavLeft({
         // },
         {
             name: 'Patient',
-            path: null,
+            path: pathname.includes('/patient') ? pathname : null,
             icon: faBedPulse,
             children: [
                 {
@@ -61,7 +64,7 @@ export function ContainerMenuNavLeft({
         },
         {
             name: 'Doctors',
-            path: null,
+            path: pathname.includes('/doctors') ? pathname : null,
             icon: faStethoscope,
             children: [
                 {
@@ -93,7 +96,7 @@ export function ContainerMenuNavLeft({
         //         }
         //     ]
         // }
-    ])
+    ]
     const [idxActiveDropMenu, setIdxActiveDropMenu] = useState<number | null>(null)
     const [heightMenuChild, setHeightMenuChild] = useState<string>('48px')
 
@@ -137,6 +140,7 @@ export function ContainerMenuNavLeft({
                             setOnNavLeft(false)
                         }}
                         clickBtnTagA={() => setOnNavLeft(false)}
+                        menuActive={item.path === pathname}
                     >
                         {item?.children && (
                             <div
@@ -150,6 +154,7 @@ export function ContainerMenuNavLeft({
                                             href={childItem.path as string}
                                             icon={childItem.icon}
                                             name={childItem.name}
+                                            menuActive={childItem.path === pathname}
                                         />
                                     )
                                 })}

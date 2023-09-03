@@ -56,6 +56,7 @@ export function FilterTable() {
     const [selectDate, setSelectDate] = useState<Date | undefined>()
     const [dataFilterRoom, setDataFilterRoom] = useState<DataOptionT>([])
     const [indexActiveTableMenu, setIndexActiveTableMenu] = useState<number | null>(null)
+    const [getLastPage, setGetLastPage] = useState<number>(1)
     const [chooseOnSortDate, setChooseOnSortDate] = useState<{
         id: string
         title: string
@@ -319,12 +320,13 @@ export function FilterTable() {
         ) {
             const result: DataTableResultT = tableDataConfirm as DataTableResultT
             setDataColumns(result.data)
+            setGetLastPage(result.pagination.lastPage)
         }
     }
 
     useEffect(() => {
         loadDataTable()
-    }, [loadingDataTable, tableDataConfirm])
+    }, [tableDataConfirm])
 
     useEffect(() => {
         // findDataRegistration(
@@ -615,7 +617,8 @@ export function FilterTable() {
     //     return filterText.slice(firstPageIndex, lastPageIndex)
     // }, [dataColumns, currentPage])
 
-    const lastPage: number = resultDataTable?.pagination?.lastPage ?? 1
+    // const lastPage: number = resultDataTable?.pagination?.lastPage ?? 1
+    const lastPage: number = getLastPage
     const maxLength: number = 7
 
     const handleSortCategory = (): void => {

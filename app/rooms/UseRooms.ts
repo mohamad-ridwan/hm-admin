@@ -1,7 +1,7 @@
 'use client'
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from "react"
-import { AlertsT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
+import { AlertsT, DataTableResultT, HeadDataTableT, PopupSettings } from "lib/types/TableT.type"
 import ServicingHours from "lib/dataInformation/ServicingHours"
 import { RoomTreatmentT } from "lib/types/PatientT.types"
 import { DataOptionT, DataTableContentT } from "lib/types/FilterT"
@@ -14,6 +14,9 @@ import { navigationStore } from "lib/useZustand/navigation"
 import { createDateFormat } from "lib/formats/createDateFormat"
 import { createHourFormat } from "lib/formats/createHourFormat"
 import { specialistDoctor } from "lib/formats/specialistDoctor"
+import { useSwr } from "lib/useFetch/useSwr"
+import { endpoint } from "lib/api/endpoint"
+import { AuthRequiredError } from "lib/errorHandling/exceptions"
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -51,6 +54,15 @@ export function UseRooms({
     const [loadingIdEditRoom, setLoadingIdEditRoom] = useState<string[]>([])
     const [editIdRoom, setEditIdRoom] = useState<string | null>(null)
     const [loadingIdDelete, setLoadingIdDelete] = useState<string[]>([])
+    const [getLastPage, setGetLastPage] = useState<number>(1)
+    const [currentFilterRoom, setCurrentFilterRoom] = useState<{id: string, title: string}>({
+        id: 'Select Room Type',
+        title: 'Select Room Type'
+    })
+    const [currentFilterRoomActive, setCurrentFilterRoomActive] = useState<{id: string, title: string}>({
+        id: 'Select Room Active',
+        title: 'Select Room Active'
+    })
     const [head] = useState<HeadDataTableT>([
         {
             name: 'Room'
@@ -91,56 +103,85 @@ export function UseRooms({
     ]
 
     const {
-        loadDataService,
+        // loadDataService,
         dataRooms,
         pushTriggedErr
     } = ServicingHours({})
 
-    const { setOnAlerts } = navigationStore()
+    const pageSize: number = 5
 
-    function loadGetRoomsData(
-        roomsData: RoomTreatmentT[]
-    ): void {
-        const rooms: DataTableContentT[] = roomsData.map((room, idx) => {
-            return {
-                id: room.id,
-                data: [
-                    {
-                        name: room.room
-                    },
-                    {
-                        name: room?.roomType ?? '-'
-                    },
-                    {
-                        name: room?.dates?.procurementDate ?? ''
-                    },
-                    {
-                        name: room?.dates?.procurementHours ?? '-'
-                    },
-                    {
-                        name: room?.roomActive ?? '-'
-                    },
-                    {
-                        name: room.id
-                    },
-                    {
-                        name: ''
-                    }
-                ]
-            }
-        })
-        setDataColumns(rooms)
+    const {data: newDataTable, error: errDataTable, isLoading: loadingDataTable} = useSwr(endpoint.getDataTableRooms(
+        searchText,
+        currentFilterRoom.title,
+        currentFilterRoomActive.title,
+        currentPage,
+        pageSize
+    ))
+    const dataTableRoom = newDataTable as DataTableResultT
+
+    if(
+        !loadingDataTable &&
+        errDataTable
+    ){
+        throw new AuthRequiredError('A server error occurred. Occurs when retrieving room data resources')
     }
 
-    useEffect(() => {
-        if (
-            !loadDataService &&
-            Array.isArray(dataRooms) &&
-            dataRooms.length > 0
-        ) {
-            loadGetRoomsData(dataRooms)
+    const { setOnAlerts } = navigationStore()
+
+    function loadDataTable():void{
+        if(dataTableRoom?.data){
+            setDataColumns(dataTableRoom.data)
+            setGetLastPage(dataTableRoom.pagination.lastPage)
         }
-    }, [loadDataService, dataRooms])
+    }
+
+    useEffect(()=>{
+        loadDataTable()
+    }, [dataTableRoom])
+
+    // function loadGetRoomsData(
+    //     roomsData: RoomTreatmentT[]
+    // ): void {
+    //     const rooms: DataTableContentT[] = roomsData.map((room, idx) => {
+    //         return {
+    //             id: room.id,
+    //             data: [
+    //                 {
+    //                     name: room.room
+    //                 },
+    //                 {
+    //                     name: room?.roomType ?? '-'
+    //                 },
+    //                 {
+    //                     name: room?.dates?.procurementDate ?? ''
+    //                 },
+    //                 {
+    //                     name: room?.dates?.procurementHours ?? '-'
+    //                 },
+    //                 {
+    //                     name: room?.roomActive ?? '-'
+    //                 },
+    //                 {
+    //                     name: room.id
+    //                 },
+    //                 {
+    //                     name: ''
+    //                 }
+    //             ]
+    //         }
+    //     })
+    //     setDataColumns(rooms)
+    // }
+
+    // useEffect(() => {
+    //     if (
+    //         !loadDataService &&
+    //         Array.isArray(dataRooms) &&
+    //         dataRooms.length > 0
+    //     ) {
+    //         loadGetRoomsData(dataRooms)
+    //     }
+    // }, [loadDataService, dataRooms])
 
     useEffect(() => {
         setRoomTypeOptions((current) => [{
@@ -149,24 +190,23 @@ export function UseRooms({
         }, ...current])
     }, [])
 
-    const filterText: DataTableContentT[] = dataColumns.length > 0 ? dataColumns.filter(room => {
-        const names = room.data.filter(roomData => roomData.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
-        return names.length > 0
-    }) : []
+    // const filterText: DataTableContentT[] = dataColumns.length > 0 ? dataColumns.filter(room => {
+    //     const names = room.data.filter(roomData => roomData.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
+    //     return names.length > 0
+    // }) : []
 
-    const pageSize: number = 5
-
-    const currentTableData = useMemo((): DataTableContentT[] => {
-        const firstPageIndex = (currentPage - 1) * pageSize
-        const lastPageIndex = firstPageIndex + pageSize
-        return filterText.slice(firstPageIndex, lastPageIndex)
-    }, [filterText, currentPage])
+    // const currentTableData = useMemo((): DataTableContentT[] => {
+    //     const firstPageIndex = (currentPage - 1) * pageSize
+    //     const lastPageIndex = firstPageIndex + pageSize
+    //     return filterText.slice(firstPageIndex, lastPageIndex)
+    // }, [filterText, currentPage])
 
     useEffect(() => {
         setCurrentPage(1)
     }, [searchText])
 
-    const lastPage: number = filterText.length < 5 ? 1 : Math.ceil(filterText.length / pageSize)
+    // const lastPage: number = filterText.length < 5 ? 1 : Math.ceil(filterText.length / pageSize)
+    const lastPage: number = getLastPage
     const maxLength: number = 7
 
     function handleSearchText(e?: ChangeEvent<HTMLInputElement>): void {
@@ -630,6 +670,30 @@ export function UseRooms({
         }
     }
 
+    function handleSelectRoomType():void{
+        const elem = document.getElementById('filterRoomType') as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if(value){
+            setCurrentFilterRoom({
+                id: value,
+                title: value
+            })
+            setCurrentPage(1)
+        }
+    }
+
+    function handleSelectRoomActive():void{
+        const elem = document.getElementById('filterRoomActive') as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if(value){
+            setCurrentFilterRoomActive({
+                id: value,
+                title: value
+            })
+            setCurrentPage(1)
+        }
+    }
+
     return {
         head,
         searchText,
@@ -639,7 +703,8 @@ export function UseRooms({
         handleSearchDate,
         selectDate,
         clickCloseSearchDate,
-        currentTableData,
+        // currentTableData,
+        dataColumns,
         lastPage,
         maxLength,
         indexActiveColumnMenu,
@@ -671,6 +736,9 @@ export function UseRooms({
         roomActiveOptions,
         changeDateEditRoom,
         selectRoomActive,
-        selectAddRoomActive
+        selectAddRoomActive,
+        loadingDataTable,
+        handleSelectRoomType,
+        handleSelectRoomActive
     }
 }

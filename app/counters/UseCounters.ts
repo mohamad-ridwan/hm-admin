@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, ChangeEvent, Dispatch, SetStateAction } from 'react'
 import ServicingHours from 'lib/dataInformation/ServicingHours'
-import { AlertsT, HeadDataTableT, PopupSettings } from 'lib/types/TableT.type'
+import { AlertsT, DataTableResultT, HeadDataTableT, PopupSettings } from 'lib/types/TableT.type'
 import { InfoLoketT } from 'lib/types/PatientT.types'
 import { DataOptionT, DataTableContentT } from 'lib/types/FilterT'
 import { specialCharacter } from 'lib/regex/specialCharacter'
@@ -13,6 +13,9 @@ import { API } from 'lib/api'
 import { navigationStore } from 'lib/useZustand/navigation'
 import { createDateFormat } from 'lib/formats/createDateFormat'
 import { createHourFormat } from 'lib/formats/createHourFormat'
+import { useSwr } from 'lib/useFetch/useSwr'
+import { endpoint } from 'lib/api/endpoint'
+import { AuthRequiredError } from 'lib/errorHandling/exceptions'
 
 type Props = {
     setOnModalSettings?: Dispatch<SetStateAction<PopupSettings>>
@@ -46,14 +49,52 @@ export function UseCounters({
     const [onEditCounter, setOnEditCounter] = useState<boolean>(false)
     const [loadingIdEditCounter, setLoadingIdEditCounter] = useState<string[]>([])
     const [loadingDeleteId, setLoadingDeleteId] = useState<string[]>([])
+    const [currentCounterType, setCurrentCounterType] = useState<{ id: string, title: string }>({
+        id: 'Select Counter Type',
+        title: 'Select Counter Type',
+    })
+    const [currentRoomActive, setCurrentRoomActive] = useState<{ id: string, title: string }>({
+        id: 'Select Room Active',
+        title: 'Select Room Active',
+    })
+    const [getLastPage, setGetLastPage] = useState<number>(1)
 
     const {
-        loadDataService,
+        // loadDataService,
         dataLoket,
         pushTriggedErr
     } = ServicingHours({})
 
+    const pageSize: number = 5
+
+    const { data: newDataTable, error: errDataTable, isLoading: loadingDataTable } = useSwr(endpoint.getDataTableCounters(
+        searchText,
+        currentCounterType.title,
+        currentRoomActive.title,
+        currentPage,
+        pageSize
+    ))
+    const dataTableCounters = newDataTable as DataTableResultT
+
+    if (
+        !loadingDataTable &&
+        errDataTable
+    ) {
+        throw new AuthRequiredError('A server error occurred. Occurs when retrieving the counter data resource')
+    }
+
     const { setOnAlerts } = navigationStore()
+
+    function loadDataTable(): void {
+        if (dataTableCounters?.data) {
+            setDataColumns(dataTableCounters.data)
+            setGetLastPage(dataTableCounters.pagination.lastPage)
+        }
+    }
+
+    useEffect(() => {
+        loadDataTable()
+    }, [dataTableCounters])
 
     const head: HeadDataTableT = [
         {
@@ -93,6 +134,20 @@ export function UseCounters({
             title: 'BPJS'
         },
     ]
+    const filterCounterType: DataOptionT = [
+        {
+            id: 'Select Counter Type',
+            title: 'Select Counter Type'
+        },
+        {
+            id: 'cash',
+            title: 'cash'
+        },
+        {
+            id: 'BPJS',
+            title: 'BPJS'
+        },
+    ]
     const roomActiveOpt: DataOptionT = [
         {
             id: 'Select Room Active',
@@ -108,66 +163,65 @@ export function UseCounters({
         }
     ]
 
-    function loadGetDataLoket(
-        dataLoket: InfoLoketT[]
-    ): void {
-        const loket: DataTableContentT[] = dataLoket.map(item => ({
-            id: item.id,
-            data: [
-                {
-                    name: item.loketName
-                },
-                {
-                    name: item?.counterType ?? '-'
-                },
-                {
-                    name: item?.dates?.procurementDate ?? ''
-                },
-                {
-                    name: item?.dates?.procurementHours ?? '-'
-                },
-                {
-                    name: item?.roomActive ?? '-'
-                },
-                {
-                    name: item.id
-                },
-                {
-                    name: ''
-                }
-            ]
-        }))
-        setDataColumns(loket)
-    }
+    // function loadGetDataLoket(
+    //     dataLoket: InfoLoketT[]
+    // ): void {
+    //     const loket: DataTableContentT[] = dataLoket.map(item => ({
+    //         id: item.id,
+    //         data: [
+    //             {
+    //                 name: item.loketName
+    //             },
+    //             {
+    //                 name: item?.counterType ?? '-'
+    //             },
+    //             {
+    //                 name: item?.dates?.procurementDate ?? ''
+    //             },
+    //             {
+    //                 name: item?.dates?.procurementHours ?? '-'
+    //             },
+    //             {
+    //                 name: item?.roomActive ?? '-'
+    //             },
+    //             {
+    //                 name: item.id
+    //             },
+    //             {
+    //                 name: ''
+    //             }
+    //         ]
+    //     }))
+    //     setDataColumns(loket)
+    // }
 
-    useEffect(() => {
-        if (
-            !loadDataService &&
-            Array.isArray(dataLoket) &&
-            dataLoket.length > 0
-        ) {
-            loadGetDataLoket(dataLoket)
-        }
-    }, [loadDataService, dataLoket])
+    // useEffect(() => {
+    //     if (
+    //         !loadDataService &&
+    //         Array.isArray(dataLoket) &&
+    //         dataLoket.length > 0
+    //     ) {
+    //         loadGetDataLoket(dataLoket)
+    //     }
+    // }, [loadDataService, dataLoket])
 
-    const filterText: DataTableContentT[] = dataColumns.length > 0 ? dataColumns.filter(loket => {
-        const names = loket.data.filter(loketData => loketData.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
-        return names.length > 0
-    }) : []
+    // const filterText: DataTableContentT[] = dataColumns.length > 0 ? dataColumns.filter(loket => {
+    //     const names = loket.data.filter(loketData => loketData.name.replace(specialCharacter, '')?.replace(spaceString, '')?.toLowerCase()?.includes(searchText?.replace(spaceString, '')?.toLowerCase()))
+    //     return names.length > 0
+    // }) : []
 
-    const pageSize: number = 5
-
-    const currentTableData = useMemo((): DataTableContentT[] => {
-        const firstPageIndex = (currentPage - 1) * pageSize
-        const lastPageIndex = firstPageIndex + pageSize
-        return filterText.slice(firstPageIndex, lastPageIndex)
-    }, [filterText, currentPage])
+    // const currentTableData = useMemo((): DataTableContentT[] => {
+    //     const firstPageIndex = (currentPage - 1) * pageSize
+    //     const lastPageIndex = firstPageIndex + pageSize
+    //     return filterText.slice(firstPageIndex, lastPageIndex)
+    // }, [filterText, currentPage])
 
     useMemo(() => {
         setCurrentPage(1)
     }, [searchText])
 
-    const lastPage: number = filterText.length < 5 ? 1 : Math.ceil(filterText.length / pageSize)
+    // const lastPage: number = filterText.length < 5 ? 1 : Math.ceil(filterText.length / pageSize)
+    const lastPage: number = getLastPage
     const maxLength: number = 7
 
     function handleSearchText(e?: ChangeEvent<HTMLInputElement>): void {
@@ -592,26 +646,51 @@ export function UseCounters({
             id,
             id
         )
-        .then(res=>{
-            setOnAlerts({
-                onAlert: true,
-                title: 'Has successfully deleted the data counter',
-                desc: 'Counter data has been deleted',
+            .then(res => {
+                setOnAlerts({
+                    onAlert: true,
+                    title: 'Has successfully deleted the data counter',
+                    desc: 'Counter data has been deleted',
+                })
+                setTimeout(() => {
+                    setOnAlerts({} as AlertsT)
+                }, 3000)
+                window.location.reload()
             })
-            setTimeout(() => {
-                setOnAlerts({} as AlertsT)
-            }, 3000)
-            window.location.reload()
-        })
-        .catch(err=>pushTriggedErr('A server error occurred. happens when deleting counter data. please try again'))
-        if(typeof setOnModalSettings !== 'undefined'){
+            .catch(err => pushTriggedErr('A server error occurred. happens when deleting counter data. please try again'))
+        if (typeof setOnModalSettings !== 'undefined') {
             setOnModalSettings({} as PopupSettings)
+        }
+    }
+
+    function handleFilterCounterType(): void {
+        const elem = document.getElementById('filterCounterType') as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if (value) {
+            setCurrentCounterType({
+                id: value,
+                title: value,
+            })
+            setCurrentPage(1)
+        }
+    }
+
+    function handleFilterRoomActive():void{
+        const elem = document.getElementById('filterRoomActive') as HTMLSelectElement
+        const value = elem.options[elem.selectedIndex].value
+        if (value) {
+            setCurrentRoomActive({
+                id: value,
+                title: value,
+            })
+            setCurrentPage(1)
         }
     }
 
     return {
         head,
-        currentTableData,
+        // currentTableData,
+        dataColumns,
         lastPage,
         maxLength,
         indexActiveColumnMenu,
@@ -644,6 +723,10 @@ export function UseCounters({
         roomActiveOpt,
         selectAddCounter,
         clickDelete,
-        loadingDeleteId
+        loadingDeleteId,
+        loadingDataTable,
+        filterCounterType,
+        handleFilterCounterType,
+        handleFilterRoomActive
     }
 }

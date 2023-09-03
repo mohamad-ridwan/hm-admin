@@ -8,17 +8,19 @@ type Props = {
     href: string
     icon: IconDefinition
     name: string
+    menuActive?: boolean
 }
 
 export function LeftMenuNavChild({
     href,
     icon,
-    name
+    name,
+    menuActive
 }: Props) {
     return (
         <Link
             href={href}
-            className="border-l-[3px] text-font-color-2 hover:text-color-default border-transparent py-2 px-2 hover:border-color-default transition ease-out"
+            className={`border-l-[3px] ${menuActive ? 'text-color-default border-color-default' : 'text-font-color-2 border-transparent'} hover:text-color-default py-2 px-2 hover:border-color-default transition ease-out`}
         >
             <div className="flex items-center">
                 <div className="w-4 mr-4">

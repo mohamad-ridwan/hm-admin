@@ -18,13 +18,16 @@ import { ActionsDataT, PopupSettings } from 'lib/types/TableT.type'
 import { ContainerPopup } from 'components/popup/ContainerPopup'
 import { SettingPopup } from 'components/popup/SettingPopup'
 import { EditCounter } from './EditCounter'
+import LoadingSpinner from 'components/LoadingSpinner'
+import { InputSelect } from 'components/input/InputSelect'
 
 export function Counters() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
 
     const {
         head,
-        currentTableData,
+        // currentTableData,
+        dataColumns,
         lastPage,
         maxLength,
         indexActiveColumnMenu,
@@ -57,7 +60,11 @@ export function Counters() {
         changeDateEditCounter,
         selectAddCounter,
         clickDelete,
-        loadingDeleteId
+        loadingDeleteId,
+        loadingDataTable,
+        filterCounterType,
+        handleFilterCounterType,
+        handleFilterRoomActive
     } = UseCounters({ setOnModalSettings })
 
     return (
@@ -154,18 +161,46 @@ export function Counters() {
                         />
                     </>
                 }
-                rightChild={<></>}
+                rightChild={<>
+                    <InputSelect
+                        id='filterCounterType'
+                        classWrapp='mt-2'
+                        data={filterCounterType}
+                        handleSelect={handleFilterCounterType}
+                    />
+                    <InputSelect
+                        id='filterRoomActive'
+                        classWrapp='mt-2'
+                        data={roomActiveOpt}
+                        handleSelect={handleFilterRoomActive}
+                    />
+                </>}
             />
 
             <ContainerTableBody>
+                <div
+                    style={{
+                        height: '1.5rem',
+                        width: '1.5rem'
+                    }}
+                >
+                    {loadingDataTable && (
+                        <LoadingSpinner
+                            style={{
+                                height: '1.5rem',
+                                width: '1.5rem'
+                            }}
+                        />
+                    )}
+                </div>
                 <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
                     <tbody>
-                        {currentTableData.length > 0 ? currentTableData.map((loket, index) => {
-                            const isLoadingDelete = loadingDeleteId.find(loadId=>loadId === loket.id)
+                        {dataColumns.length > 0 ? dataColumns.map((loket, index) => {
+                            const isLoadingDelete = loadingDeleteId.find(loadId => loadId === loket.id)
 
                             const actionsData: ActionsDataT[] = [
                                 {

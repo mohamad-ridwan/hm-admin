@@ -60,6 +60,7 @@ export function UseDrugCounter({
     })
     const [value, setValue] = useState<string>('')
     const [editActiveManualQueue, setEditActiveManualQueue] = useState<boolean>(true)
+    const [getLastPage, setGetLastPage] = useState<number>(1)
     const [editActiveAutoQueue, setEditActiveAutoQueue] = useState<boolean>(false)
     const [disableUpdtQueue, setDisableUpdtQueue] = useState<string>('')
     const [onMsgCancelTreatment, setOnMsgCancelTreatment] = useState<boolean>(false)
@@ -151,7 +152,7 @@ export function UseDrugCounter({
     ])
 
     const {
-        dataService,
+        // dataService,
         dataPatientRegis,
         dataDrugCounter,
         dataFinishTreatment,
@@ -163,7 +164,6 @@ export function UseDrugCounter({
     } = ServicingHours({})
 
     const pageSize: number = 5
-
     const {data: newDataTable, error: errDataTable, isLoading: loadingDataTable} = useSwr(endpoint.getDataTableDrugCounter(
         params.counterName,
         params.status,
@@ -191,6 +191,7 @@ export function UseDrugCounter({
     function loadDataTable():void{
         if(dataTableDrugCounter?.data){
             setDataColumns(dataTableDrugCounter.data)
+            setGetLastPage(dataTableDrugCounter.pagination.lastPage)
         }
     }
 
@@ -468,7 +469,7 @@ export function UseDrugCounter({
     //     return filterText.slice(firstPageIndex, lastPageIndex)
     // }, [filterText, currentPage])
 
-    const lastPage: number = dataTableDrugCounter?.pagination?.lastPage ?? 1
+    const lastPage: number = getLastPage
     const maxLength: number = 7
 
     const handleSearchText = (e?: ChangeEvent<HTMLInputElement>): void => {

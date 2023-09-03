@@ -7,7 +7,8 @@ import Link from "next/link"
 
 type MenuNameProps = {
     name: string
-    classWrappMenuChild?: string
+    classWrappMenuChild?: string,
+    menuActive?: boolean
 }
 
 type IconProps = MenuNameProps & {
@@ -39,13 +40,14 @@ export function MenuNavLeft({
     clickBtnTagA,
     dataChild,
     childPath,
+    menuActive,
     children,
 }: DefaultProps) {
     return (
         <>
             {dataChild ? (
                 <li
-                    className={`flex flex-col py-3 text-font-color-2 cursor-pointer border-l-[5px] border-transparent hover:border-color-default hover:text-color-default overflow-hidden transition-all`}
+                    className={`flex flex-col py-3 ${menuActive ? 'border-color-default text-color-default' : 'text-font-color-2 border-transparent'} cursor-pointer border-l-[5px] hover:border-color-default hover:text-color-default overflow-hidden transition-all`}
                     onClick={click}
                     style={{
                         height: classWrappMenuChild
@@ -77,7 +79,7 @@ export function MenuNavLeft({
             ) : (
                 <Link
                     href={childPath}
-                    className="flex flex-col py-3 text-font-color-2 cursor-pointer transition-all border-l-[5px] border-transparent hover:border-color-default hover:text-color-default"
+                    className={`flex flex-col py-3 ${menuActive ? 'border-color-default text-color-default' : 'text-font-color-2 border-transparent'} cursor-pointer transition-all border-l-[5px] hover:border-color-default hover:text-color-default`}
                     onClick={clickBtnTagA}
                 >
                     <div

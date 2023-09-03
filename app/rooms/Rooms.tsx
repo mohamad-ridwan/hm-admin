@@ -19,6 +19,8 @@ import { AddRoom } from "./AddRoom"
 import { ContainerPopup } from "components/popup/ContainerPopup"
 import { SettingPopup } from "components/popup/SettingPopup"
 import { EditRoom } from "./EditRoom"
+import { InputSelect } from "components/input/InputSelect"
+import LoadingSpinner from "components/LoadingSpinner"
 
 export function Rooms() {
     const [onModalSettings, setOnModalSettings] = useState<PopupSettings>({} as PopupSettings)
@@ -32,7 +34,8 @@ export function Rooms() {
         handleSearchDate,
         selectDate,
         clickCloseSearchDate,
-        currentTableData,
+        // currentTableData,
+        dataColumns,
         lastPage,
         maxLength,
         indexActiveColumnMenu,
@@ -64,7 +67,10 @@ export function Rooms() {
         roomActiveOptions,
         changeDateEditRoom,
         selectRoomActive,
-        selectAddRoomActive
+        selectAddRoomActive,
+        loadingDataTable,
+        handleSelectRoomType,
+        handleSelectRoomActive
     } = UseRooms({ setOnModalSettings })
 
     return (
@@ -176,17 +182,45 @@ export function Rooms() {
                         )} */}
                     </>
                 }
-                rightChild={<></>}
+                rightChild={<>
+                    <InputSelect
+                        id='filterRoomType'
+                        classWrapp='mt-2'
+                        data={roomTypeOptions}
+                        handleSelect={handleSelectRoomType}
+                    />
+                    <InputSelect
+                        id='filterRoomActive'
+                        classWrapp='mt-2'
+                        data={roomActiveOptions}
+                        handleSelect={handleSelectRoomActive}
+                    />
+                </>}
             />
 
             <ContainerTableBody>
+                <div
+                    style={{
+                        height: '1.5rem',
+                        width: '1.5rem'
+                    }}
+                >
+                    {loadingDataTable && (
+                        <LoadingSpinner
+                            style={{
+                                height: '1.5rem',
+                                width: '1.5rem'
+                            }}
+                        />
+                    )}
+                </div>
                 <TableBody>
                     <TableHead
                         data={head}
                         id='tHead'
                     />
                     <tbody>
-                        {currentTableData.length > 0 ? currentTableData.map((room, index) => {
+                        {dataColumns.length > 0 ? dataColumns.map((room, index) => {
                             const loadingDelete = loadingIdDelete.find(loadId => loadId === room.id)
 
                             const actionsData: ActionsDataT[] = [

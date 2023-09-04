@@ -23,6 +23,7 @@ export function ContainerMenuNavLeft({
     idChildMenu
 }: { idChildMenu: string }) {
     const pathname = usePathname()
+    const checkPath = pathname.split('/')
 
     const menu: StateMenu =[
         {
@@ -37,7 +38,7 @@ export function ContainerMenuNavLeft({
         // },
         {
             name: 'Patient',
-            path: pathname.includes('/patient') ? pathname : null,
+            path: pathname.includes('/patient') && checkPath.length === 3 ? pathname : null,
             icon: faBedPulse,
             children: [
                 {

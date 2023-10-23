@@ -16,6 +16,8 @@ import { AlertsT, PopupSettings } from "lib/types/TableT.type"
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons"
 import { navigationStore } from "lib/useZustand/navigation"
 import { specialistDoctor } from "lib/formats/specialistDoctor"
+import { monthNamesInd } from "lib/formats/monthNamesInd"
+import { monthNames } from "lib/formats/monthNames"
 
 type Props = {
     params: string
@@ -104,10 +106,9 @@ export function HandleFormRegistration({
     function loadDoctorName(): void {
         if (inputValue.specialist !== 'Select Specialist') {
             const dayOfAppointment = appointmentDate.split(',')[1]?.replace(spaceString, '')
-            const dateOfAppointment = createDateFormat(new Date(appointmentDate.split(',')[0]))
             const getDoctors = doctors?.filter(doctor => {
                 const checkCurrentSchedule = doctor.doctorSchedule.find(day => day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
-                const checkHolidaySchedule = doctor.holidaySchedule.find(day => day.date === dateOfAppointment)
+                const checkHolidaySchedule = doctor.holidaySchedule.find(day => day.date === createDateOfAppointmentPatient())
 
                 return doctor?.doctorActive === 'Active' &&
                     doctor.deskripsi === inputValue.specialist &&
@@ -161,6 +162,14 @@ export function HandleFormRegistration({
                 },
             ])
         }
+    }
+
+    function createDateOfAppointmentPatient(): string {
+        const getMonthOfDateOfAppointment = appointmentDate.split(',')[0].replace(spaceString, '-')
+        const findIdxMonth = monthNamesInd.findIndex(month => month == getMonthOfDateOfAppointment.split('-')[0])
+        const newMonthOfAppointment = monthNames.find((_, i) => i === findIdxMonth)
+        const dateOfAppointment = createDateFormat(new Date(`${newMonthOfAppointment} ${getMonthOfDateOfAppointment.split('-')[1]} ${getMonthOfDateOfAppointment.split('-')[2]}`))
+        return dateOfAppointment
     }
 
     useEffect(() => {

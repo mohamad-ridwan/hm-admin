@@ -74,8 +74,8 @@ export function UseForm({
 
     const getAppointmentDate = createDateNormalFormat(detailDataPatientRegis?.appointmentDate)
     const dayOfAppointment = getAppointmentDate?.split(',')[1]?.replace(spaceString, '')
-    const dateOfAppointment = getAppointmentDate?.split(',')[0]
-    const doctorIsHoliday = findCurrentDoctor?.holidaySchedule?.find(date => date.date === createDateFormat(dateOfAppointment))
+    // const dateOfAppointment = getAppointmentDate?.split(',')[0]
+    const doctorIsHoliday = findCurrentDoctor?.holidaySchedule?.find(date => date.date === detailDataPatientRegis?.appointmentDate)
     const doctorIsOnCurrentDay = findCurrentDoctor?.doctorSchedule?.find(day => day.dayName.toLowerCase() === dayOfAppointment?.toLowerCase())
     const doctorIsAvailable = !doctorIsHoliday ? doctorIsOnCurrentDay ? true : false : false
 

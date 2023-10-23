@@ -33,7 +33,7 @@ export function Login() {
     // userId auth
     const {setUserId, setLoginSession} = userIdAuthStore()
     // navigation
-    const {setOnAlerts} = navigationStore()
+    const {setOnAlerts, setNotification} = navigationStore()
 
     if(triggedErr){
         throw new AuthRequiredError('A server error has occurred. Please try again')
@@ -93,6 +93,11 @@ export function Login() {
                             setLoginSession(sessionDateFormat(1))
                             router.push('/')
                             setLoadingSubmit(false)
+                            setNotification({
+                                onNotif: false,
+                                title: '',
+                                desc: ''
+                            })
                         } else {
                             setErrMsg({ password: 'Unregistered account!' })
                             setLoadingSubmit(false)
